@@ -1,0 +1,12 @@
+Source: ros-dashing-controller-parameter-server
+Section: misc
+Priority: optional
+Maintainer: Karsten Knese <karsten@osrfoundation.org>
+Build-Depends: debhelper (>= 9.0.0), ros-dashing-ament-cmake, ros-dashing-ament-cmake-gtest, ros-dashing-ament-lint-auto, ros-dashing-ament-lint-common, ros-dashing-rclcpp, ros-dashing-rcpputils, ros-dashing-rcutils, ros-dashing-yaml-cpp-vendor, ros-dashing-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-dashing-controller-parameter-server
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-dashing-rclcpp, ros-dashing-rcpputils, ros-dashing-rcutils, ros-dashing-yaml-cpp-vendor, ros-dashing-ros-workspace
+Description: parameter server for loading specific controller configurations
