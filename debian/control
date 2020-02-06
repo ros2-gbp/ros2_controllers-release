@@ -1,0 +1,12 @@
+Source: ros-dashing-controller-manager
+Section: misc
+Priority: optional
+Maintainer: karsten <karsten@osrfoundation.org>
+Build-Depends: debhelper (>= 9.0.0), ros-dashing-ament-cmake, ros-dashing-ament-cmake-gtest, ros-dashing-ament-index-cpp, ros-dashing-ament-lint-auto, ros-dashing-ament-lint-common, ros-dashing-class-loader, ros-dashing-controller-interface, ros-dashing-hardware-interface, ros-dashing-rclcpp, ros-dashing-rcpputils, ros-dashing-test-robot-hardware, ros-dashing-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-dashing-controller-manager
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-dashing-ament-index-cpp, ros-dashing-class-loader, ros-dashing-controller-interface, ros-dashing-hardware-interface, ros-dashing-rclcpp, ros-dashing-rcpputils, ros-dashing-ros-workspace
+Description: Description of controller_manager
