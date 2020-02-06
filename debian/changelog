@@ -1,8 +1,0 @@
-ros-dashing-controller-interface (0.0.1-1bionic) bionic; urgency=high
-
-  * Dashing compatibility (#19 <https://github.com/ros-controls/ros2_control/issues/19>)
-  * Contributors: Bence Magyar, Karsten Knese, Parth Chopra
-
- -- Karsten Knese <karsten@osrfoundation.org>  Wed, 05 Feb 2020 08:00:00 -0000
-
-
