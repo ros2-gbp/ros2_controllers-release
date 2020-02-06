@@ -1,0 +1,12 @@
+Source: ros-dashing-ros-controllers
+Section: misc
+Priority: optional
+Maintainer: Karsten Knese <karsten@osrfoundation.org>
+Build-Depends: debhelper (>= 9.0.0), ros-dashing-ament-cmake, ros-dashing-ament-cmake-gtest, ros-dashing-ament-lint-auto, ros-dashing-ament-lint-common, ros-dashing-controller-interface, ros-dashing-controller-manager, ros-dashing-controller-parameter-server, ros-dashing-hardware-interface, ros-dashing-rclcpp-lifecycle, ros-dashing-sensor-msgs, ros-dashing-test-robot-hardware, ros-dashing-trajectory-msgs, ros-dashing-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-dashing-ros-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-dashing-controller-interface, ros-dashing-controller-manager, ros-dashing-controller-parameter-server, ros-dashing-hardware-interface, ros-dashing-rclcpp-lifecycle, ros-dashing-sensor-msgs, ros-dashing-trajectory-msgs, ros-dashing-ros-workspace
+Description: Description of ros_controllers
