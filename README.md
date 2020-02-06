@@ -1,3 +1,26 @@
+## ros2_controllers (dashing) - 0.0.1-2
+
+The packages in the `ros2_controllers` repository were released into the `dashing` distro by running `/Users/karsten/.pyenv/versions/3.7.4/bin/bloom-release --rosdistro dashing --track dashing ros2_controllers --edit` on `Thu, 06 Feb 2020 02:37:28 -0000`
+
+The `ros_controllers` package was released.
+
+Version of package(s) in repository `ros2_controllers`:
+
+- upstream repository: https://github.com/ros-controls/ros2_controllers.git
+- release repository: unknown
+- rosdistro version: `null`
+- old version: `0.0.1-1`
+- new version: `0.0.1-2`
+
+Versions of tools used:
+
+- bloom version: `0.9.1`
+- catkin_pkg version: `0.4.14`
+- rosdep version: `0.17.1`
+- rosdistro version: `0.8.0`
+- vcstools version: `0.1.42`
+
+
 ## ros2_controllers (dashing) - 0.0.1-1
 
 The packages in the `ros2_controllers` repository were released into the `dashing` distro by running `/Users/karsten/.pyenv/versions/3.7.4/bin/bloom-release --rosdistro dashing --track dashing ros2_controllers --edit` on `Thu, 06 Feb 2020 02:34:33 -0000`
