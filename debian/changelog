@@ -1,8 +1,0 @@
-ros-dashing-test-robot-hardware (0.0.1-1bionic) bionic; urgency=high
-
-  * Dashing compatibility #2 <https://github.com/ros-controls/ros2_control/issues/2> from ros2/test_robot_hardware
-  * Contributors: Bence Magyar, Karsten Knese
-
- -- Karsten Knese <karsten@osrfoundation.org>  Wed, 05 Feb 2020 08:00:00 -0000
-
-
