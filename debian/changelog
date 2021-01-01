@@ -1,0 +1,11 @@
+ros-foxy-forward-command-controller (0.1.0-1focal) focal; urgency=high
+
+  * ForwardCommandController declares parameters (#131 <https://github.com/ros-controls/ros2_controllers/issues/131>)
+  * Remove lifecycle node controllers (#124 <https://github.com/ros-controls/ros2_controllers/issues/124>)
+  * joint state controller with resource manager (#109 <https://github.com/ros-controls/ros2_controllers/issues/109>)
+  * forward_command_controller (#87 <https://github.com/ros-controls/ros2_controllers/issues/87>)
+  * Contributors: Bence Magyar, Jordan Palacios, Karsten Knese, Victor Lopez
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
