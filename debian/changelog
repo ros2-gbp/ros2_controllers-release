@@ -1,0 +1,22 @@
+ros-foxy-diff-drive-controller (0.1.2-1focal) focal; urgency=high
+
+  * Remove unused sensor_msgs dependency (was non-declared in package.xml) (#139 <https://github.com/ros-controls/ros2_controllers/issues/139>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-foxy-diff-drive-controller (0.1.1-1focal) focal; urgency=high
+
+  * avoid warnings (#137 <https://github.com/ros-controls/ros2_controllers/issues/137>)
+  * Migrate diff drive controller to resourcemanager (#128 <https://github.com/ros-controls/ros2_controllers/issues/128>)
+  * Contributors: Bence Magyar, Karsten Knese
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-foxy-diff-drive-controller (0.1.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
