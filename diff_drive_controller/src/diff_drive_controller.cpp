@@ -31,6 +31,7 @@
 namespace
 {
 constexpr auto DEFAULT_COMMAND_TOPIC = "~/cmd_vel";
+constexpr auto DEFAULT_COMMAND_UNSTAMPED_TOPIC = "~/cmd_vel_unstamped";
 constexpr auto DEFAULT_COMMAND_OUT_TOPIC = "~/cmd_vel_out";
 constexpr auto DEFAULT_ODOMETRY_TOPIC = "/odom";
 constexpr auto DEFAULT_TRANSFORM_TOPIC = "/tf";
@@ -83,29 +84,30 @@ DiffDriveController::init(const std::string & controller_name)
     node->declare_parameter<bool>("open_loop", odom_params_.open_loop);
     node->declare_parameter<bool>("enable_odom_tf", odom_params_.enable_odom_tf);
 
-    node->declare_parameter<int>("cmd_vel_timeout", cmd_vel_timeout_.count());
+    node->declare_parameter<double>("cmd_vel_timeout", cmd_vel_timeout_.count() / 1000.0);
     node->declare_parameter<bool>("publish_limited_velocity", publish_limited_velocity_);
     node->declare_parameter<int>("velocity_rolling_window_size", 10);
+    node->declare_parameter<bool>("use_stamped_vel", use_stamped_vel_);
 
     node->declare_parameter<bool>("linear.x.has_velocity_limits", false);
     node->declare_parameter<bool>("linear.x.has_acceleration_limits", false);
     node->declare_parameter<bool>("linear.x.has_jerk_limits", false);
-    node->declare_parameter<double>("linear.x.max_velocity", 0.0);
-    node->declare_parameter<double>("linear.x.min_velocity", 0.0);
-    node->declare_parameter<double>("linear.x.max_acceleration", 0.0);
-    node->declare_parameter<double>("linear.x.min_acceleration", 0.0);
-    node->declare_parameter<double>("linear.x.max_jerk", 0.0);
-    node->declare_parameter<double>("linear.x.min_jerk", 0.0);
+    node->declare_parameter<double>("linear.x.max_velocity", NAN);
+    node->declare_parameter<double>("linear.x.min_velocity", NAN);
+    node->declare_parameter<double>("linear.x.max_acceleration", NAN);
+    node->declare_parameter<double>("linear.x.min_acceleration", NAN);
+    node->declare_parameter<double>("linear.x.max_jerk", NAN);
+    node->declare_parameter<double>("linear.x.min_jerk", NAN);
 
     node->declare_parameter<bool>("angular.z.has_velocity_limits", false);
     node->declare_parameter<bool>("angular.z.has_acceleration_limits", false);
     node->declare_parameter<bool>("angular.z.has_jerk_limits", false);
-    node->declare_parameter<double>("angular.z.max_velocity", 0.0);
-    node->declare_parameter<double>("angular.z.min_velocity", 0.0);
-    node->declare_parameter<double>("angular.z.max_acceleration", 0.0);
-    node->declare_parameter<double>("angular.z.min_acceleration", 0.0);
-    node->declare_parameter<double>("angular.z.max_jerk", 0.0);
-    node->declare_parameter<double>("angular.z.min_jerk", 0.0);
+    node->declare_parameter<double>("angular.z.max_velocity", NAN);
+    node->declare_parameter<double>("angular.z.min_velocity", NAN);
+    node->declare_parameter<double>("angular.z.max_acceleration", NAN);
+    node->declare_parameter<double>("angular.z.min_acceleration", NAN);
+    node->declare_parameter<double>("angular.z.max_jerk", NAN);
+    node->declare_parameter<double>("angular.z.min_jerk", NAN);
   } catch (const std::exception & e) {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
     return controller_interface::return_type::ERROR;
@@ -151,8 +153,26 @@ controller_interface::return_type DiffDriveController::update()
   }
 
   const auto current_time = node_->get_clock()->now();
-  double & linear_command = received_velocity_msg_ptr_->twist.linear.x;
-  double & angular_command = received_velocity_msg_ptr_->twist.angular.z;
+
+  std::shared_ptr<Twist> last_msg;
+  received_velocity_msg_ptr_.get(last_msg);
+
+  if (last_msg == nullptr) {
+    RCLCPP_WARN(logger, "Velocity message received was a nullptr.");
+    return controller_interface::return_type::ERROR;
+  }
+
+  const auto dt = current_time - last_msg->header.stamp;
+  // Brake if cmd_vel has timeout, override the stored command
+  if (dt > cmd_vel_timeout_) {
+    last_msg->twist.linear.x = 0.0;
+    last_msg->twist.angular.z = 0.0;
+  }
+
+  // linear_command and angular_command may be limited further by SpeedLimit,
+  // without affecting the stored twist command
+  double linear_command = last_msg->twist.linear.x;
+  double angular_command = last_msg->twist.angular.z;
 
   // Apply (possibly new) multipliers:
   const auto wheels = wheel_params_;
@@ -215,13 +235,6 @@ controller_interface::return_type DiffDriveController::update()
     realtime_odometry_transform_publisher_->unlockAndPublish();
   }
 
-  const auto dt = current_time - received_velocity_msg_ptr_->header.stamp;
-
-  // Brake if cmd_vel has timeout
-  if (dt > cmd_vel_timeout_) {
-    linear_command = 0.0;
-    angular_command = 0.0;
-  }
 
   const auto update_dt = current_time - previous_update_timestamp_;
   previous_update_timestamp_ = current_time;
@@ -235,7 +248,7 @@ controller_interface::return_type DiffDriveController::update()
     angular_command, last_command.angular.z, second_to_last_command.angular.z, update_dt.seconds());
 
   previous_commands_.pop();
-  previous_commands_.emplace(*received_velocity_msg_ptr_);
+  previous_commands_.emplace(*last_msg);
 
   //    Publish limited velocity
   if (publish_limited_velocity_ && realtime_limited_velocity_publisher_->trylock()) {
@@ -244,11 +257,6 @@ controller_interface::return_type DiffDriveController::update()
     limited_velocity_command.twist.linear.x = linear_command;
     limited_velocity_command.twist.angular.z = angular_command;
     realtime_limited_velocity_publisher_->unlockAndPublish();
-  }
-
-  if (received_velocity_msg_ptr_ == nullptr) {
-    RCLCPP_WARN(logger, "Velocity message received was a nullptr.");
-    return controller_interface::return_type::ERROR;
   }
 
   // Compute wheels velocities:
@@ -328,30 +336,40 @@ CallbackReturn DiffDriveController::on_configure(const rclcpp_lifecycle::State &
   odom_params_.enable_odom_tf = node_->get_parameter("enable_odom_tf").as_bool();
 
   cmd_vel_timeout_ =
-    std::chrono::milliseconds{node_->get_parameter("cmd_vel_timeout").as_int()};
+    std::chrono::milliseconds{static_cast<int>(node_->get_parameter("cmd_vel_timeout").as_double() *
+    1000.0)};
   publish_limited_velocity_ = node_->get_parameter("publish_limited_velocity").as_bool();
+  use_stamped_vel_ = node_->get_parameter("use_stamped_vel").as_bool();
 
-  limiter_linear_ = SpeedLimiter(
-    node_->get_parameter("linear.x.has_velocity_limits").as_bool(),
-    node_->get_parameter("linear.x.has_acceleration_limits").as_bool(),
-    node_->get_parameter("linear.x.has_jerk_limits").as_bool(),
-    node_->get_parameter("linear.x.min_velocity").as_double(),
-    node_->get_parameter("linear.x.max_velocity").as_double(),
-    node_->get_parameter("linear.x.min_acceleration").as_double(),
-    node_->get_parameter("linear.x.max_acceleration").as_double(),
-    node_->get_parameter("linear.x.min_jerk").as_double(),
-    node_->get_parameter("linear.x.max_jerk").as_double());
+  try {
+    limiter_linear_ = SpeedLimiter(
+      node_->get_parameter("linear.x.has_velocity_limits").as_bool(),
+      node_->get_parameter("linear.x.has_acceleration_limits").as_bool(),
+      node_->get_parameter("linear.x.has_jerk_limits").as_bool(),
+      node_->get_parameter("linear.x.min_velocity").as_double(),
+      node_->get_parameter("linear.x.max_velocity").as_double(),
+      node_->get_parameter("linear.x.min_acceleration").as_double(),
+      node_->get_parameter("linear.x.max_acceleration").as_double(),
+      node_->get_parameter("linear.x.min_jerk").as_double(),
+      node_->get_parameter("linear.x.max_jerk").as_double());
+  } catch (const std::runtime_error & e) {
+    RCLCPP_ERROR(node_->get_logger(), "Error configuring linear speed limiter: %s", e.what());
+  }
 
-  limiter_angular_ = SpeedLimiter(
-    node_->get_parameter("angular.z.has_velocity_limits").as_bool(),
-    node_->get_parameter("angular.z.has_acceleration_limits").as_bool(),
-    node_->get_parameter("angular.z.has_jerk_limits").as_bool(),
-    node_->get_parameter("angular.z.min_velocity").as_double(),
-    node_->get_parameter("angular.z.max_velocity").as_double(),
-    node_->get_parameter("angular.z.min_acceleration").as_double(),
-    node_->get_parameter("angular.z.max_acceleration").as_double(),
-    node_->get_parameter("angular.z.min_jerk").as_double(),
-    node_->get_parameter("angular.z.max_jerk").as_double());
+  try {
+    limiter_angular_ = SpeedLimiter(
+      node_->get_parameter("angular.z.has_velocity_limits").as_bool(),
+      node_->get_parameter("angular.z.has_acceleration_limits").as_bool(),
+      node_->get_parameter("angular.z.has_jerk_limits").as_bool(),
+      node_->get_parameter("angular.z.min_velocity").as_double(),
+      node_->get_parameter("angular.z.max_velocity").as_double(),
+      node_->get_parameter("angular.z.min_acceleration").as_double(),
+      node_->get_parameter("angular.z.max_acceleration").as_double(),
+      node_->get_parameter("angular.z.min_jerk").as_double(),
+      node_->get_parameter("angular.z.max_jerk").as_double());
+  } catch (const std::runtime_error & e) {
+    RCLCPP_ERROR(node_->get_logger(), "Error configuring angular speed limiter: %s", e.what());
+  }
 
 
   if (!reset()) {
@@ -370,25 +388,53 @@ CallbackReturn DiffDriveController::on_configure(const rclcpp_lifecycle::State &
       std::make_shared<realtime_tools::RealtimePublisher<Twist>>(limited_velocity_publisher_);
   }
 
-  received_velocity_msg_ptr_ = std::make_shared<Twist>();
+  const Twist empty_twist;
+  received_velocity_msg_ptr_.set(std::make_shared<Twist>(empty_twist));
 
   // Fill last two commands with default constructed commands
-  previous_commands_.emplace(*received_velocity_msg_ptr_);
-  previous_commands_.emplace(*received_velocity_msg_ptr_);
+  previous_commands_.emplace(empty_twist);
+  previous_commands_.emplace(empty_twist);
 
   // initialize command subscriber
-  velocity_command_subscriber_ = node_->create_subscription<Twist>(
-    DEFAULT_COMMAND_TOPIC, rclcpp::SystemDefaultsQoS(), [this](
-      const std::shared_ptr<Twist> msg) -> void {
-      if (!subscriber_is_active_) {
-        RCLCPP_WARN(
-          node_->get_logger(),
-          "Can't accept new commands. subscriber is inactive");
-        return;
-      }
+  if (use_stamped_vel_) {
+    velocity_command_subscriber_ = node_->create_subscription<Twist>(
+      DEFAULT_COMMAND_TOPIC, rclcpp::SystemDefaultsQoS(), [this](
+        const std::shared_ptr<Twist> msg) -> void {
+        if (!subscriber_is_active_) {
+          RCLCPP_WARN(
+            node_->get_logger(),
+            "Can't accept new commands. subscriber is inactive");
+          return;
+        }
+        if ((msg->header.stamp.sec == 0) && (msg->header.stamp.nanosec == 0)) {
+          RCLCPP_WARN_ONCE(
+            node_->get_logger(),
+            "Received TwistStamped with zero timestamp, setting it to current "
+            "time, this message will only be shown once");
+          msg->header.stamp = node_->get_clock()->now();
+        }
+        received_velocity_msg_ptr_.set(std::move(msg));
+      });
+  } else {
+    velocity_command_unstamped_subscriber_ =
+      node_->create_subscription<geometry_msgs::msg::Twist>(
+      DEFAULT_COMMAND_UNSTAMPED_TOPIC, rclcpp::SystemDefaultsQoS(), [this](
+        const std::shared_ptr<geometry_msgs::msg::Twist> msg) -> void {
+        if (!subscriber_is_active_) {
+          RCLCPP_WARN(
+            node_->get_logger(),
+            "Can't accept new commands. subscriber is inactive");
+          return;
+        }
 
-      received_velocity_msg_ptr_ = std::move(msg);
-    });
+        // Write fake header in the stored stamped command
+        std::shared_ptr<Twist> twist_stamped;
+        received_velocity_msg_ptr_.get(twist_stamped);
+        twist_stamped->twist = *msg;
+        twist_stamped->header.stamp = node_->get_clock()->now();
+      });
+  }
+
 
   // initialize odometry publisher and messasge
   odometry_publisher_ =
@@ -472,7 +518,7 @@ CallbackReturn DiffDriveController::on_cleanup(const rclcpp_lifecycle::State &)
     return CallbackReturn::ERROR;
   }
 
-  received_velocity_msg_ptr_ = std::make_shared<Twist>();
+  received_velocity_msg_ptr_.set(std::make_shared<Twist>());
   return CallbackReturn::SUCCESS;
 }
 
@@ -497,8 +543,9 @@ bool DiffDriveController::reset()
 
   subscriber_is_active_ = false;
   velocity_command_subscriber_.reset();
+  velocity_command_unstamped_subscriber_.reset();
 
-  received_velocity_msg_ptr_.reset();
+  received_velocity_msg_ptr_.set(nullptr);
   is_halted = false;
   return true;
 }
