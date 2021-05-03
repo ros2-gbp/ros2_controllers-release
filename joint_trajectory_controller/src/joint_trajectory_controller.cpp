@@ -58,7 +58,7 @@ JointTrajectoryController::init(const std::string & controller_name)
 {
   // initialize lifecycle node
   const auto ret = ControllerInterface::init(controller_name);
-  if (ret != controller_interface::return_type::SUCCESS) {
+  if (ret != controller_interface::return_type::OK) {
     return ret;
   }
 
@@ -70,7 +70,7 @@ JointTrajectoryController::init(const std::string & controller_name)
   node_->declare_parameter<double>("constraints.stopped_velocity_tolerance", 0.01);
   node_->declare_parameter<double>("constraints.goal_time", 0.0);
 
-  return controller_interface::return_type::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 controller_interface::InterfaceConfiguration JointTrajectoryController::
@@ -106,7 +106,7 @@ JointTrajectoryController::update()
       halt();
       is_halted = true;
     }
-    return controller_interface::return_type::SUCCESS;
+    return controller_interface::return_type::OK;
   }
 
   auto resize_joint_trajectory_point =
@@ -186,7 +186,8 @@ JointTrajectoryController::update()
         }
       }
 
-      if (rt_active_goal_) {
+      const auto active_goal = *rt_active_goal_.readFromRT();
+      if (active_goal) {
         // send feedback
         auto feedback = std::make_shared<FollowJTrajAction::Feedback>();
         feedback->header.stamp = node_->now();
@@ -195,7 +196,7 @@ JointTrajectoryController::update()
         feedback->actual = state_current;
         feedback->desired = state_desired;
         feedback->error = state_error;
-        rt_active_goal_->setFeedback(feedback);
+        active_goal->setFeedback(feedback);
 
         // check abort
         if (abort || outside_goal_tolerance) {
@@ -208,17 +209,20 @@ JointTrajectoryController::update()
             RCLCPP_WARN(node_->get_logger(), "Aborted due to goal tolerance violation");
             result->set__error_code(FollowJTrajAction::Result::GOAL_TOLERANCE_VIOLATED);
           }
-          rt_active_goal_->setAborted(result);
-          rt_active_goal_.reset();
-        }
+          active_goal->setAborted(result);
+          // TODO(matthew-reynolds): Need a lock-free write here
+          // See https://github.com/ros-controls/ros2_controllers/issues/168
+          rt_active_goal_.writeFromNonRT(RealtimeGoalHandlePtr());
 
-        // check goal tolerance
-        if (!before_last_point) {
+          // check goal tolerance
+        } else if (!before_last_point) {
           if (!outside_goal_tolerance) {
             auto res = std::make_shared<FollowJTrajAction::Result>();
             res->set__error_code(FollowJTrajAction::Result::SUCCESSFUL);
-            rt_active_goal_->setSucceeded(res);
-            rt_active_goal_.reset();
+            active_goal->setSucceeded(res);
+            // TODO(matthew-reynolds): Need a lock-free write here
+            // See https://github.com/ros-controls/ros2_controllers/issues/168
+            rt_active_goal_.writeFromNonRT(RealtimeGoalHandlePtr());
 
             RCLCPP_INFO(node_->get_logger(), "Goal reached, success!");
           } else if (default_tolerances_.goal_time_tolerance != 0.0) {
@@ -230,8 +234,10 @@ JointTrajectoryController::update()
             if (difference > default_tolerances_.goal_time_tolerance) {
               auto result = std::make_shared<FollowJTrajAction::Result>();
               result->set__error_code(FollowJTrajAction::Result::GOAL_TOLERANCE_VIOLATED);
-              rt_active_goal_->setAborted(result);
-              rt_active_goal_.reset();
+              active_goal->setAborted(result);
+              // TODO(matthew-reynolds): Need a lock-free write here
+              // See https://github.com/ros-controls/ros2_controllers/issues/168
+              rt_active_goal_.writeFromNonRT(RealtimeGoalHandlePtr());
               RCLCPP_WARN(
                 node_->get_logger(),
                 "Aborted due goal_time_tolerance exceeding by %f seconds",
@@ -244,7 +250,7 @@ JointTrajectoryController::update()
   }
 
   publish_state(state_desired, state_current, state_error);
-  return controller_interface::return_type::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -293,9 +299,10 @@ JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
   // State publisher
   const double state_publish_rate =
     node_->get_parameter("state_publish_rate").get_value<double>();
-  RCLCPP_INFO_STREAM(
-    logger, "Controller state will be published at " <<
-      state_publish_rate << "Hz.");
+  RCLCPP_INFO(
+    logger,
+    "Controller state will be published at %fHz.",
+    state_publish_rate);
   if (state_publish_rate > 0.0) {
     state_publisher_period_ =
       rclcpp::Duration::from_seconds(1.0 / state_publish_rate);
@@ -332,9 +339,10 @@ JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
   const double action_monitor_rate = node_->get_parameter("action_monitor_rate")
     .get_value<double>();
 
-  RCLCPP_INFO_STREAM(
-    logger, "Action status changes will be monitored at " <<
-      action_monitor_rate << "Hz.");
+  RCLCPP_INFO(
+    logger,
+    "Action status changes will be monitored at %fHz.",
+    action_monitor_rate);
   action_monitor_period_ = rclcpp::Duration::from_seconds(1.0 / action_monitor_rate);
 
   using namespace std::placeholders;
@@ -381,7 +389,7 @@ JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
   {
     RCLCPP_ERROR(
       node_->get_logger(),
-      "Expected %u position command interfaces, got %u",
+      "Expected %zu position command interfaces, got %zu",
       joint_names_.size(), joint_position_command_interface_.size());
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
@@ -391,7 +399,7 @@ JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
   {
     RCLCPP_ERROR(
       node_->get_logger(),
-      "Expected %u position state interfaces, got %u",
+      "Expected %zu position state interfaces, got %zu",
       joint_names_.size(), joint_position_state_interface_.size());
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
@@ -401,7 +409,7 @@ JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
   {
     RCLCPP_ERROR(
       node_->get_logger(),
-      "Expected %u velocity state interfaces, got %u",
+      "Expected %zu velocity state interfaces, got %zu",
       joint_names_.size(), joint_velocity_state_interface_.size());
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
@@ -554,7 +562,8 @@ rclcpp_action::CancelResponse JointTrajectoryController::cancel_callback(
   RCLCPP_INFO(node_->get_logger(), "Got request to cancel goal");
 
   // Check that cancel request refers to currently active goal (if any)
-  if (rt_active_goal_ && rt_active_goal_->gh_ == goal_handle) {
+  const auto active_goal = *rt_active_goal_.readFromNonRT();
+  if (active_goal && active_goal->gh_ == goal_handle) {
     // Controller uptime
     // Enter hold current position mode
     set_hold_position();
@@ -565,10 +574,8 @@ rclcpp_action::CancelResponse JointTrajectoryController::cancel_callback(
 
     // Mark the current goal as canceled
     auto action_res = std::make_shared<FollowJTrajAction::Result>();
-    rt_active_goal_->setCanceled(action_res);
-
-    // Reset current goal
-    rt_active_goal_.reset();
+    active_goal->setCanceled(action_res);
+    rt_active_goal_.writeFromNonRT(RealtimeGoalHandlePtr());
   }
   return rclcpp_action::CancelResponse::ACCEPT;
 }
@@ -583,17 +590,18 @@ void JointTrajectoryController::feedback_setup_callback(
       goal_handle->get_goal()->trajectory);
 
     add_new_trajectory_msg(traj_msg);
-
-    RealtimeGoalHandlePtr rt_goal = std::make_shared<RealtimeGoalHandle>(goal_handle);
-    rt_goal->preallocated_feedback_->joint_names = joint_names_;
-    rt_active_goal_ = rt_goal;
-    rt_active_goal_->execute();
   }
+
+  // Update the active goal
+  RealtimeGoalHandlePtr rt_goal = std::make_shared<RealtimeGoalHandle>(goal_handle);
+  rt_goal->preallocated_feedback_->joint_names = joint_names_;
+  rt_goal->execute();
+  rt_active_goal_.writeFromNonRT(rt_goal);
 
   // Setup goal status checking timer
   goal_handle_timer_ = node_->create_wall_timer(
     action_monitor_period_.to_chrono<std::chrono::seconds>(),
-    std::bind(&RealtimeGoalHandle::runNonRealtime, rt_active_goal_));
+    std::bind(&RealtimeGoalHandle::runNonRealtime, rt_goal));
 }
 
 void JointTrajectoryController::fill_partial_goal(
@@ -650,7 +658,8 @@ void JointTrajectoryController::sort_to_local_joint_order(
       if (to_remap.size() != mapping.size()) {
         RCLCPP_WARN(
           node_->get_logger(),
-          "Invalid input size (%d) for sorting", to_remap.size());
+          "Invalid input size (%zu) for sorting",
+          to_remap.size());
         return to_remap;
       }
       std::vector<double> output;
@@ -688,7 +697,7 @@ bool JointTrajectoryController::validate_trajectory_point_field(
   if (joint_names_size != vector_field.size()) {
     RCLCPP_ERROR(
       node_->get_logger(),
-      "Mismatch between joint_names (%u) and %s (%u) at point #%u.",
+      "Mismatch between joint_names (%zu) and %s (%zu) at point #%zu.",
       joint_names_size, string_for_vector_field.c_str(), vector_field.size(), i);
     return false;
   }
@@ -752,7 +761,7 @@ bool JointTrajectoryController::validate_trajectory_msg(
     if ((i > 0) && (rclcpp::Duration(trajectory.points[i].time_from_start) <= previous_traj_time)) {
       RCLCPP_ERROR(
         node_->get_logger(),
-        "Time between points %u and %u is not strictly increasing, it is %f and %f respectively",
+        "Time between points %zu and %zu is not strictly increasing, it is %f and %f respectively",
         i - 1, i, previous_traj_time.seconds(),
         rclcpp::Duration(trajectory.points[i].time_from_start).seconds());
       return false;
@@ -782,12 +791,13 @@ void JointTrajectoryController::add_new_trajectory_msg(
 
 void JointTrajectoryController::preempt_active_goal()
 {
-  if (rt_active_goal_) {
+  const auto active_goal = *rt_active_goal_.readFromNonRT();
+  if (active_goal) {
     auto action_res = std::make_shared<FollowJTrajAction::Result>();
     action_res->set__error_code(FollowJTrajAction::Result::INVALID_GOAL);
     action_res->set__error_string("Current goal cancelled due to new incoming action.");
-    rt_active_goal_->setCanceled(action_res);
-    rt_active_goal_.reset();
+    active_goal->setCanceled(action_res);
+    rt_active_goal_.writeFromNonRT(RealtimeGoalHandlePtr());
   }
 }
 
