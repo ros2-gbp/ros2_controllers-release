@@ -38,7 +38,7 @@ controller_interface::return_type
 ForwardCommandController::init(const std::string & controller_name)
 {
   auto ret = ControllerInterface::init(controller_name);
-  if (ret != controller_interface::return_type::SUCCESS) {
+  if (ret != controller_interface::return_type::OK) {
     return ret;
   }
 
@@ -52,7 +52,7 @@ ForwardCommandController::init(const std::string & controller_name)
     return controller_interface::return_type::ERROR;
   }
 
-  return controller_interface::return_type::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 CallbackReturn ForwardCommandController::on_configure(
@@ -82,7 +82,7 @@ CallbackReturn ForwardCommandController::on_configure(
       rt_command_ptr_.writeFromNonRT(msg);
     });
 
-  RCLCPP_INFO_STREAM(get_node()->get_logger(), "configure successful");
+  RCLCPP_INFO(get_node()->get_logger(), "configure successful");
   return CallbackReturn::SUCCESS;
 }
 
@@ -138,7 +138,7 @@ CallbackReturn ForwardCommandController::on_activate(
   {
     RCLCPP_ERROR(
       node_->get_logger(),
-      "Expected %u position command interfaces, got %u",
+      "Expected %zu position command interfaces, got %zu",
       joint_names_.size(), ordered_interfaces.size());
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
@@ -158,16 +158,15 @@ controller_interface::return_type ForwardCommandController::update()
 
   // no command received yet
   if (!joint_commands || !(*joint_commands)) {
-    return controller_interface::return_type::SUCCESS;
+    return controller_interface::return_type::OK;
   }
 
   if ((*joint_commands)->data.size() != command_interfaces_.size()) {
-    RCLCPP_ERROR_STREAM_THROTTLE(
+    RCLCPP_ERROR_THROTTLE(
       get_node()->get_logger(),
       *node_->get_clock(), 1000,
-      "command size (" << (*joint_commands)->data.size() <<
-        ") does not match number of interfaces (" <<
-        command_interfaces_.size() << ")");
+      "command size (%zu) does not match number of interfaces (%zu)",
+      (*joint_commands)->data.size(), command_interfaces_.size());
     return controller_interface::return_type::ERROR;
   }
 
@@ -175,7 +174,7 @@ controller_interface::return_type ForwardCommandController::update()
     command_interfaces_[index].set_value((*joint_commands)->data[index]);
   }
 
-  return controller_interface::return_type::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 }  // namespace forward_command_controller
