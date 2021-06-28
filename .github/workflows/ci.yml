@@ -30,19 +30,23 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - uses: ros-tooling/setup-ros@v0.1
+      - uses: ros-tooling/setup-ros@v0.2
         with:
           required-ros-distributions: foxy
-      - uses: ros-tooling/action-ros-ci@v0.1
+      - uses: ros-tooling/action-ros-ci@v0.2
         with:
           target-ros2-distro: foxy
           # build all packages listed in the meta package
           package-name: |
+            diff_drive_controller
             effort_controllers
+            force_torque_sensor_broadcaster
             forward_command_controller
+            imu_sensor_broadcaster
             joint_state_broadcaster
             joint_state_controller
             joint_trajectory_controller
+            gripper_controllers
             position_controllers
             velocity_controllers
           vcs-repo-file-url: |
