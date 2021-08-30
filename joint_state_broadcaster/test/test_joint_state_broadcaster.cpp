@@ -31,16 +31,15 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "test_joint_state_broadcaster.hpp"
 
+using hardware_interface::HW_IF_EFFORT;
+using hardware_interface::HW_IF_POSITION;
+using hardware_interface::HW_IF_VELOCITY;
 using hardware_interface::LoanedStateInterface;
 using std::placeholders::_1;
 using testing::Each;
 using testing::ElementsAreArray;
 using testing::IsEmpty;
 using testing::SizeIs;
-using hardware_interface::HW_IF_POSITION;
-using hardware_interface::HW_IF_VELOCITY;
-using hardware_interface::HW_IF_EFFORT;
-
 
 namespace
 {
@@ -58,15 +57,9 @@ rclcpp::WaitResultKind wait_for(rclcpp::SubscriptionBase::SharedPtr subscription
 }
 }  // namespace
 
-void JointStateBroadcasterTest::SetUpTestCase()
-{
-  rclcpp::init(0, nullptr);
-}
+void JointStateBroadcasterTest::SetUpTestCase() { rclcpp::init(0, nullptr); }
 
-void JointStateBroadcasterTest::TearDownTestCase()
-{
-  rclcpp::shutdown();
-}
+void JointStateBroadcasterTest::TearDownTestCase() { rclcpp::shutdown(); }
 
 void JointStateBroadcasterTest::SetUp()
 {
@@ -74,10 +67,7 @@ void JointStateBroadcasterTest::SetUp()
   state_broadcaster_ = std::make_unique<FriendJointStateBroadcaster>();
 }
 
-void JointStateBroadcasterTest::TearDown()
-{
-  state_broadcaster_.reset(nullptr);
-}
+void JointStateBroadcasterTest::TearDown() { state_broadcaster_.reset(nullptr); }
 
 void JointStateBroadcasterTest::SetUpStateBroadcaster()
 {
@@ -115,7 +105,7 @@ TEST_F(JointStateBroadcasterTest, ConfigureErrorTest)
   ASSERT_FALSE(state_broadcaster_->dynamic_joint_state_publisher_);
 
   // configure failed
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_ERROR);
+  ASSERT_THROW(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), std::exception);
 
   SetUpStateBroadcaster();
   // check state remains unchanged
@@ -171,8 +161,7 @@ TEST_F(JointStateBroadcasterTest, ConfigureSuccessTest)
   ASSERT_THAT(state_broadcaster_->dynamic_joint_state_msg_.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(state_broadcaster_->dynamic_joint_state_msg_.interface_values, SizeIs(NUM_IFS));
   ASSERT_THAT(
-    state_broadcaster_->dynamic_joint_state_msg_.joint_names,
-    ElementsAreArray(joint_names_));
+    state_broadcaster_->dynamic_joint_state_msg_.joint_names, ElementsAreArray(joint_names_));
   ASSERT_THAT(
     state_broadcaster_->dynamic_joint_state_msg_.interface_values[0].interface_names,
     ElementsAreArray(IF_NAMES));
@@ -198,10 +187,8 @@ TEST_F(JointStateBroadcasterTest, UpdateTest)
   ASSERT_EQ(state_broadcaster_->update(), controller_interface::return_type::OK);
 }
 
-TEST_F(JointStateBroadcasterTest, JointStatePublishTest)
+void JointStateBroadcasterTest::test_published_joint_state_message(const std::string & topic)
 {
-  SetUpStateBroadcaster();
-
   auto node_state = state_broadcaster_->configure();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
 
@@ -209,13 +196,9 @@ TEST_F(JointStateBroadcasterTest, JointStatePublishTest)
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
 
   rclcpp::Node test_node("test_node");
-  auto subs_callback = [&](const sensor_msgs::msg::JointState::SharedPtr)
-    {
-    };
-  auto subscription = test_node.create_subscription<sensor_msgs::msg::JointState>(
-    "joint_states",
-    10,
-    subs_callback);
+  auto subs_callback = [&](const sensor_msgs::msg::JointState::SharedPtr) {};
+  auto subscription =
+    test_node.create_subscription<sensor_msgs::msg::JointState>(topic, 10, subs_callback);
 
   ASSERT_EQ(state_broadcaster_->update(), controller_interface::return_type::OK);
 
@@ -238,10 +221,24 @@ TEST_F(JointStateBroadcasterTest, JointStatePublishTest)
   ASSERT_THAT(joint_state_msg.effort, ElementsAreArray(joint_state_msg.position));
 }
 
-TEST_F(JointStateBroadcasterTest, DynamicJointStatePublishTest)
+TEST_F(JointStateBroadcasterTest, JointStatePublishTest)
 {
   SetUpStateBroadcaster();
 
+  test_published_joint_state_message("joint_states");
+}
+
+TEST_F(JointStateBroadcasterTest, JointStatePublishTestLocalTopic)
+{
+  SetUpStateBroadcaster();
+  state_broadcaster_->get_node()->set_parameter({"use_local_topics", true});
+
+  test_published_joint_state_message("joint_state_broadcaster/joint_states");
+}
+
+void JointStateBroadcasterTest::test_published_dynamic_joint_state_message(
+  const std::string & topic)
+{
   auto node_state = state_broadcaster_->configure();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
 
@@ -249,13 +246,9 @@ TEST_F(JointStateBroadcasterTest, DynamicJointStatePublishTest)
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
 
   rclcpp::Node test_node("test_node");
-  auto subs_callback = [&](const control_msgs::msg::DynamicJointState::SharedPtr)
-    {
-    };
-  auto subscription = test_node.create_subscription<control_msgs::msg::DynamicJointState>(
-    "dynamic_joint_states",
-    10,
-    subs_callback);
+  auto subs_callback = [&](const control_msgs::msg::DynamicJointState::SharedPtr) {};
+  auto subscription =
+    test_node.create_subscription<control_msgs::msg::DynamicJointState>(topic, 10, subs_callback);
 
   ASSERT_EQ(state_broadcaster_->update(), controller_interface::return_type::OK);
 
@@ -274,20 +267,34 @@ TEST_F(JointStateBroadcasterTest, DynamicJointStatePublishTest)
   // we only check that all values in this test are present in the message
   // and that it is the same across the interfaces
   // for test purposes they are mapped to the same doubles
-  for (auto i = 0ul; i < dynamic_joint_state_msg.joint_names.size(); ++i) {
+  for (auto i = 0ul; i < dynamic_joint_state_msg.joint_names.size(); ++i)
+  {
     ASSERT_THAT(
-      dynamic_joint_state_msg.interface_values[i].interface_names, ElementsAreArray(
-        INTERFACE_NAMES));
-    const auto index_in_original_order =
-      std::distance(
+      dynamic_joint_state_msg.interface_values[i].interface_names,
+      ElementsAreArray(INTERFACE_NAMES));
+    const auto index_in_original_order = std::distance(
       joint_names_.cbegin(),
       std::find(
-        joint_names_.cbegin(), joint_names_.cend(),
-        dynamic_joint_state_msg.joint_names[i]));
+        joint_names_.cbegin(), joint_names_.cend(), dynamic_joint_state_msg.joint_names[i]));
     ASSERT_THAT(
       dynamic_joint_state_msg.interface_values[i].values,
       Each(joint_values_[index_in_original_order]));
   }
+}
+
+TEST_F(JointStateBroadcasterTest, DynamicJointStatePublishTest)
+{
+  SetUpStateBroadcaster();
+
+  test_published_dynamic_joint_state_message("dynamic_joint_states");
+}
+
+TEST_F(JointStateBroadcasterTest, DynamicJointStatePublishTestLocalTopic)
+{
+  SetUpStateBroadcaster();
+  state_broadcaster_->get_node()->set_parameter({"use_local_topics", true});
+
+  test_published_dynamic_joint_state_message("joint_state_broadcaster/dynamic_joint_states");
 }
 
 TEST_F(JointStateBroadcasterTest, ExtraJointStatePublishTest)
@@ -309,10 +316,8 @@ TEST_F(JointStateBroadcasterTest, ExtraJointStatePublishTest)
   SetUpStateBroadcaster();
 
   // Add extra joints as parameters
-  auto broadcaster_node = state_broadcaster_->get_node();
   const std::vector<std::string> extra_joint_names = {"extra1", "extra2", "extra3"};
-  const rclcpp::Parameter extra_joints_parameters("extra_joints", extra_joint_names);
-  broadcaster_node->set_parameter(extra_joints_parameters);
+  state_broadcaster_->get_node()->set_parameter({"extra_joints", extra_joint_names});
 
   // configure ok
   ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
