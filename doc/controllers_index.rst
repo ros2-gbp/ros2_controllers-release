@@ -1,13 +1,15 @@
 .. _controllers:
 
-========================
+#################
 ros2_controllers
-========================
+#################
 
 `GitHub Repository <https://github.com/ros-controls/ros2_controllers>`_
 
+
 Nomenclature
--------------
+************
+
 The ros2_control framework uses namespaces to sort controller according to the type of command interface they are using.
 The controllers are using `common hardware interface definitions`_.
 The controllers' namespaces are commanding the following command interface types:
@@ -19,7 +21,7 @@ The controllers' namespaces are commanding the following command interface types
 
 
 Controllers
---------------
+***********
 
 The following standard controllers are implemented:
 
@@ -30,13 +32,14 @@ The following standard controllers are implemented:
 
 
 Guidelines and Best Practices
-=============================
+*****************************
 
 .. toctree::
-   :titlesonly: 1
+   :titlesonly:
    :glob:
 
    *
+
 
 Available Controllers
 =====================
@@ -50,6 +53,7 @@ Available Controllers
    Position Controllers <../position_controllers/doc/userdoc.rst>
    Velocity Controllers <../velocity_controllers/doc/userdoc.rst>
    Effort Controllers <../effort_controllers/doc/userdoc.rst>
+
 
 Available Broadcasters
 ======================
