@@ -2,6 +2,14 @@
 Changelog for package position_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.0 (2021-08-30)
+------------------
+* Bring precommit config up to speed with ros2_control (`#227 <https://github.com/ros-controls/ros2_controllers/issues/227>`_)
+* Delete failing parameter undeclare in JointGroupPositionController (`#222 <https://github.com/ros-controls/ros2_controllers/issues/222>`_)
+* Add initial pre-commit setup. (`#220 <https://github.com/ros-controls/ros2_controllers/issues/220>`_)
+* Reduce docs warnings and correct adding guidelines (`#219 <https://github.com/ros-controls/ros2_controllers/issues/219>`_)
+* Contributors: Bence Magyar, Denis Štogl, Joseph Schornak
+
 0.4.1 (2021-07-08)
 ------------------
 
@@ -41,4 +49,3 @@ Changelog for package position_controllers
 
 0.1.0 (2020-12-23)
 ------------------
-

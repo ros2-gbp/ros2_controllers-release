@@ -2,6 +2,11 @@
 Changelog for package ros2_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.0 (2021-08-30)
+------------------
+* Add initial pre-commit setup. (`#220 <https://github.com/ros-controls/ros2_controllers/issues/220>`_)
+* Contributors: Denis Štogl
+
 0.4.1 (2021-07-08)
 ------------------
 
@@ -40,4 +45,3 @@ Changelog for package ros2_controllers
 
 0.1.0 (2020-12-23)
 ------------------
-
