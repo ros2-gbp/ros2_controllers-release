@@ -1,3 +1,38 @@
+## ros2_controllers (rolling) - 0.5.0-1
+
+The packages in the `ros2_controllers` repository were released into the `rolling` distro by running `/usr/local/bin/bloom-release --rosdistro rolling --track rolling ros2_controllers` on `Tue, 31 Aug 2021 20:29:56 -0000`
+
+These packages were released:
+- `diff_drive_controller`
+- `effort_controllers`
+- `force_torque_sensor_broadcaster`
+- `forward_command_controller`
+- `gripper_controllers`
+- `imu_sensor_broadcaster`
+- `joint_state_broadcaster`
+- `joint_state_controller`
+- `joint_trajectory_controller`
+- `position_controllers`
+- `ros2_controllers`
+- `velocity_controllers`
+
+Version of package(s) in repository `ros2_controllers`:
+
+- upstream repository: https://github.com/ros-controls/ros2_controllers.git
+- release repository: https://github.com/ros2-gbp/ros2_controllers-release.git
+- rosdistro version: `0.4.1-1`
+- old version: `0.4.1-1`
+- new version: `0.5.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.10.7`
+- catkin_pkg version: `0.4.23`
+- rosdep version: `0.19.0`
+- rosdistro version: `0.8.3`
+- vcstools version: `0.1.42`
+
+
 ## ros2_controllers (foxy) - 0.5.0-1
 
 The packages in the `ros2_controllers` repository were released into the `foxy` distro by running `/usr/local/bin/bloom-release --rosdistro foxy --track foxy ros2_controllers` on `Mon, 30 Aug 2021 07:23:22 -0000`
