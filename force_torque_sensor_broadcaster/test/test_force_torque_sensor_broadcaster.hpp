@@ -26,9 +26,9 @@
 
 #include "force_torque_sensor_broadcaster/force_torque_sensor_broadcaster.hpp"
 
-// subclassing and friending so we can access member varibles
-class FriendForceTorqueSensorBroadcaster : public force_torque_sensor_broadcaster::
-  ForceTorqueSensorBroadcaster
+// subclassing and friending so we can access member variables
+class FriendForceTorqueSensorBroadcaster
+: public force_torque_sensor_broadcaster::ForceTorqueSensorBroadcaster
 {
   FRIEND_TEST(ForceTorqueSensorBroadcasterTest, SensorNameParameterNotSet);
   FRIEND_TEST(ForceTorqueSensorBroadcasterTest, InterfaceNamesParameterNotSet);
