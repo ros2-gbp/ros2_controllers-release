@@ -1,0 +1,12 @@
+Source: ros-rolling-position-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ament-cmake-gmock, ros-rolling-controller-manager, ros-rolling-forward-command-controller, ros-rolling-pluginlib, ros-rolling-rclcpp, ros-rolling-ros2-control-test-assets, ros-rolling-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-rolling-position-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-forward-command-controller, ros-rolling-rclcpp, ros-rolling-ros-workspace
+Description: Generic controller for forwarding commands.
