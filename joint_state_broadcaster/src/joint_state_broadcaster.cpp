@@ -46,14 +46,8 @@ using hardware_interface::HW_IF_VELOCITY;
 
 JointStateBroadcaster::JointStateBroadcaster() {}
 
-controller_interface::return_type JointStateBroadcaster::init(const std::string & controller_name)
+CallbackReturn JointStateBroadcaster::on_init()
 {
-  auto ret = ControllerInterface::init(controller_name);
-  if (ret != controller_interface::return_type::OK)
-  {
-    return ret;
-  }
-
   try
   {
     auto_declare<bool>("use_local_topics", false);
@@ -61,10 +55,10 @@ controller_interface::return_type JointStateBroadcaster::init(const std::string 
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return controller_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  return controller_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 controller_interface::InterfaceConfiguration
@@ -81,8 +75,8 @@ controller_interface::InterfaceConfiguration JointStateBroadcaster::state_interf
     controller_interface::interface_configuration_type::ALL};
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointStateBroadcaster::on_configure(const rclcpp_lifecycle::State & /*previous_state*/)
+CallbackReturn JointStateBroadcaster::on_configure(
+  const rclcpp_lifecycle::State & /*previous_state*/)
 {
   use_local_topics_ = get_node()->get_parameter("use_local_topics").as_bool();
 
@@ -101,29 +95,29 @@ JointStateBroadcaster::on_configure(const rclcpp_lifecycle::State & /*previous_s
   {
     // get_node() may throw, logging raw here
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointStateBroadcaster::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)
+CallbackReturn JointStateBroadcaster::on_activate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
 {
   if (!init_joint_data())
   {
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   init_joint_state_msg();
   init_dynamic_joint_state_msg();
 
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointStateBroadcaster::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
+CallbackReturn JointStateBroadcaster::on_deactivate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
 template <typename T>
@@ -235,7 +229,8 @@ double get_value(
   }
 }
 
-controller_interface::return_type JointStateBroadcaster::update()
+controller_interface::return_type JointStateBroadcaster::update(
+  const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
   for (const auto & state_interface : state_interfaces_)
   {
@@ -246,8 +241,8 @@ controller_interface::return_type JointStateBroadcaster::update()
       state_interface.get_interface_name().c_str(), state_interface.get_value());
   }
 
-  joint_state_msg_.header.stamp = get_node()->get_clock()->now();
-  dynamic_joint_state_msg_.header.stamp = get_node()->get_clock()->now();
+  joint_state_msg_.header.stamp = time;
+  dynamic_joint_state_msg_.header.stamp = time;
 
   // update joint state message and dynamic joint state message
   for (auto i = 0ul; i < joint_names_.size(); ++i)
