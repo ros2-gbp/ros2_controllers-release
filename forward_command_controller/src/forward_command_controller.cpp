@@ -15,6 +15,7 @@
 #include "forward_command_controller/forward_command_controller.hpp"
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -35,15 +36,8 @@ ForwardCommandController::ForwardCommandController()
 {
 }
 
-controller_interface::return_type ForwardCommandController::init(
-  const std::string & controller_name)
+CallbackReturn ForwardCommandController::on_init()
 {
-  auto ret = ControllerInterface::init(controller_name);
-  if (ret != controller_interface::return_type::OK)
-  {
-    return ret;
-  }
-
   try
   {
     auto_declare<std::vector<std::string>>("joints", std::vector<std::string>());
@@ -53,10 +47,10 @@ controller_interface::return_type ForwardCommandController::init(
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return controller_interface::return_type::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  return controller_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 CallbackReturn ForwardCommandController::on_configure(
@@ -151,16 +145,22 @@ CallbackReturn ForwardCommandController::on_activate(
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
 
+  // reset command buffer if a command came through callback when controller was inactive
+  rt_command_ptr_ = realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>>(nullptr);
+
   return CallbackReturn::SUCCESS;
 }
 
 CallbackReturn ForwardCommandController::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  // reset command buffer
+  rt_command_ptr_ = realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>>(nullptr);
   return CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type ForwardCommandController::update()
+controller_interface::return_type ForwardCommandController::update(
+  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   auto joint_commands = rt_command_ptr_.readFromRT();
 
