@@ -29,14 +29,13 @@
 
 namespace joint_state_broadcaster
 {
+using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
 class JointStateBroadcaster : public controller_interface::ControllerInterface
 {
 public:
   JOINT_STATE_BROADCASTER_PUBLIC
   JointStateBroadcaster();
-
-  JOINT_STATE_BROADCASTER_PUBLIC
-  controller_interface::return_type init(const std::string & controller_name) override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
@@ -45,19 +44,20 @@ public:
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  controller_interface::return_type update() override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_configure(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_init() override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
+
+  JOINT_STATE_BROADCASTER_PUBLIC
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
 protected:
   bool init_joint_data();
