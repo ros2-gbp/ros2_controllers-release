@@ -49,28 +49,28 @@ JointTrajectoryController::JointTrajectoryController()
 {
 }
 
-controller_interface::return_type JointTrajectoryController::init(
-  const std::string & controller_name)
+CallbackReturn JointTrajectoryController::on_init()
 {
-  // initialize lifecycle node
-  const auto ret = ControllerInterface::init(controller_name);
-  if (ret != controller_interface::return_type::OK)
+  try
   {
-    return ret;
+    // with the lifecycle node being initialized, we can declare parameters
+    auto_declare<std::vector<std::string>>("joints", joint_names_);
+    auto_declare<std::vector<std::string>>("command_interfaces", command_interface_types_);
+    auto_declare<std::vector<std::string>>("state_interfaces", state_interface_types_);
+    auto_declare<double>("state_publish_rate", 50.0);
+    auto_declare<double>("action_monitor_rate", 20.0);
+    auto_declare<bool>("allow_partial_joints_goal", allow_partial_joints_goal_);
+    auto_declare<bool>("open_loop_control", open_loop_control_);
+    auto_declare<double>("constraints.stopped_velocity_tolerance", 0.01);
+    auto_declare<double>("constraints.goal_time", 0.0);
+  }
+  catch (const std::exception & e)
+  {
+    fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
+    return CallbackReturn::ERROR;
   }
 
-  // with the lifecycle node being initialized, we can declare parameters
-  auto_declare<std::vector<std::string>>("joints", joint_names_);
-  auto_declare<std::vector<std::string>>("command_interfaces", command_interface_types_);
-  auto_declare<std::vector<std::string>>("state_interfaces", state_interface_types_);
-  auto_declare<double>("state_publish_rate", 50.0);
-  auto_declare<double>("action_monitor_rate", 20.0);
-  auto_declare<bool>("allow_partial_joints_goal", allow_partial_joints_goal_);
-  auto_declare<bool>("open_loop_control", open_loop_control_);
-  auto_declare<double>("constraints.stopped_velocity_tolerance", 0.01);
-  auto_declare<double>("constraints.goal_time", 0.0);
-
-  return controller_interface::return_type::OK;
+  return CallbackReturn::SUCCESS;
 }
 
 controller_interface::InterfaceConfiguration
@@ -105,9 +105,10 @@ JointTrajectoryController::state_interface_configuration() const
   return conf;
 }
 
-controller_interface::return_type JointTrajectoryController::update()
+controller_interface::return_type JointTrajectoryController::update(
+  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-  if (get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
+  if (get_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
   {
     return controller_interface::return_type::OK;
   }
@@ -413,8 +414,7 @@ bool JointTrajectoryController::read_state_from_command_interfaces(JointTrajecto
   return has_values;
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
+CallbackReturn JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
 {
   const auto logger = node_->get_logger();
 
@@ -423,7 +423,7 @@ JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
 
   if (!reset())
   {
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::FAILURE;
+    return CallbackReturn::FAILURE;
   }
 
   if (joint_names_.empty())
@@ -587,16 +587,16 @@ JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
   }
 
   auto get_interface_list = [](const std::vector<std::string> & interface_types) {
-    std::stringstream ss_command_interfaces;
+    std::stringstream ss_interfaces;
     for (size_t index = 0; index < interface_types.size(); ++index)
     {
       if (index != 0)
       {
-        ss_command_interfaces << " ";
+        ss_interfaces << " ";
       }
-      ss_command_interfaces << interface_types[index];
+      ss_interfaces << interface_types[index];
     }
-    return ss_command_interfaces.str();
+    return ss_interfaces.str();
   };
 
   // Print output so users can be sure the interface setup is correct
@@ -694,7 +694,7 @@ JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
     std::bind(&JointTrajectoryController::cancel_callback, this, _1),
     std::bind(&JointTrajectoryController::feedback_setup_callback, this, _1));
 
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
 // Fill ordered_interfaces with references to the matching interfaces
@@ -719,8 +719,7 @@ bool get_ordered_interfaces(
   return joint_names.size() == ordered_interfaces.size();
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
+CallbackReturn JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
 {
   // order all joints in the storage
   for (const auto & interface : command_interface_types_)
@@ -734,7 +733,7 @@ JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
       RCLCPP_ERROR(
         node_->get_logger(), "Expected %zu '%s' command interfaces, got %zu.", joint_names_.size(),
         interface.c_str(), joint_command_interface_[index].size());
-      return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
   }
   for (const auto & interface : state_interface_types_)
@@ -748,7 +747,7 @@ JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
       RCLCPP_ERROR(
         node_->get_logger(), "Expected %zu '%s' state interfaces, got %zu.", joint_names_.size(),
         interface.c_str(), joint_state_interface_[index].size());
-      return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
   }
 
@@ -788,11 +787,10 @@ JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
   }
 
   // TODO(karsten1987): activate subscriptions of subscriber
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointTrajectoryController::on_deactivate(const rclcpp_lifecycle::State &)
+CallbackReturn JointTrajectoryController::on_deactivate(const rclcpp_lifecycle::State &)
 {
   // TODO(anyone): How to halt when using effort commands?
   for (auto index = 0ul; index < joint_names_.size(); ++index)
@@ -810,27 +808,25 @@ JointTrajectoryController::on_deactivate(const rclcpp_lifecycle::State &)
 
   subscriber_is_active_ = false;
 
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointTrajectoryController::on_cleanup(const rclcpp_lifecycle::State &)
+CallbackReturn JointTrajectoryController::on_cleanup(const rclcpp_lifecycle::State &)
 {
   // go home
   traj_home_point_ptr_->update(traj_msg_home_ptr_);
   traj_point_active_ptr_ = &traj_home_point_ptr_;
 
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointTrajectoryController::on_error(const rclcpp_lifecycle::State &)
+CallbackReturn JointTrajectoryController::on_error(const rclcpp_lifecycle::State &)
 {
   if (!reset())
   {
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
 bool JointTrajectoryController::reset()
@@ -848,12 +844,11 @@ bool JointTrajectoryController::reset()
   return true;
 }
 
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-JointTrajectoryController::on_shutdown(const rclcpp_lifecycle::State &)
+CallbackReturn JointTrajectoryController::on_shutdown(const rclcpp_lifecycle::State &)
 {
   // TODO(karsten1987): what to do?
 
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
 void JointTrajectoryController::publish_state(
@@ -900,7 +895,7 @@ rclcpp_action::GoalResponse JointTrajectoryController::goal_callback(
   RCLCPP_INFO(node_->get_logger(), "Received new action goal");
 
   // Precondition: Running controller
-  if (get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
+  if (get_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
   {
     RCLCPP_ERROR(node_->get_logger(), "Can't accept new action goals. Controller is not running.");
     return rclcpp_action::GoalResponse::REJECT;
