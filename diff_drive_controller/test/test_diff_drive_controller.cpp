@@ -28,7 +28,7 @@
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+using CallbackReturn = diff_drive_controller::CallbackReturn;
 using hardware_interface::HW_IF_POSITION;
 using hardware_interface::HW_IF_VELOCITY;
 using hardware_interface::LoanedCommandInterface;
@@ -285,15 +285,11 @@ TEST_F(TestDiffDriveController, cleanup)
   publish(linear, angular);
   controller_->wait_for_twist(executor);
 
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   state = controller_->deactivate();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   state = controller_->cleanup();
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, state.id());
@@ -337,9 +333,7 @@ TEST_F(TestDiffDriveController, correct_initialization_using_parameters)
   // wait for msg is be published to the system
   ASSERT_TRUE(controller_->wait_for_twist(executor));
 
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
   EXPECT_EQ(1.0, left_wheel_vel_cmd_.get_value());
   EXPECT_EQ(1.0, right_wheel_vel_cmd_.get_value());
 
@@ -348,9 +342,7 @@ TEST_F(TestDiffDriveController, correct_initialization_using_parameters)
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   state = controller_->deactivate();
   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   EXPECT_EQ(0.0, left_wheel_vel_cmd_.get_value()) << "Wheels are halted on deactivate()";
   EXPECT_EQ(0.0, right_wheel_vel_cmd_.get_value()) << "Wheels are halted on deactivate()";

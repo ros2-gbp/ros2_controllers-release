@@ -184,9 +184,7 @@ TEST_F(JointStateBroadcasterTest, UpdateTest)
   auto node_state = state_broadcaster_->configure();
   node_state = state_broadcaster_->activate();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
-  ASSERT_EQ(
-    state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(state_broadcaster_->update(), controller_interface::return_type::OK);
 }
 
 void JointStateBroadcasterTest::test_published_joint_state_message(const std::string & topic)
@@ -202,9 +200,7 @@ void JointStateBroadcasterTest::test_published_joint_state_message(const std::st
   auto subscription =
     test_node.create_subscription<sensor_msgs::msg::JointState>(topic, 10, subs_callback);
 
-  ASSERT_EQ(
-    state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(state_broadcaster_->update(), controller_interface::return_type::OK);
 
   // wait for message to be passed
   ASSERT_EQ(wait_for(subscription), rclcpp::WaitResultKind::Ready);
@@ -254,9 +250,7 @@ void JointStateBroadcasterTest::test_published_dynamic_joint_state_message(
   auto subscription =
     test_node.create_subscription<control_msgs::msg::DynamicJointState>(topic, 10, subs_callback);
 
-  ASSERT_EQ(
-    state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(state_broadcaster_->update(), controller_interface::return_type::OK);
 
   // wait for message to be passed
   ASSERT_EQ(wait_for(subscription), rclcpp::WaitResultKind::Ready);
@@ -273,7 +267,7 @@ void JointStateBroadcasterTest::test_published_dynamic_joint_state_message(
   // we only check that all values in this test are present in the message
   // and that it is the same across the interfaces
   // for test purposes they are mapped to the same doubles
-  for (size_t i = 0; i < dynamic_joint_state_msg.joint_names.size(); ++i)
+  for (auto i = 0ul; i < dynamic_joint_state_msg.joint_names.size(); ++i)
   {
     ASSERT_THAT(
       dynamic_joint_state_msg.interface_values[i].interface_names,

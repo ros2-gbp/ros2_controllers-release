@@ -48,8 +48,15 @@ using lifecycle_msgs::msg::State;
 
 DiffDriveController::DiffDriveController() : controller_interface::ControllerInterface() {}
 
-CallbackReturn DiffDriveController::on_init()
+controller_interface::return_type DiffDriveController::init(const std::string & controller_name)
 {
+  // initialize lifecycle node
+  auto ret = ControllerInterface::init(controller_name);
+  if (ret != controller_interface::return_type::OK)
+  {
+    return ret;
+  }
+
   try
   {
     // with the lifecycle node being initialized, we can declare parameters
@@ -98,10 +105,10 @@ CallbackReturn DiffDriveController::on_init()
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return CallbackReturn::ERROR;
+    return controller_interface::return_type::ERROR;
   }
 
-  return CallbackReturn::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 InterfaceConfiguration DiffDriveController::command_interface_configuration() const
@@ -132,11 +139,10 @@ InterfaceConfiguration DiffDriveController::state_interface_configuration() cons
   return {interface_configuration_type::INDIVIDUAL, conf_names};
 }
 
-controller_interface::return_type DiffDriveController::update(
-  const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
+controller_interface::return_type DiffDriveController::update()
 {
   auto logger = node_->get_logger();
-  if (get_state().id() == State::PRIMARY_STATE_INACTIVE)
+  if (get_current_state().id() == State::PRIMARY_STATE_INACTIVE)
   {
     if (!is_halted)
     {
@@ -146,28 +152,28 @@ controller_interface::return_type DiffDriveController::update(
     return controller_interface::return_type::OK;
   }
 
-  const auto current_time = time;
+  const auto current_time = node_->get_clock()->now();
 
-  std::shared_ptr<Twist> last_command_msg;
-  received_velocity_msg_ptr_.get(last_command_msg);
+  std::shared_ptr<Twist> last_msg;
+  received_velocity_msg_ptr_.get(last_msg);
 
-  if (last_command_msg == nullptr)
+  if (last_msg == nullptr)
   {
     RCLCPP_WARN(logger, "Velocity message received was a nullptr.");
     return controller_interface::return_type::ERROR;
   }
 
-  const auto age_of_last_command = current_time - last_command_msg->header.stamp;
+  const auto dt = current_time - last_msg->header.stamp;
   // Brake if cmd_vel has timeout, override the stored command
-  if (age_of_last_command > cmd_vel_timeout_)
+  if (dt > cmd_vel_timeout_)
   {
-    last_command_msg->twist.linear.x = 0.0;
-    last_command_msg->twist.angular.z = 0.0;
+    last_msg->twist.linear.x = 0.0;
+    last_msg->twist.angular.z = 0.0;
   }
 
   // command may be limited further by SpeedLimit,
   // without affecting the stored twist command
-  Twist command = *last_command_msg;
+  Twist command = *last_msg;
   double & linear_command = command.twist.linear.x;
   double & angular_command = command.twist.angular.z;
 

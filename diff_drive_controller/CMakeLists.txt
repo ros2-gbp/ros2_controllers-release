@@ -45,6 +45,8 @@ ament_target_dependencies(diff_drive_controller
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(diff_drive_controller PRIVATE "DIFF_DRIVE_CONTROLLER_BUILDING_DLL")
+# prevent pluginlib from using boost
+target_compile_definitions(diff_drive_controller PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 pluginlib_export_plugin_description_file(controller_interface diff_drive_plugin.xml)
 
 install(DIRECTORY include/
@@ -60,7 +62,6 @@ install(TARGETS diff_drive_controller
 if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
   find_package(controller_manager REQUIRED)
-  find_package(ros2_control_test_assets REQUIRED)
 
   ament_add_gmock(test_diff_drive_controller
     test/test_diff_drive_controller.cpp
@@ -88,8 +89,8 @@ if(BUILD_TESTING)
   target_include_directories(test_load_diff_drive_controller PRIVATE include)
   ament_target_dependencies(test_load_diff_drive_controller
     controller_manager
-    ros2_control_test_assets
   )
+  target_compile_definitions(test_load_diff_drive_controller PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 
   ament_add_gmock(
     test_accumulator
