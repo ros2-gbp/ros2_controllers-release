@@ -28,7 +28,7 @@
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+using CallbackReturn = diff_drive_controller::CallbackReturn;
 using hardware_interface::HW_IF_POSITION;
 using hardware_interface::HW_IF_VELOCITY;
 using hardware_interface::LoanedCommandInterface;
@@ -129,24 +129,11 @@ protected:
     }
   }
 
-  void assignResourcesPosFeedback()
+  void assignResources()
   {
     std::vector<LoanedStateInterface> state_ifs;
     state_ifs.emplace_back(left_wheel_pos_state_);
     state_ifs.emplace_back(right_wheel_pos_state_);
-
-    std::vector<LoanedCommandInterface> command_ifs;
-    command_ifs.emplace_back(left_wheel_vel_cmd_);
-    command_ifs.emplace_back(right_wheel_vel_cmd_);
-
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
-  }
-
-  void assignResourcesVelFeedback()
-  {
-    std::vector<LoanedStateInterface> state_ifs;
-    state_ifs.emplace_back(left_wheel_vel_state_);
-    state_ifs.emplace_back(right_wheel_vel_state_);
 
     std::vector<LoanedCommandInterface> command_ifs;
     command_ifs.emplace_back(left_wheel_vel_cmd_);
@@ -167,10 +154,6 @@ protected:
     left_wheel_names[0], HW_IF_POSITION, &position_values_[0]};
   hardware_interface::StateInterface right_wheel_pos_state_{
     right_wheel_names[0], HW_IF_POSITION, &position_values_[1]};
-  hardware_interface::StateInterface left_wheel_vel_state_{
-    left_wheel_names[0], HW_IF_VELOCITY, &velocity_values_[0]};
-  hardware_interface::StateInterface right_wheel_vel_state_{
-    right_wheel_names[0], HW_IF_VELOCITY, &velocity_values_[1]};
   hardware_interface::CommandInterface left_wheel_vel_cmd_{
     left_wheel_names[0], HW_IF_VELOCITY, &velocity_values_[0]};
   hardware_interface::CommandInterface right_wheel_vel_cmd_{
@@ -258,71 +241,19 @@ TEST_F(TestDiffDriveController, activate_fails_without_resources_assigned)
   ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
 }
 
-TEST_F(TestDiffDriveController, activate_succeeds_with_pos_resources_assigned)
+TEST_F(TestDiffDriveController, activate_succeeds_with_resources_assigned)
 {
   const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
 
-  // We implicitly test that by default position feedback is required
   controller_->get_node()->set_parameter(
     rclcpp::Parameter("left_wheel_names", rclcpp::ParameterValue(left_wheel_names)));
   controller_->get_node()->set_parameter(
     rclcpp::Parameter("right_wheel_names", rclcpp::ParameterValue(right_wheel_names)));
 
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-  assignResourcesPosFeedback();
+  assignResources();
   ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-}
-
-TEST_F(TestDiffDriveController, activate_succeeds_with_vel_resources_assigned)
-{
-  const auto ret = controller_->init(controller_name);
-  ASSERT_EQ(ret, controller_interface::return_type::OK);
-
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("position_feedback", rclcpp::ParameterValue(false)));
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("left_wheel_names", rclcpp::ParameterValue(left_wheel_names)));
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("right_wheel_names", rclcpp::ParameterValue(right_wheel_names)));
-
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-  assignResourcesVelFeedback();
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-}
-
-TEST_F(TestDiffDriveController, activate_fails_with_wrong_resources_assigned_1)
-{
-  const auto ret = controller_->init(controller_name);
-  ASSERT_EQ(ret, controller_interface::return_type::OK);
-
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("position_feedback", rclcpp::ParameterValue(false)));
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("left_wheel_names", rclcpp::ParameterValue(left_wheel_names)));
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("right_wheel_names", rclcpp::ParameterValue(right_wheel_names)));
-
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-  assignResourcesPosFeedback();
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
-}
-
-TEST_F(TestDiffDriveController, activate_fails_with_wrong_resources_assigned_2)
-{
-  const auto ret = controller_->init(controller_name);
-  ASSERT_EQ(ret, controller_interface::return_type::OK);
-
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("position_feedback", rclcpp::ParameterValue(true)));
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("left_wheel_names", rclcpp::ParameterValue(left_wheel_names)));
-  controller_->get_node()->set_parameter(
-    rclcpp::Parameter("right_wheel_names", rclcpp::ParameterValue(right_wheel_names)));
-
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-  assignResourcesVelFeedback();
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
 }
 
 TEST_F(TestDiffDriveController, cleanup)
@@ -341,7 +272,7 @@ TEST_F(TestDiffDriveController, cleanup)
   executor.add_node(controller_->get_node()->get_node_base_interface());
   auto state = controller_->configure();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
-  assignResourcesPosFeedback();
+  assignResources();
 
   state = controller_->activate();
   ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, state.id());
@@ -354,15 +285,11 @@ TEST_F(TestDiffDriveController, cleanup)
   publish(linear, angular);
   controller_->wait_for_twist(executor);
 
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   state = controller_->deactivate();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   state = controller_->cleanup();
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, state.id());
@@ -390,7 +317,7 @@ TEST_F(TestDiffDriveController, correct_initialization_using_parameters)
   executor.add_node(controller_->get_node()->get_node_base_interface());
 
   auto state = controller_->configure();
-  assignResourcesPosFeedback();
+  assignResources();
 
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
   EXPECT_EQ(0.01, left_wheel_vel_cmd_.get_value());
@@ -406,9 +333,7 @@ TEST_F(TestDiffDriveController, correct_initialization_using_parameters)
   // wait for msg is be published to the system
   ASSERT_TRUE(controller_->wait_for_twist(executor));
 
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
   EXPECT_EQ(1.0, left_wheel_vel_cmd_.get_value());
   EXPECT_EQ(1.0, right_wheel_vel_cmd_.get_value());
 
@@ -417,9 +342,7 @@ TEST_F(TestDiffDriveController, correct_initialization_using_parameters)
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   state = controller_->deactivate();
   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   EXPECT_EQ(0.0, left_wheel_vel_cmd_.get_value()) << "Wheels are halted on deactivate()";
   EXPECT_EQ(0.0, right_wheel_vel_cmd_.get_value()) << "Wheels are halted on deactivate()";
