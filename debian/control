@@ -1,0 +1,12 @@
+Source: ros-rolling-joint-trajectory-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ament-cmake-gtest, ros-rolling-angles, ros-rolling-control-msgs, ros-rolling-controller-interface, ros-rolling-controller-manager, ros-rolling-hardware-interface, ros-rolling-pluginlib, ros-rolling-rclcpp, ros-rolling-rclcpp-lifecycle, ros-rolling-realtime-tools, ros-rolling-ros2-control-test-assets, ros-rolling-trajectory-msgs, ros-rolling-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-rolling-joint-trajectory-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-angles, ros-rolling-control-msgs, ros-rolling-controller-interface, ros-rolling-hardware-interface, ros-rolling-pluginlib, ros-rolling-rclcpp, ros-rolling-rclcpp-lifecycle, ros-rolling-realtime-tools, ros-rolling-trajectory-msgs, ros-rolling-ros-workspace
+Description: Controller for executing joint-space trajectories on a group of joints
