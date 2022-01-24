@@ -79,7 +79,7 @@ TEST_P(TrajectoryControllerTestParameterized, configure)
   publish(time_from_start, points);
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
 
   // hw position == 0 because controller is not activated
   EXPECT_EQ(0.0, joint_pos_[0]);
@@ -97,7 +97,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
   executor.add_node(traj_controller_->get_node()->get_node_base_interface());
 
   traj_controller_->configure();
-  ASSERT_EQ(traj_controller_->get_state().id(), State::PRIMARY_STATE_INACTIVE);
+  ASSERT_EQ(traj_controller_->get_current_state().id(), State::PRIMARY_STATE_INACTIVE);
 
   auto cmd_interface_config = traj_controller_->command_interface_configuration();
   ASSERT_EQ(
@@ -108,7 +108,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
     state_interface_config.names.size(), joint_names_.size() * state_interface_types_.size());
 
   ActivateTrajectoryController();
-  ASSERT_EQ(traj_controller_->get_state().id(), State::PRIMARY_STATE_ACTIVE);
+  ASSERT_EQ(traj_controller_->get_current_state().id(), State::PRIMARY_STATE_ACTIVE);
 
   executor.cancel();
 }
@@ -144,7 +144,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
 //   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 //   executor.spin_once();
 //
-//   traj_controller->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+//   traj_controller->update();
 //   resource_manager_->write();
 //
 //   // change in hw position
@@ -192,7 +192,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
 //   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 //   executor.spin_once();
 //
-//   traj_controller->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+//   traj_controller->update();
 //   resource_manager_->write();
 //
 //   // deactivated
@@ -201,7 +201,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
 //   state = traj_controller_->deactivate();
 //   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
 //   resource_manager_->read();
-//   traj_controller->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+//   traj_controller->update();
 //   resource_manager_->write();
 //
 //   // no change in hw position
@@ -215,7 +215,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
 //   state = traj_node->activate();
 //   ASSERT_EQ(state.id(), State::PRIMARY_STATE_ACTIVE);
 //   resource_manager_->read();
-//   traj_controller->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+//   traj_controller->update();
 //   resource_manager_->write();
 //
 //   // change in hw position to 3rd point
@@ -241,11 +241,11 @@ TEST_P(TrajectoryControllerTestParameterized, cleanup)
   std::vector<std::vector<double>> points{{{3.3, 4.4, 5.5}}};
   publish(time_from_start, points);
   traj_controller_->wait_for_trajectory(executor);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
 
   auto state = traj_controller_->deactivate();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
 
   state = traj_controller_->cleanup();
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, state.id());
@@ -268,14 +268,14 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   // This call is replacing the way parameters are set via launch
   SetParameters();
   traj_controller_->configure();
-  auto state = traj_controller_->get_state();
+  auto state = traj_controller_->get_current_state();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
 
   ActivateTrajectoryController();
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(traj_controller_->get_node()->get_node_base_interface());
 
-  state = traj_controller_->get_state();
+  state = traj_controller_->get_current_state();
   ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, state.id());
   EXPECT_EQ(INITIAL_POS_JOINT1, joint_pos_[0]);
   EXPECT_EQ(INITIAL_POS_JOINT2, joint_pos_[1]);
@@ -292,11 +292,11 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   traj_controller_->wait_for_trajectory(executor);
 
   // first update
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
 
   // wait so controller process the second point when deactivated
   std::this_thread::sleep_for(FIRST_POINT_TIME);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   // deactivated
   state = traj_controller_->deactivate();
   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
@@ -313,11 +313,11 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   state = traj_controller_->cleanup();
 
   // update loop receives a new msg and updates accordingly
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
 
   // check the traj_msg_home_ptr_ initialization code for the standard wait timing
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, state.id());
 
   EXPECT_NEAR(INITIAL_POS_JOINT1, joint_pos_[0], allowed_delta);
@@ -404,7 +404,7 @@ void TrajectoryControllerTest::test_state_publish_rate_target(int target_msg_cou
   const auto end_time = start_time + wait;
   while (rclcpp::Clock().now() < end_time)
   {
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+    traj_controller_->update();
   }
 
   // We may miss the last message since time allowed is exactly the time needed
@@ -832,15 +832,15 @@ TEST_P(TrajectoryControllerTestParameterized, test_jump_when_state_tracking_erro
   // One the first update(s) there should be a "jump" in opposite direction from command
   // (towards the state value)
   EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   // Expect backward commands at first
   EXPECT_NEAR(joint_state_pos_[0], joint_pos_[0], COMMON_THRESHOLD);
   EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
   EXPECT_LT(joint_pos_[0], first_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
   EXPECT_LT(joint_pos_[0], first_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
   EXPECT_LT(joint_pos_[0], first_goal[0]);
 
@@ -859,15 +859,15 @@ TEST_P(TrajectoryControllerTestParameterized, test_jump_when_state_tracking_erro
   // One the first update(s) there should be a "jump" in the goal direction from command
   // (towards the state value)
   EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   // Expect backward commands at first
   EXPECT_NEAR(joint_state_pos_[0], joint_pos_[0], COMMON_THRESHOLD);
   EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
   EXPECT_GT(joint_pos_[0], first_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
   EXPECT_GT(joint_pos_[0], first_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
   EXPECT_GT(joint_pos_[0], first_goal[0]);
 
@@ -916,15 +916,15 @@ TEST_P(TrajectoryControllerTestParameterized, test_no_jump_when_state_tracking_e
   // One the first update(s) there **should not** be a "jump" in opposite direction from command
   // (towards the state value)
   EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   // There should not be backward commands
   EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
   EXPECT_GT(joint_pos_[0], first_goal[0]);
   EXPECT_LT(joint_pos_[0], second_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_GT(joint_pos_[0], first_goal[0]);
   EXPECT_LT(joint_pos_[0], second_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_GT(joint_pos_[0], first_goal[0]);
   EXPECT_LT(joint_pos_[0], second_goal[0]);
 
@@ -943,15 +943,15 @@ TEST_P(TrajectoryControllerTestParameterized, test_no_jump_when_state_tracking_e
   // One the first update(s) there **should not** be a "jump" in the goal direction from command
   // (towards the state value)
   EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   // There should not be a jump toward commands
   EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
   EXPECT_LT(joint_pos_[0], second_goal[0]);
   EXPECT_GT(joint_pos_[0], first_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_GT(joint_pos_[0], first_goal[0]);
   EXPECT_LT(joint_pos_[0], second_goal[0]);
-  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  traj_controller_->update();
   EXPECT_GT(joint_pos_[0], first_goal[0]);
   EXPECT_LT(joint_pos_[0], second_goal[0]);
 
@@ -971,7 +971,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_first_co
   rclcpp::Parameter is_open_loop_parameters("open_loop_control", true);
 
   // set command values to NaN
-  for (size_t i = 0; i < 3; ++i)
+  for (auto i = 0u; i < 3; ++i)
   {
     joint_pos_[i] = std::numeric_limits<double>::quiet_NaN();
     joint_vel_[i] = std::numeric_limits<double>::quiet_NaN();
@@ -981,7 +981,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_first_co
 
   auto current_state_when_offset = traj_controller_->get_current_state_when_offset();
 
-  for (size_t i = 0; i < 3; ++i)
+  for (auto i = 0u; i < 3; ++i)
   {
     EXPECT_EQ(current_state_when_offset.positions[i], joint_state_pos_[i]);
 
@@ -1022,7 +1022,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_later_co
   rclcpp::Parameter is_open_loop_parameters("open_loop_control", true);
 
   // set command values to NaN
-  for (size_t i = 0; i < 3; ++i)
+  for (auto i = 0u; i < 3; ++i)
   {
     joint_pos_[i] = 3.1 + i;
     joint_vel_[i] = 0.25 + i;
@@ -1032,7 +1032,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_later_co
 
   auto current_state_when_offset = traj_controller_->get_current_state_when_offset();
 
-  for (size_t i = 0; i < 3; ++i)
+  for (auto i = 0u; i < 3; ++i)
   {
     EXPECT_EQ(current_state_when_offset.positions[i], joint_pos_[i]);
 
@@ -1067,7 +1067,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_later_co
 // TODO(anyone): the new gtest version after 1.8.0 uses INSTANTIATE_TEST_SUITE_P
 
 // position controllers
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   PositionTrajectoryControllers, TrajectoryControllerTestParameterized,
   ::testing::Values(
     std::make_tuple(std::vector<std::string>({"position"}), std::vector<std::string>({"position"})),
@@ -1078,7 +1078,7 @@ INSTANTIATE_TEST_SUITE_P(
       std::vector<std::string>({"position", "velocity", "acceleration"}))));
 
 // position_velocity controllers
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   PositionVelocityTrajectoryControllers, TrajectoryControllerTestParameterized,
   ::testing::Values(
     std::make_tuple(
@@ -1091,7 +1091,7 @@ INSTANTIATE_TEST_SUITE_P(
       std::vector<std::string>({"position", "velocity", "acceleration"}))));
 
 // position_velocity_acceleration controllers
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   PositionVelocityAccelerationTrajectoryControllers, TrajectoryControllerTestParameterized,
   ::testing::Values(
     std::make_tuple(
@@ -1107,10 +1107,10 @@ INSTANTIATE_TEST_SUITE_P(
 TEST_F(TrajectoryControllerTest, incorrect_initialization_using_interface_parameters)
 {
   auto set_parameter_and_check_result = [&]() {
-    EXPECT_EQ(traj_controller_->get_state().id(), State::PRIMARY_STATE_UNCONFIGURED);
+    EXPECT_EQ(traj_controller_->get_current_state().id(), State::PRIMARY_STATE_UNCONFIGURED);
     SetParameters();  // This call is replacing the way parameters are set via launch
     traj_controller_->configure();
-    EXPECT_EQ(traj_controller_->get_state().id(), State::PRIMARY_STATE_UNCONFIGURED);
+    EXPECT_EQ(traj_controller_->get_current_state().id(), State::PRIMARY_STATE_UNCONFIGURED);
   };
 
   SetUpTrajectoryController(false);

@@ -16,10 +16,13 @@
 #include <memory>
 
 #include "controller_manager/controller_manager.hpp"
+#include "hardware_interface/resource_manager.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors/single_threaded_executor.hpp"
 #include "rclcpp/utilities.hpp"
-#include "test_common.hpp"
+#include "ros2_control_test_assets/descriptions.hpp"
 
-TEST(TestLoadDiffDriveController, load_controller)
+TEST(TestLoadJointStateBroadcaster, load_controller)
 {
   rclcpp::init(0, nullptr);
 
@@ -28,11 +31,13 @@ TEST(TestLoadDiffDriveController, load_controller)
 
   controller_manager::ControllerManager cm(
     std::make_unique<hardware_interface::ResourceManager>(
-      diff_drive_controller_testing::diffbot_urdf),
+      ros2_control_test_assets::minimal_robot_urdf),
     executor, "test_controller_manager");
 
-  ASSERT_NO_THROW(
-    cm.load_controller("test_diff_drive_controller", "diff_drive_controller/DiffDriveController"));
+  // Even though joint_state_controller is deprecated and renamed to joint_state_broadcaster, it
+  // should still be loadable through its old name "joint_state_controller/JointStateController"
+  ASSERT_NO_THROW(cm.load_controller(
+    "test_joint_state_controller", "joint_state_controller/JointStateController"));
 
   rclcpp::shutdown();
 }

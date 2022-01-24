@@ -27,7 +27,7 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "test_joint_group_velocity_controller.hpp"
 
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+using CallbackReturn = forward_command_controller::ForwardCommandController::CallbackReturn;
 using hardware_interface::LoanedCommandInterface;
 
 namespace
@@ -54,7 +54,7 @@ void JointGroupVelocityControllerTest::TearDown() { controller_.reset(nullptr); 
 
 void JointGroupVelocityControllerTest::SetUpController()
 {
-  const auto result = controller_->init("test_joint_group_velocity_controller");
+  const auto result = controller_->init("group_velocity_controller");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedCommandInterface> command_ifs;
@@ -114,9 +114,7 @@ TEST_F(JointGroupVelocityControllerTest, CommandSuccessTest)
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
   // update successful though no command has been send yet
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   // check joint commands are still the default ones
   ASSERT_EQ(joint_1_cmd_.get_value(), 1.1);
@@ -129,9 +127,7 @@ TEST_F(JointGroupVelocityControllerTest, CommandSuccessTest)
   controller_->rt_command_ptr_.writeFromNonRT(command_ptr);
 
   // update successful, command received
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   // check joint commands have been modified
   ASSERT_EQ(joint_1_cmd_.get_value(), 10.0);
@@ -151,9 +147,7 @@ TEST_F(JointGroupVelocityControllerTest, WrongCommandCheckTest)
   controller_->rt_command_ptr_.writeFromNonRT(command_ptr);
 
   // update failed, command size does not match number of joints
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::ERROR);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::ERROR);
 
   // check joint commands are still the default ones
   ASSERT_EQ(joint_1_cmd_.get_value(), 1.1);
@@ -168,9 +162,7 @@ TEST_F(JointGroupVelocityControllerTest, NoCommandCheckTest)
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
   // update successful, no command received yet
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   // check joint commands are still the default ones
   ASSERT_EQ(joint_1_cmd_.get_value(), 1.1);
@@ -209,9 +201,7 @@ TEST_F(JointGroupVelocityControllerTest, CommandCallbackTest)
   rclcpp::spin_some(controller_->get_node()->get_node_base_interface());
 
   // update successful
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
-    controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->update(), controller_interface::return_type::OK);
 
   // check command in handle was set
   ASSERT_EQ(joint_1_cmd_.get_value(), 10.0);

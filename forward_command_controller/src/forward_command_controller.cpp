@@ -20,7 +20,6 @@
 #include <utility>
 #include <vector>
 
-#include "controller_interface/helpers.hpp"
 #include "rclcpp/logging.hpp"
 #include "rclcpp/qos.hpp"
 
@@ -37,8 +36,15 @@ ForwardCommandController::ForwardCommandController()
 {
 }
 
-CallbackReturn ForwardCommandController::on_init()
+controller_interface::return_type ForwardCommandController::init(
+  const std::string & controller_name)
 {
+  auto ret = ControllerInterface::init(controller_name);
+  if (ret != controller_interface::return_type::OK)
+  {
+    return ret;
+  }
+
   try
   {
     auto_declare<std::vector<std::string>>("joints", std::vector<std::string>());
@@ -48,10 +54,10 @@ CallbackReturn ForwardCommandController::on_init()
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return CallbackReturn::ERROR;
+    return controller_interface::return_type::ERROR;
   }
 
-  return CallbackReturn::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 CallbackReturn ForwardCommandController::on_configure(
@@ -106,6 +112,29 @@ ForwardCommandController::state_interface_configuration() const
     controller_interface::interface_configuration_type::NONE};
 }
 
+// Fill ordered_interfaces with references to the matching interfaces
+// in the same order as in joint_names
+template <typename T>
+bool get_ordered_interfaces(
+  std::vector<T> & unordered_interfaces, const std::vector<std::string> & joint_names,
+  const std::string & interface_type, std::vector<std::reference_wrapper<T>> & ordered_interfaces)
+{
+  for (const auto & joint_name : joint_names)
+  {
+    for (auto & command_interface : unordered_interfaces)
+    {
+      if (
+        (command_interface.get_name() == joint_name) &&
+        (command_interface.get_interface_name() == interface_type))
+      {
+        ordered_interfaces.push_back(std::ref(command_interface));
+      }
+    }
+  }
+
+  return joint_names.size() == ordered_interfaces.size();
+}
+
 CallbackReturn ForwardCommandController::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
@@ -113,7 +142,7 @@ CallbackReturn ForwardCommandController::on_activate(
   //  also verify that we *only* have the resources defined in the "points" parameter
   std::vector<std::reference_wrapper<LoanedCommandInterface>> ordered_interfaces;
   if (
-    !controller_interface::get_ordered_interfaces(
+    !get_ordered_interfaces(
       command_interfaces_, joint_names_, interface_name_, ordered_interfaces) ||
     command_interfaces_.size() != ordered_interfaces.size())
   {
@@ -124,7 +153,7 @@ CallbackReturn ForwardCommandController::on_activate(
   }
 
   // reset command buffer if a command came through callback when controller was inactive
-  rt_command_ptr_.reset();
+  rt_command_ptr_ = realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>>(nullptr);
 
   return CallbackReturn::SUCCESS;
 }
@@ -133,12 +162,11 @@ CallbackReturn ForwardCommandController::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   // reset command buffer
-  rt_command_ptr_.reset();
+  rt_command_ptr_ = realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>>(nullptr);
   return CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type ForwardCommandController::update(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+controller_interface::return_type ForwardCommandController::update()
 {
   auto joint_commands = rt_command_ptr_.readFromRT();
 
@@ -157,7 +185,7 @@ controller_interface::return_type ForwardCommandController::update(
     return controller_interface::return_type::ERROR;
   }
 
-  for (size_t index = 0; index < command_interfaces_.size(); ++index)
+  for (auto index = 0ul; index < command_interfaces_.size(); ++index)
   {
     command_interfaces_[index].set_value((*joint_commands)->data[index]);
   }
