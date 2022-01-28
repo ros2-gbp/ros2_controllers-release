@@ -24,6 +24,7 @@
 
 #include "control_msgs/action/follow_joint_trajectory.hpp"
 #include "control_msgs/msg/joint_trajectory_controller_state.hpp"
+#include "control_toolbox/pid.hpp"
 #include "controller_interface/controller_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "joint_trajectory_controller/tolerances.hpp"
@@ -56,6 +57,8 @@ class State;
 
 namespace joint_trajectory_controller
 {
+using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
 class Trajectory;
 
 class JointTrajectoryController : public controller_interface::ControllerInterface
@@ -63,9 +66,6 @@ class JointTrajectoryController : public controller_interface::ControllerInterfa
 public:
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
   JointTrajectoryController();
-
-  JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  controller_interface::return_type init(const std::string & controller_name) override;
 
   /**
    * @brief command_interface_configuration This controller requires the position command
@@ -82,31 +82,29 @@ public:
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  controller_interface::return_type update() override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_configure(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_init() override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_cleanup(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_error(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_cleanup(const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_shutdown(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_error(const rclcpp_lifecycle::State & previous_state) override;
+
+  JOINT_TRAJECTORY_CONTROLLER_PUBLIC
+  CallbackReturn on_shutdown(const rclcpp_lifecycle::State & previous_state) override;
 
 protected:
   std::vector<std::string> joint_names_;
@@ -137,6 +135,7 @@ protected:
   InterfaceReferences<hardware_interface::LoanedCommandInterface> joint_command_interface_;
   InterfaceReferences<hardware_interface::LoanedStateInterface> joint_state_interface_;
 
+  bool has_position_state_interface_ = false;
   bool has_velocity_state_interface_ = false;
   bool has_acceleration_state_interface_ = false;
   bool has_position_command_interface_ = false;
@@ -148,6 +147,12 @@ protected:
   // There should be PID-approach used as in ROS1:
   // https://github.com/ros-controls/ros_controllers/blob/noetic-devel/joint_trajectory_controller/include/joint_trajectory_controller/hardware_interface_adapter.h#L283
   bool use_closed_loop_pid_adapter = false;
+  using PidPtr = std::shared_ptr<control_toolbox::Pid>;
+  std::vector<PidPtr> pids_;
+  /// Feed-forward velocity weight factor when calculating closed loop pid adapter's command
+  std::vector<double> ff_velocity_scale_;
+  /// reserved storage for result of the command when closed loop pid adapter is used
+  std::vector<double> tmp_command_;
 
   // TODO(karsten1987): eventually activate and deactivate subscriber directly when its supported
   bool subscriber_is_active_ = false;
