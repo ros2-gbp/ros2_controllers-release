@@ -100,5 +100,4 @@ tracks:
     ros_distro: rolling
     vcs_type: git
     vcs_uri: https://github.com/ros-controls/ros2_controllers.git
-    version: 2.0.1
-    version_saved: :{auto}
+    version: :{auto}
