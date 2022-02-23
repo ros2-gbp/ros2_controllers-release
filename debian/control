@@ -1,0 +1,12 @@
+Source: ros-rolling-ros2-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-rolling-ros2-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-diff-drive-controller, ros-rolling-effort-controllers, ros-rolling-force-torque-sensor-broadcaster, ros-rolling-forward-command-controller, ros-rolling-imu-sensor-broadcaster, ros-rolling-joint-state-broadcaster, ros-rolling-joint-trajectory-controller, ros-rolling-position-controllers, ros-rolling-velocity-controllers, ros-rolling-ros-workspace
+Description: Metapackage for ROS2 controllers related packages
