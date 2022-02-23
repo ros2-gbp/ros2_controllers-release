@@ -2,15 +2,7 @@
 Changelog for package diff_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.1.0 (2022-02-23)
-------------------
-* use rolling mean from rcppmath (`#211 <https://github.com/ros-controls/ros2_controllers/issues/211>`_)
-* Contributors: Karsten Knese, Bence Magyar
-
-2.0.1 (2022-02-01)
-------------------
-
-2.0.0 (2022-01-28)
+1.4.0 (2022-02-23)
 ------------------
 
 1.3.0 (2022-01-11)

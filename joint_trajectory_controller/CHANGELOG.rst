@@ -2,30 +2,8 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.1.0 (2022-02-23)
+1.4.0 (2022-02-23)
 ------------------
-* INSTANTIATE_TEST_CASE_P -> INSTANTIATE_TEST_SUITE_P (`#293 <https://github.com/ros-controls/ros2_controllers/issues/293>`_)
-* Contributors: Bence Magyar
-
-2.0.1 (2022-02-01)
-------------------
-* Fix missing control_toolbox dependency (`#291 <https://github.com/ros-controls/ros2_controllers/issues/291>`_)
-* Contributors: Denis Štogl
-
-2.0.0 (2022-01-28)
-------------------
-* [JointTrajectoryController] Add velocity-only command option for JTC with closed loop controller (`#239 <https://github.com/ros-controls/ros2_controllers/issues/239>`_)
-  * Add velocity pid support.
-  * Remove incorrect init test for only velocity command interface.
-  * Add clarification comments for pid aux variables. Adapt update loop.
-  * Change dt for pid to appropriate measure.
-  * Improve partial commands for velocity-only mode.
-  * Extend tests to use velocity-only mode.
-  * Increase timeout for velocity-only mode parametrized tests.
-  * add is_same_sign for better refactor
-  * refactor boolean logic
-  * set velocity to 0.0 on deactivate
-* Contributors: Lovro Ivanov, Bence Magyar
 
 1.3.0 (2022-01-11)
 ------------------
