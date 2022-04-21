@@ -269,8 +269,8 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
 
   // This call is replacing the way parameters are set via launch
   SetParameters();
-  SetPidParameters();
-  traj_controller_->get_node()->configure();
+  SetParameters();  // This call is replacing the way parameters are set via launch
+  traj_controller_->configure();
   auto state = traj_controller_->get_state();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
 
@@ -321,6 +321,13 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
     EXPECT_LE(0.0, joint_vel_[0]);
     EXPECT_LE(0.0, joint_vel_[1]);
     EXPECT_LE(0.0, joint_vel_[2]);
+  }
+
+  if (traj_controller_->has_effort_command_interface())
+  {
+    EXPECT_LE(0.0, joint_eff_[0]);
+    EXPECT_LE(0.0, joint_eff_[1]);
+    EXPECT_LE(0.0, joint_eff_[2]);
   }
 
   // cleanup
@@ -469,6 +476,14 @@ TEST_P(TrajectoryControllerTestParameterized, test_jumbled_joint_order)
       traj_msg.points[0].velocities[2] = -0.1;
     }
 
+    if (traj_controller_->has_effort_command_interface())
+    {
+      traj_msg.points[0].effort.resize(3);
+      traj_msg.points[0].effort[0] = -0.1;
+      traj_msg.points[0].effort[1] = -0.1;
+      traj_msg.points[0].effort[2] = -0.1;
+    }
+
     trajectory_publisher_->publish(traj_msg);
   }
 
@@ -490,6 +505,13 @@ TEST_P(TrajectoryControllerTestParameterized, test_jumbled_joint_order)
     EXPECT_GT(0.0, joint_vel_[0]);
     EXPECT_GT(0.0, joint_vel_[1]);
     EXPECT_GT(0.0, joint_vel_[2]);
+  }
+
+  if (traj_controller_->has_effort_command_interface())
+  {
+    EXPECT_GT(0.0, joint_eff_[0]);
+    EXPECT_GT(0.0, joint_eff_[1]);
+    EXPECT_GT(0.0, joint_eff_[2]);
   }
 }
 
@@ -551,6 +573,18 @@ TEST_P(TrajectoryControllerTestParameterized, test_partial_joint_list)
     EXPECT_TRUE(is_same_sign(traj_msg.points[0].positions[1] - initial_joint1_cmd, joint_vel_[1]));
     EXPECT_NEAR(0.0, joint_vel_[2], threshold)
       << "Joint 3 velocity should be 0.0 since it's not in the goal";
+  }
+
+  if (
+    std::find(command_interface_types_.begin(), command_interface_types_.end(), "effort") !=
+    command_interface_types_.end())
+  {
+    // estimate the sign of the velocity
+    // joint rotates forward
+    EXPECT_TRUE(is_same_sign(traj_msg.points[0].positions[0] - initial_joint2_cmd, joint_eff_[0]));
+    EXPECT_TRUE(is_same_sign(traj_msg.points[0].positions[1] - initial_joint1_cmd, joint_eff_[1]));
+    EXPECT_NEAR(0.0, joint_eff_[2], threshold)
+      << "Joint 3 effort should be 0.0 since it's not in the goal";
   }
   // TODO(anyone): add here ckecks for acceleration commands
 
@@ -636,8 +670,10 @@ TEST_P(TrajectoryControllerTestParameterized, test_partial_joint_list_not_allowe
 TEST_P(TrajectoryControllerTestParameterized, invalid_message)
 {
   rclcpp::Parameter partial_joints_parameters("allow_partial_joints_goal", false);
+  rclcpp::Parameter allow_integration_parameters("allow_integration_in_goal_trajectories", false);
   rclcpp::executors::SingleThreadedExecutor executor;
-  SetUpAndActivateTrajectoryController(true, {partial_joints_parameters}, &executor);
+  SetUpAndActivateTrajectoryController(
+    true, {partial_joints_parameters, allow_integration_parameters}, &executor);
 
   trajectory_msgs::msg::JointTrajectory traj_msg, good_traj_msg;
 
@@ -690,6 +726,67 @@ TEST_P(TrajectoryControllerTestParameterized, invalid_message)
   // Non-strictly increasing waypoint times
   traj_msg = good_traj_msg;
   traj_msg.points.push_back(traj_msg.points.front());
+  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
+}
+
+/// With allow_integration_in_goal_trajectories parameter trajectory missing position or velocities
+/// are accepted
+TEST_P(TrajectoryControllerTestParameterized, missing_positions_message_accepted)
+{
+  rclcpp::Parameter allow_integration_parameters("allow_integration_in_goal_trajectories", true);
+  rclcpp::executors::SingleThreadedExecutor executor;
+  SetUpAndActivateTrajectoryController(true, {allow_integration_parameters}, &executor);
+
+  trajectory_msgs::msg::JointTrajectory traj_msg, good_traj_msg;
+
+  good_traj_msg.joint_names = joint_names_;
+  good_traj_msg.header.stamp = rclcpp::Time(0);
+  good_traj_msg.points.resize(1);
+  good_traj_msg.points[0].time_from_start = rclcpp::Duration::from_seconds(0.25);
+  good_traj_msg.points[0].positions.resize(1);
+  good_traj_msg.points[0].positions = {1.0, 2.0, 3.0};
+  good_traj_msg.points[0].velocities.resize(1);
+  good_traj_msg.points[0].velocities = {-1.0, -2.0, -3.0};
+  good_traj_msg.points[0].accelerations.resize(1);
+  good_traj_msg.points[0].accelerations = {1.0, 2.0, 3.0};
+  EXPECT_TRUE(traj_controller_->validate_trajectory_msg(good_traj_msg));
+
+  // No position data
+  traj_msg = good_traj_msg;
+  traj_msg.points[0].positions.clear();
+  EXPECT_TRUE(traj_controller_->validate_trajectory_msg(traj_msg));
+
+  // No position and velocity data
+  traj_msg = good_traj_msg;
+  traj_msg.points[0].positions.clear();
+  traj_msg.points[0].velocities.clear();
+  EXPECT_TRUE(traj_controller_->validate_trajectory_msg(traj_msg));
+
+  // All empty
+  traj_msg = good_traj_msg;
+  traj_msg.points[0].positions.clear();
+  traj_msg.points[0].velocities.clear();
+  traj_msg.points[0].accelerations.clear();
+  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
+
+  // Incompatible data sizes, too few positions
+  traj_msg = good_traj_msg;
+  traj_msg.points[0].positions = {1.0, 2.0};
+  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
+
+  // Incompatible data sizes, too many positions
+  traj_msg = good_traj_msg;
+  traj_msg.points[0].positions = {1.0, 2.0, 3.0, 4.0};
+  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
+
+  // Incompatible data sizes, too few velocities
+  traj_msg = good_traj_msg;
+  traj_msg.points[0].velocities = {1.0};
+  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
+
+  // Incompatible data sizes, too few accelerations
+  traj_msg = good_traj_msg;
+  traj_msg.points[0].accelerations = {2.0};
   EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
 }
 
@@ -1180,6 +1277,16 @@ INSTANTIATE_TEST_SUITE_P(
       std::vector<std::string>({"velocity"}),
       std::vector<std::string>({"position", "velocity", "acceleration"}))));
 
+// only effort controller
+INSTANTIATE_TEST_CASE_P(
+  OnlyEffortTrajectoryControllers, TrajectoryControllerTestParameterized,
+  ::testing::Values(
+    std::make_tuple(
+      std::vector<std::string>({"effort"}), std::vector<std::string>({"position", "velocity"})),
+    std::make_tuple(
+      std::vector<std::string>({"effort"}),
+      std::vector<std::string>({"position", "velocity", "acceleration"}))));
+
 TEST_F(TrajectoryControllerTest, incorrect_initialization_using_interface_parameters)
 {
   auto set_parameter_and_check_result = [&]() {
@@ -1197,10 +1304,6 @@ TEST_F(TrajectoryControllerTest, incorrect_initialization_using_interface_parame
 
   // command interfaces: bad_name
   command_interface_types_ = {"bad_name"};
-  set_parameter_and_check_result();
-
-  // command interfaces: effort not yet implemented
-  command_interface_types_ = {"effort"};
   set_parameter_and_check_result();
 
   // command interfaces: effort has to be only
@@ -1235,5 +1338,19 @@ TEST_F(TrajectoryControllerTest, incorrect_initialization_using_interface_parame
 
   // state interfaces: acceleration without position and velocity
   state_interface_types_ = {"acceleration"};
+  set_parameter_and_check_result();
+
+  // velocity-only command interface: position - velocity not present
+  command_interface_types_ = {"velocity"};
+  state_interface_types_ = {"position"};
+  set_parameter_and_check_result();
+  state_interface_types_ = {"velocity"};
+  set_parameter_and_check_result();
+
+  // effort-only command interface: position - velocity not present
+  command_interface_types_ = {"effort"};
+  state_interface_types_ = {"position"};
+  set_parameter_and_check_result();
+  state_interface_types_ = {"velocity"};
   set_parameter_and_check_result();
 }
