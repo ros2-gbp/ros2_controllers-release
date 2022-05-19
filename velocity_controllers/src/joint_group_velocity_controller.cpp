@@ -25,11 +25,10 @@ namespace velocity_controllers
 JointGroupVelocityController::JointGroupVelocityController()
 : forward_command_controller::ForwardCommandController()
 {
-  logger_name_ = "joint velocity controller";
   interface_name_ = hardware_interface::HW_IF_VELOCITY;
 }
 
-CallbackReturn JointGroupVelocityController::on_init()
+controller_interface::CallbackReturn JointGroupVelocityController::on_init()
 {
   auto ret = ForwardCommandController::on_init();
   if (ret != CallbackReturn::SUCCESS)
@@ -53,7 +52,7 @@ CallbackReturn JointGroupVelocityController::on_init()
   return CallbackReturn::SUCCESS;
 }
 
-CallbackReturn JointGroupVelocityController::on_deactivate(
+controller_interface::CallbackReturn JointGroupVelocityController::on_deactivate(
   const rclcpp_lifecycle::State & previous_state)
 {
   auto ret = ForwardCommandController::on_deactivate(previous_state);
