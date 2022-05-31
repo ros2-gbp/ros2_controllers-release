@@ -1,0 +1,12 @@
+Source: ros-foxy-joint-state-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-foxy-ament-cmake, ros-foxy-ament-cmake-gmock, ros-foxy-controller-manager, ros-foxy-hardware-interface, ros-foxy-joint-state-broadcaster, ros-foxy-pluginlib, ros-foxy-rclcpp, ros-foxy-ros2-control-test-assets, ros-foxy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-foxy-joint-state-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-foxy-joint-state-broadcaster, ros-foxy-ros-workspace
+Description: Controller to publish joint state
