@@ -14,7 +14,6 @@
 
 #include <string>
 
-#include "controller_interface/controller_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "position_controllers/joint_group_position_controller.hpp"
 #include "rclcpp/logging.hpp"
@@ -22,16 +21,20 @@
 
 namespace position_controllers
 {
+using CallbackReturn = JointGroupPositionController::CallbackReturn;
+
 JointGroupPositionController::JointGroupPositionController()
 : forward_command_controller::ForwardCommandController()
 {
+  logger_name_ = "joint position controller";
   interface_name_ = hardware_interface::HW_IF_POSITION;
 }
 
-controller_interface::CallbackReturn JointGroupPositionController::on_init()
+controller_interface::return_type JointGroupPositionController::init(
+  const std::string & controller_name)
 {
-  auto ret = forward_command_controller::ForwardCommandController::on_init();
-  if (ret != CallbackReturn::SUCCESS)
+  auto ret = ForwardCommandController::init(controller_name);
+  if (ret != controller_interface::return_type::OK)
   {
     return ret;
   }
@@ -46,10 +49,10 @@ controller_interface::CallbackReturn JointGroupPositionController::on_init()
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return CallbackReturn::ERROR;
+    return controller_interface::return_type::ERROR;
   }
 
-  return CallbackReturn::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 }  // namespace position_controllers
 

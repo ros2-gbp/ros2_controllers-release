@@ -14,7 +14,6 @@ find_package(ament_cmake REQUIRED)
 find_package(angles REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(control_msgs REQUIRED)
-find_package(control_toolbox REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -32,7 +31,6 @@ ament_target_dependencies(joint_trajectory_controller
   builtin_interfaces
   controller_interface
   control_msgs
-  control_toolbox
   hardware_interface
   pluginlib
   rclcpp
@@ -43,6 +41,8 @@ ament_target_dependencies(joint_trajectory_controller
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(joint_trajectory_controller PRIVATE "JOINT_TRAJECTORY_CONTROLLER_BUILDING_DLL" "_USE_MATH_DEFINES")
+# prevent pluginlib from using boost
+target_compile_definitions(joint_trajectory_controller PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 pluginlib_export_plugin_description_file(controller_interface joint_trajectory_plugin.xml)
 
 install(DIRECTORY include/
@@ -67,7 +67,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_trajectory_controller
     test/test_trajectory_controller.cpp
     ENV config_file=${CMAKE_CURRENT_SOURCE_DIR}/test/config/test_joint_trajectory_controller.yaml)
-  set_tests_properties(test_trajectory_controller PROPERTIES TIMEOUT 220)
+  set_tests_properties(test_trajectory_controller PROPERTIES TIMEOUT 180)
   target_include_directories(test_trajectory_controller PRIVATE include)
   target_link_libraries(test_trajectory_controller
     joint_trajectory_controller
@@ -77,7 +77,6 @@ if(BUILD_TESTING)
     hardware_interface
     rclcpp
     rclcpp_lifecycle
-    control_toolbox
     realtime_tools
     ros2_control_test_assets
     trajectory_msgs
@@ -90,10 +89,10 @@ if(BUILD_TESTING)
   target_include_directories(test_load_joint_trajectory_controller PRIVATE include)
   ament_target_dependencies(test_load_joint_trajectory_controller
     controller_manager
-    control_toolbox
     realtime_tools
     ros2_control_test_assets
   )
+  target_compile_definitions(test_load_joint_trajectory_controller PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 
   ament_add_gtest(
     test_trajectory_actions
@@ -117,7 +116,6 @@ endif()
 ament_export_dependencies(
   controller_interface
   control_msgs
-  control_toolbox
   hardware_interface
   rclcpp
   rclcpp_lifecycle

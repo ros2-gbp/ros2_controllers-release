@@ -16,7 +16,6 @@ find_package(controller_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcutils REQUIRED)
-find_package(realtime_tools REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 add_library(joint_state_broadcaster
@@ -31,12 +30,13 @@ ament_target_dependencies(joint_state_broadcaster
   pluginlib
   rclcpp_lifecycle
   rcutils
-  realtime_tools
   sensor_msgs
 )
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(joint_state_broadcaster PRIVATE "JOINT_STATE_BROADCASTER_BUILDING_DLL")
+# prevent pluginlib from using boost
+target_compile_definitions(joint_state_broadcaster PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 pluginlib_export_plugin_description_file(controller_interface joint_state_plugin.xml)
 
 install(
@@ -69,6 +69,7 @@ if(BUILD_TESTING)
     hardware_interface
     ros2_control_test_assets
   )
+  target_compile_definitions(test_load_joint_state_broadcaster PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 
   ament_add_gmock(
     test_joint_state_broadcaster
