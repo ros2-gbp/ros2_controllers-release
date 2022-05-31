@@ -1,0 +1,12 @@
+Source: ros-foxy-ros2-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-foxy-ament-cmake, ros-foxy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-foxy-ros2-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-foxy-diff-drive-controller, ros-foxy-effort-controllers, ros-foxy-force-torque-sensor-broadcaster, ros-foxy-forward-command-controller, ros-foxy-imu-sensor-broadcaster, ros-foxy-joint-state-broadcaster, ros-foxy-joint-state-controller, ros-foxy-joint-trajectory-controller, ros-foxy-position-controllers, ros-foxy-velocity-controllers, ros-foxy-ros-workspace
+Description: Metapackage for ROS2 controllers related packages
