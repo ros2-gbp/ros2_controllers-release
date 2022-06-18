@@ -2,21 +2,73 @@
 Changelog for package diff_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.8.0 (2022-05-31)
+2.6.0 (2022-06-18)
+------------------
+* Disable failing workflows (`#363 <https://github.com/ros-controls/ros2_controllers/issues/363>`_)
+* CMakeLists cleanup (`#362 <https://github.com/ros-controls/ros2_controllers/issues/362>`_)
+* Fix exception about parameter already been declared & Change default c++ version to 17 (`#360 <https://github.com/ros-controls/ros2_controllers/issues/360>`_)
+  * Default C++ version to 17
+  * Replace explicit use of declare_paremeter with auto_declare
+* Contributors: Andy Zelenak, Jafar Abdi
+
+2.5.0 (2022-05-13)
+------------------
+* [diff_drive_controller] Made odom topic name relative as it was in ROS1. (`#343 <https://github.com/ros-controls/ros2_controllers/issues/343>`_)
+* Fix wrong integration of velocity feedback in odometry in diff_drive_controller (`#331 <https://github.com/ros-controls/ros2_controllers/issues/331>`_)
+* Contributors: Patrick Roncagliolo, Tony Baltovski
+
+2.4.0 (2022-04-29)
+------------------
+* updated to use node getter functions (`#329 <https://github.com/ros-controls/ros2_controllers/issues/329>`_)
+* Contributors: Bence Magyar, Denis Štogl, Jack Center
+
+2.3.0 (2022-04-21)
+------------------
+* Use CallbackReturn from controller_interface namespace (`#333 <https://github.com/ros-controls/ros2_controllers/issues/333>`_)
+* Contributors: Bence Magyar, Denis Štogl
+
+2.2.0 (2022-03-25)
+------------------
+* Use lifecycle node as base for controllers (`#244 <https://github.com/ros-controls/ros2_controllers/issues/244>`_)
+* Contributors: Denis Štogl, Vatan Aksoy Tezer, Bence Magyar
+
+2.1.0 (2022-02-23)
+------------------
+* use rolling mean from rcppmath (`#211 <https://github.com/ros-controls/ros2_controllers/issues/211>`_)
+* Contributors: Karsten Knese, Bence Magyar
+
+2.0.1 (2022-02-01)
 ------------------
 
-0.7.0 (2022-01-24)
+2.0.0 (2022-01-28)
 ------------------
 
-0.6.0 (2022-01-11)
+1.3.0 (2022-01-11)
 ------------------
-* Add publish_rate option for the diff_drive_controller (backport `#278 <https://github.com/ros-controls/ros2_controllers/issues/278>`_) (`#284 <https://github.com/ros-controls/ros2_controllers/issues/284>`_)
-* Contributors: Benjamin Hug
+* Add publish_rate option for the diff_drive_controller (`#278 <https://github.com/ros-controls/ros2_controllers/issues/278>`_)
+* Fix angular velocity direction of diff_drive_controller odometry (`#281 <https://github.com/ros-controls/ros2_controllers/issues/281>`_)
+* Contributors: Benjamin Hug, Paul Verhoeckx
 
-0.5.1 (2021-10-25)
+1.2.0 (2021-12-29)
 ------------------
-* Fix diff_drive accel limit (`#242 <https://github.com/ros-controls/ros2_controllers/issues/242>`_) (backport `#252 <https://github.com/ros-controls/ros2_controllers/issues/252>`_) (`#257 <https://github.com/ros-controls/ros2_controllers/issues/257>`_)
-* Contributors: Josh Newans
+* Add velocity feedback option for diff_drive_controller (`#260 <https://github.com/ros-controls/ros2_controllers/issues/260>`_)
+* Contributors: Patrick Roncagliolo
+
+1.1.0 (2021-10-25)
+------------------
+* Use common test URDF from descriptions.hpp (`#258 <https://github.com/ros-controls/ros2_controllers/issues/258>`_)
+* Fix header include on Fedora <https://github.com/ros-controls/ros2_controllers/issues/255>`_ (`#256 <https://github.com/ros-controls/ros2_controllers/issues/256>`_)
+* Fix diff_drive accel limit (`#242 <https://github.com/ros-controls/ros2_controllers/issues/242>`_) (`#252 <https://github.com/ros-controls/ros2_controllers/issues/252>`_)
+* Contributors: Denis Štogl, Josh Newans, Noeël Moeskops, bailaC
+
+1.0.0 (2021-09-29)
+------------------
+* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
+* Unify style of controllers. (`#236 <https://github.com/ros-controls/ros2_controllers/issues/236>`_)
+* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
+* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
+* refactor get_current_state to get_state (`#232 <https://github.com/ros-controls/ros2_controllers/issues/232>`_)
+* Contributors: Bence Magyar, Denis Štogl, Márk Szitanics, bailaC
 
 0.5.0 (2021-08-30)
 ------------------

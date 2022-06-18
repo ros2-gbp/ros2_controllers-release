@@ -2,17 +2,108 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.8.0 (2022-05-31)
+2.6.0 (2022-06-18)
+------------------
+* Disable failing workflows (`#363 <https://github.com/ros-controls/ros2_controllers/issues/363>`_)
+* Fixed lof message in joint_trayectory_controller (`#366 <https://github.com/ros-controls/ros2_controllers/issues/366>`_)
+* CMakeLists cleanup (`#362 <https://github.com/ros-controls/ros2_controllers/issues/362>`_)
+* Fix exception about parameter already been declared & Change default c++ version to 17 (`#360 <https://github.com/ros-controls/ros2_controllers/issues/360>`_)
+  * Default C++ version to 17
+  * Replace explicit use of declare_paremeter with auto_declare
+* Member variable renaming in the Joint Traj Controller (`#361 <https://github.com/ros-controls/ros2_controllers/issues/361>`_)
+* Contributors: Alejandro Hernández Cordero, Andy Zelenak, Jafar Abdi
+
+2.5.0 (2022-05-13)
+------------------
+* check for nans in command interface (`#346 <https://github.com/ros-controls/ros2_controllers/issues/346>`_)
+* Contributors: Michael Wiznitzer
+
+2.4.0 (2022-04-29)
+------------------
+* Fix a gtest deprecation warning (`#341 <https://github.com/ros-controls/ros2_controllers/issues/341>`_)
+* Delete unused variable in joint_traj_controller (`#339 <https://github.com/ros-controls/ros2_controllers/issues/339>`_)
+* updated to use node getter functions (`#329 <https://github.com/ros-controls/ros2_controllers/issues/329>`_)
+* Fix JTC state tolerance and goal_time tolerance check bug (`#316 <https://github.com/ros-controls/ros2_controllers/issues/316>`_)
+  * fix state tolerance check bug
+  * hold position when canceling or aborting. update state tolerance test
+  * add goal tolerance fail test
+  * better state tolerance test
+  * use predefined constants
+  * fix goal_time logic and tests
+  * add comments
+* Contributors: Andy Zelenak, Jack Center, Michael Wiznitzer, Bence Magyar, Denis Štogl
+
+2.3.0 (2022-04-21)
+------------------
+* [JTC] Allow integration of states in goal trajectories (`#190 <https://github.com/ros-controls/ros2_controllers/issues/190>`_)
+  * Added position and velocity deduction to trajectory.
+  * Added support for deduction of states from their derivatives.
+* Use CallbackReturn from controller_interface namespace (`#333 <https://github.com/ros-controls/ros2_controllers/issues/333>`_)
+* [JTC] Implement effort-only command interface (`#225 <https://github.com/ros-controls/ros2_controllers/issues/225>`_)
+  * Fix trajectory tolerance parameters
+  * Implement effort command interface for JTC
+  * Use auto_declare for pid params
+  * Set effort to 0 on deactivate
+* [JTC] Variable renaming for clearer API (`#323 <https://github.com/ros-controls/ros2_controllers/issues/323>`_)
+* Remove unused include to fix JTC test (`#319 <https://github.com/ros-controls/ros2_controllers/issues/319>`_)
+* Contributors: Akash, Andy Zelenak, Bence Magyar, Denis Štogl, Jafar Abdi, Victor Lopez
+
+2.2.0 (2022-03-25)
+------------------
+* Use lifecycle node as base for controllers (`#244 <https://github.com/ros-controls/ros2_controllers/issues/244>`_)
+* JointTrajectoryController: added missing control_toolbox dependencies (`#315 <https://github.com/ros-controls/ros2_controllers/issues/315>`_)
+* Use time argument on update function instead of node time (`#296 <https://github.com/ros-controls/ros2_controllers/issues/296>`_)
+* Export dependency (`#310 <https://github.com/ros-controls/ros2_controllers/issues/310>`_)
+* Contributors: DasRoteSkelett, Erick G. Islas-Osuna, Jafar Abdi, Denis Štogl, Vatan Aksoy Tezer, Bence Magyar
+
+2.1.0 (2022-02-23)
+------------------
+* INSTANTIATE_TEST_CASE_P -> INSTANTIATE_TEST_SUITE_P (`#293 <https://github.com/ros-controls/ros2_controllers/issues/293>`_)
+* Contributors: Bence Magyar
+
+2.0.1 (2022-02-01)
+------------------
+* Fix missing control_toolbox dependency (`#291 <https://github.com/ros-controls/ros2_controllers/issues/291>`_)
+* Contributors: Denis Štogl
+
+2.0.0 (2022-01-28)
+------------------
+* [JointTrajectoryController] Add velocity-only command option for JTC with closed loop controller (`#239 <https://github.com/ros-controls/ros2_controllers/issues/239>`_)
+  * Add velocity pid support.
+  * Remove incorrect init test for only velocity command interface.
+  * Add clarification comments for pid aux variables. Adapt update loop.
+  * Change dt for pid to appropriate measure.
+  * Improve partial commands for velocity-only mode.
+  * Extend tests to use velocity-only mode.
+  * Increase timeout for velocity-only mode parametrized tests.
+  * add is_same_sign for better refactor
+  * refactor boolean logic
+  * set velocity to 0.0 on deactivate
+* Contributors: Lovro Ivanov, Bence Magyar
+
+1.3.0 (2022-01-11)
 ------------------
 
-0.7.0 (2022-01-24)
+1.2.0 (2021-12-29)
 ------------------
 
-0.6.0 (2022-01-11)
+1.1.0 (2021-10-25)
 ------------------
+* Move interface sorting into ControllerInterface (`#259 <https://github.com/ros-controls/ros2_controllers/issues/259>`_)
+* Revise for-loop style (`#254 <https://github.com/ros-controls/ros2_controllers/issues/254>`_)
+* Contributors: bailaC
 
-0.5.1 (2021-10-25)
+1.0.0 (2021-09-29)
 ------------------
+* Remove compile warnings. (`#245 <https://github.com/ros-controls/ros2_controllers/issues/245>`_)
+* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
+* Quickfix 🛠: Correct confusing variable name (`#240 <https://github.com/ros-controls/ros2_controllers/issues/240>`_)
+* Unify style of controllers. (`#236 <https://github.com/ros-controls/ros2_controllers/issues/236>`_)
+* Change test to work with Foxy and posterior action API (`#237 <https://github.com/ros-controls/ros2_controllers/issues/237>`_)
+* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
+* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
+* refactor get_current_state to get_state (`#232 <https://github.com/ros-controls/ros2_controllers/issues/232>`_)
+* Contributors: Bence Magyar, Denis Štogl, Márk Szitanics, Tyler Weaver, bailaC
 
 0.5.0 (2021-08-30)
 ------------------

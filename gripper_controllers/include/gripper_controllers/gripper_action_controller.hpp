@@ -71,9 +71,6 @@ public:
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC GripperActionController();
 
-  GRIPPER_ACTION_CONTROLLER_PUBLIC
-  controller_interface::return_type init(const std::string & controller_name) override;
-
   /**
    * @brief command_interface_configuration This controller requires the
    * position command interfaces for the controlled joints
@@ -89,18 +86,22 @@ public:
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  controller_interface::return_type update() override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_configure(
+  controller_interface::CallbackReturn on_init() override;
+
+  GRIPPER_ACTION_CONTROLLER_PUBLIC
+  controller_interface::CallbackReturn on_configure(
     const rclcpp_lifecycle::State & previous_state) override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
+  controller_interface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & previous_state) override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
+  controller_interface::CallbackReturn on_deactivate(
     const rclcpp_lifecycle::State & previous_state) override;
 
   realtime_tools::RealtimeBuffer<Commands> command_;

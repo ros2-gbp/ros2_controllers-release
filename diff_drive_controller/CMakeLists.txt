@@ -1,59 +1,54 @@
 cmake_minimum_required(VERSION 3.5)
 project(diff_drive_controller)
 
-# Default to C++14
+# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
 endif()
 
-find_package(ament_cmake REQUIRED)
-find_package(controller_interface REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(hardware_interface REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(pluginlib REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(realtime_tools REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_msgs REQUIRED)
+set(THIS_PACKAGE_INCLUDE_DEPENDS
+    controller_interface
+    geometry_msgs
+    hardware_interface
+    nav_msgs
+    pluginlib
+    rclcpp
+    rclcpp_lifecycle
+    rcpputils
+    realtime_tools
+    tf2
+    tf2_msgs
+)
 
-add_library(diff_drive_controller SHARED
+find_package(ament_cmake REQUIRED)
+foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
+  find_package(${Dependency} REQUIRED)
+endforeach()
+
+add_library(${PROJECT_NAME} SHARED
   src/diff_drive_controller.cpp
   src/odometry.cpp
   src/speed_limiter.cpp
 )
-
-target_include_directories(diff_drive_controller PRIVATE include)
-ament_target_dependencies(diff_drive_controller
-  builtin_interfaces
-  controller_interface
-  geometry_msgs
-  hardware_interface
-  nav_msgs
-  pluginlib
-  rclcpp
-  rclcpp_lifecycle
-  realtime_tools
-  tf2
-  tf2_msgs
-)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+ament_target_dependencies(${PROJECT_NAME} ${THIS_PACKAGE_INCLUDE_DEPENDS})
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
-target_compile_definitions(diff_drive_controller PRIVATE "DIFF_DRIVE_CONTROLLER_BUILDING_DLL")
-# prevent pluginlib from using boost
-target_compile_definitions(diff_drive_controller PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
+target_compile_definitions(${PROJECT_NAME} PRIVATE "DIFF_DRIVE_CONTROLLER_BUILDING_DLL")
 pluginlib_export_plugin_description_file(controller_interface diff_drive_plugin.xml)
 
 install(DIRECTORY include/
   DESTINATION include
 )
 
-install(TARGETS diff_drive_controller
+install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -62,13 +57,14 @@ install(TARGETS diff_drive_controller
 if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
   find_package(controller_manager REQUIRED)
+  find_package(ros2_control_test_assets REQUIRED)
 
   ament_add_gmock(test_diff_drive_controller
     test/test_diff_drive_controller.cpp
     ENV config_file=${CMAKE_CURRENT_SOURCE_DIR}/test/config/test_diff_drive_controller.yaml)
   target_include_directories(test_diff_drive_controller PRIVATE include)
   target_link_libraries(test_diff_drive_controller
-    diff_drive_controller
+    ${PROJECT_NAME}
   )
 
   ament_target_dependencies(test_diff_drive_controller
@@ -89,32 +85,18 @@ if(BUILD_TESTING)
   target_include_directories(test_load_diff_drive_controller PRIVATE include)
   ament_target_dependencies(test_load_diff_drive_controller
     controller_manager
+    ros2_control_test_assets
   )
-  target_compile_definitions(test_load_diff_drive_controller PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
-
-  ament_add_gmock(
-    test_accumulator
-    test/test_accumulator.cpp
-  )
-
-  target_include_directories(test_accumulator PRIVATE include)
-  ament_target_dependencies(test_accumulator)
 
 endif()
 
 ament_export_dependencies(
-  controller_interface
-  geometry_msgs
-  hardware_interface
-  rclcpp
-  rclcpp_lifecycle
-  tf2
-  tf2_msgs
+  ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
 ament_export_include_directories(
   include
 )
 ament_export_libraries(
-  diff_drive_controller
+  ${PROJECT_NAME}
 )
 ament_package()

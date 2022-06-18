@@ -61,8 +61,6 @@ protected:
   void SetUp()
   {
     TrajectoryControllerTest::SetUp();
-    goal_options_.goal_response_callback =
-      std::bind(&TestTrajectoryActions::common_goal_response, this, _1);
     goal_options_.result_callback =
       std::bind(&TestTrajectoryActions::common_result_response, this, _1);
     goal_options_.feedback_callback = nullptr;
@@ -76,7 +74,7 @@ protected:
 
     SetUpAndActivateTrajectoryController(true, parameters);
 
-    executor_->add_node(traj_node_->get_node_base_interface());
+    executor_->add_node(traj_controller_->get_node()->get_node_base_interface());
 
     SetUpActionClient();
 
@@ -96,11 +94,10 @@ protected:
       auto end_time = start_time + wait;
       while (rclcpp::Clock().now() < end_time)
       {
-        traj_controller_->update();
+        traj_controller_->update(rclcpp::Clock().now(), rclcpp::Clock().now() - start_time);
       }
     });
 
-    // common_goal_response and common_result_response
     // sometimes doesn't receive calls when we don't sleep
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
@@ -153,7 +150,7 @@ protected:
   using GoalHandle = rclcpp_action::ClientGoalHandle<FollowJointTrajectoryMsg>;
   using GoalOptions = rclcpp_action::Client<FollowJointTrajectoryMsg>::SendGoalOptions;
 
-  bool sendActionGoal(
+  std::shared_future<typename GoalHandle::SharedPtr> sendActionGoal(
     const std::vector<JointTrajectoryPoint> & points, double timeout, const GoalOptions & opt)
   {
     control_msgs::action::FollowJointTrajectory_Goal goal_msg;
@@ -161,13 +158,11 @@ protected:
     goal_msg.trajectory.joint_names = joint_names_;
     goal_msg.trajectory.points = points;
 
-    auto goal_handle_future = action_client_->async_send_goal(goal_msg, opt);
-    return true;
+    return action_client_->async_send_goal(goal_msg, opt);
   }
 
   rclcpp_action::Client<FollowJointTrajectoryMsg>::SharedPtr action_client_;
   rclcpp_action::ResultCode common_resultcode_ = rclcpp_action::ResultCode::UNKNOWN;
-  bool common_goal_accepted_ = false;
   int common_action_result_code_ = control_msgs::action::FollowJointTrajectory_Result::SUCCESSFUL;
 
   bool setup_executor_ = false;
@@ -180,23 +175,6 @@ protected:
   GoalOptions goal_options_;
 
 public:
-  void common_goal_response(std::shared_future<GoalHandle::SharedPtr> future)
-  {
-    RCLCPP_DEBUG(
-      node_->get_logger(), "common_goal_response time: %f", rclcpp::Clock().now().seconds());
-    const auto goal_handle = future.get();
-    if (!goal_handle)
-    {
-      common_goal_accepted_ = false;
-      RCLCPP_DEBUG(node_->get_logger(), "Goal rejected");
-    }
-    else
-    {
-      common_goal_accepted_ = true;
-      RCLCPP_DEBUG(node_->get_logger(), "Goal accepted");
-    }
-  }
-
   void common_result_response(const GoalHandle::WrappedResult & result)
   {
     RCLCPP_DEBUG(
@@ -225,6 +203,7 @@ TEST_F(TestTrajectoryActions, test_success_single_point_sendgoal)
   SetUpExecutor();
   SetUpControllerHardware();
 
+  std::shared_future<typename GoalHandle::SharedPtr> gh_future;
   // send goal
   {
     std::vector<JointTrajectoryPoint> points;
@@ -238,11 +217,11 @@ TEST_F(TestTrajectoryActions, test_success_single_point_sendgoal)
 
     points.push_back(point);
 
-    sendActionGoal(points, 1.0, goal_options_);
+    gh_future = sendActionGoal(points, 1.0, goal_options_);
   }
   controller_hw_thread_.join();
 
-  EXPECT_TRUE(common_goal_accepted_);
+  EXPECT_TRUE(gh_future.get());
   EXPECT_EQ(rclcpp_action::ResultCode::SUCCEEDED, common_resultcode_);
 
   EXPECT_EQ(1.0, joint_pos_[0]);
@@ -262,6 +241,7 @@ TEST_F(TestTrajectoryActions, test_success_multi_point_sendgoal)
       rclcpp_action::ClientGoalHandle<FollowJointTrajectoryMsg>::SharedPtr,
       const std::shared_ptr<const FollowJointTrajectoryMsg::Feedback>) { feedback_recv = true; };
 
+  std::shared_future<typename GoalHandle::SharedPtr> gh_future;
   // send goal with multiple points
   {
     std::vector<JointTrajectoryPoint> points;
@@ -283,12 +263,12 @@ TEST_F(TestTrajectoryActions, test_success_multi_point_sendgoal)
     point2.positions[2] = 9.0;
     points.push_back(point2);
 
-    sendActionGoal(points, 1.0, goal_options_);
+    gh_future = sendActionGoal(points, 1.0, goal_options_);
   }
   controller_hw_thread_.join();
 
   EXPECT_TRUE(feedback_recv);
-  EXPECT_TRUE(common_goal_accepted_);
+  EXPECT_TRUE(gh_future.get());
   EXPECT_EQ(rclcpp_action::ResultCode::SUCCEEDED, common_resultcode_);
 
   EXPECT_NEAR(7.0, joint_pos_[0], COMMON_THRESHOLD);
@@ -307,6 +287,7 @@ TEST_F(TestTrajectoryActions, test_goal_tolerances_single_point_success)
   SetUpExecutor(params);
   SetUpControllerHardware();
 
+  std::shared_future<typename GoalHandle::SharedPtr> gh_future;
   // send goal
   {
     std::vector<JointTrajectoryPoint> points;
@@ -319,11 +300,11 @@ TEST_F(TestTrajectoryActions, test_goal_tolerances_single_point_success)
     point.positions[2] = 3.0;
     points.push_back(point);
 
-    sendActionGoal(points, 1.0, goal_options_);
+    gh_future = sendActionGoal(points, 1.0, goal_options_);
   }
   controller_hw_thread_.join();
 
-  EXPECT_TRUE(common_goal_accepted_);
+  EXPECT_TRUE(gh_future.get());
   EXPECT_EQ(rclcpp_action::ResultCode::SUCCEEDED, common_resultcode_);
   EXPECT_EQ(
     control_msgs::action::FollowJointTrajectory_Result::SUCCESSFUL, common_action_result_code_);
@@ -351,6 +332,7 @@ TEST_F(TestTrajectoryActions, test_goal_tolerances_multi_point_success)
       rclcpp_action::ClientGoalHandle<FollowJointTrajectoryMsg>::SharedPtr,
       const std::shared_ptr<const FollowJointTrajectoryMsg::Feedback>) { feedback_recv = true; };
 
+  std::shared_future<typename GoalHandle::SharedPtr> gh_future;
   // send goal with multiple points
   {
     std::vector<JointTrajectoryPoint> points;
@@ -372,12 +354,12 @@ TEST_F(TestTrajectoryActions, test_goal_tolerances_multi_point_success)
     point2.positions[2] = 9.0;
     points.push_back(point2);
 
-    sendActionGoal(points, 1.0, goal_options_);
+    gh_future = sendActionGoal(points, 1.0, goal_options_);
   }
   controller_hw_thread_.join();
 
   EXPECT_TRUE(feedback_recv);
-  EXPECT_TRUE(common_goal_accepted_);
+  EXPECT_TRUE(gh_future.get());
   EXPECT_EQ(rclcpp_action::ResultCode::SUCCEEDED, common_resultcode_);
   EXPECT_EQ(
     control_msgs::action::FollowJointTrajectory_Result::SUCCESSFUL, common_action_result_code_);
@@ -399,11 +381,71 @@ TEST_F(TestTrajectoryActions, test_state_tolerances_fail)
   SetUpExecutor(params);
   SetUpControllerHardware();
 
+  std::shared_future<typename GoalHandle::SharedPtr> gh_future;
+  // send goal
+  {
+    std::vector<JointTrajectoryPoint> points;
+    JointTrajectoryPoint point1;
+    point1.time_from_start = rclcpp::Duration::from_seconds(0.0);
+    point1.positions.resize(joint_names_.size());
+
+    point1.positions[0] = 4.0;
+    point1.positions[1] = 5.0;
+    point1.positions[2] = 6.0;
+    points.push_back(point1);
+
+    JointTrajectoryPoint point2;
+    point2.time_from_start = rclcpp::Duration::from_seconds(0.1);
+    point2.positions.resize(joint_names_.size());
+
+    point2.positions[0] = 7.0;
+    point2.positions[1] = 8.0;
+    point2.positions[2] = 9.0;
+    points.push_back(point2);
+
+    gh_future = sendActionGoal(points, 1.0, goal_options_);
+  }
+  controller_hw_thread_.join();
+
+  EXPECT_TRUE(gh_future.get());
+  EXPECT_EQ(rclcpp_action::ResultCode::ABORTED, common_resultcode_);
+  EXPECT_EQ(
+    control_msgs::action::FollowJointTrajectory_Result::PATH_TOLERANCE_VIOLATED,
+    common_action_result_code_);
+
+  // run an update, it should be holding
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+
+  EXPECT_NEAR(INITIAL_POS_JOINT1, joint_pos_[0], COMMON_THRESHOLD);
+  EXPECT_NEAR(INITIAL_POS_JOINT2, joint_pos_[1], COMMON_THRESHOLD);
+  EXPECT_NEAR(INITIAL_POS_JOINT3, joint_pos_[2], COMMON_THRESHOLD);
+}
+
+TEST_F(TestTrajectoryActions, test_goal_tolerances_fail)
+{
+  // set joint tolerance parameters
+  const double goal_tol = 0.1;
+  // set very small goal_time so that goal_time is violated
+  const double goal_time = 0.000001;
+  std::vector<rclcpp::Parameter> params = {
+    rclcpp::Parameter("constraints.joint1.goal", goal_tol),
+    rclcpp::Parameter("constraints.joint2.goal", goal_tol),
+    rclcpp::Parameter("constraints.joint3.goal", goal_tol),
+    rclcpp::Parameter("constraints.goal_time", goal_time)};
+
+  SetUpExecutor(params);
+  SetUpControllerHardware();
+
+  const double init_pos1 = joint_pos_[0];
+  const double init_pos2 = joint_pos_[1];
+  const double init_pos3 = joint_pos_[2];
+
+  std::shared_future<typename GoalHandle::SharedPtr> gh_future;
   // send goal
   {
     std::vector<JointTrajectoryPoint> points;
     JointTrajectoryPoint point;
-    point.time_from_start = rclcpp::Duration::from_seconds(1.0);
+    point.time_from_start = rclcpp::Duration::from_seconds(0.0);
     point.positions.resize(joint_names_.size());
 
     point.positions[0] = 4.0;
@@ -411,15 +453,22 @@ TEST_F(TestTrajectoryActions, test_state_tolerances_fail)
     point.positions[2] = 6.0;
     points.push_back(point);
 
-    sendActionGoal(points, 1.0, goal_options_);
+    gh_future = sendActionGoal(points, 1.0, goal_options_);
   }
   controller_hw_thread_.join();
 
-  EXPECT_TRUE(common_goal_accepted_);
+  EXPECT_TRUE(gh_future.get());
   EXPECT_EQ(rclcpp_action::ResultCode::ABORTED, common_resultcode_);
   EXPECT_EQ(
-    control_msgs::action::FollowJointTrajectory_Result::PATH_TOLERANCE_VIOLATED,
+    control_msgs::action::FollowJointTrajectory_Result::GOAL_TOLERANCE_VIOLATED,
     common_action_result_code_);
+
+  // run an update, it should be holding
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+
+  EXPECT_NEAR(init_pos1, joint_pos_[0], COMMON_THRESHOLD);
+  EXPECT_NEAR(init_pos2, joint_pos_[1], COMMON_THRESHOLD);
+  EXPECT_NEAR(init_pos3, joint_pos_[2], COMMON_THRESHOLD);
 }
 
 TEST_F(TestTrajectoryActions, test_cancel_hold_position)
@@ -427,6 +476,7 @@ TEST_F(TestTrajectoryActions, test_cancel_hold_position)
   SetUpExecutor();
   SetUpControllerHardware();
 
+  std::shared_future<typename GoalHandle::SharedPtr> gh_future;
   // send goal
   {
     std::vector<JointTrajectoryPoint> points;
@@ -445,15 +495,15 @@ TEST_F(TestTrajectoryActions, test_cancel_hold_position)
     goal_msg.trajectory.points = points;
 
     // send and wait for half a second before cancel
-    const auto goal_handle_future = action_client_->async_send_goal(goal_msg, goal_options_);
+    gh_future = action_client_->async_send_goal(goal_msg, goal_options_);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    const auto goal_handle = goal_handle_future.get();
+    const auto goal_handle = gh_future.get();
     action_client_->async_cancel_goal(goal_handle);
   }
   controller_hw_thread_.join();
 
-  EXPECT_TRUE(common_goal_accepted_);
+  EXPECT_TRUE(gh_future.get());
   EXPECT_EQ(rclcpp_action::ResultCode::CANCELED, common_resultcode_);
   EXPECT_EQ(
     control_msgs::action::FollowJointTrajectory_Result::SUCCESSFUL, common_action_result_code_);
@@ -463,7 +513,7 @@ TEST_F(TestTrajectoryActions, test_cancel_hold_position)
   const double prev_pos3 = joint_pos_[2];
 
   // run an update, it should be holding
-  traj_controller_->update();
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
 
   EXPECT_EQ(prev_pos1, joint_pos_[0]);
   EXPECT_EQ(prev_pos2, joint_pos_[1]);

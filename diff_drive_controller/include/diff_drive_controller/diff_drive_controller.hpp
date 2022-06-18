@@ -44,8 +44,6 @@
 
 namespace diff_drive_controller
 {
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
-
 class DiffDriveController : public controller_interface::ControllerInterface
 {
   using Twist = geometry_msgs::msg::TwistStamped;
@@ -55,43 +53,51 @@ public:
   DiffDriveController();
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  controller_interface::return_type init(const std::string & controller_name) override;
-
-  DIFF_DRIVE_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  controller_interface::return_type update() override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_init() override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  CallbackReturn on_cleanup(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  CallbackReturn on_error(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_cleanup(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   DIFF_DRIVE_CONTROLLER_PUBLIC
-  CallbackReturn on_shutdown(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_error(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  DIFF_DRIVE_CONTROLLER_PUBLIC
+  controller_interface::CallbackReturn on_shutdown(
+    const rclcpp_lifecycle::State & previous_state) override;
 
 protected:
   struct WheelHandle
   {
-    std::reference_wrapper<const hardware_interface::LoanedStateInterface> position;
+    std::reference_wrapper<const hardware_interface::LoanedStateInterface> feedback;
     std::reference_wrapper<hardware_interface::LoanedCommandInterface> velocity;
   };
 
-  CallbackReturn configure_side(
+  const char * feedback_type() const;
+  controller_interface::CallbackReturn configure_side(
     const std::string & side, const std::vector<std::string> & wheel_names,
     std::vector<WheelHandle> & registered_handles);
 
@@ -114,6 +120,7 @@ protected:
   struct OdometryParams
   {
     bool open_loop = false;
+    bool position_feedback = true;
     bool enable_odom_tf = true;
     std::string base_frame_id = "base_link";
     std::string odom_frame_id = "odom";
@@ -157,7 +164,7 @@ protected:
 
   // publish rate limiter
   double publish_rate_ = 50.0;
-  rclcpp::Duration publish_period_{0, 0};
+  rclcpp::Duration publish_period_ = rclcpp::Duration::from_nanoseconds(0);
   rclcpp::Time previous_publish_timestamp_{0};
 
   bool is_halted = false;

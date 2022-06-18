@@ -2,19 +2,69 @@
 Changelog for package forward_command_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.8.0 (2022-05-31)
+2.6.0 (2022-06-18)
+------------------
+* CMakeLists cleanup (`#362 <https://github.com/ros-controls/ros2_controllers/issues/362>`_)
+* Fix exception about parameter already been declared & Change default c++ version to 17 (`#360 <https://github.com/ros-controls/ros2_controllers/issues/360>`_)
+  * Default C++ version to 17
+  * Replace explicit use of declare_paremeter with auto_declare
+* Contributors: Andy Zelenak, Jafar Abdi
+
+2.5.0 (2022-05-13)
 ------------------
 
-0.7.0 (2022-01-24)
+2.4.0 (2022-04-29)
 ------------------
-* Bugfix 🏎: Reset and test of command buffer for forwarding controllers. (backport `#246 <https://github.com/ros-controls/ros2_controllers/issues/246>`_) (`#287 <https://github.com/ros-controls/ros2_controllers/issues/287>`_)
-* Contributors: Denis Štogl, Bence Magyar
+* Multi-interface Forward Controller (`#154 <https://github.com/ros-controls/ros2_controllers/issues/154>`_)
+* updated to use node getter functions (`#329 <https://github.com/ros-controls/ros2_controllers/issues/329>`_)
+* Contributors: Bence Magyar, Denis Štogl, Jack Center
 
-0.6.0 (2022-01-11)
+2.3.0 (2022-04-21)
+------------------
+* Use CallbackReturn from controller_interface namespace (`#333 <https://github.com/ros-controls/ros2_controllers/issues/333>`_)
+* Contributors: Bence Magyar, Denis Štogl
+
+2.2.0 (2022-03-25)
+------------------
+* Use lifecycle node as base for controllers (`#244 <https://github.com/ros-controls/ros2_controllers/issues/244>`_)
+* Contributors: Denis Štogl, Vatan Aksoy Tezer, Bence Magyar
+
+2.1.0 (2022-02-23)
 ------------------
 
-0.5.1 (2021-10-25)
+2.0.1 (2022-02-01)
 ------------------
+
+2.0.0 (2022-01-28)
+------------------
+
+1.3.0 (2022-01-11)
+------------------
+* Adding reset() for forward_command_controller (`#283 <https://github.com/ros-controls/ros2_controllers/issues/283>`_)
+* Contributors: bailaC
+
+1.2.0 (2021-12-29)
+------------------
+* Forward command controller test update (`#273 <https://github.com/ros-controls/ros2_controllers/issues/273>`_)
+  * removed unnecessary lines and updated comments
+  * fixed pre-commit issues
+  * removed extra part of test
+* Contributors: Jack Center
+
+1.1.0 (2021-10-25)
+------------------
+* Move interface sorting into ControllerInterface (`#259 <https://github.com/ros-controls/ros2_controllers/issues/259>`_)
+* Revise for-loop style (`#254 <https://github.com/ros-controls/ros2_controllers/issues/254>`_)
+* Contributors: bailaC
+
+1.0.0 (2021-09-29)
+------------------
+* Reset and test of command buffer for forwarding controllers. (`#246 <https://github.com/ros-controls/ros2_controllers/issues/246>`_)
+* Remove compile warnings. (`#245 <https://github.com/ros-controls/ros2_controllers/issues/245>`_)
+* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
+* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
+* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
+* Contributors: Bence Magyar, Denis Štogl, bailaC
 
 0.5.0 (2021-08-30)
 ------------------

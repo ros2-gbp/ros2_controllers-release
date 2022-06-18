@@ -2,22 +2,65 @@
 Changelog for package joint_state_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.8.0 (2022-05-31)
+2.6.0 (2022-06-18)
 ------------------
-* `joint_state_broadcaster` to use realtime tools (`#308 <https://github.com/ros-controls/ros2_controllers/issues/308>`_)
-  * joint_state_broadcaster to use realtime tools (`#276 <https://github.com/ros-controls/ros2_controllers/issues/276>`_)
-  * Use RealtimePublisher for joint_states
-  * Use RealtimePublisher for dynamic joint states
-* Contributors: John Morris
+* Fix exception about parameter already been declared & Change default c++ version to 17 (`#360 <https://github.com/ros-controls/ros2_controllers/issues/360>`_)
+  * Default C++ version to 17
+  * Replace explicit use of declare_paremeter with auto_declare
+* Contributors: Jafar Abdi
 
-0.7.0 (2022-01-24)
+2.5.0 (2022-05-13)
+------------------
+* fix: :bug: make force_torque_sensor_broadcaster wait for realtime_publisher (`#327 <https://github.com/ros-controls/ros2_controllers/issues/327>`_)
+* Contributors: Jaron Lundwall, Denis Štogl
+
+2.4.0 (2022-04-29)
+------------------
+* updated to use node getter functions (`#329 <https://github.com/ros-controls/ros2_controllers/issues/329>`_)
+* Contributors: Bence Magyar, Denis Štogl, Jack Center
+
+2.3.0 (2022-04-21)
+------------------
+* Use CallbackReturn from controller_interface namespace (`#333 <https://github.com/ros-controls/ros2_controllers/issues/333>`_)
+* Contributors: Bence Magyar, Denis Štogl
+
+2.2.0 (2022-03-25)
+------------------
+* Use lifecycle node as base for controllers (`#244 <https://github.com/ros-controls/ros2_controllers/issues/244>`_)
+* Contributors: Denis Štogl, Vatan Aksoy Tezer, Bence Magyar
+
+2.1.0 (2022-02-23)
+------------------
+* joint_state_broadcaster to use realtime tools (`#276 <https://github.com/ros-controls/ros2_controllers/issues/276>`_)
+* Contributors: Bence Magyar
+
+2.0.1 (2022-02-01)
 ------------------
 
-0.6.0 (2022-01-11)
+2.0.0 (2022-01-28)
 ------------------
 
-0.5.1 (2021-10-25)
+1.3.0 (2022-01-11)
 ------------------
+
+1.2.0 (2021-12-29)
+------------------
+* [Joint State Broadcaster] Add mapping of custom states to standard values in "/joint_state" message (`#217 <https://github.com/ros-controls/ros2_controllers/issues/217>`_)
+* [Joint State Broadcaster] Add option to support only specific interfaces on specific joints (`#216 <https://github.com/ros-controls/ros2_controllers/issues/216>`_)
+* Contributors: Denis Štogl, Bence Magyar
+
+1.1.0 (2021-10-25)
+------------------
+* Revise for-loop style (`#254 <https://github.com/ros-controls/ros2_controllers/issues/254>`_)
+* Contributors: bailaC
+
+1.0.0 (2021-09-29)
+------------------
+* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
+* Unify style of controllers. (`#236 <https://github.com/ros-controls/ros2_controllers/issues/236>`_)
+* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
+* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
+* Contributors: Bence Magyar, Denis Štogl, bailaC
 
 0.5.0 (2021-08-30)
 ------------------
