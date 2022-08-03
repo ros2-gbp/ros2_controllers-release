@@ -1,0 +1,100 @@
+ros-foxy-gripper-controllers (0.8.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 02 Aug 2022 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.8.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 30 May 2022 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.7.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 24 Jan 2022 00:00:00 -0000
+
+ros-foxy-gripper-controllers (0.6.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 11 Jan 2022 00:00:00 -0000
+
+ros-foxy-gripper-controllers (0.5.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 24 Oct 2021 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.5.0-1focal) focal; urgency=high
+
+  * Add auto declaration of parameters. (#224 <https://github.com/ros-controls/ros2_controllers/issues/224>)
+  * Bring precommit config up to speed with ros2_control (#227 <https://github.com/ros-controls/ros2_controllers/issues/227>)
+  * Contributors: Bence Magyar, Lovro Ivanov
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 29 Aug 2021 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.4.1-1focal) focal; urgency=high
+
+  * Fix test dependencies (#213 <https://github.com/ros-controls/ros2_controllers/issues/213>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 07 Jul 2021 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.4.0-1focal) focal; urgency=high
+
+  * Force torque sensor broadcaster (#152 <https://github.com/ros-controls/ros2_controllers/issues/152>)
+    * Add  rclcpp::shutdown(); to all standalone test functions
+  * Fixes for Windows (#205 <https://github.com/ros-controls/ros2_controllers/issues/205>)
+    * Disable gripper on Windows too
+  * disable gripper on OSX (#192 <https://github.com/ros-controls/ros2_controllers/issues/192>)
+  * Port gripper action controller to ROS2 (#162 <https://github.com/ros-controls/ros2_controllers/issues/162>)
+  * Contributors: Bence Magyar, Denis Štogl, Jafar Abdi
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 27 Jun 2021 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.3.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 22 May 2021 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.3.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 20 May 2021 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.2.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 02 May 2021 23:00:00 -0000
+
+ros-foxy-gripper-controllers (0.2.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 06 Feb 2021 00:00:00 -0000
+
+ros-foxy-gripper-controllers (0.1.2-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-foxy-gripper-controllers (0.1.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-foxy-gripper-controllers (0.1.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
