@@ -1,0 +1,12 @@
+Source: ros-galactic-forward-command-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-galactic-ament-cmake, ros-galactic-ament-cmake-gmock, ros-galactic-controller-interface, ros-galactic-controller-manager, ros-galactic-hardware-interface, ros-galactic-pluginlib, ros-galactic-rclcpp, ros-galactic-rclcpp-lifecycle, ros-galactic-realtime-tools, ros-galactic-ros2-control-test-assets, ros-galactic-std-msgs, ros-galactic-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-galactic-forward-command-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-galactic-controller-interface, ros-galactic-hardware-interface, ros-galactic-rclcpp, ros-galactic-rclcpp-lifecycle, ros-galactic-realtime-tools, ros-galactic-std-msgs, ros-galactic-ros-workspace
+Description: Generic controller for forwarding commands.
