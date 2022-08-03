@@ -1,38 +1,34 @@
 cmake_minimum_required(VERSION 3.5)
 project(position_controllers)
 
-# Default to C++17
+# Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_STANDARD 14)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-set(THIS_PACKAGE_INCLUDE_DEPENDS
-    forward_command_controller
-    pluginlib
-    rclcpp
-)
-
+# find dependencies
 find_package(ament_cmake REQUIRED)
-foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
-  find_package(${Dependency} REQUIRED)
-endforeach()
+find_package(forward_command_controller REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
 
-add_library(${PROJECT_NAME}
+add_library(position_controllers
   SHARED
   src/joint_group_position_controller.cpp
 )
-target_include_directories(${PROJECT_NAME} PRIVATE include)
-ament_target_dependencies(${PROJECT_NAME}
-  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+target_include_directories(position_controllers PRIVATE include)
+ament_target_dependencies(position_controllers
+  forward_command_controller
+  pluginlib
+  rclcpp
 )
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
-target_compile_definitions(${PROJECT_NAME} PRIVATE "POSITION_CONTROLLERS_BUILDING_DLL")
+target_compile_definitions(position_controllers PRIVATE "POSITION_CONTROLLERS_BUILDING_DLL")
 pluginlib_export_plugin_description_file(controller_interface position_controllers_plugins.xml)
 
 install(
@@ -42,7 +38,7 @@ install(
 
 install(
   TARGETS
-  ${PROJECT_NAME}
+  position_controllers
   RUNTIME DESTINATION bin
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -69,7 +65,7 @@ if(BUILD_TESTING)
   )
   target_include_directories(test_joint_group_position_controller PRIVATE include)
   target_link_libraries(test_joint_group_position_controller
-    ${PROJECT_NAME}
+    position_controllers
   )
 endif()
 
@@ -80,6 +76,6 @@ ament_export_include_directories(
   include
 )
 ament_export_libraries(
-  ${PROJECT_NAME}
+  position_controllers
 )
 ament_package()

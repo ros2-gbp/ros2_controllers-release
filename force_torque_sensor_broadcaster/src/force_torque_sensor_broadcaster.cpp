@@ -28,7 +28,7 @@ ForceTorqueSensorBroadcaster::ForceTorqueSensorBroadcaster()
 {
 }
 
-controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_init()
+CallbackReturn ForceTorqueSensorBroadcaster::on_init()
 {
   try
   {
@@ -44,22 +44,22 @@ controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_init()
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return controller_interface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  return controller_interface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
+CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  sensor_name_ = get_node()->get_parameter("sensor_name").as_string();
-  interface_names_[0] = get_node()->get_parameter("interface_names.force.x").as_string();
-  interface_names_[1] = get_node()->get_parameter("interface_names.force.y").as_string();
-  interface_names_[2] = get_node()->get_parameter("interface_names.force.z").as_string();
-  interface_names_[3] = get_node()->get_parameter("interface_names.torque.x").as_string();
-  interface_names_[4] = get_node()->get_parameter("interface_names.torque.y").as_string();
-  interface_names_[5] = get_node()->get_parameter("interface_names.torque.z").as_string();
+  sensor_name_ = node_->get_parameter("sensor_name").as_string();
+  interface_names_[0] = node_->get_parameter("interface_names.force.x").as_string();
+  interface_names_[1] = node_->get_parameter("interface_names.force.y").as_string();
+  interface_names_[2] = node_->get_parameter("interface_names.force.z").as_string();
+  interface_names_[3] = node_->get_parameter("interface_names.torque.x").as_string();
+  interface_names_[4] = node_->get_parameter("interface_names.torque.y").as_string();
+  interface_names_[5] = node_->get_parameter("interface_names.torque.z").as_string();
 
   const bool no_interface_names_defined =
     std::count(interface_names_.begin(), interface_names_.end(), "") == 6;
@@ -67,26 +67,26 @@ controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
   if (sensor_name_.empty() && no_interface_names_defined)
   {
     RCLCPP_ERROR(
-      get_node()->get_logger(),
+      node_->get_logger(),
       "'sensor_name' or at least one "
       "'interface_names.[force|torque].[x|y|z]' parameter has to be specified.");
-    return controller_interface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   if (!sensor_name_.empty() && !no_interface_names_defined)
   {
     RCLCPP_ERROR(
-      get_node()->get_logger(),
+      node_->get_logger(),
       "both 'sensor_name' and "
       "'interface_names.[force|torque].[x|y|z]' parameters can not be specified together.");
-    return controller_interface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  frame_id_ = get_node()->get_parameter("frame_id").as_string();
+  frame_id_ = node_->get_parameter("frame_id").as_string();
   if (frame_id_.empty())
   {
-    RCLCPP_ERROR(get_node()->get_logger(), "'frame_id' parameter has to be provided.");
-    return controller_interface::CallbackReturn::ERROR;
+    RCLCPP_ERROR(node_->get_logger(), "'frame_id' parameter has to be provided.");
+    return CallbackReturn::ERROR;
   }
 
   if (!sensor_name_.empty())
@@ -105,7 +105,7 @@ controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
   try
   {
     // register ft sensor data publisher
-    sensor_state_publisher_ = get_node()->create_publisher<geometry_msgs::msg::WrenchStamped>(
+    sensor_state_publisher_ = node_->create_publisher<geometry_msgs::msg::WrenchStamped>(
       "~/wrench", rclcpp::SystemDefaultsQoS());
     realtime_publisher_ = std::make_unique<StatePublisher>(sensor_state_publisher_);
   }
@@ -114,15 +114,15 @@ controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
     fprintf(
       stderr, "Exception thrown during publisher creation at configure stage with message : %s \n",
       e.what());
-    return controller_interface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   realtime_publisher_->lock();
   realtime_publisher_->msg_.header.frame_id = frame_id_;
   realtime_publisher_->unlock();
 
-  RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
-  return controller_interface::CallbackReturn::SUCCESS;
+  RCLCPP_DEBUG(node_->get_logger(), "configure successful");
+  return CallbackReturn::SUCCESS;
 }
 
 controller_interface::InterfaceConfiguration
@@ -142,18 +142,18 @@ ForceTorqueSensorBroadcaster::state_interface_configuration() const
   return state_interfaces_config;
 }
 
-controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_activate(
+CallbackReturn ForceTorqueSensorBroadcaster::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   force_torque_sensor_->assign_loaned_state_interfaces(state_interfaces_);
-  return controller_interface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_deactivate(
+CallbackReturn ForceTorqueSensorBroadcaster::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   force_torque_sensor_->release_interfaces();
-  return controller_interface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
 controller_interface::return_type ForceTorqueSensorBroadcaster::update(

@@ -25,13 +25,14 @@ namespace effort_controllers
 JointGroupEffortController::JointGroupEffortController()
 : forward_command_controller::ForwardCommandController()
 {
+  logger_name_ = "joint effort controller";
   interface_name_ = hardware_interface::HW_IF_EFFORT;
 }
 
-controller_interface::CallbackReturn JointGroupEffortController::on_init()
+CallbackReturn JointGroupEffortController::on_init()
 {
   auto ret = forward_command_controller::ForwardCommandController::on_init();
-  if (ret != controller_interface::CallbackReturn::SUCCESS)
+  if (ret != CallbackReturn::SUCCESS)
   {
     return ret;
   }
@@ -46,13 +47,13 @@ controller_interface::CallbackReturn JointGroupEffortController::on_init()
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return controller_interface::CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
-  return controller_interface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn JointGroupEffortController::on_deactivate(
+CallbackReturn JointGroupEffortController::on_deactivate(
   const rclcpp_lifecycle::State & previous_state)
 {
   auto ret = ForwardCommandController::on_deactivate(previous_state);

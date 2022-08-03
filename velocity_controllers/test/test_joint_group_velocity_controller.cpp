@@ -27,7 +27,7 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "test_joint_group_velocity_controller.hpp"
 
-using CallbackReturn = controller_interface::CallbackReturn;
+using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 using hardware_interface::LoanedCommandInterface;
 
 namespace
@@ -188,10 +188,10 @@ TEST_F(JointGroupVelocityControllerTest, CommandCallbackTest)
   ASSERT_EQ(joint_2_cmd_.get_value(), 2.1);
   ASSERT_EQ(joint_3_cmd_.get_value(), 3.1);
 
-  auto node_state = controller_->get_node()->configure();
+  auto node_state = controller_->configure();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
 
-  node_state = controller_->get_node()->activate();
+  node_state = controller_->activate();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
 
   // send a new command

@@ -23,6 +23,7 @@
 
 namespace velocity_controllers
 {
+using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 /**
  * \brief Forward command controller for a set of velocity controlled joints (linear or angular).
  *
@@ -39,11 +40,10 @@ public:
   VELOCITY_CONTROLLERS_PUBLIC
   JointGroupVelocityController();
 
-  VELOCITY_CONTROLLERS_PUBLIC controller_interface::CallbackReturn on_init() override;
+  VELOCITY_CONTROLLERS_PUBLIC CallbackReturn on_init() override;
 
   VELOCITY_CONTROLLERS_PUBLIC
-  controller_interface::CallbackReturn on_deactivate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 };
 
 }  // namespace velocity_controllers

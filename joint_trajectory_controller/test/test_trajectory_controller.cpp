@@ -58,8 +58,6 @@ using test_trajectory_controllers::TestableJointTrajectoryController;
 using test_trajectory_controllers::TrajectoryControllerTest;
 using test_trajectory_controllers::TrajectoryControllerTestParameterized;
 
-bool is_same_sign(double val1, double val2) { return val1 * val2 >= 0.0; }
-
 void spin(rclcpp::executors::MultiThreadedExecutor * exe) { exe->spin(); }
 
 TEST_P(TrajectoryControllerTestParameterized, configure)
@@ -70,7 +68,7 @@ TEST_P(TrajectoryControllerTestParameterized, configure)
   executor.add_node(traj_controller_->get_node()->get_node_base_interface());
   const auto future_handle_ = std::async(std::launch::async, spin, &executor);
 
-  const auto state = traj_controller_->get_node()->configure();
+  const auto state = traj_controller_->configure();
   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
 
   // send msg
@@ -78,7 +76,7 @@ TEST_P(TrajectoryControllerTestParameterized, configure)
   time_from_start.sec = 1;
   time_from_start.nanosec = 0;
   std::vector<std::vector<double>> points{{{3.3, 4.4, 5.5}}};
-  publish(time_from_start, points, rclcpp::Time());
+  publish(time_from_start, points);
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
   traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
@@ -98,7 +96,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(traj_controller_->get_node()->get_node_base_interface());
 
-  traj_controller_->get_node()->configure();
+  traj_controller_->configure();
   ASSERT_EQ(traj_controller_->get_state().id(), State::PRIMARY_STATE_INACTIVE);
 
   auto cmd_interface_config = traj_controller_->command_interface_configuration();
@@ -141,7 +139,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
 //   time_from_start.sec = 1;
 //   time_from_start.nanosec = 0;
 //   std::vector<std::vector<double>> points {{{3.3, 4.4, 5.5}}};
-//   publish(time_from_start, points, rclcpp::Time());
+//   publish(time_from_start, points);
 //   // wait for msg is be published to the system
 //   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 //   executor.spin_once();
@@ -189,7 +187,7 @@ TEST_P(TrajectoryControllerTestParameterized, activate)
 //     {{10.10, 11.11, 12.12}}
 //   };
 //   // *INDENT-ON*
-//   publish(time_from_start, points, rclcpp::Time());
+//   publish(time_from_start, points);
 //   // wait for msg is be published to the system
 //   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 //   executor.spin_once();
@@ -241,15 +239,15 @@ TEST_P(TrajectoryControllerTestParameterized, cleanup)
   time_from_start.sec = 1;
   time_from_start.nanosec = 0;
   std::vector<std::vector<double>> points{{{3.3, 4.4, 5.5}}};
-  publish(time_from_start, points, rclcpp::Time());
+  publish(time_from_start, points);
   traj_controller_->wait_for_trajectory(executor);
   traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
 
-  auto state = traj_controller_->get_node()->deactivate();
+  auto state = traj_controller_->deactivate();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
   traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
 
-  state = traj_controller_->get_node()->cleanup();
+  state = traj_controller_->cleanup();
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, state.id());
   // update for 0.25 seconds
   const auto start_time = rclcpp::Clock().now();
@@ -269,7 +267,6 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
 
   // This call is replacing the way parameters are set via launch
   SetParameters();
-  SetParameters();  // This call is replacing the way parameters are set via launch
   traj_controller_->configure();
   auto state = traj_controller_->get_state();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
@@ -290,10 +287,8 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   // *INDENT-OFF*
   std::vector<std::vector<double>> points{
     {{3.3, 4.4, 5.5}}, {{7.7, 8.8, 9.9}}, {{10.10, 11.11, 12.12}}};
-  std::vector<std::vector<double>> points_velocities{
-    {{0.01, 0.01, 0.01}}, {{0.05, 0.05, 0.05}}, {{0.06, 0.06, 0.06}}};
   // *INDENT-ON*
-  publish(time_from_start, points, rclcpp::Time(), {}, points_velocities);
+  publish(time_from_start, points);
   traj_controller_->wait_for_trajectory(executor);
 
   // first update
@@ -303,35 +298,19 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   std::this_thread::sleep_for(FIRST_POINT_TIME);
   traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
   // deactivated
-  state = traj_controller_->get_node()->deactivate();
+  state = traj_controller_->deactivate();
   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
 
   // TODO(denis): on my laptop I get delta of approx 0.1083. Is this me or is it something wrong?
   // Come the flackiness here?
   const auto allowed_delta = 0.11;  // 0.05;
-  if (traj_controller_->has_position_command_interface())
-  {
-    EXPECT_NEAR(3.3, joint_pos_[0], allowed_delta);
-    EXPECT_NEAR(4.4, joint_pos_[1], allowed_delta);
-    EXPECT_NEAR(5.5, joint_pos_[2], allowed_delta);
-  }
 
-  if (traj_controller_->has_velocity_command_interface())
-  {
-    EXPECT_LE(0.0, joint_vel_[0]);
-    EXPECT_LE(0.0, joint_vel_[1]);
-    EXPECT_LE(0.0, joint_vel_[2]);
-  }
-
-  if (traj_controller_->has_effort_command_interface())
-  {
-    EXPECT_LE(0.0, joint_eff_[0]);
-    EXPECT_LE(0.0, joint_eff_[1]);
-    EXPECT_LE(0.0, joint_eff_[2]);
-  }
+  EXPECT_NEAR(3.3, joint_pos_[0], allowed_delta);
+  EXPECT_NEAR(4.4, joint_pos_[1], allowed_delta);
+  EXPECT_NEAR(5.5, joint_pos_[2], allowed_delta);
 
   // cleanup
-  state = traj_controller_->get_node()->cleanup();
+  state = traj_controller_->cleanup();
 
   // update loop receives a new msg and updates accordingly
   traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
@@ -345,7 +324,7 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   EXPECT_NEAR(INITIAL_POS_JOINT2, joint_pos_[1], allowed_delta);
   EXPECT_NEAR(INITIAL_POS_JOINT3, joint_pos_[2], allowed_delta);
 
-  state = traj_controller_->get_node()->configure();
+  state = traj_controller_->configure();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
 
   executor.cancel();
@@ -415,7 +394,7 @@ void TrajectoryControllerTest::test_state_publish_rate_target(int target_msg_cou
   const int qos_level = 10;
   int echo_received_counter = 0;
   rclcpp::Subscription<JointTrajectoryControllerState>::SharedPtr subs =
-    traj_controller_->get_node()->create_subscription<JointTrajectoryControllerState>(
+    traj_node_->create_subscription<JointTrajectoryControllerState>(
       controller_name_ + "/state", qos_level,
       [&](JointTrajectoryControllerState::UniquePtr) { ++echo_received_counter; });
 
@@ -468,22 +447,6 @@ TEST_P(TrajectoryControllerTestParameterized, test_jumbled_joint_order)
     traj_msg.points[0].positions[1] = 3.0;
     traj_msg.points[0].positions[2] = 1.0;
 
-    if (traj_controller_->has_velocity_command_interface())
-    {
-      traj_msg.points[0].velocities.resize(3);
-      traj_msg.points[0].velocities[0] = -0.1;
-      traj_msg.points[0].velocities[1] = -0.1;
-      traj_msg.points[0].velocities[2] = -0.1;
-    }
-
-    if (traj_controller_->has_effort_command_interface())
-    {
-      traj_msg.points[0].effort.resize(3);
-      traj_msg.points[0].effort[0] = -0.1;
-      traj_msg.points[0].effort[1] = -0.1;
-      traj_msg.points[0].effort[2] = -0.1;
-    }
-
     trajectory_publisher_->publish(traj_msg);
   }
 
@@ -493,26 +456,9 @@ TEST_P(TrajectoryControllerTestParameterized, test_jumbled_joint_order)
   //                Currently COMMON_THRESHOLD is adjusted.
   updateController(rclcpp::Duration::from_seconds(0.25));
 
-  if (traj_controller_->has_position_command_interface())
-  {
-    EXPECT_NEAR(1.0, joint_pos_[0], COMMON_THRESHOLD);
-    EXPECT_NEAR(2.0, joint_pos_[1], COMMON_THRESHOLD);
-    EXPECT_NEAR(3.0, joint_pos_[2], COMMON_THRESHOLD);
-  }
-
-  if (traj_controller_->has_velocity_command_interface())
-  {
-    EXPECT_GT(0.0, joint_vel_[0]);
-    EXPECT_GT(0.0, joint_vel_[1]);
-    EXPECT_GT(0.0, joint_vel_[2]);
-  }
-
-  if (traj_controller_->has_effort_command_interface())
-  {
-    EXPECT_GT(0.0, joint_eff_[0]);
-    EXPECT_GT(0.0, joint_eff_[1]);
-    EXPECT_GT(0.0, joint_eff_[2]);
-  }
+  EXPECT_NEAR(1.0, joint_pos_[0], COMMON_THRESHOLD);
+  EXPECT_NEAR(2.0, joint_pos_[1], COMMON_THRESHOLD);
+  EXPECT_NEAR(3.0, joint_pos_[2], COMMON_THRESHOLD);
 }
 
 /**
@@ -525,8 +471,6 @@ TEST_P(TrajectoryControllerTestParameterized, test_partial_joint_list)
   rclcpp::executors::SingleThreadedExecutor executor;
   SetUpAndActivateTrajectoryController(true, {partial_joints_parameters}, &executor);
 
-  const double initial_joint1_cmd = joint_pos_[0];
-  const double initial_joint2_cmd = joint_pos_[1];
   const double initial_joint3_cmd = joint_pos_[2];
   trajectory_msgs::msg::JointTrajectory traj_msg;
 
@@ -541,10 +485,8 @@ TEST_P(TrajectoryControllerTestParameterized, test_partial_joint_list)
     traj_msg.points[0].positions[0] = 2.0;
     traj_msg.points[0].positions[1] = 1.0;
     traj_msg.points[0].velocities.resize(2);
-    traj_msg.points[0].velocities[0] =
-      copysign(2.0, traj_msg.points[0].positions[0] - initial_joint2_cmd);
-    traj_msg.points[0].velocities[1] =
-      copysign(1.0, traj_msg.points[0].positions[1] - initial_joint1_cmd);
+    traj_msg.points[0].velocities[0] = 2.0;
+    traj_msg.points[0].velocities[1] = 1.0;
 
     trajectory_publisher_->publish(traj_msg);
   }
@@ -554,37 +496,20 @@ TEST_P(TrajectoryControllerTestParameterized, test_partial_joint_list)
   updateController(rclcpp::Duration::from_seconds(0.25));
 
   double threshold = 0.001;
-
-  if (traj_controller_->has_position_command_interface())
-  {
-    EXPECT_NEAR(traj_msg.points[0].positions[1], joint_pos_[0], threshold);
-    EXPECT_NEAR(traj_msg.points[0].positions[0], joint_pos_[1], threshold);
-    EXPECT_NEAR(initial_joint3_cmd, joint_pos_[2], threshold)
-      << "Joint 3 command should be current position";
-  }
+  EXPECT_NEAR(traj_msg.points[0].positions[1], joint_pos_[0], threshold);
+  EXPECT_NEAR(traj_msg.points[0].positions[0], joint_pos_[1], threshold);
+  EXPECT_NEAR(initial_joint3_cmd, joint_pos_[2], threshold)
+    << "Joint 3 command should be current position";
 
   if (
     std::find(command_interface_types_.begin(), command_interface_types_.end(), "velocity") !=
     command_interface_types_.end())
   {
-    // estimate the sign of the velocity
-    // joint rotates forward
-    EXPECT_TRUE(is_same_sign(traj_msg.points[0].positions[0] - initial_joint2_cmd, joint_vel_[0]));
-    EXPECT_TRUE(is_same_sign(traj_msg.points[0].positions[1] - initial_joint1_cmd, joint_vel_[1]));
+    // TODO(anyone): need help here - we should at least estimate the sign of the velocity
+    //     EXPECT_NEAR(traj_msg.points[0].velocities[1], joint_vel_[0], threshold);
+    //     EXPECT_NEAR(traj_msg.points[0].velocities[0], joint_vel_[1], threshold);
     EXPECT_NEAR(0.0, joint_vel_[2], threshold)
       << "Joint 3 velocity should be 0.0 since it's not in the goal";
-  }
-
-  if (
-    std::find(command_interface_types_.begin(), command_interface_types_.end(), "effort") !=
-    command_interface_types_.end())
-  {
-    // estimate the sign of the velocity
-    // joint rotates forward
-    EXPECT_TRUE(is_same_sign(traj_msg.points[0].positions[0] - initial_joint2_cmd, joint_eff_[0]));
-    EXPECT_TRUE(is_same_sign(traj_msg.points[0].positions[1] - initial_joint1_cmd, joint_eff_[1]));
-    EXPECT_NEAR(0.0, joint_eff_[2], threshold)
-      << "Joint 3 effort should be 0.0 since it's not in the goal";
   }
   // TODO(anyone): add here ckecks for acceleration commands
 
@@ -670,10 +595,8 @@ TEST_P(TrajectoryControllerTestParameterized, test_partial_joint_list_not_allowe
 TEST_P(TrajectoryControllerTestParameterized, invalid_message)
 {
   rclcpp::Parameter partial_joints_parameters("allow_partial_joints_goal", false);
-  rclcpp::Parameter allow_integration_parameters("allow_integration_in_goal_trajectories", false);
   rclcpp::executors::SingleThreadedExecutor executor;
-  SetUpAndActivateTrajectoryController(
-    true, {partial_joints_parameters, allow_integration_parameters}, &executor);
+  SetUpAndActivateTrajectoryController(true, {partial_joints_parameters}, &executor);
 
   trajectory_msgs::msg::JointTrajectory traj_msg, good_traj_msg;
 
@@ -729,67 +652,6 @@ TEST_P(TrajectoryControllerTestParameterized, invalid_message)
   EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
 }
 
-/// With allow_integration_in_goal_trajectories parameter trajectory missing position or velocities
-/// are accepted
-TEST_P(TrajectoryControllerTestParameterized, missing_positions_message_accepted)
-{
-  rclcpp::Parameter allow_integration_parameters("allow_integration_in_goal_trajectories", true);
-  rclcpp::executors::SingleThreadedExecutor executor;
-  SetUpAndActivateTrajectoryController(true, {allow_integration_parameters}, &executor);
-
-  trajectory_msgs::msg::JointTrajectory traj_msg, good_traj_msg;
-
-  good_traj_msg.joint_names = joint_names_;
-  good_traj_msg.header.stamp = rclcpp::Time(0);
-  good_traj_msg.points.resize(1);
-  good_traj_msg.points[0].time_from_start = rclcpp::Duration::from_seconds(0.25);
-  good_traj_msg.points[0].positions.resize(1);
-  good_traj_msg.points[0].positions = {1.0, 2.0, 3.0};
-  good_traj_msg.points[0].velocities.resize(1);
-  good_traj_msg.points[0].velocities = {-1.0, -2.0, -3.0};
-  good_traj_msg.points[0].accelerations.resize(1);
-  good_traj_msg.points[0].accelerations = {1.0, 2.0, 3.0};
-  EXPECT_TRUE(traj_controller_->validate_trajectory_msg(good_traj_msg));
-
-  // No position data
-  traj_msg = good_traj_msg;
-  traj_msg.points[0].positions.clear();
-  EXPECT_TRUE(traj_controller_->validate_trajectory_msg(traj_msg));
-
-  // No position and velocity data
-  traj_msg = good_traj_msg;
-  traj_msg.points[0].positions.clear();
-  traj_msg.points[0].velocities.clear();
-  EXPECT_TRUE(traj_controller_->validate_trajectory_msg(traj_msg));
-
-  // All empty
-  traj_msg = good_traj_msg;
-  traj_msg.points[0].positions.clear();
-  traj_msg.points[0].velocities.clear();
-  traj_msg.points[0].accelerations.clear();
-  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
-
-  // Incompatible data sizes, too few positions
-  traj_msg = good_traj_msg;
-  traj_msg.points[0].positions = {1.0, 2.0};
-  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
-
-  // Incompatible data sizes, too many positions
-  traj_msg = good_traj_msg;
-  traj_msg.points[0].positions = {1.0, 2.0, 3.0, 4.0};
-  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
-
-  // Incompatible data sizes, too few velocities
-  traj_msg = good_traj_msg;
-  traj_msg.points[0].velocities = {1.0};
-  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
-
-  // Incompatible data sizes, too few accelerations
-  traj_msg = good_traj_msg;
-  traj_msg.points[0].accelerations = {2.0};
-  EXPECT_FALSE(traj_controller_->validate_trajectory_msg(traj_msg));
-}
-
 /**
  * @brief test_trajectory_replace Test replacing an existing trajectory
  */
@@ -802,34 +664,24 @@ TEST_P(TrajectoryControllerTestParameterized, test_trajectory_replace)
   subscribeToState();
 
   std::vector<std::vector<double>> points_old{{{2., 3., 4.}}};
-  std::vector<std::vector<double>> points_old_velocities{{{0.2, 0.3, 0.4}}};
   std::vector<std::vector<double>> points_partial_new{{1.5}};
-  std::vector<std::vector<double>> points_partial_new_velocities{{0.15}};
 
   const auto delay = std::chrono::milliseconds(500);
   builtin_interfaces::msg::Duration time_from_start{rclcpp::Duration(delay)};
-  publish(time_from_start, points_old, rclcpp::Time(), {}, points_old_velocities);
+  publish(time_from_start, points_old);
   trajectory_msgs::msg::JointTrajectoryPoint expected_actual, expected_desired;
   expected_actual.positions = {points_old[0].begin(), points_old[0].end()};
   expected_desired.positions = {points_old[0].begin(), points_old[0].end()};
-  expected_actual.velocities = {points_old_velocities[0].begin(), points_old_velocities[0].end()};
-  expected_desired.velocities = {points_old_velocities[0].begin(), points_old_velocities[0].end()};
   //  Check that we reached end of points_old trajectory
   // Denis: delta was 0.1 with 0.2 works for me
   waitAndCompareState(expected_actual, expected_desired, executor, rclcpp::Duration(delay), 0.2);
 
-  RCLCPP_INFO(traj_controller_->get_node()->get_logger(), "Sending new trajectory");
-  points_partial_new_velocities[0][0] =
-    copysign(0.15, points_partial_new[0][0] - joint_state_pos_[0]);
-  publish(time_from_start, points_partial_new, rclcpp::Time(), {}, points_partial_new_velocities);
-
+  RCLCPP_INFO(traj_node_->get_logger(), "Sending new trajectory");
+  publish(time_from_start, points_partial_new);
   // Replaced trajectory is a mix of previous and current goal
   expected_desired.positions[0] = points_partial_new[0][0];
   expected_desired.positions[1] = points_old[0][1];
   expected_desired.positions[2] = points_old[0][2];
-  expected_desired.velocities[0] = points_partial_new_velocities[0][0];
-  expected_desired.velocities[1] = 0.0;
-  expected_desired.velocities[2] = 0.0;
   expected_actual = expected_desired;
   waitAndCompareState(expected_actual, expected_desired, executor, rclcpp::Duration(delay), 0.1);
 }
@@ -847,22 +699,20 @@ TEST_P(TrajectoryControllerTestParameterized, test_ignore_old_trajectory)
   std::vector<std::vector<double>> points_old{{{2., 3., 4.}, {4., 5., 6.}}};
   std::vector<std::vector<double>> points_new{{{-1., -2., -3.}}};
 
-  RCLCPP_INFO(traj_controller_->get_node()->get_logger(), "Sending new trajectory in the future");
   const auto delay = std::chrono::milliseconds(500);
   builtin_interfaces::msg::Duration time_from_start{rclcpp::Duration(delay)};
-  publish(time_from_start, points_old, rclcpp::Time());
+  publish(time_from_start, points_old);
   trajectory_msgs::msg::JointTrajectoryPoint expected_actual, expected_desired;
   expected_actual.positions = {points_old[0].begin(), points_old[0].end()};
   expected_desired = expected_actual;
   //  Check that we reached end of points_old[0] trajectory
   waitAndCompareState(expected_actual, expected_desired, executor, rclcpp::Duration(delay), 0.1);
 
-  RCLCPP_INFO(traj_controller_->get_node()->get_logger(), "Sending new trajectory in the past");
+  RCLCPP_INFO(traj_node_->get_logger(), "Sending new trajectory in the past");
   //  New trajectory will end before current time
   rclcpp::Time new_traj_start = rclcpp::Clock().now() - delay - std::chrono::milliseconds(100);
   expected_actual.positions = {points_old[1].begin(), points_old[1].end()};
   expected_desired = expected_actual;
-  std::cout << "Sending old trajectory" << std::endl;
   publish(time_from_start, points_new, new_traj_start);
   waitAndCompareState(expected_actual, expected_desired, executor, rclcpp::Duration(delay), 0.1);
 }
@@ -878,15 +728,14 @@ TEST_P(TrajectoryControllerTestParameterized, test_ignore_partial_old_trajectory
 
   const auto delay = std::chrono::milliseconds(500);
   builtin_interfaces::msg::Duration time_from_start{rclcpp::Duration(delay)};
-  publish(time_from_start, points_old, rclcpp::Time());
+  publish(time_from_start, points_old);
   trajectory_msgs::msg::JointTrajectoryPoint expected_actual, expected_desired;
   expected_actual.positions = {points_old[0].begin(), points_old[0].end()};
   expected_desired = expected_actual;
   //  Check that we reached end of points_old[0]trajectory
   waitAndCompareState(expected_actual, expected_desired, executor, rclcpp::Duration(delay), 0.1);
 
-  RCLCPP_INFO(
-    traj_controller_->get_node()->get_logger(), "Sending new trajectory partially in the past");
+  RCLCPP_INFO(traj_node_->get_logger(), "Sending new trajectory partially in the past");
   //  New trajectory first point is in the past, second is in the future
   rclcpp::Time new_traj_start = rclcpp::Clock().now() - delay - std::chrono::milliseconds(100);
   expected_actual.positions = {points_new[1].begin(), points_new[1].end()};
@@ -911,27 +760,20 @@ TEST_P(TrajectoryControllerTestParameterized, test_execute_partial_traj_in_futur
   subscribeToState();
   rclcpp::Parameter partial_joints_parameters("allow_partial_joints_goal", true);
   traj_node->set_parameter(partial_joints_parameters);
-  traj_controller_->get_node()->configure();
-  traj_controller_->get_node()->activate();
+  traj_controller_->configure();
+  traj_controller_->activate();
 
   std::vector<std::vector<double>> full_traj{{{2., 3., 4.}, {4., 6., 8.}}};
-  std::vector<std::vector<double>> full_traj_velocities{{{0.2, 0.3, 0.4}, {0.4, 0.6, 0.8}}};
   std::vector<std::vector<double>> partial_traj{
     {{-1., -2.},
      {
        -2.,
        -4,
      }}};
-  std::vector<std::vector<double>> partial_traj_velocities{
-    {{-0.1, -0.2},
-     {
-       -0.2,
-       -0.4,
-     }}};
   const auto delay = std::chrono::milliseconds(500);
   builtin_interfaces::msg::Duration points_delay{rclcpp::Duration(delay)};
   // Send full trajectory
-  publish(points_delay, full_traj, rclcpp::Time(), {}, full_traj_velocities);
+  publish(points_delay, full_traj);
   // Sleep until first waypoint of full trajectory
 
   trajectory_msgs::msg::JointTrajectoryPoint expected_actual, expected_desired;
@@ -942,8 +784,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_execute_partial_traj_in_futur
 
   // Send partial trajectory starting after full trajecotry is complete
   RCLCPP_INFO(traj_node->get_logger(), "Sending new trajectory in the future");
-  publish(
-    points_delay, partial_traj, rclcpp::Clock().now() + delay * 2, {}, partial_traj_velocities);
+  publish(points_delay, partial_traj, rclcpp::Clock().now() + delay * 2);
   // Wait until the end start and end of partial traj
 
   expected_actual.positions = {partial_traj.back()[0], partial_traj.back()[1], full_traj.back()[2]};
@@ -962,9 +803,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_jump_when_state_tracking_erro
 
   // goal setup
   std::vector<double> first_goal = {3.3, 4.4, 5.5};
-  std::vector<std::vector<double>> first_goal_velocities = {{0.33, 0.44, 0.55}};
   std::vector<double> second_goal = {6.6, 8.8, 11.0};
-  std::vector<std::vector<double>> second_goal_velocities = {{0.66, 0.88, 1.1}};
   double state_from_command_offset = 0.3;
 
   // send msg
@@ -972,72 +811,69 @@ TEST_P(TrajectoryControllerTestParameterized, test_jump_when_state_tracking_erro
   time_from_start.sec = 1;
   time_from_start.nanosec = 0;
   std::vector<std::vector<double>> points{{first_goal}};
-  publish(time_from_start, points, rclcpp::Time(), {}, first_goal_velocities);
+  publish(time_from_start, points);
   traj_controller_->wait_for_trajectory(executor);
   updateController(rclcpp::Duration::from_seconds(1.1));
 
-  if (traj_controller_->has_position_command_interface())
-  {
-    // JTC is executing trajectory in open-loop therefore:
-    // - internal state does not have to be updated (in this test-case it shouldn't)
-    // - internal command is updated
-    EXPECT_NEAR(INITIAL_POS_JOINT1, joint_state_pos_[0], COMMON_THRESHOLD);
-    EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  // JTC is executing trajectory in open-loop therefore:
+  // - internal state does not have to be updated (in this test-case it shouldn't)
+  // - internal command is updated
+  EXPECT_NEAR(INITIAL_POS_JOINT1, joint_state_pos_[0], COMMON_THRESHOLD);
+  EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
 
-    // State interface should have offset from the command before starting a new trajectory
-    joint_state_pos_[0] = first_goal[0] - state_from_command_offset;
+  // State interface should have offset from the command before starting a new trajectory
+  joint_state_pos_[0] = first_goal[0] - state_from_command_offset;
 
-    // Move joint further in the same direction as before (to the second goal)
-    points = {{second_goal}};
-    publish(time_from_start, points, rclcpp::Time(), {}, second_goal_velocities);
-    traj_controller_->wait_for_trajectory(executor);
+  // Move joint further in the same direction as before (to the second goal)
+  points = {{second_goal}};
+  publish(time_from_start, points);
+  traj_controller_->wait_for_trajectory(executor);
 
-    // One the first update(s) there should be a "jump" in opposite direction from command
-    // (towards the state value)
-    EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    // Expect backward commands at first
-    EXPECT_NEAR(joint_state_pos_[0], joint_pos_[0], COMMON_THRESHOLD);
-    EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
-    EXPECT_LT(joint_pos_[0], first_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
-    EXPECT_LT(joint_pos_[0], first_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
-    EXPECT_LT(joint_pos_[0], first_goal[0]);
+  // One the first update(s) there should be a "jump" in opposite direction from command
+  // (towards the state value)
+  EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  // Expect backward commands at first
+  EXPECT_NEAR(joint_state_pos_[0], joint_pos_[0], COMMON_THRESHOLD);
+  EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
+  EXPECT_LT(joint_pos_[0], first_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
+  EXPECT_LT(joint_pos_[0], first_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_GT(joint_pos_[0], joint_state_pos_[0]);
+  EXPECT_LT(joint_pos_[0], first_goal[0]);
 
-    // Finally the second goal will be commanded/reached
-    updateController(rclcpp::Duration::from_seconds(1.1));
-    EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  // Finally the second goal will be commanded/reached
+  updateController(rclcpp::Duration::from_seconds(1.1));
+  EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
 
-    // State interface should have offset from the command before starting a new trajectory
-    joint_state_pos_[0] = second_goal[0] - state_from_command_offset;
+  // State interface should have offset from the command before starting a new trajectory
+  joint_state_pos_[0] = second_goal[0] - state_from_command_offset;
 
-    // Move joint back to the first goal
-    points = {{first_goal}};
-    publish(time_from_start, points, rclcpp::Time());
-    traj_controller_->wait_for_trajectory(executor);
+  // Move joint back to the first goal
+  points = {{first_goal}};
+  publish(time_from_start, points);
+  traj_controller_->wait_for_trajectory(executor);
 
-    // One the first update(s) there should be a "jump" in the goal direction from command
-    // (towards the state value)
-    EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    // Expect backward commands at first
-    EXPECT_NEAR(joint_state_pos_[0], joint_pos_[0], COMMON_THRESHOLD);
-    EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
+  // One the first update(s) there should be a "jump" in the goal direction from command
+  // (towards the state value)
+  EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  // Expect backward commands at first
+  EXPECT_NEAR(joint_state_pos_[0], joint_pos_[0], COMMON_THRESHOLD);
+  EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_LT(joint_pos_[0], joint_state_pos_[0]);
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
 
-    // Finally the first goal will be commanded/reached
-    updateController(rclcpp::Duration::from_seconds(1.1));
-    EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-  }
+  // Finally the first goal will be commanded/reached
+  updateController(rclcpp::Duration::from_seconds(1.1));
+  EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
 
   executor.cancel();
 }
@@ -1059,72 +895,69 @@ TEST_P(TrajectoryControllerTestParameterized, test_no_jump_when_state_tracking_e
   time_from_start.sec = 1;
   time_from_start.nanosec = 0;
   std::vector<std::vector<double>> points{{first_goal}};
-  publish(time_from_start, points, rclcpp::Time());
+  publish(time_from_start, points);
   traj_controller_->wait_for_trajectory(executor);
   updateController(rclcpp::Duration::from_seconds(1.1));
 
-  if (traj_controller_->has_position_command_interface())
-  {
-    // JTC is executing trajectory in open-loop therefore:
-    // - internal state does not have to be updated (in this test-case it shouldn't)
-    // - internal command is updated
-    EXPECT_NEAR(INITIAL_POS_JOINT1, joint_state_pos_[0], COMMON_THRESHOLD);
-    EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  // JTC is executing trajectory in open-loop therefore:
+  // - internal state does not have to be updated (in this test-case it shouldn't)
+  // - internal command is updated
+  EXPECT_NEAR(INITIAL_POS_JOINT1, joint_state_pos_[0], COMMON_THRESHOLD);
+  EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
 
-    // State interface should have offset from the command before starting a new trajectory
-    joint_state_pos_[0] = first_goal[0] - state_from_command_offset;
+  // State interface should have offset from the command before starting a new trajectory
+  joint_state_pos_[0] = first_goal[0] - state_from_command_offset;
 
-    // Move joint further in the same direction as before (to the second goal)
-    points = {{second_goal}};
-    publish(time_from_start, points, rclcpp::Time());
-    traj_controller_->wait_for_trajectory(executor);
+  // Move joint further in the same direction as before (to the second goal)
+  points = {{second_goal}};
+  publish(time_from_start, points);
+  traj_controller_->wait_for_trajectory(executor);
 
-    // One the first update(s) there **should not** be a "jump" in opposite direction from command
-    // (towards the state value)
-    EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    // There should not be backward commands
-    EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    EXPECT_LT(joint_pos_[0], second_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    EXPECT_LT(joint_pos_[0], second_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    EXPECT_LT(joint_pos_[0], second_goal[0]);
+  // One the first update(s) there **should not** be a "jump" in opposite direction from command
+  // (towards the state value)
+  EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  // There should not be backward commands
+  EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  EXPECT_LT(joint_pos_[0], second_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  EXPECT_LT(joint_pos_[0], second_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  EXPECT_LT(joint_pos_[0], second_goal[0]);
 
-    // Finally the second goal will be commanded/reached
-    updateController(rclcpp::Duration::from_seconds(1.1));
-    EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  // Finally the second goal will be commanded/reached
+  updateController(rclcpp::Duration::from_seconds(1.1));
+  EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
 
-    // State interface should have offset from the command before starting a new trajectory
-    joint_state_pos_[0] = second_goal[0] - state_from_command_offset;
+  // State interface should have offset from the command before starting a new trajectory
+  joint_state_pos_[0] = second_goal[0] - state_from_command_offset;
 
-    // Move joint back to the first goal
-    points = {{first_goal}};
-    publish(time_from_start, points, rclcpp::Time());
-    traj_controller_->wait_for_trajectory(executor);
+  // Move joint back to the first goal
+  points = {{first_goal}};
+  publish(time_from_start, points);
+  traj_controller_->wait_for_trajectory(executor);
 
-    // One the first update(s) there **should not** be a "jump" in the goal direction from command
-    // (towards the state value)
-    EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    // There should not be a jump toward commands
-    EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-    EXPECT_LT(joint_pos_[0], second_goal[0]);
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    EXPECT_LT(joint_pos_[0], second_goal[0]);
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    EXPECT_GT(joint_pos_[0], first_goal[0]);
-    EXPECT_LT(joint_pos_[0], second_goal[0]);
+  // One the first update(s) there **should not** be a "jump" in the goal direction from command
+  // (towards the state value)
+  EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  // There should not be a jump toward commands
+  EXPECT_NEAR(second_goal[0], joint_pos_[0], COMMON_THRESHOLD);
+  EXPECT_LT(joint_pos_[0], second_goal[0]);
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  EXPECT_LT(joint_pos_[0], second_goal[0]);
+  traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  EXPECT_GT(joint_pos_[0], first_goal[0]);
+  EXPECT_LT(joint_pos_[0], second_goal[0]);
 
-    // Finally the first goal will be commanded/reached
-    updateController(rclcpp::Duration::from_seconds(1.1));
-    EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
-  }
+  // Finally the first goal will be commanded/reached
+  updateController(rclcpp::Duration::from_seconds(1.1));
+  EXPECT_NEAR(first_goal[0], joint_pos_[0], COMMON_THRESHOLD);
 
   executor.cancel();
 }
@@ -1231,8 +1064,8 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_later_co
   executor.cancel();
 }
 
-// TODO(andyz): disabled because they started failing at the transition to Humble
-/*
+// TODO(anyone): the new gtest version after 1.8.0 uses INSTANTIATE_TEST_SUITE_P
+
 // position controllers
 INSTANTIATE_TEST_SUITE_P(
   PositionTrajectoryControllers, TrajectoryControllerTestParameterized,
@@ -1271,33 +1104,12 @@ INSTANTIATE_TEST_SUITE_P(
       std::vector<std::string>({"position", "velocity", "acceleration"}),
       std::vector<std::string>({"position", "velocity", "acceleration"}))));
 
-// only velocity controller
-INSTANTIATE_TEST_SUITE_P(
-  OnlyVelocityTrajectoryControllers, TrajectoryControllerTestParameterized,
-  ::testing::Values(
-    std::make_tuple(
-      std::vector<std::string>({"velocity"}), std::vector<std::string>({"position", "velocity"})),
-    std::make_tuple(
-      std::vector<std::string>({"velocity"}),
-      std::vector<std::string>({"position", "velocity", "acceleration"}))));
-
-// only effort controller
-INSTANTIATE_TEST_SUITE_P(
-  OnlyEffortTrajectoryControllers, TrajectoryControllerTestParameterized,
-  ::testing::Values(
-    std::make_tuple(
-      std::vector<std::string>({"effort"}), std::vector<std::string>({"position", "velocity"})),
-    std::make_tuple(
-      std::vector<std::string>({"effort"}),
-      std::vector<std::string>({"position", "velocity", "acceleration"}))));
-*/
-
 TEST_F(TrajectoryControllerTest, incorrect_initialization_using_interface_parameters)
 {
   auto set_parameter_and_check_result = [&]() {
     EXPECT_EQ(traj_controller_->get_state().id(), State::PRIMARY_STATE_UNCONFIGURED);
     SetParameters();  // This call is replacing the way parameters are set via launch
-    traj_controller_->get_node()->configure();
+    traj_controller_->configure();
     EXPECT_EQ(traj_controller_->get_state().id(), State::PRIMARY_STATE_UNCONFIGURED);
   };
 
@@ -1311,8 +1123,16 @@ TEST_F(TrajectoryControllerTest, incorrect_initialization_using_interface_parame
   command_interface_types_ = {"bad_name"};
   set_parameter_and_check_result();
 
+  // command interfaces: effort not yet implemented
+  command_interface_types_ = {"effort"};
+  set_parameter_and_check_result();
+
   // command interfaces: effort has to be only
   command_interface_types_ = {"effort", "position"};
+  set_parameter_and_check_result();
+
+  // command interfaces: velocity alone not yet implemented
+  command_interface_types_ = {"velocity"};
   set_parameter_and_check_result();
 
   // command interfaces: velocity - position not present
@@ -1343,19 +1163,5 @@ TEST_F(TrajectoryControllerTest, incorrect_initialization_using_interface_parame
 
   // state interfaces: acceleration without position and velocity
   state_interface_types_ = {"acceleration"};
-  set_parameter_and_check_result();
-
-  // velocity-only command interface: position - velocity not present
-  command_interface_types_ = {"velocity"};
-  state_interface_types_ = {"position"};
-  set_parameter_and_check_result();
-  state_interface_types_ = {"velocity"};
-  set_parameter_and_check_result();
-
-  // effort-only command interface: position - velocity not present
-  command_interface_types_ = {"effort"};
-  state_interface_types_ = {"position"};
-  set_parameter_and_check_result();
-  state_interface_types_ = {"velocity"};
   set_parameter_and_check_result();
 }

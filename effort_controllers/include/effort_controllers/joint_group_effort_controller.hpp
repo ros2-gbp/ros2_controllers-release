@@ -23,6 +23,8 @@
 
 namespace effort_controllers
 {
+using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
 /**
  * \brief Forward command controller for a set of effort controlled joints (linear or angular).
  *
@@ -40,11 +42,10 @@ public:
   JointGroupEffortController();
 
   EFFORT_CONTROLLERS_PUBLIC
-  controller_interface::CallbackReturn on_init() override;
+  CallbackReturn on_init() override;
 
   EFFORT_CONTROLLERS_PUBLIC
-  controller_interface::CallbackReturn on_deactivate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 };
 
 }  // namespace effort_controllers
