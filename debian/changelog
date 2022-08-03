@@ -1,0 +1,140 @@
+ros-foxy-joint-state-broadcaster (0.8.1-1focal) focal; urgency=high
+
+  * Add realtime_tools as export dependency (#377 <https://github.com/ros-controls/ros2_controllers/issues/377>)
+  * Contributors: GeorgeVe
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 02 Aug 2022 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.8.0-1focal) focal; urgency=high
+
+  * joint_state_broadcaster to use realtime tools (#308 <https://github.com/ros-controls/ros2_controllers/issues/308>)
+    * joint_state_broadcaster to use realtime tools (#276 <https://github.com/ros-controls/ros2_controllers/issues/276>)
+    * Use RealtimePublisher for joint_states
+    * Use RealtimePublisher for dynamic joint states
+  * Contributors: John Morris
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 30 May 2022 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.7.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 24 Jan 2022 00:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.6.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 11 Jan 2022 00:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.5.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 24 Oct 2021 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.5.0-1focal) focal; urgency=high
+
+  * Add auto declaration of parameters. (#224 <https://github.com/ros-controls/ros2_controllers/issues/224>)
+  * Bring precommit config up to speed with ros2_control (#227 <https://github.com/ros-controls/ros2_controllers/issues/227>)
+  * [Joint State Broadcaster] Add option to publish joint states to local topics (#218 <https://github.com/ros-controls/ros2_controllers/issues/218>)
+  * Add initial pre-commit setup. (#220 <https://github.com/ros-controls/ros2_controllers/issues/220>)
+  * Reduce docs warnings and correct adding guidelines (#219 <https://github.com/ros-controls/ros2_controllers/issues/219>)
+  * Contributors: Bence Magyar, Denis Štogl, Lovro Ivanov
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 29 Aug 2021 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.4.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 07 Jul 2021 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.4.0-1focal) focal; urgency=high
+
+  * Force torque sensor broadcaster (#152 <https://github.com/ros-controls/ros2_controllers/issues/152>)
+    * Add  rclcpp::shutdown(); to all standalone test functions
+  * Contributors: Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 27 Jun 2021 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.3.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 22 May 2021 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.3.0-1focal) focal; urgency=high
+
+  * Remove unused variable (#181 <https://github.com/ros-controls/ros2_controllers/issues/181>)
+  * Add extra joints parameter at joint state broadcaster (#179 <https://github.com/ros-controls/ros2_controllers/issues/179>)
+  * Contributors: Cesc Folch Aldehuelo, Karsten Knese
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 20 May 2021 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.2.1-1focal) focal; urgency=high
+
+  * Migrate from deprecated controller_interface::return_type::SUCCESS -> OK (#167 <https://github.com/ros-controls/ros2_controllers/issues/167>)
+  * Rename joint_state_controller -> joint_state_broadcaster (#160 <https://github.com/ros-controls/ros2_controllers/issues/160>)
+    * Rename joint_state_controller -> _broadcaster
+    * Update accompanying files (Ament, CMake, etc)
+    * Update C++ from _controller to _broadcaster
+    * Apply cpplint
+    * Create stub controller to redirect to _broadcaster
+    * Add test for loading old joint_state_controller
+    * Add missing dependency on hardware_interface
+    * Add link to documentation
+    * Add joint_state_broadcaster to metapackage
+    * Apply suggestions from code review
+    Co-authored-by: Denis Štogl <mailto:destogl@users.noreply.github.com>
+    * Update joint_state_broadcaster/joint_state_plugin.xml
+    Co-authored-by: Denis Štogl <mailto:destogl@users.noreply.github.com>
+    Co-authored-by: Bence Magyar <mailto:bence.magyar.robotics@gmail.com>
+    Co-authored-by: Denis Štogl <mailto:destogl@users.noreply.github.com>
+  * Contributors: Bence Magyar, Matt Reynolds
+  * Migrate from deprecated controller_interface::return_type::SUCCESS -> OK (#167 <https://github.com/ros-controls/ros2_controllers/issues/167>)
+  * Rename joint_state_controller -> joint_state_broadcaster (#160 <https://github.com/ros-controls/ros2_controllers/issues/160>)
+    * Rename joint_state_controller -> _broadcaster
+    * Update accompanying files (Ament, CMake, etc)
+    * Update C++ from _controller to _broadcaster
+    * Apply cpplint
+    * Create stub controller to redirect to _broadcaster
+    * Add test for loading old joint_state_controller
+    * Add missing dependency on hardware_interface
+    * Add link to documentation
+    * Add joint_state_broadcaster to metapackage
+    * Apply suggestions from code review
+    Co-authored-by: Denis Štogl <mailto:destogl@users.noreply.github.com>
+    * Update joint_state_broadcaster/joint_state_plugin.xml
+    Co-authored-by: Denis Štogl <mailto:destogl@users.noreply.github.com>
+    Co-authored-by: Bence Magyar <mailto:bence.magyar.robotics@gmail.com>
+    Co-authored-by: Denis Štogl <mailto:destogl@users.noreply.github.com>
+  * Contributors: Bence Magyar, Matt Reynolds
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 02 May 2021 23:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.2.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 06 Feb 2021 00:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.1.2-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.1.1-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-foxy-joint-state-broadcaster (0.1.0-1focal) focal; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
