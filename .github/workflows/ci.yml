@@ -3,40 +3,39 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - foxy
   schedule:
     # Run every morning to detect flakiness and broken dependencies
     - cron: '17 8 * * *'
-env:
-  ROS_DISTRO: galactic
 
 jobs:
-  ros_industrial_ci:
-    name: industrial ci
+  ci_binary:
+    name: Foxy binary job
     runs-on: ubuntu-latest
     strategy:
      matrix:
-      ROS_REPO: [main, testing]
+       env:
+         - {ROS_DISTRO: foxy, ROS_REPO: main}
+         - {ROS_DISTRO: foxy, ROS_REPO: testing}
     env:
      UPSTREAM_WORKSPACE: .github/workspace.repos
     steps:
-     - uses: actions/checkout@v2
+     - uses: actions/checkout@v1
      - uses: ros-industrial/industrial_ci@master
-       env:
-        ROS_REPO: ${{ matrix.ROS_REPO }}
+       env: ${{matrix.env}}
 
-  ros-tooling-ci:
-    name: ros-tooling ci
+  ci_source:
+    name: Foxy source job
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
     steps:
       - uses: ros-tooling/setup-ros@v0.2
         with:
-          required-ros-distributions: ${{env.ROS_DISTRO}}
+          required-ros-distributions: foxy
       - uses: ros-tooling/action-ros-ci@v0.2
         with:
-          target-ros2-distro: ${{env.ROS_DISTRO}}
+          target-ros2-distro: foxy
           # build all packages listed in the meta package
           package-name: |
             diff_drive_controller
@@ -45,10 +44,10 @@ jobs:
             forward_command_controller
             imu_sensor_broadcaster
             joint_state_broadcaster
+            joint_state_controller
             joint_trajectory_controller
             gripper_controllers
             position_controllers
-            ros2_controllers_test_nodes
             velocity_controllers
           vcs-repo-file-url: |
             https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/.github/workspace.repos

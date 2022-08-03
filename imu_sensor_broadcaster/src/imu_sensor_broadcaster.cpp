@@ -23,8 +23,14 @@
 
 namespace imu_sensor_broadcaster
 {
-CallbackReturn IMUSensorBroadcaster::on_init()
+controller_interface::return_type IMUSensorBroadcaster::init(const std::string & controller_name)
 {
+  auto ret = ControllerInterface::init(controller_name);
+  if (ret != controller_interface::return_type::OK)
+  {
+    return ret;
+  }
+
   try
   {
     auto_declare<std::string>("sensor_name", "");
@@ -34,10 +40,10 @@ CallbackReturn IMUSensorBroadcaster::on_init()
   {
     RCLCPP_ERROR(
       node_->get_logger(), "Exception thrown during init stage with message: %s \n", e.what());
-    return CallbackReturn::ERROR;
+    return controller_interface::return_type::ERROR;
   }
 
-  return CallbackReturn::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 CallbackReturn IMUSensorBroadcaster::on_configure(
@@ -112,12 +118,11 @@ CallbackReturn IMUSensorBroadcaster::on_deactivate(
   return CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type IMUSensorBroadcaster::update(
-  const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
+controller_interface::return_type IMUSensorBroadcaster::update()
 {
   if (realtime_publisher_ && realtime_publisher_->trylock())
   {
-    realtime_publisher_->msg_.header.stamp = time;
+    realtime_publisher_->msg_.header.stamp = node_->now();
     imu_sensor_->get_values_as_message(realtime_publisher_->msg_);
     realtime_publisher_->unlockAndPublish();
   }

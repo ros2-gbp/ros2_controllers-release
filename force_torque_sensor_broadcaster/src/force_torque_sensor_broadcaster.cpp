@@ -28,8 +28,15 @@ ForceTorqueSensorBroadcaster::ForceTorqueSensorBroadcaster()
 {
 }
 
-CallbackReturn ForceTorqueSensorBroadcaster::on_init()
+controller_interface::return_type ForceTorqueSensorBroadcaster::init(
+  const std::string & controller_name)
 {
+  auto ret = ControllerInterface::init(controller_name);
+  if (ret != controller_interface::return_type::OK)
+  {
+    return ret;
+  }
+
   try
   {
     auto_declare<std::string>("sensor_name", "");
@@ -44,10 +51,10 @@ CallbackReturn ForceTorqueSensorBroadcaster::on_init()
   catch (const std::exception & e)
   {
     fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return CallbackReturn::ERROR;
+    return controller_interface::return_type::ERROR;
   }
 
-  return CallbackReturn::SUCCESS;
+  return controller_interface::return_type::OK;
 }
 
 CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
@@ -156,12 +163,11 @@ CallbackReturn ForceTorqueSensorBroadcaster::on_deactivate(
   return CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type ForceTorqueSensorBroadcaster::update(
-  const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
+controller_interface::return_type ForceTorqueSensorBroadcaster::update()
 {
   if (realtime_publisher_ && realtime_publisher_->trylock())
   {
-    realtime_publisher_->msg_.header.stamp = time;
+    realtime_publisher_->msg_.header.stamp = node_->now();
     force_torque_sensor_->get_values_as_message(realtime_publisher_->msg_.wrench);
     realtime_publisher_->unlockAndPublish();
   }

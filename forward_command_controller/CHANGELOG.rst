@@ -2,39 +2,22 @@
 Changelog for package forward_command_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.5.0 (2022-08-03)
+0.8.1 (2022-08-03)
 ------------------
 
-1.4.0 (2022-02-23)
+0.8.0 (2022-05-31)
 ------------------
 
-1.3.0 (2022-01-11)
+0.7.0 (2022-01-24)
 ------------------
-* Adding reset() for forward_command_controller (`#283 <https://github.com/ros-controls/ros2_controllers/issues/283>`_)
-* Contributors: bailaC
+* Bugfix 🏎: Reset and test of command buffer for forwarding controllers. (backport `#246 <https://github.com/ros-controls/ros2_controllers/issues/246>`_) (`#287 <https://github.com/ros-controls/ros2_controllers/issues/287>`_)
+* Contributors: Denis Štogl, Bence Magyar
 
-1.2.0 (2021-12-29)
+0.6.0 (2022-01-11)
 ------------------
-* Forward command controller test update (`#273 <https://github.com/ros-controls/ros2_controllers/issues/273>`_)
-  * removed unnecessary lines and updated comments
-  * fixed pre-commit issues
-  * removed extra part of test
-* Contributors: Jack Center
 
-1.1.0 (2021-10-25)
+0.5.1 (2021-10-25)
 ------------------
-* Move interface sorting into ControllerInterface (`#259 <https://github.com/ros-controls/ros2_controllers/issues/259>`_)
-* Revise for-loop style (`#254 <https://github.com/ros-controls/ros2_controllers/issues/254>`_)
-* Contributors: bailaC
-
-1.0.0 (2021-09-29)
-------------------
-* Reset and test of command buffer for forwarding controllers. (`#246 <https://github.com/ros-controls/ros2_controllers/issues/246>`_)
-* Remove compile warnings. (`#245 <https://github.com/ros-controls/ros2_controllers/issues/245>`_)
-* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
-* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
-* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
-* Contributors: Bence Magyar, Denis Štogl, bailaC
 
 0.5.0 (2021-08-30)
 ------------------

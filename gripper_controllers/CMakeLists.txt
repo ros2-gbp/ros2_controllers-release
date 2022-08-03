@@ -72,6 +72,7 @@ if(BUILD_TESTING)
     controller_manager
     ros2_control_test_assets
   )
+  target_compile_definitions(test_load_gripper_action_controllers PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 endif()
 
 ament_package()

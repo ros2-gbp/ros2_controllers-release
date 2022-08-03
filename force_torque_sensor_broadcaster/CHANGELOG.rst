@@ -2,27 +2,20 @@
 Changelog for package force_torque_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.5.0 (2022-08-03)
+0.8.1 (2022-08-03)
 ------------------
 
-1.4.0 (2022-02-23)
+0.8.0 (2022-05-31)
 ------------------
 
-1.3.0 (2022-01-11)
+0.7.0 (2022-01-24)
 ------------------
 
-1.2.0 (2021-12-29)
+0.6.0 (2022-01-11)
 ------------------
 
-1.1.0 (2021-10-25)
+0.5.1 (2021-10-25)
 ------------------
-
-1.0.0 (2021-09-29)
-------------------
-* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
-* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
-* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
-* Contributors: Bence Magyar, bailaC
 
 0.5.0 (2021-08-30)
 ------------------

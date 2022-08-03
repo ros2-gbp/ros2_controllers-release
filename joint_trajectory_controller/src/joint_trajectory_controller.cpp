@@ -26,7 +26,6 @@
 #include "angles/angles.h"
 #include "builtin_interfaces/msg/duration.hpp"
 #include "builtin_interfaces/msg/time.hpp"
-#include "controller_interface/helpers.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "joint_trajectory_controller/trajectory.hpp"
@@ -50,28 +49,28 @@ JointTrajectoryController::JointTrajectoryController()
 {
 }
 
-CallbackReturn JointTrajectoryController::on_init()
+controller_interface::return_type JointTrajectoryController::init(
+  const std::string & controller_name)
 {
-  try
+  // initialize lifecycle node
+  const auto ret = ControllerInterface::init(controller_name);
+  if (ret != controller_interface::return_type::OK)
   {
-    // with the lifecycle node being initialized, we can declare parameters
-    auto_declare<std::vector<std::string>>("joints", joint_names_);
-    auto_declare<std::vector<std::string>>("command_interfaces", command_interface_types_);
-    auto_declare<std::vector<std::string>>("state_interfaces", state_interface_types_);
-    auto_declare<double>("state_publish_rate", 50.0);
-    auto_declare<double>("action_monitor_rate", 20.0);
-    auto_declare<bool>("allow_partial_joints_goal", allow_partial_joints_goal_);
-    auto_declare<bool>("open_loop_control", open_loop_control_);
-    auto_declare<double>("constraints.stopped_velocity_tolerance", 0.01);
-    auto_declare<double>("constraints.goal_time", 0.0);
-  }
-  catch (const std::exception & e)
-  {
-    fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-    return CallbackReturn::ERROR;
+    return ret;
   }
 
-  return CallbackReturn::SUCCESS;
+  // with the lifecycle node being initialized, we can declare parameters
+  auto_declare<std::vector<std::string>>("joints", joint_names_);
+  auto_declare<std::vector<std::string>>("command_interfaces", command_interface_types_);
+  auto_declare<std::vector<std::string>>("state_interfaces", state_interface_types_);
+  auto_declare<double>("state_publish_rate", 50.0);
+  auto_declare<double>("action_monitor_rate", 20.0);
+  auto_declare<bool>("allow_partial_joints_goal", allow_partial_joints_goal_);
+  auto_declare<bool>("open_loop_control", open_loop_control_);
+  auto_declare<double>("constraints.stopped_velocity_tolerance", 0.01);
+  auto_declare<double>("constraints.goal_time", 0.0);
+
+  return controller_interface::return_type::OK;
 }
 
 controller_interface::InterfaceConfiguration
@@ -106,10 +105,9 @@ JointTrajectoryController::state_interface_configuration() const
   return conf;
 }
 
-controller_interface::return_type JointTrajectoryController::update(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+controller_interface::return_type JointTrajectoryController::update()
 {
-  if (get_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
+  if (get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
   {
     return controller_interface::return_type::OK;
   }
@@ -149,7 +147,7 @@ controller_interface::return_type JointTrajectoryController::update(
   // changed, but its value only?
   auto assign_interface_from_point =
     [&, joint_num](auto & joint_inteface, const std::vector<double> & trajectory_point_interface) {
-      for (size_t index = 0; index < joint_num; ++index)
+      for (auto index = 0ul; index < joint_num; ++index)
       {
         joint_inteface[index].get().set_value(trajectory_point_interface[index]);
       }
@@ -209,7 +207,7 @@ controller_interface::return_type JointTrajectoryController::update(
       //         assign_interface_from_point(joint_command_interface_[3], state_desired.effort);
       //       }
 
-      for (size_t index = 0; index < joint_num; ++index)
+      for (auto index = 0ul; index < joint_num; ++index)
       {
         compute_error_for_joint(state_error, index, state_current, state_desired);
 
@@ -315,7 +313,7 @@ void JointTrajectoryController::read_state_from_hardware(JointTrajectoryPoint & 
   const auto joint_num = joint_names_.size();
   auto assign_point_from_interface =
     [&, joint_num](std::vector<double> & trajectory_point_interface, const auto & joint_inteface) {
-      for (size_t index = 0; index < joint_num; ++index)
+      for (auto index = 0ul; index < joint_num; ++index)
       {
         trajectory_point_interface[index] = joint_inteface[index].get().get_value();
       }
@@ -354,7 +352,7 @@ bool JointTrajectoryController::read_state_from_command_interfaces(JointTrajecto
   const auto joint_num = joint_names_.size();
   auto assign_point_from_interface =
     [&, joint_num](std::vector<double> & trajectory_point_interface, const auto & joint_inteface) {
-      for (size_t index = 0; index < joint_num; ++index)
+      for (auto index = 0ul; index < joint_num; ++index)
       {
         trajectory_point_interface[index] = joint_inteface[index].get().get_value();
       }
@@ -415,7 +413,8 @@ bool JointTrajectoryController::read_state_from_command_interfaces(JointTrajecto
   return has_values;
 }
 
-CallbackReturn JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+JointTrajectoryController::on_configure(const rclcpp_lifecycle::State &)
 {
   const auto logger = node_->get_logger();
 
@@ -424,7 +423,7 @@ CallbackReturn JointTrajectoryController::on_configure(const rclcpp_lifecycle::S
 
   if (!reset())
   {
-    return CallbackReturn::FAILURE;
+    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::FAILURE;
   }
 
   if (joint_names_.empty())
@@ -588,16 +587,16 @@ CallbackReturn JointTrajectoryController::on_configure(const rclcpp_lifecycle::S
   }
 
   auto get_interface_list = [](const std::vector<std::string> & interface_types) {
-    std::stringstream ss_interfaces;
+    std::stringstream ss_command_interfaces;
     for (size_t index = 0; index < interface_types.size(); ++index)
     {
       if (index != 0)
       {
-        ss_interfaces << " ";
+        ss_command_interfaces << " ";
       }
-      ss_interfaces << interface_types[index];
+      ss_command_interfaces << interface_types[index];
     }
-    return ss_interfaces.str();
+    return ss_command_interfaces.str();
   };
 
   // Print output so users can be sure the interface setup is correct
@@ -695,10 +694,33 @@ CallbackReturn JointTrajectoryController::on_configure(const rclcpp_lifecycle::S
     std::bind(&JointTrajectoryController::cancel_callback, this, _1),
     std::bind(&JointTrajectoryController::feedback_setup_callback, this, _1));
 
-  return CallbackReturn::SUCCESS;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-CallbackReturn JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
+// Fill ordered_interfaces with references to the matching interfaces
+// in the same order as in joint_names
+template <typename T>
+bool get_ordered_interfaces(
+  std::vector<T> & unordered_interfaces, const std::vector<std::string> & joint_names,
+  const std::string & interface_type, std::vector<std::reference_wrapper<T>> & ordered_interfaces)
+{
+  for (const auto & joint_name : joint_names)
+  {
+    for (auto & interface : unordered_interfaces)
+    {
+      if (
+        (interface.get_name() == joint_name) && (interface.get_interface_name() == interface_type))
+      {
+        ordered_interfaces.emplace_back(std::ref(interface));
+      }
+    }
+  }
+
+  return joint_names.size() == ordered_interfaces.size();
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+JointTrajectoryController::on_activate(const rclcpp_lifecycle::State &)
 {
   // order all joints in the storage
   for (const auto & interface : command_interface_types_)
@@ -706,13 +728,13 @@ CallbackReturn JointTrajectoryController::on_activate(const rclcpp_lifecycle::St
     auto it =
       std::find(allowed_interface_types_.begin(), allowed_interface_types_.end(), interface);
     auto index = std::distance(allowed_interface_types_.begin(), it);
-    if (!controller_interface::get_ordered_interfaces(
+    if (!get_ordered_interfaces(
           command_interfaces_, joint_names_, interface, joint_command_interface_[index]))
     {
       RCLCPP_ERROR(
         node_->get_logger(), "Expected %zu '%s' command interfaces, got %zu.", joint_names_.size(),
         interface.c_str(), joint_command_interface_[index].size());
-      return CallbackReturn::ERROR;
+      return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
     }
   }
   for (const auto & interface : state_interface_types_)
@@ -720,13 +742,13 @@ CallbackReturn JointTrajectoryController::on_activate(const rclcpp_lifecycle::St
     auto it =
       std::find(allowed_interface_types_.begin(), allowed_interface_types_.end(), interface);
     auto index = std::distance(allowed_interface_types_.begin(), it);
-    if (!controller_interface::get_ordered_interfaces(
+    if (!get_ordered_interfaces(
           state_interfaces_, joint_names_, interface, joint_state_interface_[index]))
     {
       RCLCPP_ERROR(
         node_->get_logger(), "Expected %zu '%s' state interfaces, got %zu.", joint_names_.size(),
         interface.c_str(), joint_state_interface_[index].size());
-      return CallbackReturn::ERROR;
+      return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
     }
   }
 
@@ -766,19 +788,20 @@ CallbackReturn JointTrajectoryController::on_activate(const rclcpp_lifecycle::St
   }
 
   // TODO(karsten1987): activate subscriptions of subscriber
-  return CallbackReturn::SUCCESS;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-CallbackReturn JointTrajectoryController::on_deactivate(const rclcpp_lifecycle::State &)
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+JointTrajectoryController::on_deactivate(const rclcpp_lifecycle::State &)
 {
   // TODO(anyone): How to halt when using effort commands?
-  for (size_t index = 0; index < joint_names_.size(); ++index)
+  for (auto index = 0ul; index < joint_names_.size(); ++index)
   {
     joint_command_interface_[0][index].get().set_value(
       joint_command_interface_[0][index].get().get_value());
   }
 
-  for (size_t index = 0; index < allowed_interface_types_.size(); ++index)
+  for (auto index = 0ul; index < allowed_interface_types_.size(); ++index)
   {
     joint_command_interface_[index].clear();
     joint_state_interface_[index].clear();
@@ -787,25 +810,27 @@ CallbackReturn JointTrajectoryController::on_deactivate(const rclcpp_lifecycle::
 
   subscriber_is_active_ = false;
 
-  return CallbackReturn::SUCCESS;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-CallbackReturn JointTrajectoryController::on_cleanup(const rclcpp_lifecycle::State &)
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+JointTrajectoryController::on_cleanup(const rclcpp_lifecycle::State &)
 {
   // go home
   traj_home_point_ptr_->update(traj_msg_home_ptr_);
   traj_point_active_ptr_ = &traj_home_point_ptr_;
 
-  return CallbackReturn::SUCCESS;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-CallbackReturn JointTrajectoryController::on_error(const rclcpp_lifecycle::State &)
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+JointTrajectoryController::on_error(const rclcpp_lifecycle::State &)
 {
   if (!reset())
   {
-    return CallbackReturn::ERROR;
+    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
-  return CallbackReturn::SUCCESS;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 bool JointTrajectoryController::reset()
@@ -823,11 +848,12 @@ bool JointTrajectoryController::reset()
   return true;
 }
 
-CallbackReturn JointTrajectoryController::on_shutdown(const rclcpp_lifecycle::State &)
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+JointTrajectoryController::on_shutdown(const rclcpp_lifecycle::State &)
 {
   // TODO(karsten1987): what to do?
 
-  return CallbackReturn::SUCCESS;
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 void JointTrajectoryController::publish_state(
@@ -874,7 +900,7 @@ rclcpp_action::GoalResponse JointTrajectoryController::goal_callback(
   RCLCPP_INFO(node_->get_logger(), "Received new action goal");
 
   // Precondition: Running controller
-  if (get_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
+  if (get_current_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
   {
     RCLCPP_ERROR(node_->get_logger(), "Can't accept new action goals. Controller is not running.");
     return rclcpp_action::GoalResponse::REJECT;
@@ -949,7 +975,7 @@ void JointTrajectoryController::fill_partial_goal(
 
   trajectory_msg->joint_names.reserve(joint_names_.size());
 
-  for (size_t index = 0; index < joint_names_.size(); ++index)
+  for (auto index = 0ul; index < joint_names_.size(); ++index)
   {
     {
       if (
@@ -1002,7 +1028,7 @@ void JointTrajectoryController::sort_to_local_joint_order(
     }
     std::vector<double> output;
     output.resize(mapping.size(), 0.0);
-    for (size_t index = 0; index < mapping.size(); ++index)
+    for (auto index = 0ul; index < mapping.size(); ++index)
     {
       auto map_index = mapping[index];
       output[map_index] = to_remap[index];
@@ -1010,7 +1036,7 @@ void JointTrajectoryController::sort_to_local_joint_order(
     return output;
   };
 
-  for (size_t index = 0; index < trajectory_msg->points.size(); ++index)
+  for (auto index = 0ul; index < trajectory_msg->points.size(); ++index)
   {
     trajectory_msg->points[index].positions =
       remap(trajectory_msg->points[index].positions, mapping_vector);
@@ -1085,7 +1111,7 @@ bool JointTrajectoryController::validate_trajectory_msg(
     }
   }
 
-  for (size_t i = 0; i < trajectory.joint_names.size(); ++i)
+  for (auto i = 0ul; i < trajectory.joint_names.size(); ++i)
   {
     const std::string & incoming_joint_name = trajectory.joint_names[i];
 
@@ -1100,7 +1126,7 @@ bool JointTrajectoryController::validate_trajectory_msg(
   }
 
   rclcpp::Duration previous_traj_time(0ms);
-  for (size_t i = 0; i < trajectory.points.size(); ++i)
+  for (auto i = 0ul; i < trajectory.points.size(); ++i)
   {
     if ((i > 0) && (rclcpp::Duration(trajectory.points[i].time_from_start) <= previous_traj_time))
     {
