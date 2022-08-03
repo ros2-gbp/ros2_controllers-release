@@ -1,3 +1,38 @@
+## ros2_controllers (galactic) - 1.5.0-1
+
+The packages in the `ros2_controllers` repository were released into the `galactic` distro by running `/usr/local/bin/bloom-release --track galactic --rosdistro galactic ros2_controllers` on `Wed, 03 Aug 2022 07:02:58 -0000`
+
+These packages were released:
+- `diff_drive_controller`
+- `effort_controllers`
+- `force_torque_sensor_broadcaster`
+- `forward_command_controller`
+- `gripper_controllers`
+- `imu_sensor_broadcaster`
+- `joint_state_broadcaster`
+- `joint_trajectory_controller`
+- `position_controllers`
+- `ros2_controllers`
+- `ros2_controllers_test_nodes`
+- `velocity_controllers`
+
+Version of package(s) in repository `ros2_controllers`:
+
+- upstream repository: https://github.com/ros-controls/ros2_controllers.git
+- release repository: https://github.com/ros2-gbp/ros2_controllers-release.git
+- rosdistro version: `1.4.0-1`
+- old version: `1.4.0-1`
+- new version: `1.5.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.10.7`
+- catkin_pkg version: `0.5.2`
+- rosdep version: `0.19.0`
+- rosdistro version: `0.8.3`
+- vcstools version: `0.1.42`
+
+
 ## ros2_controllers (rolling) - 2.10.0-1
 
 The packages in the `ros2_controllers` repository were released into the `rolling` distro by running `/usr/local/bin/bloom-release --track rolling --rosdistro rolling ros2_controllers` on `Mon, 01 Aug 2022 06:59:26 -0000`
