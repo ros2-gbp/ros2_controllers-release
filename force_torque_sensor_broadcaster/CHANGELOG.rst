@@ -2,20 +2,72 @@
 Changelog for package force_torque_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.8.1 (2022-08-03)
+2.11.0 (2022-08-04)
+-------------------
+
+2.10.0 (2022-08-01)
+-------------------
+
+2.9.0 (2022-07-14)
 ------------------
 
-0.8.0 (2022-05-31)
+2.8.0 (2022-07-09)
 ------------------
 
-0.7.0 (2022-01-24)
+2.7.0 (2022-07-03)
 ------------------
 
-0.6.0 (2022-01-11)
+2.6.0 (2022-06-18)
+------------------
+* Disable failing workflows (`#363 <https://github.com/ros-controls/ros2_controllers/issues/363>`_)
+* CMakeLists cleanup (`#362 <https://github.com/ros-controls/ros2_controllers/issues/362>`_)
+* Fix exception about parameter already been declared & Change default c++ version to 17 (`#360 <https://github.com/ros-controls/ros2_controllers/issues/360>`_)
+  * Default C++ version to 17
+  * Replace explicit use of declare_paremeter with auto_declare
+* Contributors: Andy Zelenak, Jafar Abdi
+
+2.5.0 (2022-05-13)
+------------------
+* fix: :bug: make force_torque_sensor_broadcaster wait for realtime_publisher (`#327 <https://github.com/ros-controls/ros2_controllers/issues/327>`_)
+* Contributors: Jaron Lundwall, Denis Štogl
+
+2.4.0 (2022-04-29)
+------------------
+* updated to use node getter functions (`#329 <https://github.com/ros-controls/ros2_controllers/issues/329>`_)
+* Contributors: Bence Magyar, Denis Štogl, Jack Center
+
+2.3.0 (2022-04-21)
+------------------
+* Use CallbackReturn from controller_interface namespace (`#333 <https://github.com/ros-controls/ros2_controllers/issues/333>`_)
+* Contributors: Bence Magyar, Denis Štogl
+
+2.2.0 (2022-03-25)
 ------------------
 
-0.5.1 (2021-10-25)
+2.1.0 (2022-02-23)
 ------------------
+
+2.0.1 (2022-02-01)
+------------------
+
+2.0.0 (2022-01-28)
+------------------
+
+1.3.0 (2022-01-11)
+------------------
+
+1.2.0 (2021-12-29)
+------------------
+
+1.1.0 (2021-10-25)
+------------------
+
+1.0.0 (2021-09-29)
+------------------
+* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
+* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
+* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
+* Contributors: Bence Magyar, bailaC
 
 0.5.0 (2021-08-30)
 ------------------

@@ -2,27 +2,87 @@
 Changelog for package joint_state_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.8.1 (2022-08-03)
-------------------
-* Add realtime_tools as export dependency (`#377 <https://github.com/ros-controls/ros2_controllers/issues/377>`_)
-* Contributors: GeorgeVe
+2.11.0 (2022-08-04)
+-------------------
+* Use explicit type in joint_state_broadcaster test (`#403 <https://github.com/ros-controls/ros2_controllers/issues/403>`_)
+  This use of `auto` is causing a static assert on RHEL. Explicitly
+  specifying the type seems to resolve the failure and allow the test to
+  be compiled.
+* Contributors: Scott K Logan
 
-0.8.0 (2022-05-31)
-------------------
-* `joint_state_broadcaster` to use realtime tools (`#308 <https://github.com/ros-controls/ros2_controllers/issues/308>`_)
-  * joint_state_broadcaster to use realtime tools (`#276 <https://github.com/ros-controls/ros2_controllers/issues/276>`_)
-  * Use RealtimePublisher for joint_states
-  * Use RealtimePublisher for dynamic joint states
-* Contributors: John Morris
+2.10.0 (2022-08-01)
+-------------------
 
-0.7.0 (2022-01-24)
+2.9.0 (2022-07-14)
 ------------------
 
-0.6.0 (2022-01-11)
+2.8.0 (2022-07-09)
 ------------------
 
-0.5.1 (2021-10-25)
+2.7.0 (2022-07-03)
 ------------------
+* Update controllers with new get_name hardware interfaces (`#369 <https://github.com/ros-controls/ros2_controllers/issues/369>`_)
+* Contributors: Lucas Schulze
+
+2.6.0 (2022-06-18)
+------------------
+* Fix exception about parameter already been declared & Change default c++ version to 17 (`#360 <https://github.com/ros-controls/ros2_controllers/issues/360>`_)
+  * Default C++ version to 17
+  * Replace explicit use of declare_paremeter with auto_declare
+* Contributors: Jafar Abdi
+
+2.5.0 (2022-05-13)
+------------------
+* fix: :bug: make force_torque_sensor_broadcaster wait for realtime_publisher (`#327 <https://github.com/ros-controls/ros2_controllers/issues/327>`_)
+* Contributors: Jaron Lundwall, Denis Štogl
+
+2.4.0 (2022-04-29)
+------------------
+* updated to use node getter functions (`#329 <https://github.com/ros-controls/ros2_controllers/issues/329>`_)
+* Contributors: Bence Magyar, Denis Štogl, Jack Center
+
+2.3.0 (2022-04-21)
+------------------
+* Use CallbackReturn from controller_interface namespace (`#333 <https://github.com/ros-controls/ros2_controllers/issues/333>`_)
+* Contributors: Bence Magyar, Denis Štogl
+
+2.2.0 (2022-03-25)
+------------------
+* Use lifecycle node as base for controllers (`#244 <https://github.com/ros-controls/ros2_controllers/issues/244>`_)
+* Contributors: Denis Štogl, Vatan Aksoy Tezer, Bence Magyar
+
+2.1.0 (2022-02-23)
+------------------
+* joint_state_broadcaster to use realtime tools (`#276 <https://github.com/ros-controls/ros2_controllers/issues/276>`_)
+* Contributors: Bence Magyar
+
+2.0.1 (2022-02-01)
+------------------
+
+2.0.0 (2022-01-28)
+------------------
+
+1.3.0 (2022-01-11)
+------------------
+
+1.2.0 (2021-12-29)
+------------------
+* [Joint State Broadcaster] Add mapping of custom states to standard values in "/joint_state" message (`#217 <https://github.com/ros-controls/ros2_controllers/issues/217>`_)
+* [Joint State Broadcaster] Add option to support only specific interfaces on specific joints (`#216 <https://github.com/ros-controls/ros2_controllers/issues/216>`_)
+* Contributors: Denis Štogl, Bence Magyar
+
+1.1.0 (2021-10-25)
+------------------
+* Revise for-loop style (`#254 <https://github.com/ros-controls/ros2_controllers/issues/254>`_)
+* Contributors: bailaC
+
+1.0.0 (2021-09-29)
+------------------
+* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
+* Unify style of controllers. (`#236 <https://github.com/ros-controls/ros2_controllers/issues/236>`_)
+* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
+* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
+* Contributors: Bence Magyar, Denis Štogl, bailaC
 
 0.5.0 (2021-08-30)
 ------------------

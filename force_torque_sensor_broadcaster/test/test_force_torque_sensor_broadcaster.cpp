@@ -35,19 +35,8 @@ using hardware_interface::LoanedStateInterface;
 
 namespace
 {
-constexpr auto NODE_SUCCESS =
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-constexpr auto NODE_ERROR =
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
-
-rclcpp::WaitResultKind wait_for(rclcpp::SubscriptionBase::SharedPtr subscription)
-{
-  rclcpp::WaitSet wait_set;
-  wait_set.add_subscription(subscription);
-  const auto timeout = std::chrono::seconds(20);
-  return wait_set.wait(timeout).kind();
-}
-
+constexpr auto NODE_SUCCESS = controller_interface::CallbackReturn::SUCCESS;
+constexpr auto NODE_ERROR = controller_interface::CallbackReturn::ERROR;
 }  // namespace
 
 void ForceTorqueSensorBroadcasterTest::SetUpTestCase() { rclcpp::init(0, nullptr); }
@@ -88,10 +77,21 @@ void ForceTorqueSensorBroadcasterTest::subscribe_and_get_message(
     "/test_force_torque_sensor_broadcaster/wrench", 10, subs_callback);
 
   // call update to publish the test value
-  ASSERT_EQ(fts_broadcaster_->update(), controller_interface::return_type::OK);
-
-  // wait for message to be passed
-  ASSERT_EQ(wait_for(subscription), rclcpp::WaitResultKind::Ready);
+  // since update doesn't guarantee a published message, republish until received
+  int max_sub_check_loop_count = 5;  // max number of tries for pub/sub loop
+  rclcpp::WaitSet wait_set;          // block used to wait on message
+  wait_set.add_subscription(subscription);
+  while (max_sub_check_loop_count--)
+  {
+    fts_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+    // check if message has been received
+    if (wait_set.wait(std::chrono::milliseconds(2)).kind() == rclcpp::WaitResultKind::Ready)
+    {
+      break;
+    }
+  }
+  ASSERT_GE(max_sub_check_loop_count, 0) << "Test was unable to publish a message through "
+                                            "controller/broadcaster update loop";
 
   // take message from subscription
   rclcpp::MessageInfo msg_info;
@@ -220,7 +220,9 @@ TEST_F(ForceTorqueSensorBroadcasterTest, SensorName_Update_Success)
   ASSERT_EQ(fts_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
   ASSERT_EQ(fts_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
-  ASSERT_EQ(fts_broadcaster_->update(), controller_interface::return_type::OK);
+  ASSERT_EQ(
+    fts_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
+    controller_interface::return_type::OK);
 }
 
 TEST_F(ForceTorqueSensorBroadcasterTest, InterfaceNames_Success)
@@ -234,7 +236,9 @@ TEST_F(ForceTorqueSensorBroadcasterTest, InterfaceNames_Success)
 
   ASSERT_EQ(fts_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
   ASSERT_EQ(fts_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
-  ASSERT_EQ(fts_broadcaster_->update(), controller_interface::return_type::OK);
+  ASSERT_EQ(
+    fts_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
+    controller_interface::return_type::OK);
 }
 
 TEST_F(ForceTorqueSensorBroadcasterTest, SensorName_Publish_Success)
