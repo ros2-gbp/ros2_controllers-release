@@ -1,0 +1,8 @@
+ros-rolling-tricycle-controller (2.11.0-1jammy) jammy; urgency=high
+
+  * Tricycle controller (#345 <https://github.com/ros-controls/ros2_controllers/issues/345>)
+  * Contributors: Bence Magyar, Tony Najjar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 03 Aug 2022 23:00:00 -0000
+
+
