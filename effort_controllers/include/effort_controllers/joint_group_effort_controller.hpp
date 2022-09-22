@@ -19,7 +19,6 @@
 
 #include "effort_controllers/visibility_control.h"
 #include "forward_command_controller/forward_command_controller.hpp"
-#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 
 namespace effort_controllers
 {
@@ -40,11 +39,10 @@ public:
   JointGroupEffortController();
 
   EFFORT_CONTROLLERS_PUBLIC
-  controller_interface::CallbackReturn on_init() override;
+  controller_interface::return_type init(const std::string & controller_name) override;
 
   EFFORT_CONTROLLERS_PUBLIC
-  controller_interface::CallbackReturn on_deactivate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 };
 
 }  // namespace effort_controllers

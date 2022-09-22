@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gtest/gtest.h>
 #include <memory>
-
-#include "gmock/gmock.h"
 
 #include "controller_manager/controller_manager.hpp"
 #include "hardware_interface/resource_manager.hpp"
@@ -22,6 +21,7 @@
 #include "rclcpp/executors/single_threaded_executor.hpp"
 #include "rclcpp/utilities.hpp"
 #include "ros2_control_test_assets/descriptions.hpp"
+#include "test_trajectory_controller_utils.hpp"
 
 TEST(TestLoadJointStateController, load_controller)
 {
