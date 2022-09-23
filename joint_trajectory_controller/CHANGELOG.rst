@@ -2,29 +2,44 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.8.2 (2022-09-22)
+1.5.1 (2022-09-23)
 ------------------
-* [backport] Fix for high CPU usage by JTC in gzserver (`#428 <https://github.com/ros-controls/ros2_controllers/issues/428>`_) (`#436 <https://github.com/ros-controls/ros2_controllers/issues/436>`_)
+* [backport] Fix for high CPU usage by JTC in gzserver (`#428 <https://github.com/ros-controls/ros2_controllers/issues/428>`_) (`#437 <https://github.com/ros-controls/ros2_controllers/issues/437>`_)
   * Change type cast wall timer period from second to nanoseconds.
   create_wall_timer() expects delay in nanoseconds (duration object) however the type cast to seconds will result in 0 (if duration is less than 1s) and thus causing timer to be fired non stop resulting in very high CPU usage.
   * Reset smartpointer so that create_wall_timer() call can destroy previous trajectory timer.
   node->create_wall_timer() first removes timers associated with expired smartpointers before servicing current request.  The JTC timer pointer gets overwrite only after the create_wall_timer() returns and thus not able to remove previous trajectory timer resulting in upto two timers running for JTC during trajectory execution.  Althougth the previous timer does nothing but still get fired.
 * Contributors: Arshad Mehmood
 
-0.8.1 (2022-08-03)
+1.5.0 (2022-08-03)
 ------------------
 
-0.8.0 (2022-05-31)
+1.4.0 (2022-02-23)
 ------------------
 
-0.7.0 (2022-01-24)
+1.3.0 (2022-01-11)
 ------------------
 
-0.6.0 (2022-01-11)
+1.2.0 (2021-12-29)
 ------------------
 
-0.5.1 (2021-10-25)
+1.1.0 (2021-10-25)
 ------------------
+* Move interface sorting into ControllerInterface (`#259 <https://github.com/ros-controls/ros2_controllers/issues/259>`_)
+* Revise for-loop style (`#254 <https://github.com/ros-controls/ros2_controllers/issues/254>`_)
+* Contributors: bailaC
+
+1.0.0 (2021-09-29)
+------------------
+* Remove compile warnings. (`#245 <https://github.com/ros-controls/ros2_controllers/issues/245>`_)
+* Add time and period to update function (`#241 <https://github.com/ros-controls/ros2_controllers/issues/241>`_)
+* Quickfix 🛠: Correct confusing variable name (`#240 <https://github.com/ros-controls/ros2_controllers/issues/240>`_)
+* Unify style of controllers. (`#236 <https://github.com/ros-controls/ros2_controllers/issues/236>`_)
+* Change test to work with Foxy and posterior action API (`#237 <https://github.com/ros-controls/ros2_controllers/issues/237>`_)
+* ros2_controllers code changes to support ros2_controls issue `#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_ (`#233 <https://github.com/ros-controls/ros2_controllers/issues/233>`_)
+* Removing Boost from controllers. (`#235 <https://github.com/ros-controls/ros2_controllers/issues/235>`_)
+* refactor get_current_state to get_state (`#232 <https://github.com/ros-controls/ros2_controllers/issues/232>`_)
+* Contributors: Bence Magyar, Denis Štogl, Márk Szitanics, Tyler Weaver, bailaC
 
 0.5.0 (2021-08-30)
 ------------------
