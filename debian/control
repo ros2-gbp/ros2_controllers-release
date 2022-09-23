@@ -1,0 +1,12 @@
+Source: ros-galactic-ros2-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-galactic-ament-cmake, ros-galactic-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-galactic-ros2-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-galactic-diff-drive-controller, ros-galactic-effort-controllers, ros-galactic-force-torque-sensor-broadcaster, ros-galactic-forward-command-controller, ros-galactic-imu-sensor-broadcaster, ros-galactic-joint-state-broadcaster, ros-galactic-joint-trajectory-controller, ros-galactic-position-controllers, ros-galactic-velocity-controllers, ros-galactic-ros-workspace
+Description: Metapackage for ROS2 controllers related packages
