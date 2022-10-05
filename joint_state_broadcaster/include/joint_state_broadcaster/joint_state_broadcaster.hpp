@@ -23,6 +23,7 @@
 #include "control_msgs/msg/dynamic_joint_state.hpp"
 #include "controller_interface/controller_interface.hpp"
 #include "joint_state_broadcaster/visibility_control.h"
+#include "joint_state_broadcaster_parameters.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "realtime_tools/realtime_publisher.h"
@@ -30,8 +31,6 @@
 
 namespace joint_state_broadcaster
 {
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
-
 /**
  * \brief Joint State Broadcaster for all or some state in a ros2_control system.
  *
@@ -73,16 +72,19 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  CallbackReturn on_init() override;
+  controller_interface::CallbackReturn on_init() override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_STATE_BROADCASTER_PUBLIC
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
 protected:
   bool init_joint_data();
@@ -92,9 +94,8 @@ protected:
 
 protected:
   // Optional parameters
-  bool use_local_topics_;
-  std::vector<std::string> joints_;
-  std::vector<std::string> interfaces_;
+  std::shared_ptr<ParamListener> param_listener_;
+  Params params_;
   std::unordered_map<std::string, std::string> map_interface_to_joint_state_;
 
   //  For the JointState message,

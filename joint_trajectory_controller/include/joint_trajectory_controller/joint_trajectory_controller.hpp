@@ -24,8 +24,10 @@
 
 #include "control_msgs/action/follow_joint_trajectory.hpp"
 #include "control_msgs/msg/joint_trajectory_controller_state.hpp"
+#include "control_toolbox/pid.hpp"
 #include "controller_interface/controller_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
+#include "joint_trajectory_controller/interpolation_methods.hpp"
 #include "joint_trajectory_controller/tolerances.hpp"
 #include "joint_trajectory_controller/visibility_control.h"
 #include "rclcpp/duration.hpp"
@@ -42,6 +44,8 @@
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
+#include "joint_trajectory_controller_parameters.hpp"
+
 using namespace std::chrono_literals;  // NOLINT
 
 namespace rclcpp_action
@@ -56,8 +60,6 @@ class State;
 
 namespace joint_trajectory_controller
 {
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
-
 class Trajectory;
 
 class JointTrajectoryController : public controller_interface::ControllerInterface
@@ -85,31 +87,33 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  CallbackReturn on_init() override;
+  controller_interface::CallbackReturn on_init() override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  CallbackReturn on_cleanup(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_cleanup(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  CallbackReturn on_error(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_error(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  CallbackReturn on_shutdown(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_shutdown(
+    const rclcpp_lifecycle::State & previous_state) override;
 
 protected:
-  std::vector<std::string> joint_names_;
-  std::vector<std::string> command_interface_types_;
-  std::vector<std::string> state_interface_types_;
-
   // To reduce number of variables and to make the code shorter the interfaces are ordered in types
   // as the following constants
   const std::vector<std::string> allowed_interface_types_ = {
@@ -119,11 +123,25 @@ protected:
     hardware_interface::HW_IF_EFFORT,
   };
 
-  // Parameters for some special cases, e.g. hydraulics powered robots
-  /// Run he controller in open-loop, i.e., read hardware states only when starting controller.
-  /// This is useful when robot is not exactly following the commanded trajectory.
-  bool open_loop_control_ = false;
+  // Preallocate variables used in the realtime update() function
+  trajectory_msgs::msg::JointTrajectoryPoint state_current_;
+  trajectory_msgs::msg::JointTrajectoryPoint state_desired_;
+  trajectory_msgs::msg::JointTrajectoryPoint state_error_;
+
+  // Degrees of freedom
+  size_t dof_;
+
+  // Storing command joint names for interfaces
+  std::vector<std::string> command_joint_names_;
+
+  // Parameters from ROS for joint_trajectory_controller
+  std::shared_ptr<ParamListener> param_listener_;
+  Params params_;
+
   trajectory_msgs::msg::JointTrajectoryPoint last_commanded_state_;
+  /// Specify interpolation method. Default to splines.
+  interpolation_methods::InterpolationMethod interpolation_method_{
+    interpolation_methods::DEFAULT_INTERPOLATION};
 
   // The interfaces are defined as the types in 'allowed_interface_types_' member.
   // For convenience, for each type the interfaces are ordered so that i-th position
@@ -134,17 +152,22 @@ protected:
   InterfaceReferences<hardware_interface::LoanedCommandInterface> joint_command_interface_;
   InterfaceReferences<hardware_interface::LoanedStateInterface> joint_state_interface_;
 
+  bool has_position_state_interface_ = false;
   bool has_velocity_state_interface_ = false;
   bool has_acceleration_state_interface_ = false;
   bool has_position_command_interface_ = false;
   bool has_velocity_command_interface_ = false;
   bool has_acceleration_command_interface_ = false;
+  bool has_effort_command_interface_ = false;
 
   /// If true, a velocity feedforward term plus corrective PID term is used
-  // TODO(anyone): This flag is not used for now
-  // There should be PID-approach used as in ROS1:
-  // https://github.com/ros-controls/ros_controllers/blob/noetic-devel/joint_trajectory_controller/include/joint_trajectory_controller/hardware_interface_adapter.h#L283
-  bool use_closed_loop_pid_adapter = false;
+  bool use_closed_loop_pid_adapter_ = false;
+  using PidPtr = std::shared_ptr<control_toolbox::Pid>;
+  std::vector<PidPtr> pids_;
+  // Feed-forward velocity weight factor when calculating closed loop pid adapter's command
+  std::vector<double> ff_velocity_scale_;
+  // reserved storage for result of the command when closed loop pid adapter is used
+  std::vector<double> tmp_command_;
 
   // TODO(karsten1987): eventually activate and deactivate subscriber directly when its supported
   bool subscriber_is_active_ = false;
@@ -157,10 +180,6 @@ protected:
   std::shared_ptr<trajectory_msgs::msg::JointTrajectory> traj_msg_home_ptr_ = nullptr;
   realtime_tools::RealtimeBuffer<std::shared_ptr<trajectory_msgs::msg::JointTrajectory>>
     traj_msg_external_point_ptr_;
-
-  // The controller should be in halted state after creation otherwise memory corruption
-  // TODO(anyone): Is the variable relevant, since we are using lifecycle?
-  bool is_halted_ = true;
 
   using ControllerStateMsg = control_msgs::msg::JointTrajectoryControllerState;
   using StatePublisher = realtime_tools::RealtimePublisher<ControllerStateMsg>;
@@ -177,20 +196,23 @@ protected:
   using RealtimeGoalHandleBuffer = realtime_tools::RealtimeBuffer<RealtimeGoalHandlePtr>;
 
   rclcpp_action::Server<FollowJTrajAction>::SharedPtr action_server_;
-  bool allow_partial_joints_goal_ = false;
   RealtimeGoalHandleBuffer rt_active_goal_;  ///< Currently active action goal, if any.
   rclcpp::TimerBase::SharedPtr goal_handle_timer_;
   rclcpp::Duration action_monitor_period_ = rclcpp::Duration(50ms);
 
+  // callback for topic interface
+  JOINT_TRAJECTORY_CONTROLLER_PUBLIC
+  void topic_callback(const std::shared_ptr<trajectory_msgs::msg::JointTrajectory> msg);
+
   // callbacks for action_server_
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_action::GoalResponse goal_callback(
+  rclcpp_action::GoalResponse goal_received_callback(
     const rclcpp_action::GoalUUID & uuid, std::shared_ptr<const FollowJTrajAction::Goal> goal);
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  rclcpp_action::CancelResponse cancel_callback(
+  rclcpp_action::CancelResponse goal_cancelled_callback(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJTrajAction>> goal_handle);
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  void feedback_setup_callback(
+  void goal_accepted_callback(
     std::shared_ptr<rclcpp_action::ServerGoalHandle<FollowJTrajAction>> goal_handle);
 
   // fill trajectory_msg so it matches joints controlled by this controller

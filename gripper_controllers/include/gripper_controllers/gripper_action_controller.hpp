@@ -47,8 +47,6 @@
 
 namespace gripper_action_controller
 {
-using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
-
 /**
  * \brief Controller for executing a gripper command action for simple
  * single-dof grippers.
@@ -92,16 +90,19 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  CallbackReturn on_init() override;
+  controller_interface::CallbackReturn on_init() override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   GRIPPER_ACTION_CONTROLLER_PUBLIC
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
+  controller_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   realtime_tools::RealtimeBuffer<Commands> command_;
   // pre-allocated memory that is re-used to set the realtime buffer
@@ -161,6 +162,7 @@ private:
     stall_velocity_threshold_;  ///< Stall related parameters
   double default_max_effort_;   ///< Max allowed effort
   double goal_tolerance_;
+  bool allow_stalling_;  ///< If gripper stalls when moving to goal is considered successful
 
   /**
    * \brief Check for success and publish appropriate result and feedback.
