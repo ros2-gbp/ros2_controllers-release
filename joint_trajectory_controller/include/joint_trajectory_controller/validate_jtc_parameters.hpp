@@ -16,17 +16,12 @@
 #define JOINT_TRAJECTORY_CONTROLLER__VALIDATE_JTC_PARAMETERS_HPP_
 
 #include <string>
-#include <vector>
 
 #include "parameter_traits/parameter_traits.hpp"
-#include "rclcpp/parameter.hpp"
-#include "rsl/algorithm.hpp"
-#include "tl_expected/expected.hpp"
 
 namespace parameter_traits
 {
-tl::expected<void, std::string> command_interface_type_combinations(
-  rclcpp::Parameter const & parameter)
+Result command_interface_type_combinations(rclcpp::Parameter const & parameter)
 {
   auto const & interface_types = parameter.as_string_array();
 
@@ -36,37 +31,33 @@ tl::expected<void, std::string> command_interface_type_combinations(
   // 2. position [velocity, [acceleration]]
 
   if (
-    rsl::contains<std::vector<std::string>>(interface_types, "velocity") &&
-    interface_types.size() > 1 &&
-    !rsl::contains<std::vector<std::string>>(interface_types, "position"))
+    contains<std::string>(interface_types, "velocity") && interface_types.size() > 1 &&
+    !contains<std::string>(interface_types, "position"))
   {
-    return tl::make_unexpected(
+    return ERROR(
       "'velocity' command interface can be used either alone or 'position' "
       "interface has to be present");
   }
 
   if (
-    rsl::contains<std::vector<std::string>>(interface_types, "acceleration") &&
-    (!rsl::contains<std::vector<std::string>>(interface_types, "velocity") &&
-     !rsl::contains<std::vector<std::string>>(interface_types, "position")))
+    contains<std::string>(interface_types, "acceleration") &&
+    (!contains<std::string>(interface_types, "velocity") &&
+     !contains<std::string>(interface_types, "position")))
   {
-    return tl::make_unexpected(
+    return ERROR(
       "'acceleration' command interface can only be used if 'velocity' and "
       "'position' interfaces are present");
   }
 
-  if (
-    rsl::contains<std::vector<std::string>>(interface_types, "effort") &&
-    interface_types.size() > 1)
+  if (contains<std::string>(interface_types, "effort") && interface_types.size() > 1)
   {
-    return tl::make_unexpected("'effort' command interface has to be used alone");
+    return ERROR("'effort' command interface has to be used alone");
   }
 
-  return {};
+  return OK;
 }
 
-tl::expected<void, std::string> state_interface_type_combinations(
-  rclcpp::Parameter const & parameter)
+Result state_interface_type_combinations(rclcpp::Parameter const & parameter)
 {
   auto const & interface_types = parameter.as_string_array();
 
@@ -74,25 +65,25 @@ tl::expected<void, std::string> state_interface_type_combinations(
   // 1. position [velocity, [acceleration]]
 
   if (
-    rsl::contains<std::vector<std::string>>(interface_types, "velocity") &&
-    !rsl::contains<std::vector<std::string>>(interface_types, "position"))
+    contains<std::string>(interface_types, "velocity") &&
+    !contains<std::string>(interface_types, "position"))
   {
-    return tl::make_unexpected(
+    return ERROR(
       "'velocity' state interface cannot be used if 'position' interface "
       "is missing.");
   }
 
   if (
-    rsl::contains<std::vector<std::string>>(interface_types, "acceleration") &&
-    (!rsl::contains<std::vector<std::string>>(interface_types, "position") ||
-     !rsl::contains<std::vector<std::string>>(interface_types, "velocity")))
+    contains<std::string>(interface_types, "acceleration") &&
+    (!contains<std::string>(interface_types, "position") ||
+     !contains<std::string>(interface_types, "velocity")))
   {
-    return tl::make_unexpected(
+    return ERROR(
       "'acceleration' state interface cannot be used if 'position' and 'velocity' "
       "interfaces are not present.");
   }
 
-  return {};
+  return OK;
 }
 
 }  // namespace parameter_traits
