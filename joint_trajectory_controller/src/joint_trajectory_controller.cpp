@@ -57,9 +57,6 @@ controller_interface::CallbackReturn JointTrajectoryController::on_init()
     // Create the parameter listener and get the parameters
     param_listener_ = std::make_shared<ParamListener>(get_node());
     params_ = param_listener_->get_params();
-
-    // Set interpolation method from string parameter
-    interpolation_method_ = interpolation_methods::from_string(params_.interpolation_method);
   }
   catch (const std::exception & e)
   {
@@ -888,8 +885,11 @@ controller_interface::CallbackReturn JointTrajectoryController::on_cleanup(
   const rclcpp_lifecycle::State &)
 {
   // go home
-  traj_home_point_ptr_->update(traj_msg_home_ptr_);
-  traj_point_active_ptr_ = &traj_home_point_ptr_;
+  if (traj_home_point_ptr_ != nullptr)
+  {
+    traj_home_point_ptr_->update(traj_msg_home_ptr_);
+    traj_point_active_ptr_ = &traj_home_point_ptr_;
+  }
 
   return CallbackReturn::SUCCESS;
 }
