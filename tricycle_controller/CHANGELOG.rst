@@ -2,13 +2,19 @@
 Changelog for package tricycle_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.16.1 (2023-01-31)
--------------------
+3.2.0 (2023-02-10)
+------------------
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
+* Contributors: Tyler Weaver, Chris Thrasher
 
-2.16.0 (2023-01-19)
--------------------
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
-* Contributors: Bence Magyar
+3.1.0 (2023-01-26)
+------------------
+
+3.0.0 (2023-01-19)
+------------------
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
+* Fix deprecation warnings when compiling (`#478 <https://github.com/ros-controls/ros2_controllers/issues/478>`_)
+* Contributors: Bence Magyar, Denis Štogl
 
 2.15.0 (2022-12-06)
 -------------------
