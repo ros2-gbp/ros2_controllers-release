@@ -2,6 +2,9 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.9.0 (2023-03-07)
+------------------
+
 0.8.2 (2022-09-22)
 ------------------
 * [backport] Fix for high CPU usage by JTC in gzserver (`#428 <https://github.com/ros-controls/ros2_controllers/issues/428>`_) (`#436 <https://github.com/ros-controls/ros2_controllers/issues/436>`_)
