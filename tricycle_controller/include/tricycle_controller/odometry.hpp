@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /*
- * Author: Tony Najjar, Borong Yuan
+ * Author: Tony Najjar
  */
 
 #ifndef TRICYCLE_CONTROLLER__ODOMETRY_HPP_
@@ -22,7 +22,7 @@
 #include <cmath>
 
 #include "rclcpp/time.hpp"
-#include "tricycle_controller/rolling_mean_accumulator.hpp"
+#include "rcpputils/rolling_mean_accumulator.hpp"
 
 namespace tricycle_controller
 {
@@ -31,8 +31,8 @@ class Odometry
 public:
   explicit Odometry(size_t velocity_rolling_window_size = 10);
 
-  bool update(double left_vel, double right_vel, const rclcpp::Time & time);
-  void updateOpenLoop(double linear, double angular, const rclcpp::Time & time);
+  bool update(double left_vel, double right_vel, const rclcpp::Duration & dt);
+  void updateOpenLoop(double linear, double angular, const rclcpp::Duration & dt);
   void resetOdometry();
 
   double getX() const { return x_; }
@@ -45,14 +45,11 @@ public:
   void setVelocityRollingWindowSize(size_t velocity_rolling_window_size);
 
 private:
-  using RollingMeanAccumulator = tricycle_controller::RollingMeanAccumulator<double>;
+  using RollingMeanAccumulator = rcpputils::RollingMeanAccumulator<double>;
 
   void integrateRungeKutta2(double linear, double angular);
   void integrateExact(double linear, double angular);
   void resetAccumulators();
-
-  // Current timestamp:
-  rclcpp::Time timestamp_;
 
   // Current pose:
   double x_;        //   [m]

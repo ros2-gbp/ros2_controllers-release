@@ -19,6 +19,7 @@
 
 #include "forward_command_controller/forward_command_controller.hpp"
 #include "position_controllers/visibility_control.h"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 
 namespace position_controllers
 {
@@ -38,8 +39,7 @@ public:
   POSITION_CONTROLLERS_PUBLIC
   JointGroupPositionController();
 
-  POSITION_CONTROLLERS_PUBLIC controller_interface::return_type init(
-    const std::string & controller_name) override;
+  POSITION_CONTROLLERS_PUBLIC controller_interface::CallbackReturn on_init() override;
 };
 
 }  // namespace position_controllers
