@@ -25,7 +25,6 @@
 
 #include "controller_interface/controller_interface.hpp"
 #include "imu_sensor_broadcaster/visibility_control.h"
-#include "imu_sensor_broadcaster_parameters.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "realtime_tools/realtime_publisher.h"
@@ -34,36 +33,35 @@
 
 namespace imu_sensor_broadcaster
 {
+using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
 class IMUSensorBroadcaster : public controller_interface::ControllerInterface
 {
 public:
+  IMU_SENSOR_BROADCASTER_PUBLIC
+  controller_interface::return_type init(const std::string & controller_name) override;
+
   IMU_SENSOR_BROADCASTER_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
   IMU_SENSOR_BROADCASTER_PUBLIC
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
-  IMU_SENSOR_BROADCASTER_PUBLIC controller_interface::CallbackReturn on_init() override;
+  IMU_SENSOR_BROADCASTER_PUBLIC
+  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
 
   IMU_SENSOR_BROADCASTER_PUBLIC
-  controller_interface::CallbackReturn on_configure(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
 
   IMU_SENSOR_BROADCASTER_PUBLIC
-  controller_interface::CallbackReturn on_activate(
-    const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   IMU_SENSOR_BROADCASTER_PUBLIC
-  controller_interface::CallbackReturn on_deactivate(
-    const rclcpp_lifecycle::State & previous_state) override;
-
-  IMU_SENSOR_BROADCASTER_PUBLIC
-  controller_interface::return_type update(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  controller_interface::return_type update() override;
 
 protected:
-  std::shared_ptr<ParamListener> param_listener_;
-  Params params_;
+  std::string sensor_name_;
+  std::string frame_id_;
 
   std::unique_ptr<semantic_components::IMUSensor> imu_sensor_;
 

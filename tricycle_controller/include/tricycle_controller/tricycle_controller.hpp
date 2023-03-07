@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /*
- * Author: Tony Najjar
+ * Author: Tony Najjar, Borong Yuan
  */
 
 #ifndef TRICYCLE_CONTROLLER__TRICYCLE_CONTROLLER_HPP_
@@ -24,7 +24,6 @@
 #include <memory>
 #include <queue>
 #include <string>
-#include <tuple>
 #include <vector>
 
 #include "ackermann_msgs/msg/ackermann_drive.hpp"
@@ -66,11 +65,10 @@ public:
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   TRICYCLE_CONTROLLER_PUBLIC
-  controller_interface::return_type update(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  controller_interface::return_type update() override;
 
   TRICYCLE_CONTROLLER_PUBLIC
-  CallbackReturn on_init() override;
+  controller_interface::return_type init(const std::string & controller_name) override;
 
   TRICYCLE_CONTROLLER_PUBLIC
   CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
@@ -166,6 +164,13 @@ protected:
   // speed limiters
   TractionLimiter limiter_traction_;
   SteeringLimiter limiter_steering_;
+
+  rclcpp::Time previous_update_timestamp_{0};
+
+  // publish rate limiter
+  double publish_rate_ = 50.0;
+  rclcpp::Duration publish_period_{0, 0};
+  rclcpp::Time previous_publish_timestamp_{0};
 
   bool is_halted = false;
   bool use_stamped_vel_ = true;

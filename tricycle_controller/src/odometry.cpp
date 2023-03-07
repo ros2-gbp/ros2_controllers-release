@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /*
- * Author: Tony Najjar
+ * Author: Tony Najjar, Borong Yuan
  */
 
 #include "tricycle_controller/odometry.hpp"
@@ -21,7 +21,8 @@
 namespace tricycle_controller
 {
 Odometry::Odometry(size_t velocity_rolling_window_size)
-: x_(0.0),
+: timestamp_(0.0),
+  x_(0.0),
   y_(0.0),
   heading_(0.0),
   linear_(0.0),
@@ -34,15 +35,19 @@ Odometry::Odometry(size_t velocity_rolling_window_size)
 {
 }
 
-bool Odometry::update(double Ws, double alpha, const rclcpp::Duration & dt)
+bool Odometry::update(double Ws, double alpha, const rclcpp::Time & time)
 {
+  const double dt = time.seconds() - timestamp_.seconds();
+
   // using naming convention in http://users.isr.ist.utl.pt/~mir/cadeiras/robmovel/Kinematics.pdf
   double Vs = Ws * wheel_radius_;
   double Vx = Vs * std::cos(alpha);
   double theta_dot = Vs * std::sin(alpha) / wheelbase_;
 
   // Integrate odometry:
-  integrateExact(Vx * dt.seconds(), theta_dot * dt.seconds());
+  integrateExact(Vx * dt, theta_dot * dt);
+
+  timestamp_ = time;
 
   // Estimate speeds using a rolling mean to filter them out:
   linear_accumulator_.accumulate(Vx);
@@ -54,14 +59,16 @@ bool Odometry::update(double Ws, double alpha, const rclcpp::Duration & dt)
   return true;
 }
 
-void Odometry::updateOpenLoop(double linear, double angular, const rclcpp::Duration & dt)
+void Odometry::updateOpenLoop(double linear, double angular, const rclcpp::Time & time)
 {
   /// Save last linear and angular velocity:
   linear_ = linear;
   angular_ = angular;
 
   /// Integrate odometry:
-  integrateExact(linear * dt.seconds(), angular * dt.seconds());
+  const double dt = time.seconds() - timestamp_.seconds();
+  timestamp_ = time;
+  integrateExact(linear * dt, angular * dt);
 }
 
 void Odometry::resetOdometry()
