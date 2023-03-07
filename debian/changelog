@@ -1,0 +1,8 @@
+ros-foxy-tricycle-controller (0.9.0-1focal) focal; urgency=high
+
+  * [backport] Tricycle controller (#444 <https://github.com/ros-controls/ros2_controllers/issues/444>)
+  * Contributors: Borong Yuan, Tony Najjar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 07 Mar 2023 00:00:00 -0000
+
+
