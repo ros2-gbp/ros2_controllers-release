@@ -2,33 +2,28 @@
 Changelog for package diff_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.5.0 (2023-04-14)
-------------------
+2.17.3 (2023-04-14)
+-------------------
 
-3.4.0 (2023-04-02)
-------------------
+2.17.2 (2023-03-07)
+-------------------
 
-3.3.0 (2023-03-07)
-------------------
-* Add comments about auto-generated header files (`#539 <https://github.com/ros-controls/ros2_controllers/issues/539>`_)
-* Contributors: AndyZe
+2.17.1 (2023-02-20)
+-------------------
+* [DiffDriveController] Fix prefixing of frame id with controller's namespace (`#522 <https://github.com/ros-controls/ros2_controllers/issues/522>`_)
+* Contributors: Tim Verbelen
 
-3.2.0 (2023-02-10)
-------------------
-* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
-* Remove compile warnings. (`#519 <https://github.com/ros-controls/ros2_controllers/issues/519>`_)
-* Contributors: Dr. Denis, Tyler Weaver, Chris Thrasher
+2.17.0 (2023-02-13)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
+2.16.1 (2023-01-31)
+-------------------
 
-3.0.0 (2023-01-19)
-------------------
-* diff_drive base_frame_id param (`#495 <https://github.com/ros-controls/ros2_controllers/issues/495>`_)
-  changed default value from `odom` -> `base_link`
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
-* Remove compilation warnings from DiffDriveController (`#477 <https://github.com/ros-controls/ros2_controllers/issues/477>`_)
-* Contributors: Bence Magyar, Denis Štogl, Jakub Delicat
+2.16.0 (2023-01-19)
+-------------------
+* diff_drive base_frame_id param (`#495 <https://github.com/ros-controls/ros2_controllers/issues/495>`_) (`#498 <https://github.com/ros-controls/ros2_controllers/issues/498>`_)
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
+* Contributors: Bence Magyar, Jakub Delicat
 
 2.15.0 (2022-12-06)
 -------------------
