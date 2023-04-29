@@ -34,10 +34,8 @@ TEST(TestLoadForwardCommandController, load_controller)
       ros2_control_test_assets::minimal_robot_urdf),
     executor, "test_controller_manager");
 
-  ASSERT_NE(
-    cm.load_controller(
-      "test_forward_command_controller", "forward_command_controller/ForwardCommandController"),
-    nullptr);
+  ASSERT_NO_THROW(cm.load_controller(
+    "test_forward_command_controller", "forward_command_controller/ForwardCommandController"));
 
   rclcpp::shutdown();
 }

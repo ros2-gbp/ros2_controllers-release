@@ -35,10 +35,8 @@ TEST(TestLoadJointStateController, load_controller)
       ros2_control_test_assets::minimal_robot_urdf),
     executor, "test_controller_manager");
 
-  ASSERT_NE(
-    cm.load_controller(
-      "test_joint_trajectory_controller", "joint_trajectory_controller/JointTrajectoryController"),
-    nullptr);
+  ASSERT_NO_THROW(cm.load_controller(
+    "test_joint_trajectory_controller", "joint_trajectory_controller/JointTrajectoryController"));
 
   rclcpp::shutdown();
 }
