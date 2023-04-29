@@ -1,3 +1,41 @@
+## ros2_controllers (humble) - 2.18.0-1
+
+The packages in the `ros2_controllers` repository were released into the `humble` distro by running `/usr/bin/bloom-release --rosdistro humble ros2_controllers` on `Sat, 29 Apr 2023 21:47:56 -0000`
+
+These packages were released:
+- `admittance_controller`
+- `diff_drive_controller`
+- `effort_controllers`
+- `force_torque_sensor_broadcaster`
+- `forward_command_controller`
+- `gripper_controllers`
+- `imu_sensor_broadcaster`
+- `joint_state_broadcaster`
+- `joint_trajectory_controller`
+- `position_controllers`
+- `ros2_controllers`
+- `ros2_controllers_test_nodes`
+- `rqt_joint_trajectory_controller`
+- `tricycle_controller`
+- `velocity_controllers`
+
+Version of package(s) in repository `ros2_controllers`:
+
+- upstream repository: https://github.com/ros-controls/ros2_controllers.git
+- release repository: https://github.com/ros2-gbp/ros2_controllers-release.git
+- rosdistro version: `2.17.3-1`
+- old version: `2.17.3-1`
+- new version: `2.18.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.11.2`
+- catkin_pkg version: `0.5.2`
+- rosdep version: `0.22.2`
+- rosdistro version: `0.9.0`
+- vcstools version: `0.1.42`
+
+
 ## ros2_controllers (rolling) - 3.6.0-1
 
 The packages in the `ros2_controllers` repository were released into the `rolling` distro by running `/usr/bin/bloom-release --rosdistro rolling ros2_controllers` on `Sat, 29 Apr 2023 21:43:05 -0000`
