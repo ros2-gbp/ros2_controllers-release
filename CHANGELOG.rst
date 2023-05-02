@@ -2,6 +2,9 @@
 Changelog for package admittance_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.19.0 (2023-05-02)
+-------------------
+
 2.18.0 (2023-04-29)
 -------------------
 * Fix docs format (`#591 <https://github.com/ros-controls/ros2_controllers/issues/591>`_)
