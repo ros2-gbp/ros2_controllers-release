@@ -2,29 +2,40 @@
 Changelog for package forward_command_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.18.0 (2023-04-29)
--------------------
-* Fix docs format (`#591 <https://github.com/ros-controls/ros2_controllers/issues/591>`_)
+3.7.0 (2023-05-02)
+------------------
+
+3.6.0 (2023-04-29)
+------------------
+* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_)
+* Fix docs format (`#589 <https://github.com/ros-controls/ros2_controllers/issues/589>`_)
+* Contributors: Bence Magyar, Christoph Fröhlich
+
+3.5.0 (2023-04-14)
+------------------
+
+3.4.0 (2023-04-02)
+------------------
+* Fix broken links (`#554 <https://github.com/ros-controls/ros2_controllers/issues/554>`_)
+* Update docs (`#552 <https://github.com/ros-controls/ros2_controllers/issues/552>`_)
 * Contributors: Christoph Fröhlich
 
-2.17.3 (2023-04-14)
--------------------
+3.3.0 (2023-03-07)
+------------------
+* Add comments about auto-generated header files (`#539 <https://github.com/ros-controls/ros2_controllers/issues/539>`_)
+* Contributors: AndyZe
 
-2.17.2 (2023-03-07)
--------------------
+3.2.0 (2023-02-10)
+------------------
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
+* Contributors: Tyler Weaver, Chris Thrasher
 
-2.17.1 (2023-02-20)
--------------------
+3.1.0 (2023-01-26)
+------------------
 
-2.17.0 (2023-02-13)
--------------------
-
-2.16.1 (2023-01-31)
--------------------
-
-2.16.0 (2023-01-19)
--------------------
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
+3.0.0 (2023-01-19)
+------------------
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
 * Contributors: Bence Magyar
 
 2.15.0 (2022-12-06)

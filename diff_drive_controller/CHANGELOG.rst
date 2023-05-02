@@ -2,33 +2,44 @@
 Changelog for package diff_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.18.0 (2023-04-29)
--------------------
-* adjusted open_loop param description in diff_drive_controller_parameter.yaml (`#570 <https://github.com/ros-controls/ros2_controllers/issues/570>`_) (`#576 <https://github.com/ros-controls/ros2_controllers/issues/576>`_)
-* Contributors: muritane
+3.7.0 (2023-05-02)
+------------------
+* Fix wrong publish timestamp initialization (`#585 <https://github.com/ros-controls/ros2_controllers/issues/585>`_)
+* Contributors: Noel Jiménez García
 
-2.17.3 (2023-04-14)
--------------------
+3.6.0 (2023-04-29)
+------------------
+* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_)
+* adjusted open_loop param description in diff_drive_controller_parameter.yaml (`#570 <https://github.com/ros-controls/ros2_controllers/issues/570>`_)
+* Contributors: Bence Magyar, muritane
 
-2.17.2 (2023-03-07)
--------------------
+3.5.0 (2023-04-14)
+------------------
 
-2.17.1 (2023-02-20)
--------------------
-* [DiffDriveController] Fix prefixing of frame id with controller's namespace (`#522 <https://github.com/ros-controls/ros2_controllers/issues/522>`_)
-* Contributors: Tim Verbelen
+3.4.0 (2023-04-02)
+------------------
 
-2.17.0 (2023-02-13)
--------------------
+3.3.0 (2023-03-07)
+------------------
+* Add comments about auto-generated header files (`#539 <https://github.com/ros-controls/ros2_controllers/issues/539>`_)
+* Contributors: AndyZe
 
-2.16.1 (2023-01-31)
--------------------
+3.2.0 (2023-02-10)
+------------------
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
+* Remove compile warnings. (`#519 <https://github.com/ros-controls/ros2_controllers/issues/519>`_)
+* Contributors: Dr. Denis, Tyler Weaver, Chris Thrasher
 
-2.16.0 (2023-01-19)
--------------------
-* diff_drive base_frame_id param (`#495 <https://github.com/ros-controls/ros2_controllers/issues/495>`_) (`#498 <https://github.com/ros-controls/ros2_controllers/issues/498>`_)
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
-* Contributors: Bence Magyar, Jakub Delicat
+3.1.0 (2023-01-26)
+------------------
+
+3.0.0 (2023-01-19)
+------------------
+* diff_drive base_frame_id param (`#495 <https://github.com/ros-controls/ros2_controllers/issues/495>`_)
+  changed default value from `odom` -> `base_link`
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
+* Remove compilation warnings from DiffDriveController (`#477 <https://github.com/ros-controls/ros2_controllers/issues/477>`_)
+* Contributors: Bence Magyar, Denis Štogl, Jakub Delicat
 
 2.15.0 (2022-12-06)
 -------------------

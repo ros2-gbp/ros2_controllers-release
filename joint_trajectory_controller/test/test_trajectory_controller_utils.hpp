@@ -273,8 +273,6 @@ public:
   void subscribeToState()
   {
     auto traj_lifecycle_node = traj_controller_->get_node();
-    traj_lifecycle_node->set_parameter(
-      rclcpp::Parameter("state_publish_rate", static_cast<double>(100)));
 
     using control_msgs::msg::JointTrajectoryControllerState;
 
@@ -283,7 +281,7 @@ public:
     // I do not understand why spin_some provides only one message
     qos.keep_last(1);
     state_subscriber_ = traj_lifecycle_node->create_subscription<JointTrajectoryControllerState>(
-      controller_name_ + "/state", qos,
+      controller_name_ + "/controller_state", qos,
       [&](std::shared_ptr<JointTrajectoryControllerState> msg)
       {
         std::lock_guard<std::mutex> guard(state_mutex_);
@@ -387,20 +385,21 @@ public:
     for (size_t i = 0; i < expected_actual.positions.size(); ++i)
     {
       SCOPED_TRACE("Joint " + std::to_string(i));
-      // TODO(anyone): add checking for velocties and accelerations
+      // TODO(anyone): add checking for velocities and accelerations
       if (traj_controller_->has_position_command_interface())
       {
-        EXPECT_NEAR(expected_actual.positions[i], state_msg->actual.positions[i], allowed_delta);
+        EXPECT_NEAR(expected_actual.positions[i], state_msg->feedback.positions[i], allowed_delta);
       }
     }
 
     for (size_t i = 0; i < expected_desired.positions.size(); ++i)
     {
       SCOPED_TRACE("Joint " + std::to_string(i));
-      // TODO(anyone): add checking for velocties and accelerations
+      // TODO(anyone): add checking for velocities and accelerations
       if (traj_controller_->has_position_command_interface())
       {
-        EXPECT_NEAR(expected_desired.positions[i], state_msg->desired.positions[i], allowed_delta);
+        EXPECT_NEAR(
+          expected_desired.positions[i], state_msg->reference.positions[i], allowed_delta);
       }
     }
   }
@@ -410,7 +409,6 @@ public:
     std::lock_guard<std::mutex> guard(state_mutex_);
     return state_msg_;
   }
-  void test_state_publish_rate_target(int target_msg_count);
 
   std::string controller_name_;
 
