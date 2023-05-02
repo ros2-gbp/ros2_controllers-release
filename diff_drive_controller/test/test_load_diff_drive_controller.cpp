@@ -30,9 +30,8 @@ TEST(TestLoadDiffDriveController, load_controller)
     std::make_unique<hardware_interface::ResourceManager>(ros2_control_test_assets::diffbot_urdf),
     executor, "test_controller_manager");
 
-  ASSERT_NE(
-    cm.load_controller("test_diff_drive_controller", "diff_drive_controller/DiffDriveController"),
-    nullptr);
+  ASSERT_NO_THROW(
+    cm.load_controller("test_diff_drive_controller", "diff_drive_controller/DiffDriveController"));
 
   rclcpp::shutdown();
 }

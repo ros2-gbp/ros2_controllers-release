@@ -57,6 +57,9 @@ controller_interface::CallbackReturn JointTrajectoryController::on_init()
     // Create the parameter listener and get the parameters
     param_listener_ = std::make_shared<ParamListener>(get_node());
     params_ = param_listener_->get_params();
+
+    // Set interpolation method from string parameter
+    interpolation_method_ = interpolation_methods::from_string(params_.interpolation_method);
   }
   catch (const std::exception & e)
   {
@@ -362,7 +365,7 @@ controller_interface::return_type JointTrajectoryController::update(
     }
   }
 
-  publish_state(time, state_desired_, state_current_, state_error_);
+  publish_state(state_desired_, state_current_, state_error_);
   return controller_interface::return_type::OK;
 }
 
@@ -548,53 +551,6 @@ bool JointTrajectoryController::read_commands_from_command_interfaces(
   return has_values;
 }
 
-void JointTrajectoryController::query_state_service(
-  const std::shared_ptr<control_msgs::srv::QueryTrajectoryState::Request> request,
-  std::shared_ptr<control_msgs::srv::QueryTrajectoryState::Response> response)
-{
-  const auto logger = get_node()->get_logger();
-  // Preconditions
-  if (get_state().id() != lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE)
-  {
-    RCLCPP_ERROR(logger, "Can't sample trajectory. Controller is not active.");
-    response->success = false;
-    return;
-  }
-  const auto active_goal = *rt_active_goal_.readFromRT();
-  response->name = params_.joints;
-  trajectory_msgs::msg::JointTrajectoryPoint state_requested = state_current_;
-  if ((traj_point_active_ptr_ && (*traj_point_active_ptr_)->has_trajectory_msg()))
-  {
-    TrajectoryPointConstIter start_segment_itr, end_segment_itr;
-    response->success = (*traj_point_active_ptr_)
-                          ->sample(
-                            static_cast<rclcpp::Time>(request->time), interpolation_method_,
-                            state_requested, start_segment_itr, end_segment_itr);
-    // If the requested sample time precedes the trajectory finish time respond as failure
-    if (response->success)
-    {
-      if (end_segment_itr == (*traj_point_active_ptr_)->end())
-      {
-        RCLCPP_ERROR(logger, "Requested sample time precedes the current trajectory end time.");
-        response->success = false;
-      }
-    }
-    else
-    {
-      RCLCPP_ERROR(
-        logger, "Requested sample time is earlier than the current trajectory start time.");
-    }
-  }
-  else
-  {
-    RCLCPP_ERROR(logger, "Currently there is no valid trajectory instance.");
-    response->success = false;
-  }
-  response->position = state_requested.positions;
-  response->velocity = state_requested.velocities;
-  response->acceleration = state_requested.accelerations;
-}
-
 controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   const rclcpp_lifecycle::State &)
 {
@@ -680,8 +636,7 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   // if there is only velocity or if there is effort command interface
   // then use also PID adapter
   use_closed_loop_pid_adapter_ =
-    (has_velocity_command_interface_ && params_.command_interfaces.size() == 1 &&
-     !params_.open_loop_control) ||
+    (has_velocity_command_interface_ && params_.command_interfaces.size() == 1) ||
     has_effort_command_interface_;
 
   if (use_closed_loop_pid_adapter_)
@@ -697,7 +652,21 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
       pids_[i] = std::make_shared<control_toolbox::Pid>(
         gains.p, gains.i, gains.d, gains.i_clamp, -gains.i_clamp);
 
-      ff_velocity_scale_[i] = gains.ff_velocity_scale;
+      // TODO(destogl): remove this in ROS2 Iron
+      // Check deprecated style for "ff_velocity_scale" parameter definition.
+      if (gains.ff_velocity_scale == 0.0)
+      {
+        RCLCPP_WARN(
+          get_node()->get_logger(),
+          "'ff_velocity_scale' parameters is not defined under 'gains.<joint_name>.' structure. "
+          "Maybe you are using deprecated format 'ff_velocity_scale/<joint_name>'!");
+
+        ff_velocity_scale_[i] = auto_declare<double>("ff_velocity_scale/" + params_.joints[i], 0.0);
+      }
+      else
+      {
+        ff_velocity_scale_[i] = gains.ff_velocity_scale;
+      }
     }
   }
 
@@ -787,6 +756,40 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
       "~/joint_trajectory", rclcpp::SystemDefaultsQoS(),
       std::bind(&JointTrajectoryController::topic_callback, this, std::placeholders::_1));
 
+  // State publisher
+  RCLCPP_INFO(logger, "Controller state will be published at %.2f Hz.", params_.state_publish_rate);
+  if (params_.state_publish_rate > 0.0)
+  {
+    state_publisher_period_ = rclcpp::Duration::from_seconds(1.0 / params_.state_publish_rate);
+  }
+  else
+  {
+    state_publisher_period_ = rclcpp::Duration::from_seconds(0.0);
+  }
+
+  publisher_legacy_ =
+    get_node()->create_publisher<ControllerStateMsg>("~/state", rclcpp::SystemDefaultsQoS());
+  state_publisher_legacy_ = std::make_unique<StatePublisher>(publisher_legacy_);
+
+  state_publisher_legacy_->lock();
+  state_publisher_legacy_->msg_.joint_names = params_.joints;
+  state_publisher_legacy_->msg_.desired.positions.resize(dof_);
+  state_publisher_legacy_->msg_.desired.velocities.resize(dof_);
+  state_publisher_legacy_->msg_.desired.accelerations.resize(dof_);
+  state_publisher_legacy_->msg_.actual.positions.resize(dof_);
+  state_publisher_legacy_->msg_.error.positions.resize(dof_);
+  if (has_velocity_state_interface_)
+  {
+    state_publisher_legacy_->msg_.actual.velocities.resize(dof_);
+    state_publisher_legacy_->msg_.error.velocities.resize(dof_);
+  }
+  if (has_acceleration_state_interface_)
+  {
+    state_publisher_legacy_->msg_.actual.accelerations.resize(dof_);
+    state_publisher_legacy_->msg_.error.accelerations.resize(dof_);
+  }
+  state_publisher_legacy_->unlock();
+
   publisher_ = get_node()->create_publisher<ControllerStateMsg>(
     "~/controller_state", rclcpp::SystemDefaultsQoS());
   state_publisher_ = std::make_unique<StatePublisher>(publisher_);
@@ -824,8 +827,9 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   {
     state_publisher_->msg_.output.effort.resize(dof_);
   }
-
   state_publisher_->unlock();
+
+  last_state_publish_time_ = get_node()->now();
 
   // action server configuration
   if (params_.allow_partial_joints_goal)
@@ -851,10 +855,6 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   resize_joint_trajectory_point(state_desired_, dof_);
   resize_joint_trajectory_point(state_error_, dof_);
   resize_joint_trajectory_point(last_commanded_state_, dof_);
-
-  query_state_srv_ = get_node()->create_service<control_msgs::srv::QueryTrajectoryState>(
-    std::string(get_node()->get_name()) + "/query_state",
-    std::bind(&JointTrajectoryController::query_state_service, this, _1, _2));
 
   return CallbackReturn::SUCCESS;
 }
@@ -913,6 +913,7 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
 
   subscriber_is_active_ = true;
   traj_point_active_ptr_ = &traj_external_point_ptr_;
+  last_state_publish_time_ = get_node()->now();
 
   // Initialize current state storage if hardware state has tracking offset
   read_state_from_hardware(state_current_);
@@ -1022,12 +1023,53 @@ controller_interface::CallbackReturn JointTrajectoryController::on_shutdown(
 }
 
 void JointTrajectoryController::publish_state(
-  const rclcpp::Time & time, const JointTrajectoryPoint & desired_state,
-  const JointTrajectoryPoint & current_state, const JointTrajectoryPoint & state_error)
+  const JointTrajectoryPoint & desired_state, const JointTrajectoryPoint & current_state,
+  const JointTrajectoryPoint & state_error)
 {
-  if (state_publisher_->trylock())
+  if (state_publisher_period_.seconds() <= 0.0)
   {
-    state_publisher_->msg_.header.stamp = time;
+    return;
+  }
+
+  if (get_node()->now() < (last_state_publish_time_ + state_publisher_period_))
+  {
+    return;
+  }
+
+  if (state_publisher_legacy_ && state_publisher_legacy_->trylock())
+  {
+    last_state_publish_time_ = get_node()->now();
+    state_publisher_legacy_->msg_.header.stamp = last_state_publish_time_;
+    state_publisher_legacy_->msg_.desired.positions = desired_state.positions;
+    state_publisher_legacy_->msg_.desired.velocities = desired_state.velocities;
+    state_publisher_legacy_->msg_.desired.accelerations = desired_state.accelerations;
+    state_publisher_legacy_->msg_.actual.positions = current_state.positions;
+    state_publisher_legacy_->msg_.error.positions = state_error.positions;
+    if (has_velocity_state_interface_)
+    {
+      state_publisher_legacy_->msg_.actual.velocities = current_state.velocities;
+      state_publisher_legacy_->msg_.error.velocities = state_error.velocities;
+    }
+    if (has_acceleration_state_interface_)
+    {
+      state_publisher_legacy_->msg_.actual.accelerations = current_state.accelerations;
+      state_publisher_legacy_->msg_.error.accelerations = state_error.accelerations;
+    }
+
+    state_publisher_legacy_->unlockAndPublish();
+
+    if (publisher_legacy_->get_subscription_count())
+    {
+      RCLCPP_WARN_THROTTLE(
+        get_node()->get_logger(), *get_node()->get_clock(), 1000,
+        "Subscription to deprecated ~/state topic. Use ~/controller_state instead.");
+    }
+  }
+
+  if (state_publisher_ && state_publisher_->trylock())
+  {
+    last_state_publish_time_ = get_node()->now();
+    state_publisher_->msg_.header.stamp = last_state_publish_time_;
     state_publisher_->msg_.reference.positions = desired_state.positions;
     state_publisher_->msg_.reference.velocities = desired_state.velocities;
     state_publisher_->msg_.reference.accelerations = desired_state.accelerations;

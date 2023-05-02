@@ -22,7 +22,7 @@
 #include <cmath>
 
 #include "rclcpp/time.hpp"
-#include "rcpputils/rolling_mean_accumulator.hpp"
+#include "rcppmath/rolling_mean_accumulator.hpp"
 
 namespace tricycle_controller
 {
@@ -45,7 +45,7 @@ public:
   void setVelocityRollingWindowSize(size_t velocity_rolling_window_size);
 
 private:
-  using RollingMeanAccumulator = rcpputils::RollingMeanAccumulator<double>;
+  using RollingMeanAccumulator = rcppmath::RollingMeanAccumulator<double>;
 
   void integrateRungeKutta2(double linear, double angular);
   void integrateExact(double linear, double angular);

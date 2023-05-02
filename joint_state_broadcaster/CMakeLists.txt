@@ -1,11 +1,37 @@
-cmake_minimum_required(VERSION 3.16)
-project(joint_state_broadcaster LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.5)
+project(joint_state_broadcaster)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
 endif()
 
-set(THIS_PACKAGE_INCLUDE_DEPENDS
+find_package(ament_cmake REQUIRED)
+find_package(backward_ros REQUIRED)
+find_package(control_msgs REQUIRED)
+find_package(controller_interface REQUIRED)
+find_package(generate_parameter_library REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(rcutils REQUIRED)
+find_package(realtime_tools REQUIRED)
+find_package(sensor_msgs REQUIRED)
+
+generate_parameter_library(joint_state_broadcaster_parameters
+  src/joint_state_broadcaster_parameters.yaml
+)
+
+add_library(joint_state_broadcaster
+  SHARED
+  src/joint_state_broadcaster.cpp
+)
+target_include_directories(joint_state_broadcaster PRIVATE include)
+ament_target_dependencies(joint_state_broadcaster
   builtin_interfaces
   control_msgs
   controller_interface
@@ -16,33 +42,26 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   realtime_tools
   sensor_msgs
 )
-
-find_package(ament_cmake REQUIRED)
-find_package(backward_ros REQUIRED)
-foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
-  find_package(${Dependency} REQUIRED)
-endforeach()
-
-generate_parameter_library(joint_state_broadcaster_parameters
-  src/joint_state_broadcaster_parameters.yaml
-)
-
-add_library(joint_state_broadcaster SHARED
-  src/joint_state_broadcaster.cpp
-)
-target_compile_features(joint_state_broadcaster PUBLIC cxx_std_17)
-target_include_directories(joint_state_broadcaster PUBLIC
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/joint_state_broadcaster>
-)
-target_link_libraries(joint_state_broadcaster PUBLIC
+target_link_libraries(joint_state_broadcaster
   joint_state_broadcaster_parameters
 )
-ament_target_dependencies(joint_state_broadcaster PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(joint_state_broadcaster PRIVATE "JOINT_STATE_BROADCASTER_BUILDING_DLL")
 pluginlib_export_plugin_description_file(controller_interface joint_state_plugin.xml)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+install(
+  TARGETS
+  joint_state_broadcaster
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
@@ -51,43 +70,38 @@ if(BUILD_TESTING)
   find_package(rclcpp REQUIRED)
   find_package(ros2_control_test_assets REQUIRED)
 
-  ament_add_gmock(test_load_joint_state_broadcaster
+  ament_add_gmock(
+    test_load_joint_state_broadcaster
     test/test_load_joint_state_broadcaster.cpp
   )
-  target_link_libraries(test_load_joint_state_broadcaster
-    joint_state_broadcaster
-  )
+  target_include_directories(test_load_joint_state_broadcaster PRIVATE include)
   ament_target_dependencies(test_load_joint_state_broadcaster
     controller_manager
     hardware_interface
     ros2_control_test_assets
   )
 
-  ament_add_gmock(test_joint_state_broadcaster
+  ament_add_gmock(
+    test_joint_state_broadcaster
     test/test_joint_state_broadcaster.cpp
   )
+  target_include_directories(test_joint_state_broadcaster PRIVATE include)
   target_link_libraries(test_joint_state_broadcaster
     joint_state_broadcaster
   )
-  ament_target_dependencies(test_joint_state_broadcaster
-    hardware_interface
-  )
 endif()
 
-install(
-  DIRECTORY include/
-  DESTINATION include/joint_state_broadcaster
+ament_export_dependencies(
+  control_msgs
+  controller_interface
+  generate_parameter_library
+  rclcpp_lifecycle
+  sensor_msgs
 )
-install(
-  TARGETS
-    joint_state_broadcaster
-    joint_state_broadcaster_parameters
-  EXPORT export_joint_state_broadcaster
-  RUNTIME DESTINATION bin
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
+ament_export_include_directories(
+  include
 )
-
-ament_export_targets(export_joint_state_broadcaster HAS_LIBRARY_TARGET)
-ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
+ament_export_libraries(
+  joint_state_broadcaster
+)
 ament_package()

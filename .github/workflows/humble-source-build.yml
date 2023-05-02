@@ -8,12 +8,12 @@ on:
       - humble
   schedule:
     # Run every day to detect flakiness and broken dependencies
-    - cron: '03 3 * * *'
+    - cron: '03 4 * * *'
 
 jobs:
   source:
     uses: ./.github/workflows/reusable-ros-tooling-source-build.yml
     with:
       ros_distro: humble
-      ref: humble
+      ref: master
       ros2_repo_branch: humble
