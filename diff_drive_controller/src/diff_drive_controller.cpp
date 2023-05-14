@@ -150,7 +150,7 @@ controller_interface::return_type DiffDriveController::update(
   {
     double left_feedback_mean = 0.0;
     double right_feedback_mean = 0.0;
-    for (size_t index = 0; index < params_.wheels_per_side; ++index)
+    for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
     {
       const double left_feedback = registered_left_wheel_handles_[index].feedback.get().get_value();
       const double right_feedback =
@@ -260,7 +260,7 @@ controller_interface::return_type DiffDriveController::update(
     (linear_command + angular_command * wheel_separation / 2.0) / right_wheel_radius;
 
   // Set wheels velocities:
-  for (size_t index = 0; index < params_.wheels_per_side; ++index)
+  for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
   {
     registered_left_wheel_handles_[index].velocity.get().set_value(velocity_left);
     registered_right_wheel_handles_[index].velocity.get().set_value(velocity_right);
@@ -403,15 +403,15 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
   }
   else
   {
-    controller_namespace = controller_namespace.erase(0, 1) + "/";
+    controller_namespace = controller_namespace + "/";
   }
 
   const auto odom_frame_id = controller_namespace + params_.odom_frame_id;
   const auto base_frame_id = controller_namespace + params_.base_frame_id;
 
   auto & odometry_message = realtime_odometry_publisher_->msg_;
-  odometry_message.header.frame_id = odom_frame_id;
-  odometry_message.child_frame_id = base_frame_id;
+  odometry_message.header.frame_id = controller_namespace + odom_frame_id;
+  odometry_message.child_frame_id = controller_namespace + base_frame_id;
 
   // limit the publication on the topics /odom and /tf
   publish_rate_ = get_node()->get_parameter("publish_rate").as_double();

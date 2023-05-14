@@ -12,4 +12,4 @@ This is a base class implementing a feedforward controller. Specific implementat
 Hardware interface type
 -----------------------
 
-These controllers work with joints using the "effort" command interface.
+This controller can be used for every type of command interface.

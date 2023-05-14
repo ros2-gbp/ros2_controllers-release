@@ -29,7 +29,6 @@
 
 #include "builtin_interfaces/msg/duration.hpp"
 #include "builtin_interfaces/msg/time.hpp"
-#include "control_msgs/msg/detail/joint_trajectory_controller_state__struct.hpp"
 #include "controller_interface/controller_interface.hpp"
 #include "hardware_interface/resource_manager.hpp"
 #include "joint_trajectory_controller/joint_trajectory_controller.hpp"
@@ -49,9 +48,10 @@
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "std_msgs/msg/header.hpp"
-#include "test_trajectory_controller_utils.hpp"
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
+
+#include "test_trajectory_controller_utils.hpp"
 
 using lifecycle_msgs::msg::State;
 using test_trajectory_controllers::TrajectoryControllerTest;
@@ -437,66 +437,18 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   traj_controller_->update(
     rclcpp::Time(static_cast<uint64_t>(0.35 * 1e9)), rclcpp::Duration::from_seconds(0.1));
 
-  EXPECT_NEAR(3.3, joint_pos_[0], allowed_delta);
-  EXPECT_NEAR(4.4, joint_pos_[1], allowed_delta);
-  EXPECT_NEAR(5.5, joint_pos_[2], allowed_delta);
+  if (traj_controller_->has_position_command_interface())
+  {
+    // otherwise this won't be updated
+    EXPECT_NEAR(3.3, joint_pos_[0], allowed_delta);
+    EXPECT_NEAR(4.4, joint_pos_[1], allowed_delta);
+    EXPECT_NEAR(5.5, joint_pos_[2], allowed_delta);
+  }
 
   // state = traj_controller_->get_node()->configure();
   // ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
 
   executor.cancel();
-}
-
-TEST_P(TrajectoryControllerTestParameterized, state_topic_legacy_consistency)
-{
-  rclcpp::executors::SingleThreadedExecutor executor;
-  SetUpAndActivateTrajectoryController(executor, true, {});
-  subscribeToStateLegacy();
-  updateController();
-
-  // Spin to receive latest state
-  executor.spin_some();
-  auto state = getStateLegacy();
-
-  size_t n_joints = joint_names_.size();
-
-  for (unsigned int i = 0; i < n_joints; ++i)
-  {
-    EXPECT_EQ(joint_names_[i], state->joint_names[i]);
-  }
-
-  // No trajectory by default, no desired state or error
-  EXPECT_TRUE(state->desired.positions.empty() || state->desired.positions == INITIAL_POS_JOINTS);
-  EXPECT_TRUE(state->desired.velocities.empty() || state->desired.velocities == INITIAL_VEL_JOINTS);
-  EXPECT_TRUE(
-    state->desired.accelerations.empty() || state->desired.accelerations == INITIAL_EFF_JOINTS);
-
-  EXPECT_EQ(n_joints, state->actual.positions.size());
-  if (
-    std::find(state_interface_types_.begin(), state_interface_types_.end(), "velocity") ==
-    state_interface_types_.end())
-  {
-    EXPECT_TRUE(state->actual.velocities.empty());
-  }
-  else
-  {
-    EXPECT_EQ(n_joints, state->actual.velocities.size());
-  }
-  if (
-    std::find(state_interface_types_.begin(), state_interface_types_.end(), "acceleration") ==
-    state_interface_types_.end())
-  {
-    EXPECT_TRUE(state->actual.accelerations.empty());
-  }
-  else
-  {
-    EXPECT_EQ(n_joints, state->actual.accelerations.size());
-  }
-
-  std::vector<double> zeros(3, 0);
-  EXPECT_EQ(state->error.positions, zeros);
-  EXPECT_TRUE(state->error.velocities.empty() || state->error.velocities == zeros);
-  EXPECT_TRUE(state->error.accelerations.empty() || state->error.accelerations == zeros);
 }
 
 TEST_P(TrajectoryControllerTestParameterized, state_topic_consistency)
@@ -659,14 +611,20 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_not_normalized)
     EXPECT_NEAR(points[0][0], joint_pos_[0], allowed_delta);
     EXPECT_NEAR(points[0][1], joint_pos_[1], allowed_delta);
     EXPECT_NEAR(points[0][2], joint_pos_[2], allowed_delta);
+    EXPECT_NEAR(points[0][0], state_msg->output.positions[0], allowed_delta);
+    EXPECT_NEAR(points[0][1], state_msg->output.positions[1], allowed_delta);
+    EXPECT_NEAR(points[0][2], state_msg->output.positions[2], allowed_delta);
   }
 
   if (traj_controller_->has_velocity_command_interface())
   {
     // check command interface
-    EXPECT_LE(0.0, joint_vel_[0]);
-    EXPECT_LE(0.0, joint_vel_[1]);
-    EXPECT_LE(0.0, joint_vel_[2]);
+    EXPECT_LT(0.0, joint_vel_[0]);
+    EXPECT_LT(0.0, joint_vel_[1]);
+    EXPECT_LT(0.0, joint_vel_[2]);
+    EXPECT_LT(0.0, state_msg->output.velocities[0]);
+    EXPECT_LT(0.0, state_msg->output.velocities[1]);
+    EXPECT_LT(0.0, state_msg->output.velocities[2]);
 
     // use_closed_loop_pid_adapter_
     if (traj_controller_->use_closed_loop_pid_adapter())
@@ -688,9 +646,12 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_not_normalized)
   if (traj_controller_->has_effort_command_interface())
   {
     // check command interface
-    EXPECT_LE(0.0, joint_eff_[0]);
-    EXPECT_LE(0.0, joint_eff_[1]);
-    EXPECT_LE(0.0, joint_eff_[2]);
+    EXPECT_LT(0.0, joint_eff_[0]);
+    EXPECT_LT(0.0, joint_eff_[1]);
+    EXPECT_LT(0.0, joint_eff_[2]);
+    EXPECT_LT(0.0, state_msg->output.effort[0]);
+    EXPECT_LT(0.0, state_msg->output.effort[1]);
+    EXPECT_LT(0.0, state_msg->output.effort[2]);
   }
 
   executor.cancel();
@@ -763,13 +724,13 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_normalized)
   if (traj_controller_->has_velocity_command_interface())
   {
     // check command interface
-    EXPECT_LE(0.0, joint_vel_[0]);
-    EXPECT_LE(0.0, joint_vel_[1]);
+    EXPECT_LT(0.0, joint_vel_[0]);
+    EXPECT_LT(0.0, joint_vel_[1]);
 
     // use_closed_loop_pid_adapter_
     if (traj_controller_->use_closed_loop_pid_adapter())
     {
-      EXPECT_GE(0.0, joint_vel_[2]);
+      EXPECT_GT(0.0, joint_vel_[2]);
       // we expect u = k_p * (s_d-s) for positions[0] and positions[1]
       EXPECT_NEAR(
         k_p * (state_msg->reference.positions[0] - INITIAL_POS_JOINTS[0]), joint_vel_[0],
@@ -785,67 +746,20 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_normalized)
     else
     {
       // interpolated points_velocities only
-      EXPECT_LE(0.0, joint_vel_[2]);
+      EXPECT_LT(0.0, joint_vel_[2]);
     }
   }
 
   if (traj_controller_->has_effort_command_interface())
   {
     // check command interface
-    EXPECT_LE(0.0, joint_eff_[0]);
-    EXPECT_LE(0.0, joint_eff_[1]);
-    EXPECT_LE(0.0, joint_eff_[2]);
+    EXPECT_LT(0.0, joint_eff_[0]);
+    EXPECT_LT(0.0, joint_eff_[1]);
+    EXPECT_LT(0.0, joint_eff_[2]);
   }
 
   executor.cancel();
 }
-
-void TrajectoryControllerTest::test_state_publish_rate_target(int target_msg_count)
-{
-  rclcpp::Parameter state_publish_rate_param(
-    "state_publish_rate", static_cast<double>(target_msg_count));
-  rclcpp::executors::SingleThreadedExecutor executor;
-  SetUpAndActivateTrajectoryController(executor, true, {state_publish_rate_param});
-
-  auto future_handle = std::async(std::launch::async, [&executor]() -> void { executor.spin(); });
-
-  using control_msgs::msg::JointTrajectoryControllerState;
-
-  const int qos_level = 10;
-  int echo_received_counter = 0;
-  rclcpp::Subscription<JointTrajectoryControllerState>::SharedPtr subs =
-    traj_controller_->get_node()->create_subscription<JointTrajectoryControllerState>(
-      controller_name_ + "/state", qos_level,
-      [&](JointTrajectoryControllerState::UniquePtr) { ++echo_received_counter; });
-
-  // update for 1second
-  auto clock = rclcpp::Clock(RCL_STEADY_TIME);
-  const auto start_time = clock.now();
-  const rclcpp::Duration wait = rclcpp::Duration::from_seconds(1.0);
-  const auto end_time = start_time + wait;
-  while (clock.now() < end_time)
-  {
-    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-  }
-
-  // We may miss the last message since time allowed is exactly the time needed
-  EXPECT_NEAR(target_msg_count, echo_received_counter, 1);
-
-  executor.cancel();
-}
-
-/**
- * @brief test_state_publish_rate Test that state publish rate matches configure rate
- */
-TEST_P(TrajectoryControllerTestParameterized, test_state_publish_rate)
-{
-  test_state_publish_rate_target(10);
-}
-
-// TEST_P(TrajectoryControllerTestParameterized, zero_state_publish_rate)
-// {
-//   test_state_publish_rate_target(0);
-// }
 
 // /**
 //  * @brief test_jumbled_joint_order Test sending trajectories with a joint order different from
@@ -1684,16 +1598,15 @@ INSTANTIATE_TEST_SUITE_P(
       std::vector<std::string>({"position", "velocity", "acceleration"}),
       std::vector<std::string>({"position", "velocity", "acceleration"}))));
 
-// // only velocity controller
-// INSTANTIATE_TEST_SUITE_P(
-//   OnlyVelocityTrajectoryControllers, TrajectoryControllerTestParameterized,
-//   ::testing::Values(
-//     std::make_tuple(
-//       std::vector<std::string>({"velocity"}),
-//       std::vector<std::string>({"position", "velocity"})),
-//     std::make_tuple(
-//       std::vector<std::string>({"velocity"}),
-//       std::vector<std::string>({"position", "velocity", "acceleration"}))));
+// only velocity controller
+INSTANTIATE_TEST_SUITE_P(
+  OnlyVelocityTrajectoryControllers, TrajectoryControllerTestParameterized,
+  ::testing::Values(
+    std::make_tuple(
+      std::vector<std::string>({"velocity"}), std::vector<std::string>({"position", "velocity"})),
+    std::make_tuple(
+      std::vector<std::string>({"velocity"}),
+      std::vector<std::string>({"position", "velocity", "acceleration"}))));
 
 // // only effort controller
 // INSTANTIATE_TEST_SUITE_P(
