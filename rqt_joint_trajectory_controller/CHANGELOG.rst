@@ -2,39 +2,39 @@
 Changelog for package rqt_joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.9.0 (2023-05-28)
-------------------
+2.21.0 (2023-05-28)
+-------------------
 
-3.8.0 (2023-05-14)
-------------------
-* switch from dash to underscore in setup.cfg (`#595 <https://github.com/ros-controls/ros2_controllers/issues/595>`_)
-* Contributors: Alex Moriarty
+2.20.0 (2023-05-14)
+-------------------
+* switch from dash to underscore in setup.cfg (`#595 <https://github.com/ros-controls/ros2_controllers/issues/595>`_) (`#599 <https://github.com/ros-controls/ros2_controllers/issues/599>`_)
+* Contributors: mergify[bot]
 
-3.7.0 (2023-05-02)
-------------------
+2.19.0 (2023-05-02)
+-------------------
 
-3.6.0 (2023-04-29)
-------------------
+2.18.0 (2023-04-29)
+-------------------
 
-3.5.0 (2023-04-14)
-------------------
+2.17.3 (2023-04-14)
+-------------------
 
-3.4.0 (2023-04-02)
-------------------
+2.17.2 (2023-03-07)
+-------------------
 
-3.3.0 (2023-03-07)
-------------------
+2.17.1 (2023-02-20)
+-------------------
 
-3.2.0 (2023-02-10)
-------------------
+2.17.0 (2023-02-13)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
+2.16.1 (2023-01-31)
+-------------------
 
-3.0.0 (2023-01-19)
-------------------
-* 🔧 Fixes and updated on pre-commit hooks and their action (`#492 <https://github.com/ros-controls/ros2_controllers/issues/492>`_)
-* Contributors: Denis Štogl
+2.16.0 (2023-01-19)
+-------------------
+* 🔧 Fixes and updated on pre-commit hooks and their action (`#492 <https://github.com/ros-controls/ros2_controllers/issues/492>`_) (`#496 <https://github.com/ros-controls/ros2_controllers/issues/496>`_)
+* Contributors: Denis Stogl
 
 2.15.0 (2022-12-06)
 -------------------

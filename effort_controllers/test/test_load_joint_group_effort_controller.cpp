@@ -32,10 +32,8 @@ TEST(TestLoadJointGroupVelocityController, load_controller)
       ros2_control_test_assets::minimal_robot_urdf),
     executor, "test_controller_manager");
 
-  ASSERT_NE(
-    cm.load_controller(
-      "test_joint_group_effort_controller", "effort_controllers/JointGroupEffortController"),
-    nullptr);
+  ASSERT_NO_THROW(cm.load_controller(
+    "test_joint_group_effort_controller", "effort_controllers/JointGroupEffortController"));
 
   rclcpp::shutdown();
 }
