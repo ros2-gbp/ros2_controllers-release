@@ -203,6 +203,8 @@ controller_interface::return_type DiffDriveController::update(
 
   if (should_publish)
   {
+    previous_publish_timestamp_ += publish_period_;
+
     if (realtime_odometry_publisher_->trylock())
     {
       auto & odometry_message = realtime_odometry_publisher_->msg_;
@@ -400,15 +402,15 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
   }
   else
   {
-    controller_namespace = controller_namespace + "/";
+    controller_namespace = controller_namespace.erase(0, 1) + "/";
   }
 
   const auto odom_frame_id = controller_namespace + params_.odom_frame_id;
   const auto base_frame_id = controller_namespace + params_.base_frame_id;
 
   auto & odometry_message = realtime_odometry_publisher_->msg_;
-  odometry_message.header.frame_id = controller_namespace + odom_frame_id;
-  odometry_message.child_frame_id = controller_namespace + base_frame_id;
+  odometry_message.header.frame_id = odom_frame_id;
+  odometry_message.child_frame_id = base_frame_id;
 
   // limit the publication on the topics /odom and /tf
   publish_rate_ = params_.publish_rate;

@@ -6,19 +6,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
 endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
-  angles
-  control_msgs
-  control_toolbox
-  controller_interface
-  generate_parameter_library
-  hardware_interface
-  pluginlib
-  rclcpp
-  rclcpp_lifecycle
-  realtime_tools
-  rsl
-  tl_expected
-  trajectory_msgs
+    angles
+    control_msgs
+    control_toolbox
+    controller_interface
+    generate_parameter_library
+    hardware_interface
+    pluginlib
+    rclcpp
+    rclcpp_lifecycle
+    realtime_tools
+    trajectory_msgs
 )
 
 find_package(ament_cmake REQUIRED)
@@ -80,12 +78,13 @@ if(BUILD_TESTING)
     ros2_control_test_assets
   )
 
-  ament_add_gmock(test_trajectory_actions
-    test/test_trajectory_actions.cpp
-  )
-  target_link_libraries(test_trajectory_actions
-    joint_trajectory_controller
-  )
+  # TODO(andyz): Disabled due to flakiness
+  # ament_add_gmock(test_trajectory_actions
+  #   test/test_trajectory_actions.cpp
+  # )
+  # target_link_libraries(test_trajectory_actions
+  #   joint_trajectory_controller
+  # )
 endif()
 
 

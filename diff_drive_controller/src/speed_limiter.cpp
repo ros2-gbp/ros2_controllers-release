@@ -20,6 +20,7 @@
 #include <stdexcept>
 
 #include "diff_drive_controller/speed_limiter.hpp"
+#include "rcppmath/clamp.hpp"
 
 namespace diff_drive_controller
 {
@@ -91,7 +92,7 @@ double SpeedLimiter::limit_velocity(double & v)
 
   if (has_velocity_limits_)
   {
-    v = std::clamp(v, min_velocity_, max_velocity_);
+    v = rcppmath::clamp(v, min_velocity_, max_velocity_);
   }
 
   return tmp != 0.0 ? v / tmp : 1.0;
@@ -106,7 +107,7 @@ double SpeedLimiter::limit_acceleration(double & v, double v0, double dt)
     const double dv_min = min_acceleration_ * dt;
     const double dv_max = max_acceleration_ * dt;
 
-    const double dv = std::clamp(v - v0, dv_min, dv_max);
+    const double dv = rcppmath::clamp(v - v0, dv_min, dv_max);
 
     v = v0 + dv;
   }
@@ -128,7 +129,7 @@ double SpeedLimiter::limit_jerk(double & v, double v0, double v1, double dt)
     const double da_min = min_jerk_ * dt2;
     const double da_max = max_jerk_ * dt2;
 
-    const double da = std::clamp(dv - dv0, da_min, da_max);
+    const double da = rcppmath::clamp(dv - dv0, da_min, da_max);
 
     v = v0 + dv0 + da;
   }

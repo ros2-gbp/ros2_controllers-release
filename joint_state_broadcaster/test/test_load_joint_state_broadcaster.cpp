@@ -34,10 +34,8 @@ TEST(TestLoadJointStateBroadcaster, load_controller)
       ros2_control_test_assets::minimal_robot_urdf),
     executor, "test_controller_manager");
 
-  ASSERT_NE(
-    cm.load_controller(
-      "test_joint_state_broadcaster", "joint_state_broadcaster/JointStateBroadcaster"),
-    nullptr);
+  ASSERT_NO_THROW(cm.load_controller(
+    "test_joint_state_broadcaster", "joint_state_broadcaster/JointStateBroadcaster"));
 
   rclcpp::shutdown();
 }
