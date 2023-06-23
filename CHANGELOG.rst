@@ -2,6 +2,9 @@
 Changelog for package ackermann_steering_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.23.0 (2023-06-23)
+-------------------
+
 2.22.0 (2023-06-14)
 -------------------
 * Bump versions for release
