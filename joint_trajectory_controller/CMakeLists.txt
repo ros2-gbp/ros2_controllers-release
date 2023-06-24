@@ -2,21 +2,23 @@ cmake_minimum_required(VERSION 3.16)
 project(joint_trajectory_controller LANGUAGES CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wall -Wextra -Wconversion)
 endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
-    angles
-    control_msgs
-    control_toolbox
-    controller_interface
-    generate_parameter_library
-    hardware_interface
-    pluginlib
-    rclcpp
-    rclcpp_lifecycle
-    realtime_tools
-    trajectory_msgs
+  angles
+  control_msgs
+  control_toolbox
+  controller_interface
+  generate_parameter_library
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+  realtime_tools
+  rsl
+  tl_expected
+  trajectory_msgs
 )
 
 find_package(ament_cmake REQUIRED)
@@ -78,13 +80,12 @@ if(BUILD_TESTING)
     ros2_control_test_assets
   )
 
-  # TODO(andyz): Disabled due to flakiness
-  # ament_add_gmock(test_trajectory_actions
-  #   test/test_trajectory_actions.cpp
-  # )
-  # target_link_libraries(test_trajectory_actions
-  #   joint_trajectory_controller
-  # )
+  ament_add_gmock(test_trajectory_actions
+    test/test_trajectory_actions.cpp
+  )
+  target_link_libraries(test_trajectory_actions
+    joint_trajectory_controller
+  )
 endif()
 
 
