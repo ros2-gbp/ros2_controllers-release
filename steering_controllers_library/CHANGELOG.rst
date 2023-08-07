@@ -2,63 +2,51 @@
 Changelog for package steering_controllers_library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.13.0 (2023-08-04)
--------------------
-* Update ci-ros-lint.yml and copyright format (`#720 <https://github.com/ros-controls/ros2_controllers/issues/720>`_)
-* Contributors: Christoph Fröhlich
-
-3.12.0 (2023-07-18)
+2.24.0 (2023-08-07)
 -------------------
 
-3.11.0 (2023-06-24)
+2.23.0 (2023-06-23)
 -------------------
-* Added -Wconversion flag and fix warnings (`#667 <https://github.com/ros-controls/ros2_controllers/issues/667>`_)
-* Let sphinx add parameter description to documentation (`#651 <https://github.com/ros-controls/ros2_controllers/issues/651>`_)
-* Contributors: Christoph Fröhlich, gwalck
 
-3.10.1 (2023-06-06)
+2.22.0 (2023-06-14)
 -------------------
-* Second round of dependencies fix (`#655 <https://github.com/ros-controls/ros2_controllers/issues/655>`_)
-* Contributors: Bence Magyar
+* Bump versions for release
+* Let sphinx add parameter description to documentation (backport `#651 <https://github.com/ros-controls/ros2_controllers/issues/651>`_) (`#663 <https://github.com/ros-controls/ros2_controllers/issues/663>`_)
+* Second round of dependencies fix (`#655 <https://github.com/ros-controls/ros2_controllers/issues/655>`_) (`#656 <https://github.com/ros-controls/ros2_controllers/issues/656>`_)
+* Fix sphinx for steering odometry library/controllers (`#626 <https://github.com/ros-controls/ros2_controllers/issues/626>`_) (`#661 <https://github.com/ros-controls/ros2_controllers/issues/661>`_)
+* Remove unnecessary include (backport `#645 <https://github.com/ros-controls/ros2_controllers/issues/645>`_) (`#646 <https://github.com/ros-controls/ros2_controllers/issues/646>`_)
+* Steering odometry library and controllers (backport `#484 <https://github.com/ros-controls/ros2_controllers/issues/484>`_) (`#624 <https://github.com/ros-controls/ros2_controllers/issues/624>`_)
+* Contributors: Bence Magyar, Christoph Fröhlich, Tomislav Petković, Reza Kermani, Denis Štogl
 
-3.10.0 (2023-06-04)
+2.21.0 (2023-05-28)
 -------------------
-* Remove unnecessary include (`#645 <https://github.com/ros-controls/ros2_controllers/issues/645>`_)
-* enable ReflowComments to also use ColumnLimit on comments (`#625 <https://github.com/ros-controls/ros2_controllers/issues/625>`_)
-* Contributors: Bence Magyar, Sai Kishor Kothakota
 
-3.9.0 (2023-05-28)
-------------------
-* Fix sphinx for steering odometry library/controllers (`#626 <https://github.com/ros-controls/ros2_controllers/issues/626>`_)
-* Steering odometry library and controllers (`#484 <https://github.com/ros-controls/ros2_controllers/issues/484>`_)
-* Contributors: Bence Magyar, Christoph Fröhlich, Tomislav Petković
+2.20.0 (2023-05-14)
+-------------------
 
-3.8.0 (2023-05-14)
-------------------
+2.19.0 (2023-05-02)
+-------------------
 
-3.7.0 (2023-05-02)
-------------------
+2.18.0 (2023-04-29)
+-------------------
 
-3.6.0 (2023-04-29)
-------------------
+2.17.3 (2023-04-14)
+-------------------
 
-3.5.0 (2023-04-14)
-------------------
+2.17.2 (2023-03-07)
+-------------------
 
-3.4.0 (2023-04-02)
-------------------
+2.17.1 (2023-02-20)
+-------------------
 
-3.3.0 (2023-03-07)
-------------------
+2.17.0 (2023-02-13)
+-------------------
 
-3.2.0 (2023-02-10)
-------------------
+2.16.1 (2023-01-31)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
-
-3.0.0 (2023-01-19)
-------------------
+2.16.0 (2023-01-19)
+-------------------
 
 2.15.0 (2022-12-06)
 -------------------

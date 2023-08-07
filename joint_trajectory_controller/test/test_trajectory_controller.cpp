@@ -35,13 +35,13 @@
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/clock.hpp"
 #include "rclcpp/duration.hpp"
-#include "rclcpp/event_handler.hpp"
 #include "rclcpp/executors/multi_threaded_executor.hpp"
 #include "rclcpp/executors/single_threaded_executor.hpp"
 #include "rclcpp/node.hpp"
 #include "rclcpp/parameter.hpp"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp/qos.hpp"
+#include "rclcpp/qos_event.hpp"
 #include "rclcpp/subscription.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/utilities.hpp"
@@ -327,6 +327,58 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   executor.cancel();
 }
 
+TEST_P(TrajectoryControllerTestParameterized, state_topic_legacy_consistency)
+{
+  rclcpp::executors::SingleThreadedExecutor executor;
+  SetUpAndActivateTrajectoryController(executor, true, {});
+  subscribeToStateLegacy();
+  updateController();
+
+  // Spin to receive latest state
+  executor.spin_some();
+  auto state = getStateLegacy();
+
+  size_t n_joints = joint_names_.size();
+
+  for (unsigned int i = 0; i < n_joints; ++i)
+  {
+    EXPECT_EQ(joint_names_[i], state->joint_names[i]);
+  }
+
+  // No trajectory by default, no desired state or error
+  EXPECT_TRUE(state->desired.positions.empty() || state->desired.positions == INITIAL_POS_JOINTS);
+  EXPECT_TRUE(state->desired.velocities.empty() || state->desired.velocities == INITIAL_VEL_JOINTS);
+  EXPECT_TRUE(
+    state->desired.accelerations.empty() || state->desired.accelerations == INITIAL_EFF_JOINTS);
+
+  EXPECT_EQ(n_joints, state->actual.positions.size());
+  if (
+    std::find(state_interface_types_.begin(), state_interface_types_.end(), "velocity") ==
+    state_interface_types_.end())
+  {
+    EXPECT_TRUE(state->actual.velocities.empty());
+  }
+  else
+  {
+    EXPECT_EQ(n_joints, state->actual.velocities.size());
+  }
+  if (
+    std::find(state_interface_types_.begin(), state_interface_types_.end(), "acceleration") ==
+    state_interface_types_.end())
+  {
+    EXPECT_TRUE(state->actual.accelerations.empty());
+  }
+  else
+  {
+    EXPECT_EQ(n_joints, state->actual.accelerations.size());
+  }
+
+  std::vector<double> zeros(3, 0);
+  EXPECT_EQ(state->error.positions, zeros);
+  EXPECT_TRUE(state->error.velocities.empty() || state->error.velocities == zeros);
+  EXPECT_TRUE(state->error.accelerations.empty() || state->error.accelerations == zeros);
+}
+
 TEST_P(TrajectoryControllerTestParameterized, state_topic_consistency)
 {
   rclcpp::executors::SingleThreadedExecutor executor;
@@ -491,7 +543,7 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_not_normalized)
     EXPECT_NEAR(points[0][2], joint_pos_[2], allowed_delta);
     EXPECT_NEAR(points[0][0], state_msg->output.positions[0], allowed_delta);
     EXPECT_NEAR(points[0][1], state_msg->output.positions[1], allowed_delta);
-    EXPECT_NEAR(points[0][2], state_msg->output.positions[2], allowed_delta);
+    EXPECT_NEAR(points[0][2], state_msg->output.positions[2], 3 * allowed_delta);
   }
 
   if (traj_controller_->has_velocity_command_interface())
@@ -659,6 +711,53 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_normalized)
 
   executor.cancel();
 }
+
+void TrajectoryControllerTest::test_state_publish_rate_target(int target_msg_count)
+{
+  rclcpp::Parameter state_publish_rate_param(
+    "state_publish_rate", static_cast<double>(target_msg_count));
+  rclcpp::executors::SingleThreadedExecutor executor;
+  SetUpAndActivateTrajectoryController(executor, true, {state_publish_rate_param});
+
+  auto future_handle = std::async(std::launch::async, [&executor]() -> void { executor.spin(); });
+
+  using control_msgs::msg::JointTrajectoryControllerState;
+
+  const int qos_level = 10;
+  int echo_received_counter = 0;
+  rclcpp::Subscription<JointTrajectoryControllerState>::SharedPtr subs =
+    traj_controller_->get_node()->create_subscription<JointTrajectoryControllerState>(
+      controller_name_ + "/state", qos_level,
+      [&](JointTrajectoryControllerState::UniquePtr) { ++echo_received_counter; });
+
+  // update for 1second
+  auto clock = rclcpp::Clock(RCL_STEADY_TIME);
+  const auto start_time = clock.now();
+  const rclcpp::Duration wait = rclcpp::Duration::from_seconds(1.0);
+  const auto end_time = start_time + wait;
+  while (clock.now() < end_time)
+  {
+    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  }
+
+  // We may miss the last message since time allowed is exactly the time needed
+  EXPECT_NEAR(target_msg_count, echo_received_counter, 1);
+
+  executor.cancel();
+}
+
+/**
+ * @brief test_state_publish_rate Test that state publish rate matches configure rate
+ */
+TEST_P(TrajectoryControllerTestParameterized, test_state_publish_rate)
+{
+  test_state_publish_rate_target(10);
+}
+
+// TEST_P(TrajectoryControllerTestParameterized, zero_state_publish_rate)
+// {
+//   test_state_publish_rate_target(0);
+// }
 
 /**
  * @brief check if use_closed_loop_pid is active

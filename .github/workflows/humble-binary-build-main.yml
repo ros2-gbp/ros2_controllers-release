@@ -14,7 +14,7 @@ on:
       - humble
   schedule:
     # Run every morning to detect flakiness and broken dependencies
-    - cron: '03 1 * * *'
+    - cron: '03 2 * * *'
 
 jobs:
   binary:
