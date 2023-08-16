@@ -50,14 +50,6 @@ joint_trajectory_controller:
     default_value: false,
     description: "Allow integration in goal trajectories to accept goals without position or velocity specified",
   }
-  state_publish_rate: {
-    type: double,
-    default_value: 50.0,
-    description: "Rate controller state is published",
-    validation: {
-      gt_eq: [0.1]
-    }
-  }
   action_monitor_rate: {
     type: double,
     default_value: 20.0,
@@ -74,6 +66,11 @@ joint_trajectory_controller:
       one_of<>: [["splines", "none"]],
     }
   }
+  start_with_holding: {
+    type: bool,
+    default_value: true,
+    description: "If true, start with holding position after activation. Otherwise, no command will be sent until the first trajectory is received.",
+  }
   allow_nonzero_velocity_at_trajectory_end: {
     type: bool,
     default_value: true,
@@ -89,7 +86,7 @@ joint_trajectory_controller:
       i: {
         type: double,
         default_value: 0.0,
-        description: "Intigral gain for PID"
+        description: "Integral gain for PID"
       }
       d: {
         type: double,
@@ -99,7 +96,7 @@ joint_trajectory_controller:
       i_clamp: {
         type: double,
         default_value: 0.0,
-        description: "Integrale clamp. Symmetrical in both positive and negative direction."
+        description: "Integral clamp. Symmetrical in both positive and negative direction."
       }
       ff_velocity_scale: {
         type: double,
