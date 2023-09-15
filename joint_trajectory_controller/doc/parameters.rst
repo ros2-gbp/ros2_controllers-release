@@ -22,6 +22,11 @@ state_interfaces (list(string))
   Values: position (mandatory) [velocity, [acceleration]].
   Acceleration interface can only be used in combination with position and velocity.
 
+state_publish_rate (double)
+  Publish-rate of the controller's "state" topic.
+
+  Default: 50.0
+
 action_monitor_rate (double)
   Rate to monitor status changes when the controller is executing action (control_msgs::action::FollowJointTrajectory).
 
@@ -56,12 +61,6 @@ open_loop_control (boolean)
      Therefore it is important set command interfaces to NaN (i.e., ``std::numeric_limits<double>::quiet_NaN()``) or state values when the hardware is started.
 
   Default: false
-
-start_with_holding (bool)
-  If true, start with holding position after activation. Otherwise, no command will be sent until
-  the first trajectory is received.
-
-  Default: true
 
 allow_nonzero_velocity_at_trajectory_end (boolean)
   If false, the last velocity point has to be zero or the goal will be rejected.
@@ -101,7 +100,7 @@ gains (structure)
 
      u = k_{ff} v_d + k_p e + k_i \sum e dt + k_d (v_d - v)
 
-  with the desired velocity :math:`v_d`, the measured velocity :math:`v`, the position error :math:`e` (definition see below),
+  with the desired velocity :math:`v_d`, the measured velocity :math:`v`, the position error :math:`e` (definition see ``angle_wraparound`` below),
   the controller period :math:`dt`, and the ``velocity`` or ``effort`` manipulated variable (control variable) :math:`u`, respectively.
 
 gains.<joint_name>.p (double)
@@ -129,10 +128,12 @@ gains.<joint_name>.ff_velocity_scale (double)
 
   Default: 0.0
 
-gains.<joint_name>.normalize_error (bool)
+gains.<joint_name>.angle_wraparound (bool)
+  For joints that wrap around (without end stop, ie. are continuous),
+  where the shortest rotation to the target position is the desired motion.
   If true, the position error :math:`e = normalize(s_d - s)` is normalized between :math:`-\pi, \pi`.
   Otherwise  :math:`e = s_d - s` is used, with the desired position :math:`s_d` and the measured
-  position :math:`s` from the state interface. Use this for revolute joints without end stop,
-  where the shortest rotation to the target position is the desired motion.
+  position :math:`s` from the state interface.
+
 
   Default: false
