@@ -1,0 +1,12 @@
+Source: ros-iron-rqt-joint-trajectory-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-iron-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-iron-rqt-joint-trajectory-controller
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-rospkg, ros-iron-control-msgs, ros-iron-controller-manager-msgs, ros-iron-python-qt-binding, ros-iron-qt-gui, ros-iron-rclpy, ros-iron-rqt-gui, ros-iron-rqt-gui-py, ros-iron-trajectory-msgs, ros-iron-ros-workspace
+Description: Graphical frontend for interacting with joint_trajectory_controller instances.
