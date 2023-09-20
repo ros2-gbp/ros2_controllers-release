@@ -1,3 +1,46 @@
+## ros2_controllers (iron) - 3.16.0-1
+
+The packages in the `ros2_controllers` repository were released into the `iron` distro by running `/usr/bin/bloom-release --rosdistro iron ros2_controllers` on `Wed, 20 Sep 2023 11:48:58 -0000`
+
+These packages were released:
+- `ackermann_steering_controller`
+- `admittance_controller`
+- `bicycle_steering_controller`
+- `diff_drive_controller`
+- `effort_controllers`
+- `force_torque_sensor_broadcaster`
+- `forward_command_controller`
+- `gripper_controllers`
+- `imu_sensor_broadcaster`
+- `joint_state_broadcaster`
+- `joint_trajectory_controller`
+- `position_controllers`
+- `range_sensor_broadcaster`
+- `ros2_controllers`
+- `ros2_controllers_test_nodes`
+- `rqt_joint_trajectory_controller`
+- `steering_controllers_library`
+- `tricycle_controller`
+- `tricycle_steering_controller`
+- `velocity_controllers`
+
+Version of package(s) in repository `ros2_controllers`:
+
+- upstream repository: https://github.com/ros-controls/ros2_controllers.git
+- release repository: https://github.com/ros2-gbp/ros2_controllers-release.git
+- rosdistro version: `3.15.0-1`
+- old version: `3.15.0-1`
+- new version: `3.16.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.11.2`
+- catkin_pkg version: `0.5.2`
+- rosdep version: `0.22.2`
+- rosdistro version: `0.9.0`
+- vcstools version: `0.1.42`
+
+
 ## ros2_controllers (humble) - 2.25.0-1
 
 The packages in the `ros2_controllers` repository were released into the `humble` distro by running `/usr/bin/bloom-release --rosdistro humble ros2_controllers` on `Fri, 15 Sep 2023 11:16:04 -0000`
