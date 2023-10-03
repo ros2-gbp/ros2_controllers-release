@@ -22,6 +22,11 @@ state_interfaces (list(string))
   Values: position (mandatory) [velocity, [acceleration]].
   Acceleration interface can only be used in combination with position and velocity.
 
+state_publish_rate (double)
+  Publish-rate of the controller's "state" topic.
+
+  Default: 50.0
+
 action_monitor_rate (double)
   Rate to monitor status changes when the controller is executing action (control_msgs::action::FollowJointTrajectory).
 
@@ -57,26 +62,10 @@ open_loop_control (boolean)
 
   Default: false
 
-start_with_holding (bool)
-  If true, start with holding position after activation. Otherwise, no command will be sent until
-  the first trajectory is received.
-
-  Default: true
-
 allow_nonzero_velocity_at_trajectory_end (boolean)
   If false, the last velocity point has to be zero or the goal will be rejected.
 
   Default: true
-
-cmd_timeout (double)
-  Timeout after which the input command is considered stale.
-  Timeout is counted from the end of the trajectory (the last point).
-  ``cmd_timeout`` must be greater than ``constraints.goal_time``,
-  otherwise ignored.
-
-  If zero, timeout is deactivated"
-
-  Default: 0.0
 
 constraints (structure)
   Default values for tolerances if no explicit values are states in JointTrajectory message.
@@ -88,7 +77,6 @@ constraints.stopped_velocity_tolerance (double)
 
 constraints.goal_time (double)
   Maximally allowed tolerance for not reaching the end of the trajectory in a predefined time.
-  If set to zero, the controller will wait a potentially infinite amount of time.
 
   Default: 0.0 (not checked)
 
