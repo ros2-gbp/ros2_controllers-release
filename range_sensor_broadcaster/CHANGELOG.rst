@@ -1,9 +1,11 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package rqt_joint_trajectory_controller
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package range_sensor_broadcaster
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 2.26.0 (2023-10-03)
 -------------------
+* add a broadcaster for range sensor (backport `#725 <https://github.com/ros-controls/ros2_controllers/issues/725>`_) (`#766 <https://github.com/ros-controls/ros2_controllers/issues/766>`_)
+* Contributors: mergify[bot]
 
 2.25.0 (2023-09-15)
 -------------------
@@ -22,8 +24,6 @@ Changelog for package rqt_joint_trajectory_controller
 
 2.20.0 (2023-05-14)
 -------------------
-* switch from dash to underscore in setup.cfg (`#595 <https://github.com/ros-controls/ros2_controllers/issues/595>`_) (`#599 <https://github.com/ros-controls/ros2_controllers/issues/599>`_)
-* Contributors: mergify[bot]
 
 2.19.0 (2023-05-02)
 -------------------
@@ -48,8 +48,6 @@ Changelog for package rqt_joint_trajectory_controller
 
 2.16.0 (2023-01-19)
 -------------------
-* 🔧 Fixes and updated on pre-commit hooks and their action (`#492 <https://github.com/ros-controls/ros2_controllers/issues/492>`_) (`#496 <https://github.com/ros-controls/ros2_controllers/issues/496>`_)
-* Contributors: Denis Stogl
 
 2.15.0 (2022-12-06)
 -------------------
@@ -62,18 +60,12 @@ Changelog for package rqt_joint_trajectory_controller
 
 2.12.0 (2022-09-01)
 -------------------
-* fix: :bug: make bare exceptions more narrow (`#422 <https://github.com/ros-controls/ros2_controllers/issues/422>`_)
-* Fix formatting because pre-commit was not running on CI for some time. (`#409 <https://github.com/ros-controls/ros2_controllers/issues/409>`_)
-* Contributors: Denis Štogl, Jaron Lundwall
 
 2.11.0 (2022-08-04)
 -------------------
 
 2.10.0 (2022-08-01)
 -------------------
-* Formatting changes from pre-commit (`#400 <https://github.com/ros-controls/ros2_controllers/issues/400>`_)
-* port rqt_joint_trajectory_controller to ros2 (`#356 <https://github.com/ros-controls/ros2_controllers/issues/356>`_)
-* Contributors: Bence Magyar, Noel Jiménez García, Tyler Weaver
 
 2.9.0 (2022-07-14)
 ------------------
