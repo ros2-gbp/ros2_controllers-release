@@ -9,8 +9,6 @@ coverage:
     patch: off
 fixes:
   - "ros_ws/src/ros2_controllers/::"
-ignore:
-  - "**/test"
 comment:
   layout: "diff, flags, files"
   behavior: default
