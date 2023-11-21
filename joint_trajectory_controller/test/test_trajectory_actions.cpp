@@ -653,11 +653,7 @@ TEST_P(TestTrajectoryActionsTestParameterized, test_allow_nonzero_velocity_at_tr
 
   // will be accepted despite nonzero last point
   EXPECT_TRUE(gh_future.get());
-  if ((traj_controller_->has_effort_command_interface()) == false)
-  {
-    // can't succeed with effort cmd if
-    EXPECT_EQ(rclcpp_action::ResultCode::SUCCEEDED, common_resultcode_);
-  }
+  EXPECT_EQ(rclcpp_action::ResultCode::SUCCEEDED, common_resultcode_);
 }
 
 TEST_P(TestTrajectoryActionsTestParameterized, test_allow_nonzero_velocity_at_trajectory_end_false)

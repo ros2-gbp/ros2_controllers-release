@@ -64,6 +64,15 @@ controller_interface::CallbackReturn JointTrajectoryController::on_init()
     return CallbackReturn::ERROR;
   }
 
+  // TODO(christophfroehlich): remove deprecation warning
+  if (params_.allow_nonzero_velocity_at_trajectory_end)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "[Deprecated]: \"allow_nonzero_velocity_at_trajectory_end\" is set to "
+      "true. The default behavior will change to false.");
+  }
+
   return CallbackReturn::SUCCESS;
 }
 
@@ -119,12 +128,11 @@ controller_interface::return_type JointTrajectoryController::update(
   if (param_listener_->is_old(params_))
   {
     params_ = param_listener_->get_params();
-    default_tolerances_ = get_segment_tolerances(params_);
-    // update the PID gains
-    // variable use_closed_loop_pid_adapter_ is updated in on_configure only
+    // use_closed_loop_pid_adapter_ is updated in on_configure only
     if (use_closed_loop_pid_adapter_)
     {
       update_pids();
+      default_tolerances_ = get_segment_tolerances(params_);
     }
   }
 
@@ -134,7 +142,7 @@ controller_interface::return_type JointTrajectoryController::update(
                                    const JointTrajectoryPoint & desired)
   {
     // error defined as the difference between current and desired
-    if (joints_angle_wraparound_[index])
+    if (normalize_joint_error_[index])
     {
       // if desired, the shortest_angular_distance is calculated, i.e., the error is
       //  normalized between -pi<error<pi
@@ -187,7 +195,7 @@ controller_interface::return_type JointTrajectoryController::update(
 
   // current state update
   state_current_.time_from_start.set__sec(0);
-  read_state_from_state_interfaces(state_current_);
+  read_state_from_hardware(state_current_);
 
   // currently carrying out a trajectory
   if (has_active_trajectory())
@@ -409,7 +417,7 @@ controller_interface::return_type JointTrajectoryController::update(
   return controller_interface::return_type::OK;
 }
 
-void JointTrajectoryController::read_state_from_state_interfaces(JointTrajectoryPoint & state)
+void JointTrajectoryController::read_state_from_hardware(JointTrajectoryPoint & state)
 {
   auto assign_point_from_interface =
     [&](std::vector<double> & trajectory_point_interface, const auto & joint_interface)
@@ -720,11 +728,20 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   }
 
   // Configure joint position error normalization from ROS parameters (angle_wraparound)
-  joints_angle_wraparound_.resize(dof_);
+  normalize_joint_error_.resize(dof_);
   for (size_t i = 0; i < dof_; ++i)
   {
     const auto & gains = params_.gains.joints_map.at(params_.joints[i]);
-    joints_angle_wraparound_[i] = gains.angle_wraparound;
+    if (gains.normalize_error)
+    {
+      // TODO(anyone): Remove deprecation warning in the end of 2023
+      RCLCPP_INFO(logger, "`normalize_error` is deprecated, use `angle_wraparound` instead!");
+      normalize_joint_error_[i] = gains.normalize_error;
+    }
+    else
+    {
+      normalize_joint_error_[i] = gains.angle_wraparound;
+    }
   }
 
   if (params_.state_interfaces.empty())
@@ -922,26 +939,40 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
     }
   }
 
+  // Store 'home' pose
+  traj_msg_home_ptr_ = std::make_shared<trajectory_msgs::msg::JointTrajectory>();
+  traj_msg_home_ptr_->header.stamp.sec = 0;
+  traj_msg_home_ptr_->header.stamp.nanosec = 0;
+  traj_msg_home_ptr_->points.resize(1);
+  traj_msg_home_ptr_->points[0].time_from_start.sec = 0;
+  traj_msg_home_ptr_->points[0].time_from_start.nanosec = 50000000;
+  traj_msg_home_ptr_->points[0].positions.resize(joint_state_interface_[0].size());
+  for (size_t index = 0; index < joint_state_interface_[0].size(); ++index)
+  {
+    traj_msg_home_ptr_->points[0].positions[index] =
+      joint_state_interface_[0][index].get().get_value();
+  }
+
   traj_external_point_ptr_ = std::make_shared<Trajectory>();
+  traj_home_point_ptr_ = std::make_shared<Trajectory>();
   traj_msg_external_point_ptr_.writeFromNonRT(
     std::shared_ptr<trajectory_msgs::msg::JointTrajectory>());
 
   subscriber_is_active_ = true;
 
-  // Handle restart of controller by reading from commands if those are not NaN (a controller was
-  // running already)
+  // Initialize current state storage if hardware state has tracking offset
+  read_state_from_hardware(state_current_);
+  read_state_from_hardware(state_desired_);
+  read_state_from_hardware(last_commanded_state_);
+  // Handle restart of controller by reading from commands if
+  // those are not nan
   trajectory_msgs::msg::JointTrajectoryPoint state;
   resize_joint_trajectory_point(state, dof_);
   if (read_state_from_command_interfaces(state))
   {
     state_current_ = state;
+    state_desired_ = state;
     last_commanded_state_ = state;
-  }
-  else
-  {
-    // Initialize current state storage from hardware
-    read_state_from_state_interfaces(state_current_);
-    read_state_from_state_interfaces(last_commanded_state_);
   }
 
   // Should the controller start by holding position at the beginning of active state?
@@ -1014,6 +1045,8 @@ controller_interface::CallbackReturn JointTrajectoryController::on_deactivate(
   subscriber_is_active_ = false;
 
   traj_external_point_ptr_.reset();
+  traj_home_point_ptr_.reset();
+  traj_msg_home_ptr_.reset();
 
   return CallbackReturn::SUCCESS;
 }
@@ -1021,6 +1054,13 @@ controller_interface::CallbackReturn JointTrajectoryController::on_deactivate(
 controller_interface::CallbackReturn JointTrajectoryController::on_cleanup(
   const rclcpp_lifecycle::State &)
 {
+  // go home
+  if (traj_home_point_ptr_ != nullptr)
+  {
+    traj_home_point_ptr_->update(traj_msg_home_ptr_);
+    traj_external_point_ptr_ = traj_home_point_ptr_;
+  }
+
   return CallbackReturn::SUCCESS;
 }
 
@@ -1047,7 +1087,11 @@ bool JointTrajectoryController::reset()
     }
   }
 
+  // iterator has no default value
+  // prev_traj_point_ptr_;
   traj_external_point_ptr_.reset();
+  traj_home_point_ptr_.reset();
+  traj_msg_home_ptr_.reset();
 
   return true;
 }
