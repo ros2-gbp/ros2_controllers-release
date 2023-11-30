@@ -9,8 +9,9 @@ on:
         default: 'rolling'
         type: choice
         options:
+        - foxy
+        - galactic
         - humble
-        - iron
         - rolling
       branch:
         description: 'Chose branch for distro'
@@ -18,15 +19,16 @@ on:
         default: 'master'
         type: choice
         options:
+        - foxy
+        - galactic
         - humble
-        - iron
         - master
 
 jobs:
   pre_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.branch }}
       - name: industrial_ci
