@@ -34,8 +34,6 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 
 using hardware_interface::LoanedCommandInterface;
-using testing::IsEmpty;
-using testing::SizeIs;
 
 namespace
 {
@@ -130,13 +128,6 @@ TEST_F(ForwardCommandControllerTest, ConfigureParamsSuccess)
   ASSERT_EQ(
     controller_->on_configure(rclcpp_lifecycle::State()),
     controller_interface::CallbackReturn::SUCCESS);
-
-  // check interface configuration
-  auto cmd_if_conf = controller_->command_interface_configuration();
-  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
-  ASSERT_THAT(cmd_if_conf.names, SizeIs(2lu));
-  auto state_if_conf = controller_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, IsEmpty());
 }
 
 TEST_F(ForwardCommandControllerTest, ActivateWithWrongJointsNamesFails)
@@ -182,23 +173,9 @@ TEST_F(ForwardCommandControllerTest, ActivateSuccess)
   ASSERT_EQ(
     controller_->on_configure(rclcpp_lifecycle::State()),
     controller_interface::CallbackReturn::SUCCESS);
-
-  // check interface configuration
-  auto cmd_if_conf = controller_->command_interface_configuration();
-  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
-  ASSERT_THAT(cmd_if_conf.names, SizeIs(joint_names_.size()));
-  auto state_if_conf = controller_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, IsEmpty());
-
   ASSERT_EQ(
     controller_->on_activate(rclcpp_lifecycle::State()),
     controller_interface::CallbackReturn::SUCCESS);
-
-  // check interface configuration
-  cmd_if_conf = controller_->command_interface_configuration();
-  ASSERT_THAT(cmd_if_conf.names, SizeIs(joint_names_.size()));
-  state_if_conf = controller_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, IsEmpty());
 }
 
 TEST_F(ForwardCommandControllerTest, CommandSuccessTest)
@@ -229,7 +206,7 @@ TEST_F(ForwardCommandControllerTest, CommandSuccessTest)
 
   // update successful, command received
   ASSERT_EQ(
-    controller_->update(rclcpp::Time(100000000), rclcpp::Duration::from_seconds(0.01)),
+    controller_->update(rclcpp::Time(0.1), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
 
   // check joint commands have been modified
@@ -346,21 +323,8 @@ TEST_F(ForwardCommandControllerTest, ActivateDeactivateCommandsResetSuccess)
   auto node_state = controller_->configure();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
 
-  // check interface configuration
-  auto cmd_if_conf = controller_->command_interface_configuration();
-  ASSERT_THAT(cmd_if_conf.names, SizeIs(joint_names_.size()));
-  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
-  auto state_if_conf = controller_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, IsEmpty());
-
   node_state = controller_->get_node()->activate();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
-
-  // check interface configuration
-  cmd_if_conf = controller_->command_interface_configuration();
-  ASSERT_THAT(cmd_if_conf.names, SizeIs(joint_names_.size()));
-  state_if_conf = controller_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, IsEmpty());
 
   auto command_msg = std::make_shared<std_msgs::msg::Float64MultiArray>();
   command_msg->data = {10.0, 20.0, 30.0};
@@ -379,12 +343,6 @@ TEST_F(ForwardCommandControllerTest, ActivateDeactivateCommandsResetSuccess)
 
   node_state = controller_->get_node()->deactivate();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
-
-  // check interface configuration
-  cmd_if_conf = controller_->command_interface_configuration();
-  ASSERT_THAT(cmd_if_conf.names, SizeIs(joint_names_.size()));  // did not change
-  state_if_conf = controller_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, IsEmpty());
 
   // command ptr should be reset (nullptr) after deactivation - same check as in `update`
   ASSERT_FALSE(

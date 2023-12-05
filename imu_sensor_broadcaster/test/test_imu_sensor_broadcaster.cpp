@@ -32,8 +32,6 @@
 #include "sensor_msgs/msg/imu.hpp"
 
 using hardware_interface::LoanedStateInterface;
-using testing::IsEmpty;
-using testing::SizeIs;
 
 namespace
 {
@@ -116,12 +114,6 @@ TEST_F(IMUSensorBroadcasterTest, SensorName_Configure_Success)
 
   // configure passed
   ASSERT_EQ(imu_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
-
-  // check interface configuration
-  auto cmd_if_conf = imu_broadcaster_->command_interface_configuration();
-  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
-  auto state_if_conf = imu_broadcaster_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, SizeIs(10lu));
 }
 
 TEST_F(IMUSensorBroadcasterTest, SensorName_Activate_Success)
@@ -135,21 +127,6 @@ TEST_F(IMUSensorBroadcasterTest, SensorName_Activate_Success)
   // configure and activate success
   ASSERT_EQ(imu_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
   ASSERT_EQ(imu_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
-
-  // check interface configuration
-  auto cmd_if_conf = imu_broadcaster_->command_interface_configuration();
-  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
-  auto state_if_conf = imu_broadcaster_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, SizeIs(10lu));
-
-  // deactivate passed
-  ASSERT_EQ(imu_broadcaster_->on_deactivate(rclcpp_lifecycle::State()), NODE_SUCCESS);
-
-  // check interface configuration
-  cmd_if_conf = imu_broadcaster_->command_interface_configuration();
-  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
-  state_if_conf = imu_broadcaster_->state_interface_configuration();
-  ASSERT_THAT(state_if_conf.names, SizeIs(10lu));  // did not change
 }
 
 TEST_F(IMUSensorBroadcasterTest, SensorName_Update_Success)

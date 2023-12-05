@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "parameter_traits/parameter_traits.hpp"
 #include "rclcpp/parameter.hpp"
 #include "rsl/algorithm.hpp"
 #include "tl_expected/expected.hpp"
@@ -41,7 +42,7 @@ tl::expected<void, std::string> command_interface_type_combinations(
   {
     return tl::make_unexpected(
       "'velocity' command interface can be used either alone or 'position' "
-      "command interface has to be present");
+      "interface has to be present");
   }
 
   if (
@@ -51,7 +52,7 @@ tl::expected<void, std::string> command_interface_type_combinations(
   {
     return tl::make_unexpected(
       "'acceleration' command interface can only be used if 'velocity' and "
-      "'position' command interfaces are present");
+      "'position' interfaces are present");
   }
 
   if (
