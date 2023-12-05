@@ -168,20 +168,18 @@ protected:
 
   rclcpp::Node::SharedPtr pub_node;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_publisher;
-
-  const std::string urdf_ = "";
 };
 
 TEST_F(TestTricycleController, configure_fails_without_parameters)
 {
-  const auto ret = controller_->init(controller_name, urdf_, 0);
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
 }
 
 TEST_F(TestTricycleController, configure_fails_if_only_traction_or_steering_side_defined)
 {
-  const auto ret = controller_->init(controller_name, urdf_, 0);
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
 
   controller_->get_node()->set_parameter(
@@ -201,7 +199,7 @@ TEST_F(TestTricycleController, configure_fails_if_only_traction_or_steering_side
 
 TEST_F(TestTricycleController, configure_succeeds_when_joints_are_specified)
 {
-  const auto ret = controller_->init(controller_name, urdf_, 0);
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
 
   controller_->get_node()->set_parameter(
@@ -228,7 +226,7 @@ TEST_F(TestTricycleController, configure_succeeds_when_joints_are_specified)
 
 TEST_F(TestTricycleController, activate_fails_without_resources_assigned)
 {
-  const auto ret = controller_->init(controller_name, urdf_, 0);
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
 
   controller_->get_node()->set_parameter(
@@ -242,7 +240,7 @@ TEST_F(TestTricycleController, activate_fails_without_resources_assigned)
 
 TEST_F(TestTricycleController, activate_succeeds_with_resources_assigned)
 {
-  const auto ret = controller_->init(controller_name, urdf_, 0);
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
 
   // We implicitly test that by default position feedback is required
@@ -258,7 +256,7 @@ TEST_F(TestTricycleController, activate_succeeds_with_resources_assigned)
 
 TEST_F(TestTricycleController, cleanup)
 {
-  const auto ret = controller_->init(controller_name, urdf_, 0);
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
 
   controller_->get_node()->set_parameter(
@@ -307,7 +305,7 @@ TEST_F(TestTricycleController, cleanup)
 
 TEST_F(TestTricycleController, correct_initialization_using_parameters)
 {
-  const auto ret = controller_->init(controller_name, urdf_, 0);
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::OK);
 
   controller_->get_node()->set_parameter(
