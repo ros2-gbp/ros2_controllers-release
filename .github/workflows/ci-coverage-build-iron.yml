@@ -17,7 +17,7 @@ jobs:
     env:
       ROS_DISTRO: iron
     steps:
-      - uses: ros-tooling/setup-ros@0.7.0
+      - uses: ros-tooling/setup-ros@0.7.1
         with:
           required-ros-distributions: ${{ env.ROS_DISTRO }}
       - uses: actions/checkout@v4
@@ -38,6 +38,7 @@ jobs:
             imu_sensor_broadcaster
             joint_state_broadcaster
             joint_trajectory_controller
+            pid_controller
             position_controllers
             range_sensor_broadcaster
             steering_controllers_library
