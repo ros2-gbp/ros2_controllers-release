@@ -94,6 +94,7 @@ A yaml file for using it could be:
             - position
             - velocity
 
+          state_publish_rate: 50.0
           action_monitor_rate: 20.0
 
           allow_partial_joints_goal: false
