@@ -70,15 +70,13 @@ public:
   JointTrajectoryController();
 
   /**
-   * @brief command_interface_configuration This controller requires the position command
-   * interfaces for the controlled joints
+   * @brief command_interface_configuration
    */
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
   /**
-   * @brief command_interface_configuration This controller requires the position and velocity
-   * state interfaces for the controlled joints
+   * @brief command_interface_configuration
    */
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
@@ -168,11 +166,15 @@ protected:
   std::vector<PidPtr> pids_;
   // Feed-forward velocity weight factor when calculating closed loop pid adapter's command
   std::vector<double> ff_velocity_scale_;
-  // Configuration for every joint, if position error is normalized
-  std::vector<bool> normalize_joint_error_;
+  // Configuration for every joint, if position error is wrapped around
+  std::vector<bool> joints_angle_wraparound_;
   // reserved storage for result of the command when closed loop pid adapter is used
   std::vector<double> tmp_command_;
 
+  // Timeout to consider commands old
+  double cmd_timeout_;
+  // True if holding position or repeating last trajectory point in case of success
+  realtime_tools::RealtimeBuffer<bool> rt_is_holding_;
   // TODO(karsten1987): eventually activate and deactivate subscriber directly when its supported
   bool subscriber_is_active_ = false;
   rclcpp::Subscription<trajectory_msgs::msg::JointTrajectory>::SharedPtr joint_command_subscriber_ =
@@ -180,12 +182,11 @@ protected:
 
   rclcpp::Service<control_msgs::srv::QueryTrajectoryState>::SharedPtr query_state_srv_;
 
-  std::shared_ptr<Trajectory> * traj_point_active_ptr_ = nullptr;
   std::shared_ptr<Trajectory> traj_external_point_ptr_ = nullptr;
-  std::shared_ptr<Trajectory> traj_home_point_ptr_ = nullptr;
-  std::shared_ptr<trajectory_msgs::msg::JointTrajectory> traj_msg_home_ptr_ = nullptr;
   realtime_tools::RealtimeBuffer<std::shared_ptr<trajectory_msgs::msg::JointTrajectory>>
     traj_msg_external_point_ptr_;
+
+  std::shared_ptr<trajectory_msgs::msg::JointTrajectory> hold_position_msg_ptr_ = nullptr;
 
   using ControllerStateMsg = control_msgs::msg::JointTrajectoryControllerState;
   using StatePublisher = realtime_tools::RealtimePublisher<ControllerStateMsg>;
@@ -205,6 +206,7 @@ protected:
 
   rclcpp_action::Server<FollowJTrajAction>::SharedPtr action_server_;
   RealtimeGoalHandleBuffer rt_active_goal_;  ///< Currently active action goal, if any.
+  realtime_tools::RealtimeBuffer<bool> rt_has_pending_goal_;  ///< Is there a pending action goal?
   rclcpp::TimerBase::SharedPtr goal_handle_timer_;
   rclcpp::Duration action_monitor_period_ = rclcpp::Duration(50ms);
 
@@ -246,11 +248,24 @@ protected:
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
   void preempt_active_goal();
+
+  /** @brief set the current position with zero velocity and acceleration as new command
+   */
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
-  void set_hold_position();
+  std::shared_ptr<trajectory_msgs::msg::JointTrajectory> set_hold_position();
+
+  /** @brief set last trajectory point to be repeated at success
+   *
+   * no matter if it has nonzero velocity or acceleration
+   */
+  JOINT_TRAJECTORY_CONTROLLER_PUBLIC
+  std::shared_ptr<trajectory_msgs::msg::JointTrajectory> set_success_trajectory_point();
 
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
   bool reset();
+
+  JOINT_TRAJECTORY_CONTROLLER_PUBLIC
+  bool has_active_trajectory() const;
 
   using JointTrajectoryPoint = trajectory_msgs::msg::JointTrajectoryPoint;
   JOINT_TRAJECTORY_CONTROLLER_PUBLIC
@@ -258,8 +273,14 @@ protected:
     const JointTrajectoryPoint & desired_state, const JointTrajectoryPoint & current_state,
     const JointTrajectoryPoint & state_error);
 
-  void read_state_from_hardware(JointTrajectoryPoint & state);
+  void read_state_from_state_interfaces(JointTrajectoryPoint & state);
 
+  /** Assign values from the command interfaces as state.
+   * This is only possible if command AND state interfaces exist for the same type,
+   *  therefore needs check for both.
+   * @param[out] state to be filled with values from command interfaces.
+   * @return true if all interfaces exists and contain non-NaN values, false otherwise.
+   */
   bool read_state_from_command_interfaces(JointTrajectoryPoint & state);
   bool read_commands_from_command_interfaces(JointTrajectoryPoint & commands);
 
@@ -268,9 +289,12 @@ protected:
     std::shared_ptr<control_msgs::srv::QueryTrajectoryState::Response> response);
 
 private:
+  void update_pids();
+
   bool contains_interface_type(
     const std::vector<std::string> & interface_type_list, const std::string & interface_type);
 
+  void init_hold_position_msg();
   void resize_joint_trajectory_point(
     trajectory_msgs::msg::JointTrajectoryPoint & point, size_t size);
   void resize_joint_trajectory_point_command(
