@@ -14,12 +14,10 @@
 
 #include "joint_trajectory_controller/joint_trajectory_controller.hpp"
 
-#include <stddef.h>
 #include <chrono>
 #include <functional>
 #include <memory>
-#include <ostream>
-#include <ratio>
+
 #include <string>
 #include <vector>
 
@@ -31,17 +29,13 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "joint_trajectory_controller/trajectory.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
+#include "rclcpp/event_handler.hpp"
 #include "rclcpp/logging.hpp"
-#include "rclcpp/parameter.hpp"
 #include "rclcpp/qos.hpp"
-#include "rclcpp/qos_event.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp_action/create_server.hpp"
 #include "rclcpp_action/server_goal_handle.hpp"
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
-#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
-#include "std_msgs/msg/header.hpp"
 
 namespace joint_trajectory_controller
 {
@@ -57,9 +51,6 @@ controller_interface::CallbackReturn JointTrajectoryController::on_init()
     // Create the parameter listener and get the parameters
     param_listener_ = std::make_shared<ParamListener>(get_node());
     params_ = param_listener_->get_params();
-
-    // Set interpolation method from string parameter
-    interpolation_method_ = interpolation_methods::from_string(params_.interpolation_method);
   }
   catch (const std::exception & e)
   {
@@ -68,12 +59,12 @@ controller_interface::CallbackReturn JointTrajectoryController::on_init()
   }
 
   // TODO(christophfroehlich): remove deprecation warning
-  if (params_.allow_nonzero_velocity_at_trajectory_end)
+  if (params_.allow_nonzero_velocity_at_trajectory_end == false)
   {
     RCLCPP_WARN(
       get_node()->get_logger(),
-      "[Deprecated]: \"allow_nonzero_velocity_at_trajectory_end\" is set to "
-      "true. The default behavior will change to false.");
+      "\"allow_nonzero_velocity_at_trajectory_end\" is set to false. (The default behavior changed "
+      "to false, and trajectories might get discarded.)");
   }
 
   return CallbackReturn::SUCCESS;
@@ -141,7 +132,7 @@ controller_interface::return_type JointTrajectoryController::update(
   }
 
   auto compute_error_for_joint = [&](
-                                   JointTrajectoryPoint & error, int index,
+                                   JointTrajectoryPoint & error, size_t index,
                                    const JointTrajectoryPoint & current,
                                    const JointTrajectoryPoint & desired)
   {
@@ -259,20 +250,21 @@ controller_interface::return_type JointTrajectoryController::update(
 
         // Always check the state tolerance on the first sample in case the first sample
         // is the last point
+        // print output per default, goal will be aborted afterwards
         if (
-          (before_last_point || first_sample) &&
+          (before_last_point || first_sample) && *(rt_is_holding_.readFromRT()) == false &&
           !check_state_tolerance_per_joint(
-            state_error_, index, default_tolerances_.state_tolerance[index], false) &&
-          *(rt_is_holding_.readFromRT()) == false)
+            state_error_, index, default_tolerances_.state_tolerance[index],
+            true /* show_errors */))
         {
           tolerance_violated_while_moving = true;
         }
         // past the final point, check that we end up inside goal tolerance
         if (
-          !before_last_point &&
+          !before_last_point && *(rt_is_holding_.readFromRT()) == false &&
           !check_state_tolerance_per_joint(
-            state_error_, index, default_tolerances_.goal_state_tolerance[index], false) &&
-          *(rt_is_holding_.readFromRT()) == false)
+            state_error_, index, default_tolerances_.goal_state_tolerance[index],
+            false /* show_errors */))
         {
           outside_goal_tolerance = true;
 
@@ -281,6 +273,10 @@ controller_interface::return_type JointTrajectoryController::update(
             if (time_difference > default_tolerances_.goal_time_tolerance)
             {
               within_goal_time = false;
+              // print once, goal will be aborted afterwards
+              check_state_tolerance_per_joint(
+                state_error_, index, default_tolerances_.goal_state_tolerance[index],
+                true /* show_errors */);
             }
           }
         }
@@ -374,7 +370,7 @@ controller_interface::return_type JointTrajectoryController::update(
             RCLCPP_INFO(get_node()->get_logger(), "Goal reached, success!");
 
             traj_msg_external_point_ptr_.reset();
-            traj_msg_external_point_ptr_.initRT(set_success_trajectory_point());
+            traj_msg_external_point_ptr_.initRT(set_hold_position());
           }
           else if (!within_goal_time)
           {
@@ -417,7 +413,7 @@ controller_interface::return_type JointTrajectoryController::update(
     }
   }
 
-  publish_state(state_desired_, state_current_, state_error_);
+  publish_state(time, state_desired_, state_current_, state_error_);
   return controller_interface::return_type::OK;
 }
 
@@ -829,40 +825,6 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
       "~/joint_trajectory", rclcpp::SystemDefaultsQoS(),
       std::bind(&JointTrajectoryController::topic_callback, this, std::placeholders::_1));
 
-  // State publisher
-  RCLCPP_INFO(logger, "Controller state will be published at %.2f Hz.", params_.state_publish_rate);
-  if (params_.state_publish_rate > 0.0)
-  {
-    state_publisher_period_ = rclcpp::Duration::from_seconds(1.0 / params_.state_publish_rate);
-  }
-  else
-  {
-    state_publisher_period_ = rclcpp::Duration::from_seconds(0.0);
-  }
-
-  publisher_legacy_ =
-    get_node()->create_publisher<ControllerStateMsg>("~/state", rclcpp::SystemDefaultsQoS());
-  state_publisher_legacy_ = std::make_unique<StatePublisher>(publisher_legacy_);
-
-  state_publisher_legacy_->lock();
-  state_publisher_legacy_->msg_.joint_names = params_.joints;
-  state_publisher_legacy_->msg_.desired.positions.resize(dof_);
-  state_publisher_legacy_->msg_.desired.velocities.resize(dof_);
-  state_publisher_legacy_->msg_.desired.accelerations.resize(dof_);
-  state_publisher_legacy_->msg_.actual.positions.resize(dof_);
-  state_publisher_legacy_->msg_.error.positions.resize(dof_);
-  if (has_velocity_state_interface_)
-  {
-    state_publisher_legacy_->msg_.actual.velocities.resize(dof_);
-    state_publisher_legacy_->msg_.error.velocities.resize(dof_);
-  }
-  if (has_acceleration_state_interface_)
-  {
-    state_publisher_legacy_->msg_.actual.accelerations.resize(dof_);
-    state_publisher_legacy_->msg_.error.accelerations.resize(dof_);
-  }
-  state_publisher_legacy_->unlock();
-
   publisher_ = get_node()->create_publisher<ControllerStateMsg>(
     "~/controller_state", rclcpp::SystemDefaultsQoS());
   state_publisher_ = std::make_unique<StatePublisher>(publisher_);
@@ -900,9 +862,8 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   {
     state_publisher_->msg_.output.effort.resize(dof_);
   }
-  state_publisher_->unlock();
 
-  last_state_publish_time_ = get_node()->now();
+  state_publisher_->unlock();
 
   // action server configuration
   if (params_.allow_partial_joints_goal)
@@ -983,7 +944,6 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
     std::shared_ptr<trajectory_msgs::msg::JointTrajectory>());
 
   subscriber_is_active_ = true;
-  last_state_publish_time_ = get_node()->now();
 
   // Handle restart of controller by reading from commands if those are not NaN (a controller was
   // running already)
@@ -1001,8 +961,11 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
     read_state_from_state_interfaces(last_commanded_state_);
   }
 
-  // The controller should start by holding position at the beginning of active state
-  add_new_trajectory_msg(set_hold_position());
+  // Should the controller start by holding position at the beginning of active state?
+  if (params_.start_with_holding)
+  {
+    add_new_trajectory_msg(set_hold_position());
+  }
   rt_is_holding_.writeFromNonRT(true);
 
   // parse timeout parameter
@@ -1115,53 +1078,12 @@ controller_interface::CallbackReturn JointTrajectoryController::on_shutdown(
 }
 
 void JointTrajectoryController::publish_state(
-  const JointTrajectoryPoint & desired_state, const JointTrajectoryPoint & current_state,
-  const JointTrajectoryPoint & state_error)
+  const rclcpp::Time & time, const JointTrajectoryPoint & desired_state,
+  const JointTrajectoryPoint & current_state, const JointTrajectoryPoint & state_error)
 {
-  if (state_publisher_period_.seconds() <= 0.0)
+  if (state_publisher_->trylock())
   {
-    return;
-  }
-
-  if (get_node()->now() < (last_state_publish_time_ + state_publisher_period_))
-  {
-    return;
-  }
-
-  if (state_publisher_legacy_ && state_publisher_legacy_->trylock())
-  {
-    last_state_publish_time_ = get_node()->now();
-    state_publisher_legacy_->msg_.header.stamp = last_state_publish_time_;
-    state_publisher_legacy_->msg_.desired.positions = desired_state.positions;
-    state_publisher_legacy_->msg_.desired.velocities = desired_state.velocities;
-    state_publisher_legacy_->msg_.desired.accelerations = desired_state.accelerations;
-    state_publisher_legacy_->msg_.actual.positions = current_state.positions;
-    state_publisher_legacy_->msg_.error.positions = state_error.positions;
-    if (has_velocity_state_interface_)
-    {
-      state_publisher_legacy_->msg_.actual.velocities = current_state.velocities;
-      state_publisher_legacy_->msg_.error.velocities = state_error.velocities;
-    }
-    if (has_acceleration_state_interface_)
-    {
-      state_publisher_legacy_->msg_.actual.accelerations = current_state.accelerations;
-      state_publisher_legacy_->msg_.error.accelerations = state_error.accelerations;
-    }
-
-    state_publisher_legacy_->unlockAndPublish();
-
-    if (publisher_legacy_->get_subscription_count())
-    {
-      RCLCPP_WARN_THROTTLE(
-        get_node()->get_logger(), *get_node()->get_clock(), 1000,
-        "Subscription to deprecated ~/state topic. Use ~/controller_state instead.");
-    }
-  }
-
-  if (state_publisher_ && state_publisher_->trylock())
-  {
-    last_state_publish_time_ = get_node()->now();
-    state_publisher_->msg_.header.stamp = last_state_publish_time_;
+    state_publisher_->msg_.header.stamp = time;
     state_publisher_->msg_.reference.positions = desired_state.positions;
     state_publisher_->msg_.reference.velocities = desired_state.velocities;
     state_publisher_->msg_.reference.accelerations = desired_state.accelerations;
@@ -1565,20 +1487,6 @@ JointTrajectoryController::set_hold_position()
   return hold_position_msg_ptr_;
 }
 
-std::shared_ptr<trajectory_msgs::msg::JointTrajectory>
-JointTrajectoryController::set_success_trajectory_point()
-{
-  // set last command to be repeated at success, no matter if it has nonzero velocity or
-  // acceleration
-  hold_position_msg_ptr_->points[0] = traj_external_point_ptr_->get_trajectory_msg()->points.back();
-  hold_position_msg_ptr_->points[0].time_from_start = rclcpp::Duration(0, 0);
-
-  // set flag, otherwise tolerances will be checked with success_trajectory_point too
-  rt_is_holding_.writeFromNonRT(true);
-
-  return hold_position_msg_ptr_;
-}
-
 bool JointTrajectoryController::contains_interface_type(
   const std::vector<std::string> & interface_type_list, const std::string & interface_type)
 {
@@ -1642,20 +1550,7 @@ void JointTrajectoryController::update_pids()
       pids_[i] = std::make_shared<control_toolbox::Pid>(
         gains.p, gains.i, gains.d, gains.i_clamp, -gains.i_clamp);
     }
-    // Check deprecated style for "ff_velocity_scale" parameter definition.
-    if (gains.ff_velocity_scale == 0.0)
-    {
-      RCLCPP_WARN(
-        get_node()->get_logger(),
-        "'ff_velocity_scale' parameters is not defined under 'gains.<joint_name>.' structure. "
-        "Maybe you are using deprecated format 'ff_velocity_scale/<joint_name>'!");
-
-      ff_velocity_scale_[i] = auto_declare<double>("ff_velocity_scale/" + params_.joints[i], 0.0);
-    }
-    else
-    {
-      ff_velocity_scale_[i] = gains.ff_velocity_scale;
-    }
+    ff_velocity_scale_[i] = gains.ff_velocity_scale;
   }
 }
 

@@ -28,7 +28,7 @@ Nothing. This issue is meant to welcome you to Open Source :) We are happy to wa
 
 - [ ] 🙋 **Claim this issue**: Comment below. If someone else has claimed it, ask if they've opened a pull request already and if they're stuck -- maybe you can help them solve a problem or move it along!
 
-- [ ] 🗄️ **Create a local workspace** for making your changes and testing [following these instructions](https://docs.ros.org/en/humble/Tutorials/Workspace/Creating-A-Workspace.html), for Step3 use "Download Source Code" section with [these instructions](https://control.ros.org/humble/doc/getting_started/getting_started.html#building-from-source).
+- [ ] 🗄️ **Create a local workspace** for making your changes and testing [following these instructions](https://docs.ros.org/en/rolling/Tutorials/Workspace/Creating-A-Workspace.html), for Step3 use "Download Source Code" section with [these instructions](https://control.ros.org/master/doc/getting_started/getting_started.html#building-from-source).
 
 - [ ] 🍴 **Fork the repository** using the handy button at the top of the repository page and **clone** it into `~/ws_ros2_control/src/ros-controls/ros2_controllers`, [here is a guide that you can follow](https://guides.github.com/activities/forking/) (You will have to remove or empty the existing `ros2_controllers` folder before cloning your own fork)
 
