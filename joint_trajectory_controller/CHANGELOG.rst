@@ -2,6 +2,9 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.20.1 (2024-01-08)
+-------------------
+
 3.20.0 (2024-01-03)
 -------------------
 * [JTC] Cleanup includes (`#943 <https://github.com/ros-controls/ros2_controllers/issues/943>`_) (`#960 <https://github.com/ros-controls/ros2_controllers/issues/960>`_)
