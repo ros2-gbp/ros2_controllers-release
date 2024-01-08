@@ -243,7 +243,7 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   // it should still be holding the position at time of deactivation
   // i.e., active but trivial trajectory (one point only)
   traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.1));
-  expectCommandPoint(deactivated_positions);
+  expectHoldingPoint(deactivated_positions);
 
   executor.cancel();
 }
@@ -440,21 +440,40 @@ TEST_P(TrajectoryControllerTestParameterized, update_dynamic_tolerances)
 }
 
 /**
+ * @brief check if hold on startup is deactivated
+ */
+TEST_P(TrajectoryControllerTestParameterized, no_hold_on_startup)
+{
+  rclcpp::executors::MultiThreadedExecutor executor;
+
+  rclcpp::Parameter start_with_holding_parameter("start_with_holding", false);
+  SetUpAndActivateTrajectoryController(executor, {start_with_holding_parameter});
+
+  constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
+  updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME));
+  // after startup without start_with_holding being set, we expect no active trajectory
+  ASSERT_FALSE(traj_controller_->has_active_traj());
+
+  executor.cancel();
+}
+
+/**
  * @brief check if hold on startup
  */
 TEST_P(TrajectoryControllerTestParameterized, hold_on_startup)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
 
-  SetUpAndActivateTrajectoryController(executor, {});
+  rclcpp::Parameter start_with_holding_parameter("start_with_holding", true);
+  SetUpAndActivateTrajectoryController(executor, {start_with_holding_parameter});
 
   constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
   updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME));
-  // after startup, we expect an active trajectory:
+  // after startup with start_with_holding being set, we expect an active trajectory:
   ASSERT_TRUE(traj_controller_->has_active_traj());
   // one point, being the position at startup
   std::vector<double> initial_positions{INITIAL_POS_JOINT1, INITIAL_POS_JOINT2, INITIAL_POS_JOINT3};
-  expectCommandPoint(initial_positions);
+  expectHoldingPoint(initial_positions);
 
   executor.cancel();
 }
@@ -814,12 +833,12 @@ TEST_P(TrajectoryControllerTestParameterized, timeout)
   // should hold last position with zero velocity
   if (traj_controller_->has_position_command_interface())
   {
-    expectCommandPoint(points.at(2));
+    expectHoldingPoint(points.at(2));
   }
   else
   {
     // no integration to position state interface from velocity/acceleration
-    expectCommandPoint(INITIAL_POS_JOINTS);
+    expectHoldingPoint(INITIAL_POS_JOINTS);
   }
 
   executor.cancel();
@@ -1790,7 +1809,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_state_tolerances_fail)
   updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME));
 
   // it should have aborted and be holding now
-  expectCommandPoint(joint_state_pos_);
+  expectHoldingPoint(joint_state_pos_);
 }
 
 TEST_P(TrajectoryControllerTestParameterized, test_goal_tolerances_fail)
@@ -1822,14 +1841,14 @@ TEST_P(TrajectoryControllerTestParameterized, test_goal_tolerances_fail)
   auto end_time = updateControllerAsync(rclcpp::Duration(4 * FIRST_POINT_TIME));
 
   // it should have aborted and be holding now
-  expectCommandPoint(joint_state_pos_);
+  expectHoldingPoint(joint_state_pos_);
 
   // what happens if we wait longer but it harms the tolerance again?
   auto hold_position = joint_state_pos_;
   joint_state_pos_.at(0) = -3.3;
   updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME), end_time);
   // it should be still holding the old point
-  expectCommandPoint(hold_position);
+  expectHoldingPoint(hold_position);
 }
 
 // position controllers
