@@ -2,6 +2,15 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.31.0 (2024-01-11)
+-------------------
+* [JTC] Remove read_only from 'joints', 'state_interfaces' and 'command_interfaces' parameters (`#967 <https://github.com/ros-controls/ros2_controllers/issues/967>`_) (`#968 <https://github.com/ros-controls/ros2_controllers/issues/968>`_)
+* [JTC] Add console output for tolerance checks (backport `#932 <https://github.com/ros-controls/ros2_controllers/issues/932>`_) (`#938 <https://github.com/ros-controls/ros2_controllers/issues/938>`_)
+* [JTC] Cleanup includes (`#943 <https://github.com/ros-controls/ros2_controllers/issues/943>`_) (`#959 <https://github.com/ros-controls/ros2_controllers/issues/959>`_)
+* Fix whitespace
+* Add rqt_JTC to docs (`#950 <https://github.com/ros-controls/ros2_controllers/issues/950>`_) (`#952 <https://github.com/ros-controls/ros2_controllers/issues/952>`_)
+* Contributors: Bence Magyar, mergify[bot]
+
 2.30.0 (2023-12-20)
 -------------------
 * Fix floating point comparison in JTC (backport `#879 <https://github.com/ros-controls/ros2_controllers/issues/879>`_)
@@ -26,7 +35,7 @@ Changelog for package joint_trajectory_controller
 * [JTC] Tolerance tests + Hold on time violation (backport `#613 <https://github.com/ros-controls/ros2_controllers/issues/613>`_)
 * [JTC] Explicitly set hold position (backport `#558 <https://github.com/ros-controls/ros2_controllers/issues/558>`_)
 * [Doc] Fix links (backport `#715 <https://github.com/ros-controls/ros2_controllers/issues/715>`_)
-* Contributors: Christoph Fröhlich, Dr Denis Stogl, Bence Magyar, Abishalini Sivaraman	
+* Contributors: Christoph Fröhlich, Dr Denis Stogl, Bence Magyar, Abishalini Sivaraman
 
 2.29.0 (2023-12-05)
 -------------------
