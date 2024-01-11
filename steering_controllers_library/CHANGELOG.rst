@@ -2,30 +2,27 @@
 Changelog for package steering_controllers_library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.20.2 (2024-01-11)
--------------------
+4.4.0 (2024-01-11)
+------------------
 
-3.20.1 (2024-01-08)
--------------------
-* Fix ackermann steering odometry (`#921 <https://github.com/ros-controls/ros2_controllers/issues/921>`_) (`#956 <https://github.com/ros-controls/ros2_controllers/issues/956>`_)
-* Contributors: mergify[bot]
+4.3.0 (2024-01-08)
+------------------
+* Add few warning flags to error (`#961 <https://github.com/ros-controls/ros2_controllers/issues/961>`_)
+* Fix ackermann steering odometry (`#921 <https://github.com/ros-controls/ros2_controllers/issues/921>`_)
+* Changing default int values to double in steering controller's yaml file (`#927 <https://github.com/ros-controls/ros2_controllers/issues/927>`_)
+* Contributors: Franz Rammerstorfer, Reza Kermani, Sai Kishor Kothakota
 
-3.20.0 (2024-01-03)
--------------------
-* Changing default int values to double in steering controller's yaml file (`#927 <https://github.com/ros-controls/ros2_controllers/issues/927>`_) (`#929 <https://github.com/ros-controls/ros2_controllers/issues/929>`_)
-* Contributors: mergify[bot]
+4.2.0 (2023-12-12)
+------------------
 
-3.19.2 (2023-12-12)
--------------------
+4.1.0 (2023-12-01)
+------------------
 
-3.19.1 (2023-12-05)
--------------------
-
-3.19.0 (2023-12-01)
--------------------
-
-3.18.0 (2023-11-21)
--------------------
+4.0.0 (2023-11-21)
+------------------
+* fix tests for API break of passing controller manager update rate in init method (`#854 <https://github.com/ros-controls/ros2_controllers/issues/854>`_)
+* Adjust tests after passing URDF to controllers (`#817 <https://github.com/ros-controls/ros2_controllers/issues/817>`_)
+* Contributors: Bence Magyar, Sai Kishor Kothakota
 
 3.17.0 (2023-10-31)
 -------------------
