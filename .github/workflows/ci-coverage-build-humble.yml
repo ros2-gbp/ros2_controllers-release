@@ -17,7 +17,7 @@ jobs:
     env:
       ROS_DISTRO: humble
     steps:
-      - uses: ros-tooling/setup-ros@0.7.1
+      - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ env.ROS_DISTRO }}
       - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
           file: ros_ws/lcov/total_coverage.info
           flags: unittests
           name: codecov-umbrella
-      - uses: actions/upload-artifact@v4.0.0
+      - uses: actions/upload-artifact@v4
         with:
           name: colcon-logs-coverage-humble
           path: ros_ws/log
