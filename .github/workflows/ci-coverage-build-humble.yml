@@ -38,7 +38,6 @@ jobs:
             imu_sensor_broadcaster
             joint_state_broadcaster
             joint_trajectory_controller
-            pid_controller
             position_controllers
             range_sensor_broadcaster
             steering_controllers_library
@@ -60,7 +59,7 @@ jobs:
           file: ros_ws/lcov/total_coverage.info
           flags: unittests
           name: codecov-umbrella
-      - uses: actions/upload-artifact@v4.0.0
+      - uses: actions/upload-artifact@v4.1.0
         with:
           name: colcon-logs-coverage-humble
           path: ros_ws/log

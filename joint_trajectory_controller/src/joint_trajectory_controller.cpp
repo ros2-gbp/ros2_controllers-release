@@ -58,6 +58,15 @@ controller_interface::CallbackReturn JointTrajectoryController::on_init()
     return CallbackReturn::ERROR;
   }
 
+  // TODO(christophfroehlich): remove deprecation warning
+  if (params_.allow_nonzero_velocity_at_trajectory_end == false)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "\"allow_nonzero_velocity_at_trajectory_end\" is set to false. (The default behavior changed "
+      "to false, and trajectories might get discarded.)");
+  }
+
   return CallbackReturn::SUCCESS;
 }
 
@@ -361,7 +370,7 @@ controller_interface::return_type JointTrajectoryController::update(
             RCLCPP_INFO(get_node()->get_logger(), "Goal reached, success!");
 
             traj_msg_external_point_ptr_.reset();
-            traj_msg_external_point_ptr_.initRT(set_success_trajectory_point());
+            traj_msg_external_point_ptr_.initRT(set_hold_position());
           }
           else if (!within_goal_time)
           {
@@ -723,7 +732,16 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   for (size_t i = 0; i < dof_; ++i)
   {
     const auto & gains = params_.gains.joints_map.at(params_.joints[i]);
-    joints_angle_wraparound_[i] = gains.angle_wraparound;
+    if (gains.normalize_error)
+    {
+      // TODO(anyone): Remove deprecation warning in the end of 2023
+      RCLCPP_INFO(logger, "`normalize_error` is deprecated, use `angle_wraparound` instead!");
+      joints_angle_wraparound_[i] = gains.normalize_error;
+    }
+    else
+    {
+      joints_angle_wraparound_[i] = gains.angle_wraparound;
+    }
   }
 
   if (params_.state_interfaces.empty())
@@ -943,8 +961,11 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
     read_state_from_state_interfaces(last_commanded_state_);
   }
 
-  // The controller should start by holding position at the beginning of active state
-  add_new_trajectory_msg(set_hold_position());
+  // Should the controller start by holding position at the beginning of active state?
+  if (params_.start_with_holding)
+  {
+    add_new_trajectory_msg(set_hold_position());
+  }
   rt_is_holding_.writeFromNonRT(true);
 
   // parse timeout parameter
@@ -1471,20 +1492,6 @@ JointTrajectoryController::set_hold_position()
   hold_position_msg_ptr_->points[0].positions = state_current_.positions;
 
   // set flag, otherwise tolerances will be checked with holding position too
-  rt_is_holding_.writeFromNonRT(true);
-
-  return hold_position_msg_ptr_;
-}
-
-std::shared_ptr<trajectory_msgs::msg::JointTrajectory>
-JointTrajectoryController::set_success_trajectory_point()
-{
-  // set last command to be repeated at success, no matter if it has nonzero velocity or
-  // acceleration
-  hold_position_msg_ptr_->points[0] = traj_external_point_ptr_->get_trajectory_msg()->points.back();
-  hold_position_msg_ptr_->points[0].time_from_start = rclcpp::Duration(0, 0);
-
-  // set flag, otherwise tolerances will be checked with success_trajectory_point too
   rt_is_holding_.writeFromNonRT(true);
 
   return hold_position_msg_ptr_;

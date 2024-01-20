@@ -39,6 +39,7 @@ namespace
 {
 constexpr auto NODE_SUCCESS = controller_interface::CallbackReturn::SUCCESS;
 constexpr auto NODE_ERROR = controller_interface::CallbackReturn::ERROR;
+
 }  // namespace
 
 void IMUSensorBroadcasterTest::SetUpTestCase() {}
@@ -55,7 +56,7 @@ void IMUSensorBroadcasterTest::TearDown() { imu_broadcaster_.reset(nullptr); }
 
 void IMUSensorBroadcasterTest::SetUpIMUBroadcaster()
 {
-  const auto result = imu_broadcaster_->init("test_imu_sensor_broadcaster", "", 0);
+  const auto result = imu_broadcaster_->init("test_imu_sensor_broadcaster");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedStateInterface> state_ifs;
