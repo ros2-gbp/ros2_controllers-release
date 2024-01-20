@@ -1,21 +1,26 @@
-name: Iron RHEL Binary Build
+name: Galactic RHEL Binary Build
 on:
   workflow_dispatch:
+    branches:
+      - galactic
+  pull_request:
+    branches:
+      - galactic
   push:
     branches:
-      - iron
+      - galactic
   schedule:
     # Run every day to detect flakiness and broken dependencies
     - cron: '03 1 * * *'
 
 
 jobs:
-  iron_rhel_binary:
-    name: Iron RHEL binary build
+  galactic_rhel_binary:
+    name: Galactic RHEL binary build
     runs-on: ubuntu-latest
     env:
-      ROS_DISTRO: iron
-    container: ghcr.io/ros-controls/ros:iron-rhel
+      ROS_DISTRO: galactic
+    container: ghcr.io/ros-controls/ros:galactic-rhel
     steps:
       - uses: actions/checkout@v4
         with:

@@ -198,7 +198,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
@@ -219,7 +218,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 
   sensor_range_ = 4.0;
   subscribe_and_get_message(range_msg);
@@ -230,7 +228,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Success)
@@ -252,7 +249,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Succe
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 
   sensor_range_ = 6.0;
   subscribe_and_get_message(range_msg);
@@ -264,7 +260,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Succe
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 }
 
 int main(int argc, char ** argv)

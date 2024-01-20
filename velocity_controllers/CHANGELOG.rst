@@ -2,98 +2,78 @@
 Changelog for package velocity_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.21.0 (2024-01-20)
+2.32.0 (2024-01-20)
 -------------------
 
-3.20.2 (2024-01-11)
+2.31.0 (2024-01-11)
 -------------------
 
-3.20.1 (2024-01-08)
+2.30.0 (2023-12-20)
 -------------------
 
-3.20.0 (2024-01-03)
+2.29.0 (2023-12-05)
 -------------------
 
-3.19.2 (2023-12-12)
+2.28.0 (2023-11-30)
 -------------------
 
-3.19.1 (2023-12-05)
+2.27.0 (2023-11-14)
 -------------------
 
-3.19.0 (2023-12-01)
+2.26.0 (2023-10-03)
+-------------------
+* [Doc] Add specific documentation on the available fw cmd controllers (`#765 <https://github.com/ros-controls/ros2_controllers/issues/765>`_) (`#778 <https://github.com/ros-controls/ros2_controllers/issues/778>`_)
+* Contributors: mergify[bot]
+
+2.25.0 (2023-09-15)
 -------------------
 
-3.18.0 (2023-11-21)
+2.24.0 (2023-08-07)
 -------------------
 
-3.17.0 (2023-10-31)
+2.23.0 (2023-06-23)
 -------------------
-
-3.16.0 (2023-09-20)
--------------------
-* [Doc] Add specific documentation on the available fw cmd controllers (`#765 <https://github.com/ros-controls/ros2_controllers/issues/765>`_)
-* Contributors: Christoph Fröhlich
-
-3.15.0 (2023-09-11)
--------------------
-
-3.14.0 (2023-08-16)
--------------------
-
-3.13.0 (2023-08-04)
--------------------
-
-3.12.0 (2023-07-18)
--------------------
-
-3.11.0 (2023-06-24)
--------------------
-* Added -Wconversion flag and fix warnings (`#667 <https://github.com/ros-controls/ros2_controllers/issues/667>`_)
-* Contributors: gwalck
-
-3.10.1 (2023-06-06)
--------------------
-
-3.10.0 (2023-06-04)
--------------------
-
-3.9.0 (2023-05-28)
-------------------
-* Use branch name substitution for all links (`#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_)
-* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_)
-* Contributors: Christoph Fröhlich
-
-3.8.0 (2023-05-14)
-------------------
-
-3.7.0 (2023-05-02)
-------------------
-
-3.6.0 (2023-04-29)
-------------------
-* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_)
+* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_) (`#677 <https://github.com/ros-controls/ros2_controllers/issues/677>`_)
 * Contributors: Bence Magyar
 
-3.5.0 (2023-04-14)
-------------------
+2.22.0 (2023-06-14)
+-------------------
+* Docs: Use branch name substitution for all links (backport `#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_) (`#633 <https://github.com/ros-controls/ros2_controllers/issues/633>`_)
+* Contributors: Christoph Fröhlich
 
-3.4.0 (2023-04-02)
-------------------
+2.21.0 (2023-05-28)
+-------------------
+* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_) (`#617 <https://github.com/ros-controls/ros2_controllers/issues/617>`_)
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_) (`#605 <https://github.com/ros-controls/ros2_controllers/issues/605>`_)
+* Contributors: Felix Exner (fexner), Christoph Fröhlich
 
-3.3.0 (2023-03-07)
-------------------
+2.20.0 (2023-05-14)
+-------------------
 
-3.2.0 (2023-02-10)
-------------------
-* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
-* Contributors: Tyler Weaver, Chris Thrasher
+2.19.0 (2023-05-02)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
+2.18.0 (2023-04-29)
+-------------------
 
-3.0.0 (2023-01-19)
-------------------
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
+2.17.3 (2023-04-14)
+-------------------
+
+2.17.2 (2023-03-07)
+-------------------
+
+2.17.1 (2023-02-20)
+-------------------
+
+2.17.0 (2023-02-13)
+-------------------
+
+2.16.1 (2023-01-31)
+-------------------
+
+2.16.0 (2023-01-19)
+-------------------
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
 * Contributors: Bence Magyar
 
 2.15.0 (2022-12-06)
