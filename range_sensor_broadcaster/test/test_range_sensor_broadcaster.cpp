@@ -37,7 +37,7 @@ controller_interface::return_type RangeSensorBroadcasterTest::init_broadcaster(
   std::string broadcaster_name)
 {
   controller_interface::return_type result = controller_interface::return_type::ERROR;
-  result = range_broadcaster_->init(broadcaster_name);
+  result = range_broadcaster_->init(broadcaster_name, "", 0);
 
   if (controller_interface::return_type::OK == result)
   {
@@ -154,8 +154,10 @@ TEST_F(RangeSensorBroadcasterTest, ActivateDeactivate_RangeBroadcaster_Success)
   // check interface configuration
   auto cmd_if_conf = range_broadcaster_->command_interface_configuration();
   ASSERT_THAT(cmd_if_conf.names, IsEmpty());
+  ASSERT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::NONE);
   auto state_if_conf = range_broadcaster_->state_interface_configuration();
   ASSERT_THAT(state_if_conf.names, SizeIs(1lu));
+  ASSERT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
 
   ASSERT_EQ(
     range_broadcaster_->on_deactivate(rclcpp_lifecycle::State()),
@@ -164,8 +166,10 @@ TEST_F(RangeSensorBroadcasterTest, ActivateDeactivate_RangeBroadcaster_Success)
   // check interface configuration
   cmd_if_conf = range_broadcaster_->command_interface_configuration();
   ASSERT_THAT(cmd_if_conf.names, IsEmpty());
+  ASSERT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::NONE);
   state_if_conf = range_broadcaster_->state_interface_configuration();
   ASSERT_THAT(state_if_conf.names, SizeIs(1lu));  // did not change
+  ASSERT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
 }
 
 TEST_F(RangeSensorBroadcasterTest, Update_RangeBroadcaster_Success)
@@ -198,6 +202,7 @@ TEST_F(RangeSensorBroadcasterTest, Publish_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
@@ -218,6 +223,7 @@ TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 
   sensor_range_ = 4.0;
   subscribe_and_get_message(range_msg);
@@ -228,6 +234,7 @@ TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Success)
@@ -249,6 +256,7 @@ TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Succe
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 
   sensor_range_ = 6.0;
   subscribe_and_get_message(range_msg);
@@ -260,6 +268,7 @@ TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Succe
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
 }
 
 int main(int argc, char ** argv)

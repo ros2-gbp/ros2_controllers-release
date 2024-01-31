@@ -1,16 +1,20 @@
-name: Galactic Semi-Binary Build - main
+name: Iron Semi-Binary Build - testing
 # description: 'Build & test that compiles the main dependencies from source.'
 
 on:
   workflow_dispatch:
     branches:
-      - galactic
+      - iron
+      - '*feature*'
+      - '*feature/**'
   pull_request:
     branches:
-      - galactic
+      - iron
+      - '*feature*'
+      - '*feature/**'
   push:
     branches:
-      - galactic
+      - iron
   schedule:
     # Run every morning to detect flakiness and broken dependencies
     - cron: '33 1 * * *'
@@ -19,7 +23,7 @@ jobs:
   semi_binary:
     uses: ./.github/workflows/reusable-industrial-ci-with-cache.yml
     with:
-      ros_distro: galactic
-      ros_repo: main
-      upstream_workspace: ros2_controllers.galactic.repos
-      ref_for_scheduled_build: galactic
+      ros_distro: iron
+      ros_repo: testing
+      upstream_workspace: ros2_controllers.iron.repos
+      ref_for_scheduled_build: iron
