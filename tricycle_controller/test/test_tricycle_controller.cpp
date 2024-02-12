@@ -41,12 +41,6 @@ using lifecycle_msgs::msg::State;
 using testing::SizeIs;
 using testing::UnorderedElementsAre;
 
-namespace
-{
-const char traction_joint_name[] = "traction_joint";
-const char steering_joint_name[] = "steering_joint";
-}  // namespace
-
 class TestableTricycleController : public tricycle_controller::TricycleController
 {
 public:
@@ -152,28 +146,11 @@ protected:
     controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
   }
 
-  controller_interface::return_type InitController(
-    const std::string traction_joint_name_init = traction_joint_name,
-    const std::string steering_joint_name_init = steering_joint_name,
-    const std::vector<rclcpp::Parameter> & parameters = {})
-  {
-    auto node_options = rclcpp::NodeOptions();
-    std::vector<rclcpp::Parameter> parameter_overrides;
-
-    parameter_overrides.push_back(
-      rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(traction_joint_name_init)));
-    parameter_overrides.push_back(
-      rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(steering_joint_name_init)));
-
-    parameter_overrides.insert(parameter_overrides.end(), parameters.begin(), parameters.end());
-    node_options.parameter_overrides(parameter_overrides);
-
-    return controller_->init(controller_name, urdf_, 0, "", node_options);
-  }
-
   const std::string controller_name = "test_tricycle_controller";
   std::unique_ptr<TestableTricycleController> controller_;
 
+  const std::string traction_joint_name = "traction_joint";
+  const std::string steering_joint_name = "steering_joint";
   double position_ = 0.1;
   double velocity_ = 0.2;
 
@@ -191,29 +168,44 @@ protected:
 
   rclcpp::Node::SharedPtr pub_node;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_publisher;
-
-  const std::string urdf_ = "";
 };
 
-TEST_F(TestTricycleController, init_fails_without_parameters)
+TEST_F(TestTricycleController, configure_fails_without_parameters)
 {
-  const auto ret =
-    controller_->init(controller_name, urdf_, 0, "", controller_->define_custom_node_options());
-  ASSERT_EQ(ret, controller_interface::return_type::ERROR);
+  const auto ret = controller_->init(controller_name);
+  ASSERT_EQ(ret, controller_interface::return_type::OK);
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
 }
 
-TEST_F(TestTricycleController, init_fails_if_only_traction_or_steering_side_defined)
+TEST_F(TestTricycleController, configure_fails_if_only_traction_or_steering_side_defined)
 {
-  ASSERT_EQ(
-    InitController(traction_joint_name, std::string()), controller_interface::return_type::ERROR);
+  const auto ret = controller_->init(controller_name);
+  ASSERT_EQ(ret, controller_interface::return_type::OK);
 
-  ASSERT_EQ(
-    InitController(std::string(), steering_joint_name), controller_interface::return_type::ERROR);
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(traction_joint_name)));
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(std::string())));
+
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
+
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(std::string())));
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(steering_joint_name)));
+
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
 }
 
 TEST_F(TestTricycleController, configure_succeeds_when_joints_are_specified)
 {
-  ASSERT_EQ(InitController(), controller_interface::return_type::OK);
+  const auto ret = controller_->init(controller_name);
+  ASSERT_EQ(ret, controller_interface::return_type::OK);
+
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(traction_joint_name)));
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(steering_joint_name)));
 
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
@@ -221,22 +213,26 @@ TEST_F(TestTricycleController, configure_succeeds_when_joints_are_specified)
   auto cmd_if_conf = controller_->command_interface_configuration();
   ASSERT_THAT(cmd_if_conf.names, SizeIs(2lu));
   ASSERT_THAT(
-    cmd_if_conf.names, UnorderedElementsAre(
-                         std::string(traction_joint_name) + "/velocity",
-                         std::string(steering_joint_name) + "/position"));
+    cmd_if_conf.names,
+    UnorderedElementsAre(traction_joint_name + "/velocity", steering_joint_name + "/position"));
   EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
   auto state_if_conf = controller_->state_interface_configuration();
   ASSERT_THAT(state_if_conf.names, SizeIs(2lu));
   ASSERT_THAT(
-    state_if_conf.names, UnorderedElementsAre(
-                           std::string(traction_joint_name) + "/velocity",
-                           std::string(steering_joint_name) + "/position"));
+    state_if_conf.names,
+    UnorderedElementsAre(traction_joint_name + "/velocity", steering_joint_name + "/position"));
   EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
 }
 
 TEST_F(TestTricycleController, activate_fails_without_resources_assigned)
 {
-  ASSERT_EQ(InitController(), controller_interface::return_type::OK);
+  const auto ret = controller_->init(controller_name);
+  ASSERT_EQ(ret, controller_interface::return_type::OK);
+
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(traction_joint_name)));
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(steering_joint_name)));
 
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
   ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
@@ -244,9 +240,15 @@ TEST_F(TestTricycleController, activate_fails_without_resources_assigned)
 
 TEST_F(TestTricycleController, activate_succeeds_with_resources_assigned)
 {
-  ASSERT_EQ(InitController(), controller_interface::return_type::OK);
+  const auto ret = controller_->init(controller_name);
+  ASSERT_EQ(ret, controller_interface::return_type::OK);
 
   // We implicitly test that by default position feedback is required
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(traction_joint_name)));
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(steering_joint_name)));
+
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
   assignResources();
   ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
@@ -254,11 +256,15 @@ TEST_F(TestTricycleController, activate_succeeds_with_resources_assigned)
 
 TEST_F(TestTricycleController, cleanup)
 {
-  ASSERT_EQ(
-    InitController(
-      traction_joint_name, steering_joint_name,
-      {rclcpp::Parameter("wheelbase", 1.2), rclcpp::Parameter("wheel_radius", 0.12)}),
-    controller_interface::return_type::OK);
+  const auto ret = controller_->init(controller_name);
+  ASSERT_EQ(ret, controller_interface::return_type::OK);
+
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(traction_joint_name)));
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(steering_joint_name)));
+  controller_->get_node()->set_parameter(rclcpp::Parameter("wheelbase", 1.2));
+  controller_->get_node()->set_parameter(rclcpp::Parameter("wheel_radius", 0.12));
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
@@ -299,11 +305,15 @@ TEST_F(TestTricycleController, cleanup)
 
 TEST_F(TestTricycleController, correct_initialization_using_parameters)
 {
-  ASSERT_EQ(
-    InitController(
-      traction_joint_name, steering_joint_name,
-      {rclcpp::Parameter("wheelbase", 0.4), rclcpp::Parameter("wheel_radius", 1.0)}),
-    controller_interface::return_type::OK);
+  const auto ret = controller_->init(controller_name);
+  ASSERT_EQ(ret, controller_interface::return_type::OK);
+
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("traction_joint_name", rclcpp::ParameterValue(traction_joint_name)));
+  controller_->get_node()->set_parameter(
+    rclcpp::Parameter("steering_joint_name", rclcpp::ParameterValue(steering_joint_name)));
+  controller_->get_node()->set_parameter(rclcpp::Parameter("wheelbase", 0.4));
+  controller_->get_node()->set_parameter(rclcpp::Parameter("wheel_radius", 1.0));
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
