@@ -2,103 +2,83 @@
 Changelog for package range_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.7.0 (2024-03-22)
-------------------
-* added conditioning to have rolling tags compilable in older versions (`#1071 <https://github.com/ros-controls/ros2_controllers/issues/1071>`_)
-* Contributors: Sai Kishor Kothakota
+2.34.0 (2024-04-01)
+-------------------
+* Let sphinx add parameter description with nested structures to documentation (backport `#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1005 <https://github.com/ros-controls/ros2_controllers/issues/1005>`_)
+* Contributors: mergify[bot]
 
-4.6.0 (2024-02-12)
-------------------
-* Add test_depend on `hardware_interface_testing` (`#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_)
-* Fix tests for using new `get_node_options` API (`#840 <https://github.com/ros-controls/ros2_controllers/issues/840>`_)
-* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
+2.33.0 (2024-02-12)
+-------------------
+* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>`_)
+* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>`_)
+* Contributors: mergify[bot]
 
-4.5.0 (2024-01-31)
-------------------
-* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_)
-* Let sphinx add parameter description with nested structures to documentation (`#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_)
-* Contributors: Christoph Fröhlich
+2.32.0 (2024-01-20)
+-------------------
+* Increase test coverage of interface configuration getters (`#856 <https://github.com/ros-controls/ros2_controllers/issues/856>`_) (`#865 <https://github.com/ros-controls/ros2_controllers/issues/865>`_)
+* Contributors: mergify[bot]
 
-4.4.0 (2024-01-11)
-------------------
-
-4.3.0 (2024-01-08)
-------------------
-* Add few warning flags to error (`#961 <https://github.com/ros-controls/ros2_controllers/issues/961>`_)
-* Contributors: Sai Kishor Kothakota
-
-4.2.0 (2023-12-12)
-------------------
-
-4.1.0 (2023-12-01)
-------------------
-* Increase test coverage of interface configuration getters (`#856 <https://github.com/ros-controls/ros2_controllers/issues/856>`_)
-* Contributors: Christoph Fröhlich
-
-4.0.0 (2023-11-21)
-------------------
-* fix tests for API break of passing controller manager update rate in init method (`#854 <https://github.com/ros-controls/ros2_controllers/issues/854>`_)
-* Adjust tests after passing URDF to controllers (`#817 <https://github.com/ros-controls/ros2_controllers/issues/817>`_)
-* Contributors: Bence Magyar, Sai Kishor Kothakota
-
-3.17.0 (2023-10-31)
+2.31.0 (2024-01-11)
 -------------------
 
-3.16.0 (2023-09-20)
+2.30.0 (2023-12-20)
 -------------------
 
-3.15.0 (2023-09-11)
--------------------
-* add a broadcaster for range sensor (`#725 <https://github.com/ros-controls/ros2_controllers/issues/725>`_)
-* Contributors: flochre
-
-3.14.0 (2023-08-16)
+2.29.0 (2023-12-05)
 -------------------
 
-3.13.0 (2023-08-04)
+2.28.0 (2023-11-30)
 -------------------
 
-3.12.0 (2023-07-18)
+2.27.0 (2023-11-14)
 -------------------
 
-3.11.0 (2023-06-24)
+2.26.0 (2023-10-03)
+-------------------
+* add a broadcaster for range sensor (backport `#725 <https://github.com/ros-controls/ros2_controllers/issues/725>`_) (`#766 <https://github.com/ros-controls/ros2_controllers/issues/766>`_)
+* Contributors: mergify[bot]
+
+2.25.0 (2023-09-15)
 -------------------
 
-3.10.1 (2023-06-06)
+2.24.0 (2023-08-07)
 -------------------
 
-3.10.0 (2023-06-04)
+2.23.0 (2023-06-23)
 -------------------
 
-3.9.0 (2023-05-28)
-------------------
+2.22.0 (2023-06-14)
+-------------------
 
-3.8.0 (2023-05-14)
-------------------
+2.21.0 (2023-05-28)
+-------------------
 
-3.7.0 (2023-05-02)
-------------------
+2.20.0 (2023-05-14)
+-------------------
 
-3.6.0 (2023-04-29)
-------------------
+2.19.0 (2023-05-02)
+-------------------
 
-3.5.0 (2023-04-14)
-------------------
+2.18.0 (2023-04-29)
+-------------------
 
-3.4.0 (2023-04-02)
-------------------
+2.17.3 (2023-04-14)
+-------------------
 
-3.3.0 (2023-03-07)
-------------------
+2.17.2 (2023-03-07)
+-------------------
 
-3.2.0 (2023-02-10)
-------------------
+2.17.1 (2023-02-20)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
+2.17.0 (2023-02-13)
+-------------------
 
-3.0.0 (2023-01-19)
-------------------
+2.16.1 (2023-01-31)
+-------------------
+
+2.16.0 (2023-01-19)
+-------------------
 
 2.15.0 (2022-12-06)
 -------------------

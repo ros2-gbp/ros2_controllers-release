@@ -2,106 +2,86 @@
 Changelog for package velocity_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.7.0 (2024-03-22)
-------------------
-
-4.6.0 (2024-02-12)
-------------------
-* Add test_depend on `hardware_interface_testing` (`#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_)
-* Fix tests for using new `get_node_options` API (`#840 <https://github.com/ros-controls/ros2_controllers/issues/840>`_)
-* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
-
-4.5.0 (2024-01-31)
-------------------
-
-4.4.0 (2024-01-11)
-------------------
-
-4.3.0 (2024-01-08)
-------------------
-* Add few warning flags to error (`#961 <https://github.com/ros-controls/ros2_controllers/issues/961>`_)
-* Contributors: Sai Kishor Kothakota
-
-4.2.0 (2023-12-12)
-------------------
-
-4.1.0 (2023-12-01)
-------------------
-
-4.0.0 (2023-11-21)
-------------------
-* fix tests for API break of passing controller manager update rate in init method (`#854 <https://github.com/ros-controls/ros2_controllers/issues/854>`_)
-* Adjust tests after passing URDF to controllers (`#817 <https://github.com/ros-controls/ros2_controllers/issues/817>`_)
-* Contributors: Bence Magyar, Sai Kishor Kothakota
-
-3.17.0 (2023-10-31)
+2.34.0 (2024-04-01)
 -------------------
 
-3.16.0 (2023-09-20)
+2.33.0 (2024-02-12)
 -------------------
-* [Doc] Add specific documentation on the available fw cmd controllers (`#765 <https://github.com/ros-controls/ros2_controllers/issues/765>`_)
-* Contributors: Christoph Fröhlich
+* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>`_)
+* Contributors: mergify[bot]
 
-3.15.0 (2023-09-11)
--------------------
-
-3.14.0 (2023-08-16)
+2.32.0 (2024-01-20)
 -------------------
 
-3.13.0 (2023-08-04)
+2.31.0 (2024-01-11)
 -------------------
 
-3.12.0 (2023-07-18)
+2.30.0 (2023-12-20)
 -------------------
 
-3.11.0 (2023-06-24)
--------------------
-* Added -Wconversion flag and fix warnings (`#667 <https://github.com/ros-controls/ros2_controllers/issues/667>`_)
-* Contributors: gwalck
-
-3.10.1 (2023-06-06)
+2.29.0 (2023-12-05)
 -------------------
 
-3.10.0 (2023-06-04)
+2.28.0 (2023-11-30)
 -------------------
 
-3.9.0 (2023-05-28)
-------------------
-* Use branch name substitution for all links (`#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_)
-* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_)
-* Contributors: Christoph Fröhlich
+2.27.0 (2023-11-14)
+-------------------
 
-3.8.0 (2023-05-14)
-------------------
+2.26.0 (2023-10-03)
+-------------------
+* [Doc] Add specific documentation on the available fw cmd controllers (`#765 <https://github.com/ros-controls/ros2_controllers/issues/765>`_) (`#778 <https://github.com/ros-controls/ros2_controllers/issues/778>`_)
+* Contributors: mergify[bot]
 
-3.7.0 (2023-05-02)
-------------------
+2.25.0 (2023-09-15)
+-------------------
 
-3.6.0 (2023-04-29)
-------------------
-* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_)
+2.24.0 (2023-08-07)
+-------------------
+
+2.23.0 (2023-06-23)
+-------------------
+* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_) (`#677 <https://github.com/ros-controls/ros2_controllers/issues/677>`_)
 * Contributors: Bence Magyar
 
-3.5.0 (2023-04-14)
-------------------
+2.22.0 (2023-06-14)
+-------------------
+* Docs: Use branch name substitution for all links (backport `#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_) (`#633 <https://github.com/ros-controls/ros2_controllers/issues/633>`_)
+* Contributors: Christoph Fröhlich
 
-3.4.0 (2023-04-02)
-------------------
+2.21.0 (2023-05-28)
+-------------------
+* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_) (`#617 <https://github.com/ros-controls/ros2_controllers/issues/617>`_)
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_) (`#605 <https://github.com/ros-controls/ros2_controllers/issues/605>`_)
+* Contributors: Felix Exner (fexner), Christoph Fröhlich
 
-3.3.0 (2023-03-07)
-------------------
+2.20.0 (2023-05-14)
+-------------------
 
-3.2.0 (2023-02-10)
-------------------
-* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
-* Contributors: Tyler Weaver, Chris Thrasher
+2.19.0 (2023-05-02)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
+2.18.0 (2023-04-29)
+-------------------
 
-3.0.0 (2023-01-19)
-------------------
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
+2.17.3 (2023-04-14)
+-------------------
+
+2.17.2 (2023-03-07)
+-------------------
+
+2.17.1 (2023-02-20)
+-------------------
+
+2.17.0 (2023-02-13)
+-------------------
+
+2.16.1 (2023-01-31)
+-------------------
+
+2.16.0 (2023-01-19)
+-------------------
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
 * Contributors: Bence Magyar
 
 2.15.0 (2022-12-06)
