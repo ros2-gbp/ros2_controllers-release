@@ -205,11 +205,13 @@ controller_interface::return_type JointTrajectoryController::update(
       first_sample = true;
       if (params_.open_loop_control)
       {
-        traj_external_point_ptr_->set_point_before_trajectory_msg(time, last_commanded_state_);
+        traj_external_point_ptr_->set_point_before_trajectory_msg(
+          time, last_commanded_state_, joints_angle_wraparound_);
       }
       else
       {
-        traj_external_point_ptr_->set_point_before_trajectory_msg(time, state_current_);
+        traj_external_point_ptr_->set_point_before_trajectory_msg(
+          time, state_current_, joints_angle_wraparound_);
       }
     }
 
@@ -477,8 +479,7 @@ bool JointTrajectoryController::read_state_from_command_interfaces(JointTrajecto
   auto interface_has_values = [](const auto & joint_interface)
   {
     return std::find_if(
-             joint_interface.begin(), joint_interface.end(),
-             [](const auto & interface)
+             joint_interface.begin(), joint_interface.end(), [](const auto & interface)
              { return std::isnan(interface.get().get_value()); }) == joint_interface.end();
   };
 
@@ -548,8 +549,7 @@ bool JointTrajectoryController::read_commands_from_command_interfaces(
   auto interface_has_values = [](const auto & joint_interface)
   {
     return std::find_if(
-             joint_interface.begin(), joint_interface.end(),
-             [](const auto & interface)
+             joint_interface.begin(), joint_interface.end(), [](const auto & interface)
              { return std::isnan(interface.get().get_value()); }) == joint_interface.end();
   };
 
