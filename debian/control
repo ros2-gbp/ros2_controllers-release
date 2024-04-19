@@ -1,0 +1,12 @@
+Source: ros-jazzy-tricycle-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ament-cmake, ament-cmake-googletest <!nocheck>, libgeometry-msgs-dev, libnav-msgs-dev, librcpputils-dev, libstd-srvs-dev, libtf2-dev, libtf2-msgs-dev, pluginlib-dev, python3-geometry-msgs, python3-nav-msgs, python3-std-srvs, python3-tf2, python3-tf2-msgs, ros-geometry-msgs, ros-jazzy-ackermann-msgs, ros-jazzy-backward-ros, ros-jazzy-builtin-interfaces, ros-jazzy-controller-interface, ros-jazzy-controller-manager <!nocheck>, ros-jazzy-generate-parameter-library, ros-jazzy-hardware-interface, ros-jazzy-hardware-interface-testing <!nocheck>, ros-jazzy-rclcpp, ros-jazzy-rclcpp-lifecycle, ros-jazzy-realtime-tools, ros-jazzy-ros2-control-test-assets <!nocheck>, ros-nav-msgs, ros-std-srvs, ros-tf2-msgs, ros-jazzy-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-tricycle-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgeometry-msgs-dev, libnav-msgs-dev, librcpputils-dev, libstd-srvs-dev, libtf2-dev, libtf2-msgs-dev, pluginlib-dev, python3-geometry-msgs, python3-nav-msgs, python3-std-srvs, python3-tf2, python3-tf2-msgs, ros-geometry-msgs, ros-jazzy-ackermann-msgs, ros-jazzy-backward-ros, ros-jazzy-builtin-interfaces, ros-jazzy-controller-interface, ros-jazzy-hardware-interface, ros-jazzy-rclcpp, ros-jazzy-rclcpp-lifecycle, ros-jazzy-realtime-tools, ros-nav-msgs, ros-std-srvs, ros-tf2-msgs, ros-jazzy-ros-workspace
+Description: Controller for a tricycle drive mobile base
