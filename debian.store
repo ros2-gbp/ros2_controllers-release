@@ -1,1 +1,1 @@
-{"base": "a10240e64", "parent": "debian/rolling/admittance_controller", "previous": "5c68b34a7", "trim": "", "trimbase": ""}
+{"base": "0178f4f08", "parent": "debian/jazzy/admittance_controller", "previous": "c11a40ab1", "trim": "", "trimbase": ""}
