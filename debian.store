@@ -1,1 +1,1 @@
-{"base": "8b1847aa1", "parent": "debian/rolling/range_sensor_broadcaster", "previous": "4b4c8b4cc", "trim": "", "trimbase": ""}
+{"base": "73fcd90a2", "parent": "debian/jazzy/range_sensor_broadcaster", "previous": "a36f0d584", "trim": "", "trimbase": ""}
