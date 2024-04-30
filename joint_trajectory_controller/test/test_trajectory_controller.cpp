@@ -51,16 +51,12 @@ using lifecycle_msgs::msg::State;
 using test_trajectory_controllers::TrajectoryControllerTest;
 using test_trajectory_controllers::TrajectoryControllerTestParameterized;
 
-void spin(rclcpp::executors::MultiThreadedExecutor * exe) { exe->spin(); }
-
 TEST_P(TrajectoryControllerTestParameterized, configure_state_ignores_commands)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   SetUpTrajectoryController(executor);
   traj_controller_->get_node()->set_parameter(
     rclcpp::Parameter("allow_nonzero_velocity_at_trajectory_end", true));
-
-  // const auto future_handle_ = std::async(std::launch::async, spin, &executor);
 
   const auto state = traj_controller_->get_node()->configure();
   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
@@ -243,7 +239,7 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   // it should still be holding the position at time of deactivation
   // i.e., active but trivial trajectory (one point only)
   traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.1));
-  expectHoldingPoint(deactivated_positions);
+  expectCommandPoint(deactivated_positions);
 
   executor.cancel();
 }
@@ -473,22 +469,23 @@ TEST_P(TrajectoryControllerTestParameterized, hold_on_startup)
   ASSERT_TRUE(traj_controller_->has_active_traj());
   // one point, being the position at startup
   std::vector<double> initial_positions{INITIAL_POS_JOINT1, INITIAL_POS_JOINT2, INITIAL_POS_JOINT3};
-  expectHoldingPoint(initial_positions);
+  expectCommandPoint(initial_positions);
 
   executor.cancel();
 }
 
 // Floating-point value comparison threshold
 const double EPS = 1e-6;
+
 /**
- * @brief check if position error of revolute joints are angle_wraparound if not configured so
+ * @brief check if calculated trajectory error is correct with angle wraparound=true
  */
-TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparound)
+TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_true)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
-  constexpr double k_p = 10.0;
   std::vector<rclcpp::Parameter> params = {};
-  SetUpAndActivateTrajectoryController(executor, params, true, k_p, 0.0, false);
+  SetUpAndActivateTrajectoryController(
+    executor, params, true, 0.0, 1.0, true /* angle_wraparound */);
 
   size_t n_joints = joint_names_.size();
 
@@ -500,8 +497,181 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparoun
     {{3.3, 4.4, 6.6}}, {{7.7, 8.8, 9.9}}, {{10.10, 11.11, 12.12}}};
   std::vector<std::vector<double>> points_velocities{
     {{0.01, 0.01, 0.01}}, {{0.05, 0.05, 0.05}}, {{0.06, 0.06, 0.06}}};
+  std::vector<std::vector<double>> points_accelerations{
+    {{0.1, 0.1, 0.1}}, {{0.5, 0.5, 0.5}}, {{0.6, 0.6, 0.6}}};
   // *INDENT-ON*
-  publish(time_from_start, points, rclcpp::Time(), {}, points_velocities);
+
+  trajectory_msgs::msg::JointTrajectoryPoint error, current, desired;
+  current.positions = {points[0].begin(), points[0].end()};
+  current.velocities = {points_velocities[0].begin(), points_velocities[0].end()};
+  current.accelerations = {points_accelerations[0].begin(), points_accelerations[0].end()};
+  traj_controller_->resize_joint_trajectory_point(error, n_joints);
+
+  // zero error
+  desired = current;
+  for (size_t i = 0; i < n_joints; ++i)
+  {
+    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
+    EXPECT_NEAR(error.positions[i], 0., EPS);
+    if (
+      traj_controller_->has_velocity_state_interface() &&
+      (traj_controller_->has_velocity_command_interface() ||
+       traj_controller_->has_effort_command_interface()))
+    {
+      // expect: error.velocities = desired.velocities - current.velocities;
+      EXPECT_NEAR(error.velocities[i], 0., EPS);
+    }
+    if (
+      traj_controller_->has_acceleration_state_interface() &&
+      traj_controller_->has_acceleration_command_interface())
+    {
+      // expect: error.accelerations = desired.accelerations - current.accelerations;
+      EXPECT_NEAR(error.accelerations[i], 0., EPS);
+    }
+  }
+
+  // angle wraparound of position error
+  desired.positions[0] += 3.0 * M_PI_2;
+  desired.velocities[0] += 1.0;
+  desired.accelerations[0] += 1.0;
+  traj_controller_->resize_joint_trajectory_point(error, n_joints);
+  for (size_t i = 0; i < n_joints; ++i)
+  {
+    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
+    if (i == 0)
+    {
+      EXPECT_NEAR(
+        error.positions[i], desired.positions[i] - current.positions[i] - 2.0 * M_PI, EPS);
+    }
+    else
+    {
+      EXPECT_NEAR(error.positions[i], desired.positions[i] - current.positions[i], EPS);
+    }
+
+    if (
+      traj_controller_->has_velocity_state_interface() &&
+      (traj_controller_->has_velocity_command_interface() ||
+       traj_controller_->has_effort_command_interface()))
+    {
+      // expect: error.velocities = desired.velocities - current.velocities;
+      EXPECT_NEAR(error.velocities[i], desired.velocities[i] - current.velocities[i], EPS);
+    }
+    if (
+      traj_controller_->has_acceleration_state_interface() &&
+      traj_controller_->has_acceleration_command_interface())
+    {
+      // expect: error.accelerations = desired.accelerations - current.accelerations;
+      EXPECT_NEAR(error.accelerations[i], desired.accelerations[i] - current.accelerations[i], EPS);
+    }
+  }
+
+  executor.cancel();
+}
+
+/**
+ * @brief check if calculated trajectory error is correct with angle wraparound=false
+ */
+TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_false)
+{
+  rclcpp::executors::MultiThreadedExecutor executor;
+  std::vector<rclcpp::Parameter> params = {};
+  SetUpAndActivateTrajectoryController(
+    executor, params, true, 0.0, 1.0, false /* angle_wraparound */);
+
+  size_t n_joints = joint_names_.size();
+
+  // send msg
+  constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
+  builtin_interfaces::msg::Duration time_from_start{rclcpp::Duration(FIRST_POINT_TIME)};
+  // *INDENT-OFF*
+  std::vector<std::vector<double>> points{
+    {{3.3, 4.4, 6.6}}, {{7.7, 8.8, 9.9}}, {{10.10, 11.11, 12.12}}};
+  std::vector<std::vector<double>> points_velocities{
+    {{0.01, 0.01, 0.01}}, {{0.05, 0.05, 0.05}}, {{0.06, 0.06, 0.06}}};
+  std::vector<std::vector<double>> points_accelerations{
+    {{0.1, 0.1, 0.1}}, {{0.5, 0.5, 0.5}}, {{0.6, 0.6, 0.6}}};
+  // *INDENT-ON*
+
+  trajectory_msgs::msg::JointTrajectoryPoint error, current, desired;
+  current.positions = {points[0].begin(), points[0].end()};
+  current.velocities = {points_velocities[0].begin(), points_velocities[0].end()};
+  current.accelerations = {points_accelerations[0].begin(), points_accelerations[0].end()};
+  traj_controller_->resize_joint_trajectory_point(error, n_joints);
+
+  // zero error
+  desired = current;
+  for (size_t i = 0; i < n_joints; ++i)
+  {
+    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
+    EXPECT_NEAR(error.positions[i], 0., EPS);
+    if (
+      traj_controller_->has_velocity_state_interface() &&
+      (traj_controller_->has_velocity_command_interface() ||
+       traj_controller_->has_effort_command_interface()))
+    {
+      // expect: error.velocities = desired.velocities - current.velocities;
+      EXPECT_NEAR(error.velocities[i], 0., EPS);
+    }
+    if (
+      traj_controller_->has_acceleration_state_interface() &&
+      traj_controller_->has_acceleration_command_interface())
+    {
+      // expect: error.accelerations = desired.accelerations - current.accelerations;
+      EXPECT_NEAR(error.accelerations[i], 0., EPS);
+    }
+  }
+
+  // no normalization of position error
+  desired.positions[0] += 3.0 * M_PI_4;
+  desired.velocities[0] += 1.0;
+  desired.accelerations[0] += 1.0;
+  traj_controller_->resize_joint_trajectory_point(error, n_joints);
+  for (size_t i = 0; i < n_joints; ++i)
+  {
+    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
+    EXPECT_NEAR(error.positions[i], desired.positions[i] - current.positions[i], EPS);
+    if (
+      traj_controller_->has_velocity_state_interface() &&
+      (traj_controller_->has_velocity_command_interface() ||
+       traj_controller_->has_effort_command_interface()))
+    {
+      // expect: error.velocities = desired.velocities - current.velocities;
+      EXPECT_NEAR(error.velocities[i], desired.velocities[i] - current.velocities[i], EPS);
+    }
+    if (
+      traj_controller_->has_acceleration_state_interface() &&
+      traj_controller_->has_acceleration_command_interface())
+    {
+      // expect: error.accelerations = desired.accelerations - current.accelerations;
+      EXPECT_NEAR(error.accelerations[i], desired.accelerations[i] - current.accelerations[i], EPS);
+    }
+  }
+
+  executor.cancel();
+}
+
+/**
+ * @brief check if position error of revolute joints are wrapped around if not configured so
+ */
+TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparound)
+{
+  rclcpp::executors::MultiThreadedExecutor executor;
+  constexpr double k_p = 10.0;
+  std::vector<rclcpp::Parameter> params = {};
+  bool angle_wraparound = false;
+  SetUpAndActivateTrajectoryController(executor, params, true, k_p, 0.0, angle_wraparound);
+  subscribeToState();
+
+  size_t n_joints = joint_names_.size();
+
+  // send msg
+  constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
+  builtin_interfaces::msg::Duration time_from_start{rclcpp::Duration(FIRST_POINT_TIME)};
+  // *INDENT-OFF*
+  std::vector<std::vector<double>> points{
+    {{3.3, 4.4, 6.6}}, {{7.7, 8.8, 9.9}}, {{10.10, 11.11, 12.12}}};
+  // *INDENT-ON*
+  publish(time_from_start, points, rclcpp::Time());
   traj_controller_->wait_for_trajectory(executor);
 
   updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME));
@@ -565,35 +735,24 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparoun
 
   if (traj_controller_->has_effort_command_interface())
   {
-    // use_closed_loop_pid_adapter_
-    if (traj_controller_->use_closed_loop_pid_adapter())
-    {
-      // we expect u = k_p * (s_d-s) for positions
-      EXPECT_NEAR(
-        k_p * (state_reference.positions[0] - INITIAL_POS_JOINTS[0]), joint_eff_[0],
-        k_p * COMMON_THRESHOLD);
-      EXPECT_NEAR(
-        k_p * (state_reference.positions[1] - INITIAL_POS_JOINTS[1]), joint_eff_[1],
-        k_p * COMMON_THRESHOLD);
-      EXPECT_NEAR(
-        k_p * (state_reference.positions[2] - INITIAL_POS_JOINTS[2]), joint_eff_[2],
-        k_p * COMMON_THRESHOLD);
-    }
-    else
-    {
-      // interpolated points_velocities only
-      // check command interface
-      EXPECT_LT(0.0, joint_eff_[0]);
-      EXPECT_LT(0.0, joint_eff_[1]);
-      EXPECT_LT(0.0, joint_eff_[2]);
-    }
+    // with effort command interface, use_closed_loop_pid_adapter is always true
+    // we expect u = k_p * (s_d-s) for positions
+    EXPECT_NEAR(
+      k_p * (state_reference.positions[0] - INITIAL_POS_JOINTS[0]), joint_eff_[0],
+      k_p * COMMON_THRESHOLD);
+    EXPECT_NEAR(
+      k_p * (state_reference.positions[1] - INITIAL_POS_JOINTS[1]), joint_eff_[1],
+      k_p * COMMON_THRESHOLD);
+    EXPECT_NEAR(
+      k_p * (state_reference.positions[2] - INITIAL_POS_JOINTS[2]), joint_eff_[2],
+      k_p * COMMON_THRESHOLD);
   }
 
   executor.cancel();
 }
 
 /**
- * @brief check if position error of revolute joints are angle_wraparound if configured so
+ * @brief check if position error of revolute joints are wrapped around if configured so
  */
 TEST_P(TrajectoryControllerTestParameterized, position_error_angle_wraparound)
 {
@@ -636,7 +795,7 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_angle_wraparound)
   EXPECT_NEAR(points[0][1], state_reference.positions[1], COMMON_THRESHOLD);
   EXPECT_NEAR(points[0][2], state_reference.positions[2], COMMON_THRESHOLD);
 
-  // is error.positions[2] angle_wraparound?
+  // is error.positions[2] wrapped around?
   EXPECT_NEAR(state_error.positions[0], state_reference.positions[0] - INITIAL_POS_JOINTS[0], EPS);
   EXPECT_NEAR(state_error.positions[1], state_reference.positions[1] - INITIAL_POS_JOINTS[1], EPS);
   EXPECT_NEAR(
@@ -655,15 +814,15 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_angle_wraparound)
     // use_closed_loop_pid_adapter_
     if (traj_controller_->use_closed_loop_pid_adapter())
     {
-      // we expect u = k_p * (s_d-s) for positions[0] and positions[1]
+      // we expect u = k_p * (s_d-s) for joint0 and joint1
       EXPECT_NEAR(
         k_p * (state_reference.positions[0] - INITIAL_POS_JOINTS[0]), joint_vel_[0],
         k_p * COMMON_THRESHOLD);
       EXPECT_NEAR(
         k_p * (state_reference.positions[1] - INITIAL_POS_JOINTS[1]), joint_vel_[1],
         k_p * COMMON_THRESHOLD);
-      // is error of positions[2] angle_wraparound?
-      EXPECT_GT(0.0, joint_vel_[2]);
+      // is error of positions[2] wrapped around?
+      EXPECT_GT(0.0, joint_vel_[2]);  // direction change because of angle wrap
       EXPECT_NEAR(
         k_p * (state_reference.positions[2] - INITIAL_POS_JOINTS[2] - 2 * M_PI), joint_vel_[2],
         k_p * COMMON_THRESHOLD);
@@ -680,30 +839,19 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_angle_wraparound)
 
   if (traj_controller_->has_effort_command_interface())
   {
-    // use_closed_loop_pid_adapter_
-    if (traj_controller_->use_closed_loop_pid_adapter())
-    {
-      // we expect u = k_p * (s_d-s) for positions[0] and positions[1]
-      EXPECT_NEAR(
-        k_p * (state_reference.positions[0] - INITIAL_POS_JOINTS[0]), joint_eff_[0],
-        k_p * COMMON_THRESHOLD);
-      EXPECT_NEAR(
-        k_p * (state_reference.positions[1] - INITIAL_POS_JOINTS[1]), joint_eff_[1],
-        k_p * COMMON_THRESHOLD);
-      // is error of positions[2] angle_wraparound?
-      EXPECT_GT(0.0, joint_eff_[2]);
-      EXPECT_NEAR(
-        k_p * (state_reference.positions[2] - INITIAL_POS_JOINTS[2] - 2 * M_PI), joint_eff_[2],
-        k_p * COMMON_THRESHOLD);
-    }
-    else
-    {
-      // interpolated points_velocities only
-      // check command interface
-      EXPECT_LT(0.0, joint_eff_[0]);
-      EXPECT_LT(0.0, joint_eff_[1]);
-      EXPECT_LT(0.0, joint_eff_[2]);
-    }
+    // with effort command interface, use_closed_loop_pid_adapter is always true
+    // we expect u = k_p * (s_d-s) for joint0 and joint1
+    EXPECT_NEAR(
+      k_p * (state_reference.positions[0] - INITIAL_POS_JOINTS[0]), joint_eff_[0],
+      k_p * COMMON_THRESHOLD);
+    EXPECT_NEAR(
+      k_p * (state_reference.positions[1] - INITIAL_POS_JOINTS[1]), joint_eff_[1],
+      k_p * COMMON_THRESHOLD);
+    // is error of positions[2] wrapped around?
+    EXPECT_GT(0.0, joint_eff_[2]);
+    EXPECT_NEAR(
+      k_p * (state_reference.positions[2] - INITIAL_POS_JOINTS[2] - 2 * M_PI), joint_eff_[2],
+      k_p * COMMON_THRESHOLD);
   }
 
   executor.cancel();
@@ -833,12 +981,12 @@ TEST_P(TrajectoryControllerTestParameterized, timeout)
   // should hold last position with zero velocity
   if (traj_controller_->has_position_command_interface())
   {
-    expectHoldingPoint(points.at(2));
+    expectCommandPoint(points.at(2));
   }
   else
   {
     // no integration to position state interface from velocity/acceleration
-    expectHoldingPoint(INITIAL_POS_JOINTS);
+    expectCommandPoint(INITIAL_POS_JOINTS);
   }
 
   executor.cancel();
@@ -1847,7 +1995,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_state_tolerances_fail)
   updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME));
 
   // it should have aborted and be holding now
-  expectHoldingPoint(joint_state_pos_);
+  expectCommandPoint(joint_state_pos_);
 }
 
 TEST_P(TrajectoryControllerTestParameterized, test_goal_tolerances_fail)
@@ -1879,14 +2027,14 @@ TEST_P(TrajectoryControllerTestParameterized, test_goal_tolerances_fail)
   auto end_time = updateControllerAsync(rclcpp::Duration(4 * FIRST_POINT_TIME));
 
   // it should have aborted and be holding now
-  expectHoldingPoint(joint_state_pos_);
+  expectCommandPoint(joint_state_pos_);
 
   // what happens if we wait longer but it harms the tolerance again?
   auto hold_position = joint_state_pos_;
   joint_state_pos_.at(0) = -3.3;
   updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME), end_time);
   // it should be still holding the old point
-  expectHoldingPoint(hold_position);
+  expectCommandPoint(hold_position);
 }
 
 // position controllers
