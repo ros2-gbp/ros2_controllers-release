@@ -4,6 +4,10 @@ name: Rolling Binary Build
 
 on:
   workflow_dispatch:
+    branches:
+      - master
+      - '*feature*'
+      - '*feature/**'
   pull_request:
     branches:
       - master

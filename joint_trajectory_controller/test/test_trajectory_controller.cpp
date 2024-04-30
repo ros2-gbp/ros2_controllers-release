@@ -32,6 +32,7 @@
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/clock.hpp"
 #include "rclcpp/duration.hpp"
+#include "rclcpp/event_handler.hpp"
 #include "rclcpp/executors/multi_threaded_executor.hpp"
 #include "rclcpp/executors/single_threaded_executor.hpp"
 #include "rclcpp/node.hpp"
@@ -44,14 +45,11 @@
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
-#include "test_assets.hpp"
 #include "test_trajectory_controller_utils.hpp"
 
 using lifecycle_msgs::msg::State;
 using test_trajectory_controllers::TrajectoryControllerTest;
 using test_trajectory_controllers::TrajectoryControllerTestParameterized;
-
-void spin(rclcpp::executors::MultiThreadedExecutor * exe) { exe->spin(); }
 
 TEST_P(TrajectoryControllerTestParameterized, configure_state_ignores_commands)
 {
@@ -59,8 +57,6 @@ TEST_P(TrajectoryControllerTestParameterized, configure_state_ignores_commands)
   SetUpTrajectoryController(executor);
   traj_controller_->get_node()->set_parameter(
     rclcpp::Parameter("allow_nonzero_velocity_at_trajectory_end", true));
-
-  // const auto future_handle_ = std::async(std::launch::async, spin, &executor);
 
   const auto state = traj_controller_->get_node()->configure();
   ASSERT_EQ(state.id(), State::PRIMARY_STATE_INACTIVE);
@@ -440,17 +436,36 @@ TEST_P(TrajectoryControllerTestParameterized, update_dynamic_tolerances)
 }
 
 /**
+ * @brief check if hold on startup is deactivated
+ */
+TEST_P(TrajectoryControllerTestParameterized, no_hold_on_startup)
+{
+  rclcpp::executors::MultiThreadedExecutor executor;
+
+  rclcpp::Parameter start_with_holding_parameter("start_with_holding", false);
+  SetUpAndActivateTrajectoryController(executor, {start_with_holding_parameter});
+
+  constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
+  updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME));
+  // after startup without start_with_holding being set, we expect no active trajectory
+  ASSERT_FALSE(traj_controller_->has_active_traj());
+
+  executor.cancel();
+}
+
+/**
  * @brief check if hold on startup
  */
 TEST_P(TrajectoryControllerTestParameterized, hold_on_startup)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
 
-  SetUpAndActivateTrajectoryController(executor, {});
+  rclcpp::Parameter start_with_holding_parameter("start_with_holding", true);
+  SetUpAndActivateTrajectoryController(executor, {start_with_holding_parameter});
 
   constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
   updateControllerAsync(rclcpp::Duration(FIRST_POINT_TIME));
-  // after startup, we expect an active trajectory:
+  // after startup with start_with_holding being set, we expect an active trajectory:
   ASSERT_TRUE(traj_controller_->has_active_traj());
   // one point, being the position at startup
   std::vector<double> initial_positions{INITIAL_POS_JOINT1, INITIAL_POS_JOINT2, INITIAL_POS_JOINT3};
@@ -463,15 +478,14 @@ TEST_P(TrajectoryControllerTestParameterized, hold_on_startup)
 const double EPS = 1e-6;
 
 /**
- * @brief check if calculated trajectory error is correct (angle wraparound) for continuous joints
+ * @brief check if calculated trajectory error is correct with angle wraparound=true
  */
 TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_true)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   std::vector<rclcpp::Parameter> params = {};
   SetUpAndActivateTrajectoryController(
-    executor, params, true, 0.0, 1.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_continuous);
+    executor, params, true, 0.0, 1.0, true /* angle_wraparound */);
 
   size_t n_joints = joint_names_.size();
 
@@ -555,15 +569,14 @@ TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_tru
 }
 
 /**
- * @brief check if calculated trajectory error is correct (no angle wraparound) for revolute joints
+ * @brief check if calculated trajectory error is correct with angle wraparound=false
  */
 TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_false)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   std::vector<rclcpp::Parameter> params = {};
   SetUpAndActivateTrajectoryController(
-    executor, params, true, 0.0, 1.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_revolute);
+    executor, params, true, 0.0, 1.0, false /* angle_wraparound */);
 
   size_t n_joints = joint_names_.size();
 
@@ -638,16 +651,15 @@ TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_fal
 }
 
 /**
- * @brief check if position error of revolute joints aren't wrapped around (state topic)
+ * @brief check if position error of revolute joints are wrapped around if not configured so
  */
 TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparound)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   constexpr double k_p = 10.0;
   std::vector<rclcpp::Parameter> params = {};
-  SetUpAndActivateTrajectoryController(
-    executor, params, true, k_p, 0.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_revolute);
+  bool angle_wraparound = false;
+  SetUpAndActivateTrajectoryController(executor, params, true, k_p, 0.0, angle_wraparound);
   subscribeToState();
 
   size_t n_joints = joint_names_.size();
@@ -740,16 +752,14 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparoun
 }
 
 /**
- * @brief check if position error of continuous joints are wrapped around (state topic)
+ * @brief check if position error of revolute joints are wrapped around if configured so
  */
 TEST_P(TrajectoryControllerTestParameterized, position_error_angle_wraparound)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   constexpr double k_p = 10.0;
   std::vector<rclcpp::Parameter> params = {};
-  SetUpAndActivateTrajectoryController(
-    executor, params, true, k_p, 0.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_continuous);
+  SetUpAndActivateTrajectoryController(executor, params, true, k_p, 0.0, true);
 
   size_t n_joints = joint_names_.size();
 
@@ -1849,7 +1859,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_first_co
   std::vector<double> initial_acc_cmd{3, std::numeric_limits<double>::quiet_NaN()};
 
   SetUpAndActivateTrajectoryController(
-    executor, {is_open_loop_parameters}, true, 0., 1., initial_pos_cmd, initial_vel_cmd,
+    executor, {is_open_loop_parameters}, true, 0., 1., false, initial_pos_cmd, initial_vel_cmd,
     initial_acc_cmd);
 
   // no call of update method, so the values should be read from state interfaces
@@ -1893,7 +1903,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_later_co
     initial_acc_cmd.push_back(0.02 + static_cast<double>(i) / 10.0);
   }
   SetUpAndActivateTrajectoryController(
-    executor, {is_open_loop_parameters}, true, 0., 1., initial_pos_cmd, initial_vel_cmd,
+    executor, {is_open_loop_parameters}, true, 0., 1., false, initial_pos_cmd, initial_vel_cmd,
     initial_acc_cmd);
 
   // no call of update method, so the values should be read from command interfaces

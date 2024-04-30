@@ -168,7 +168,7 @@ protected:
     parameter_overrides.insert(parameter_overrides.end(), parameters.begin(), parameters.end());
     node_options.parameter_overrides(parameter_overrides);
 
-    return controller_->init(controller_name, urdf_, 0, "", node_options);
+    return controller_->init(controller_name, "", node_options);
   }
 
   const std::string controller_name = "test_tricycle_controller";
@@ -191,14 +191,11 @@ protected:
 
   rclcpp::Node::SharedPtr pub_node;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_publisher;
-
-  const std::string urdf_ = "";
 };
 
 TEST_F(TestTricycleController, init_fails_without_parameters)
 {
-  const auto ret =
-    controller_->init(controller_name, urdf_, 0, "", controller_->define_custom_node_options());
+  const auto ret = controller_->init(controller_name);
   ASSERT_EQ(ret, controller_interface::return_type::ERROR);
 }
 
