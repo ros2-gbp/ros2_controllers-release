@@ -1,0 +1,12 @@
+Source: ros-iron-imu-sensor-broadcaster
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-iron-ament-cmake, ros-iron-ament-cmake-gmock <!nocheck>, ros-iron-ament-lint-auto <!nocheck>, ros-iron-ament-lint-common <!nocheck>, ros-iron-backward-ros, ros-iron-controller-interface, ros-iron-controller-manager <!nocheck>, ros-iron-generate-parameter-library, ros-iron-hardware-interface, ros-iron-hardware-interface-testing <!nocheck>, ros-iron-pluginlib, ros-iron-rclcpp, ros-iron-rclcpp-lifecycle, ros-iron-realtime-tools, ros-iron-ros2-control-test-assets <!nocheck>, ros-iron-sensor-msgs, ros-iron-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-iron-imu-sensor-broadcaster
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-iron-backward-ros, ros-iron-controller-interface, ros-iron-generate-parameter-library, ros-iron-hardware-interface, ros-iron-pluginlib, ros-iron-rclcpp, ros-iron-rclcpp-lifecycle, ros-iron-realtime-tools, ros-iron-sensor-msgs, ros-iron-ros-workspace
+Description: Controller to publish readings of IMU sensors.
