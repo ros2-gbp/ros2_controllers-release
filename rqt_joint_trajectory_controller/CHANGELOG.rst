@@ -2,44 +2,38 @@
 Changelog for package rqt_joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.24.0 (2024-05-14)
--------------------
+4.8.0 (2024-05-14)
+------------------
 
-3.23.0 (2024-04-30)
--------------------
-* [CI] Code coverage + pre-commit (`#1057 <https://github.com/ros-controls/ros2_controllers/issues/1057>`_) (`#1065 <https://github.com/ros-controls/ros2_controllers/issues/1065>`_)
-* Contributors: mergify[bot]
+4.7.0 (2024-03-22)
+------------------
+* [CI] Code coverage + pre-commit (`#1057 <https://github.com/ros-controls/ros2_controllers/issues/1057>`_)
+* Contributors: Christoph Fröhlich
 
-3.22.0 (2024-02-12)
--------------------
+4.6.0 (2024-02-12)
+------------------
 
-3.21.0 (2024-01-20)
--------------------
+4.5.0 (2024-01-31)
+------------------
 
-3.20.2 (2024-01-11)
--------------------
+4.4.0 (2024-01-11)
+------------------
 
-3.20.1 (2024-01-08)
--------------------
+4.3.0 (2024-01-08)
+------------------
+* Add rqt_JTC to docs (`#950 <https://github.com/ros-controls/ros2_controllers/issues/950>`_)
+* Contributors: Christoph Fröhlich
 
-3.20.0 (2024-01-03)
--------------------
-* Add rqt_JTC to docs (`#950 <https://github.com/ros-controls/ros2_controllers/issues/950>`_) (`#953 <https://github.com/ros-controls/ros2_controllers/issues/953>`_)
-* Contributors: mergify[bot]
+4.2.0 (2023-12-12)
+------------------
+* Fix rqt jtc bugs for continuous joints and other minor bugs (`#890 <https://github.com/ros-controls/ros2_controllers/issues/890>`_)
+* Contributors: Sai Kishor Kothakota
 
-3.19.2 (2023-12-12)
--------------------
-* Fix rqt jtc bugs for continuous joints and other minor bugs (`#890 <https://github.com/ros-controls/ros2_controllers/issues/890>`_) (`#892 <https://github.com/ros-controls/ros2_controllers/issues/892>`_)
-* Contributors: mergify[bot]
+4.1.0 (2023-12-01)
+------------------
 
-3.19.1 (2023-12-05)
--------------------
-
-3.19.0 (2023-12-01)
--------------------
-
-3.18.0 (2023-11-21)
--------------------
+4.0.0 (2023-11-21)
+------------------
 
 3.17.0 (2023-10-31)
 -------------------
