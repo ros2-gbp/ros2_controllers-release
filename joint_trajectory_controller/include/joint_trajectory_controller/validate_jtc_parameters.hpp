@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 
-#include "parameter_traits/parameter_traits.hpp"
 #include "rclcpp/parameter.hpp"
 #include "rsl/algorithm.hpp"
 #include "tl_expected/expected.hpp"
