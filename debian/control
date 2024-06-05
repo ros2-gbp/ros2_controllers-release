@@ -1,0 +1,12 @@
+Source: ros-jazzy-ros2-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-jazzy-ament-cmake, ros-jazzy-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-ros2-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-jazzy-ackermann-steering-controller, ros-jazzy-admittance-controller, ros-jazzy-bicycle-steering-controller, ros-jazzy-diff-drive-controller, ros-jazzy-effort-controllers, ros-jazzy-force-torque-sensor-broadcaster, ros-jazzy-forward-command-controller, ros-jazzy-imu-sensor-broadcaster, ros-jazzy-joint-state-broadcaster, ros-jazzy-joint-trajectory-controller, ros-jazzy-pid-controller, ros-jazzy-position-controllers, ros-jazzy-range-sensor-broadcaster, ros-jazzy-steering-controllers-library, ros-jazzy-tricycle-controller, ros-jazzy-tricycle-steering-controller, ros-jazzy-velocity-controllers, ros-jazzy-ros-workspace
+Description: Metapackage for ROS2 controllers related packages
