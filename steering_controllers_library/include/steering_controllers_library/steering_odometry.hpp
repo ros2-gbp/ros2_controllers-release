@@ -18,23 +18,19 @@
 #ifndef STEERING_CONTROLLERS_LIBRARY__STEERING_ODOMETRY_HPP_
 #define STEERING_CONTROLLERS_LIBRARY__STEERING_ODOMETRY_HPP_
 
-#include <cmath>
 #include <tuple>
 #include <vector>
 
 #include "realtime_tools/realtime_buffer.h"
 #include "realtime_tools/realtime_publisher.h"
 
-#include "rcpputils/rolling_mean_accumulator.hpp"
+#include "rcppmath/rolling_mean_accumulator.hpp"
 
 namespace steering_odometry
 {
 const unsigned int BICYCLE_CONFIG = 0;
 const unsigned int TRICYCLE_CONFIG = 1;
 const unsigned int ACKERMANN_CONFIG = 2;
-
-inline bool is_close_to_zero(double val) { return std::fabs(val) < 1e-6; }
-
 /**
  * \brief The Odometry class handles odometry readings
  * (2D pose and velocity with related timestamp)
@@ -187,11 +183,10 @@ public:
    * \brief Calculates inverse kinematics for the desired linear and angular velocities
    * \param v_bx     Desired linear velocity of the robot in x_b-axis direction
    * \param omega_bz Desired angular velocity of the robot around x_z-axis
-   * \param open_loop If false, the IK will be calculated using measured steering angle
    * \return Tuple of velocity commands and steering commands
    */
   std::tuple<std::vector<double>, std::vector<double>> get_commands(
-    const double v_bx, const double omega_bz, const bool open_loop = true);
+    const double v_bx, const double omega_bz);
 
   /**
    *  \brief Reset poses, heading, and accumulators
@@ -231,16 +226,6 @@ private:
   double convert_twist_to_steering_angle(const double v_bx, const double omega_bz);
 
   /**
-   * \brief Calculates linear velocity of a robot with double traction axle
-   * \param right_traction_wheel_vel  Right traction wheel velocity [rad/s]
-   * \param left_traction_wheel_vel  Left traction wheel velocity [rad/s]
-   * \param steer_pos Steer wheel position [rad]
-   */
-  double get_linear_velocity_double_traction_axle(
-    const double right_traction_wheel_vel, const double left_traction_wheel_vel,
-    const double steer_pos);
-
-  /**
    *  \brief Reset linear and angular accumulators
    */
   void reset_accumulators();
@@ -272,8 +257,8 @@ private:
   double traction_left_wheel_old_pos_;
   /// Rolling mean accumulators for the linear and angular velocities:
   size_t velocity_rolling_window_size_;
-  rcpputils::RollingMeanAccumulator<double> linear_acc_;
-  rcpputils::RollingMeanAccumulator<double> angular_acc_;
+  rcppmath::RollingMeanAccumulator<double> linear_acc_;
+  rcppmath::RollingMeanAccumulator<double> angular_acc_;
 };
 }  // namespace steering_odometry
 

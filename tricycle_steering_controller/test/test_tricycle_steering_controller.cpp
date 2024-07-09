@@ -201,7 +201,6 @@ TEST_F(TricycleSteeringControllerTest, test_update_logic_chained)
     controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
 
-  // we test with open_loop=false, but steering angle was not updated (is zero) -> same commands
   EXPECT_NEAR(
     controller_->command_interfaces_[CMD_TRACTION_RIGHT_WHEEL].get_value(), 0.22222222222222224,
     COMMON_THRESHOLD);
@@ -247,7 +246,6 @@ TEST_F(TricycleSteeringControllerTest, receive_message_and_publish_updated_statu
     controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
 
-  // we test with open_loop=false, but steering angle was not updated (is zero) -> same commands
   EXPECT_NEAR(
     controller_->command_interfaces_[CMD_TRACTION_RIGHT_WHEEL].get_value(), 0.22222222222222224,
     COMMON_THRESHOLD);
@@ -260,7 +258,6 @@ TEST_F(TricycleSteeringControllerTest, receive_message_and_publish_updated_statu
 
   subscribe_and_get_messages(msg);
 
-  // we test with open_loop=false, but steering angle was not updated (is zero) -> same commands
   EXPECT_NEAR(
     msg.linear_velocity_command[STATE_TRACTION_RIGHT_WHEEL], 0.22222222222222224, COMMON_THRESHOLD);
   EXPECT_NEAR(
