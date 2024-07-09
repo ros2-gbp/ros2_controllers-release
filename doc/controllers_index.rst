@@ -21,18 +21,15 @@ Guidelines and Best Practices
    *
 
 
-Controllers for Mobile Robots
-*****************************
+Controllers for Wheeled Mobile Robots
+*************************************
 
 .. toctree::
    :titlesonly:
 
-   Ackermann Steering Controller <../ackermann_steering_controller/doc/userdoc.rst>
-   Bicycle Steering Controller <../bicycle_steering_controller/doc/userdoc.rst>
    Differential Drive Controller <../diff_drive_controller/doc/userdoc.rst>
    Steering Controllers Library <../steering_controllers_library/doc/userdoc.rst>
    Tricycle Controller <../tricycle_controller/doc/userdoc.rst>
-   Tricycle Steering Controller <../tricycle_steering_controller/doc/userdoc.rst>
 
 Controllers for Manipulators and Other Robots
 *********************************************
@@ -55,6 +52,7 @@ The controllers are using `common hardware interface definitions`_, and may use 
    Forward Command Controller <../forward_command_controller/doc/userdoc.rst>
    Gripper Controller <../gripper_controllers/doc/userdoc.rst>
    Joint Trajectory Controller <../joint_trajectory_controller/doc/userdoc.rst>
+   PID Controller <../pid_controller/doc/userdoc.rst>
    Position Controllers <../position_controllers/doc/userdoc.rst>
    Velocity Controllers <../velocity_controllers/doc/userdoc.rst>
 
