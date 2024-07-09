@@ -1180,6 +1180,12 @@ void JointTrajectoryController::publish_state(
     state_publisher_->msg_.reference.velocities = desired_state.velocities;
     state_publisher_->msg_.reference.accelerations = desired_state.accelerations;
     state_publisher_->msg_.feedback.positions = current_state.positions;
+    // DESIRED and ACTUAL are deprecated in the message but we are still
+    // reporting on them
+    state_publisher_legacy_->msg_.desired.positions = desired_state.positions;
+    state_publisher_legacy_->msg_.desired.velocities = desired_state.velocities;
+    state_publisher_legacy_->msg_.desired.accelerations = desired_state.accelerations;
+    state_publisher_legacy_->msg_.actual.positions = current_state.positions;
     state_publisher_->msg_.error.positions = state_error.positions;
     if (has_velocity_state_interface_)
     {
@@ -1442,17 +1448,20 @@ bool JointTrajectoryController::validate_trajectory_msg(
     return false;
   }
 
+  if (trajectory.points.empty())
+  {
+    RCLCPP_ERROR(get_node()->get_logger(), "Empty trajectory received.");
+    return false;
+  }
+
   const auto trajectory_start_time = static_cast<rclcpp::Time>(trajectory.header.stamp);
   // If the starting time it set to 0.0, it means the controller should start it now.
   // Otherwise we check if the trajectory ends before the current time,
   // in which case it can be ignored.
   if (trajectory_start_time.seconds() != 0.0)
   {
-    auto trajectory_end_time = trajectory_start_time;
-    for (const auto & p : trajectory.points)
-    {
-      trajectory_end_time += p.time_from_start;
-    }
+    auto const trajectory_end_time =
+      trajectory_start_time + trajectory.points.back().time_from_start;
     if (trajectory_end_time < get_node()->now())
     {
       RCLCPP_ERROR(
@@ -1475,12 +1484,6 @@ bool JointTrajectoryController::validate_trajectory_msg(
         incoming_joint_name.c_str());
       return false;
     }
-  }
-
-  if (trajectory.points.empty())
-  {
-    RCLCPP_ERROR(get_node()->get_logger(), "Empty trajectory received.");
-    return false;
   }
 
   if (!params_.allow_nonzero_velocity_at_trajectory_end)
