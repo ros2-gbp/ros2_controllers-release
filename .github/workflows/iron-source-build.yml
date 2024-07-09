@@ -1,6 +1,8 @@
 name: Iron Source Build
 on:
   workflow_dispatch:
+    branches:
+      - iron
   push:
     branches:
       - iron

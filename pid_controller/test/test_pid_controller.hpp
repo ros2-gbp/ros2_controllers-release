@@ -147,7 +147,7 @@ protected:
   void SetUpController(const std::string controller_name = "test_pid_controller")
   {
     ASSERT_EQ(
-      controller_->init(controller_name, "", 0, "", controller_->define_custom_node_options()),
+      controller_->init(controller_name, "", rclcpp::NodeOptions()),
       controller_interface::return_type::OK);
 
     std::vector<hardware_interface::LoanedCommandInterface> command_ifs;

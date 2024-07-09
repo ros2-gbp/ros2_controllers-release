@@ -69,8 +69,7 @@ void JointStateBroadcasterTest::SetUpStateBroadcaster(
 void JointStateBroadcasterTest::init_broadcaster_and_set_parameters(
   const std::vector<std::string> & joint_names, const std::vector<std::string> & interfaces)
 {
-  const auto result = state_broadcaster_->init(
-    "joint_state_broadcaster", "", 0, "", state_broadcaster_->define_custom_node_options());
+  const auto result = state_broadcaster_->init("joint_state_broadcaster");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   state_broadcaster_->get_node()->set_parameter({"joints", joint_names});

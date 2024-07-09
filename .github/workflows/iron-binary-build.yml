@@ -4,6 +4,10 @@ name: Iron Binary Build
 
 on:
   workflow_dispatch:
+    branches:
+      - iron
+      - '*feature*'
+      - '*feature/**'
   pull_request:
     branches:
       - iron
