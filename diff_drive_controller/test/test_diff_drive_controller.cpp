@@ -14,7 +14,6 @@
 
 #include <gmock/gmock.h>
 
-#include <array>
 #include <memory>
 #include <string>
 #include <thread>
@@ -26,7 +25,8 @@
 #include "hardware_interface/loaned_state_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 
 using CallbackReturn = controller_interface::CallbackReturn;
 using hardware_interface::HW_IF_POSITION;
@@ -57,22 +57,17 @@ public:
    * @brief wait_for_twist block until a new twist is received.
    * Requires that the executor is not spinned elsewhere between the
    *  message publication and the call to this function
-   *
-   * @return true if new twist msg was received, false if timeout
    */
-  bool wait_for_twist(
+  void wait_for_twist(
     rclcpp::Executor & executor,
     const std::chrono::milliseconds & timeout = std::chrono::milliseconds(500))
   {
-    rclcpp::WaitSet wait_set;
-    wait_set.add_subscription(velocity_command_subscriber_);
-
-    if (wait_set.wait(timeout).kind() == rclcpp::WaitResultKind::Ready)
+    auto until = get_node()->get_clock()->now() + timeout;
+    while (get_node()->get_clock()->now() < until)
     {
       executor.spin_some();
-      return true;
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
-    return false;
   }
 
   /**
@@ -192,7 +187,7 @@ protected:
     parameter_overrides.insert(parameter_overrides.end(), parameters.begin(), parameters.end());
     node_options.parameter_overrides(parameter_overrides);
 
-    return controller_->init(controller_name, ns, node_options);
+    return controller_->init(controller_name, urdf_, 0, ns, node_options);
   }
 
   const std::string controller_name = "test_diff_drive_controller";
@@ -216,11 +211,14 @@ protected:
 
   rclcpp::Node::SharedPtr pub_node;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_publisher;
+
+  const std::string urdf_ = "";
 };
 
 TEST_F(TestDiffDriveController, init_fails_without_parameters)
 {
-  const auto ret = controller_->init(controller_name);
+  const auto ret =
+    controller_->init(controller_name, urdf_, 0, "", controller_->define_custom_node_options());
   ASSERT_EQ(ret, controller_interface::return_type::ERROR);
 }
 
@@ -547,7 +545,7 @@ TEST_F(TestDiffDriveController, correct_initialization_using_parameters)
   const double angular = 0.0;
   publish(linear, angular);
   // wait for msg is be published to the system
-  ASSERT_TRUE(controller_->wait_for_twist(executor));
+  controller_->wait_for_twist(executor);
 
   ASSERT_EQ(
     controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),

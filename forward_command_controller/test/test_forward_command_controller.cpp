@@ -30,23 +30,11 @@
 #include "rclcpp/qos.hpp"
 #include "rclcpp/subscription.hpp"
 #include "rclcpp/utilities.hpp"
-#include "rclcpp/wait_set.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 
 using hardware_interface::LoanedCommandInterface;
 using testing::IsEmpty;
 using testing::SizeIs;
-
-namespace
-{
-rclcpp::WaitResultKind wait_for(rclcpp::SubscriptionBase::SharedPtr subscription)
-{
-  rclcpp::WaitSet wait_set;
-  wait_set.add_subscription(subscription);
-  const auto timeout = std::chrono::seconds(10);
-  return wait_set.wait(timeout).kind();
-}
-}  // namespace
 
 void ForwardCommandControllerTest::SetUpTestCase() { rclcpp::init(0, nullptr); }
 
@@ -62,7 +50,8 @@ void ForwardCommandControllerTest::TearDown() { controller_.reset(nullptr); }
 
 void ForwardCommandControllerTest::SetUpController()
 {
-  const auto result = controller_->init("forward_command_controller");
+  const auto result = controller_->init(
+    "forward_command_controller", "", 0, "", controller_->define_custom_node_options());
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedCommandInterface> command_ifs;
@@ -70,6 +59,7 @@ void ForwardCommandControllerTest::SetUpController()
   command_ifs.emplace_back(joint_2_pos_cmd_);
   command_ifs.emplace_back(joint_3_pos_cmd_);
   controller_->assign_interfaces(std::move(command_ifs), {});
+  executor.add_node(controller_->get_node()->get_node_base_interface());
 }
 
 TEST_F(ForwardCommandControllerTest, JointsParameterNotSet)
@@ -233,7 +223,7 @@ TEST_F(ForwardCommandControllerTest, CommandSuccessTest)
 
   // update successful, command received
   ASSERT_EQ(
-    controller_->update(rclcpp::Time(0.1), rclcpp::Duration::from_seconds(0.01)),
+    controller_->update(rclcpp::Time(100000000), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
 
   // check joint commands have been modified
@@ -319,10 +309,13 @@ TEST_F(ForwardCommandControllerTest, CommandCallbackTest)
   command_pub->publish(command_msg);
 
   // wait for command message to be passed
-  ASSERT_EQ(wait_for(controller_->joints_command_subscriber_), rclcpp::WaitResultKind::Ready);
-
-  // process callbacks
-  rclcpp::spin_some(controller_->get_node()->get_node_base_interface());
+  const auto timeout = std::chrono::milliseconds{10};
+  const auto until = controller_->get_node()->get_clock()->now() + timeout;
+  while (controller_->get_node()->get_clock()->now() < until)
+  {
+    executor.spin_some();
+    std::this_thread::sleep_for(std::chrono::microseconds(10));
+  }
 
   // update successful
   ASSERT_EQ(

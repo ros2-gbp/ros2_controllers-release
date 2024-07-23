@@ -94,7 +94,6 @@ A yaml file for using it could be:
             - position
             - velocity
 
-          state_publish_rate: 50.0
           action_monitor_rate: 20.0
 
           allow_partial_joints_goal: false
@@ -153,7 +152,21 @@ Actions  [#f1]_
 
 The primary way to send trajectories is through the action interface, and should be favored when execution monitoring is desired.
 
-Action goals allow to specify not only the trajectory to execute, but also (optionally) path and goal tolerances.
+Action goals allow to specify not only the trajectory to execute, but also (optionally) path and goal tolerances. For details, see the `JointTolerance message <https://github.com/ros-controls/control_msgs/blob/master/control_msgs/msg/JointTolerance.msg>`_:
+
+.. code-block:: markdown
+
+  The tolerances specify the amount the position, velocity, and
+  accelerations can vary from the setpoints.  For example, in the case
+  of trajectory control, when the actual position varies beyond
+  (desired position + position tolerance), the trajectory goal may
+  abort.
+
+  There are two special values for tolerances:
+    * 0 - The tolerance is unspecified and will remain at whatever the default is
+    * -1 - The tolerance is "erased".  If there was a default, the joint will be
+          allowed to move without restriction.
+
 When no tolerances are specified, the defaults given in the parameter interface are used (see :ref:`parameters`).
 If tolerances are violated during trajectory execution, the action goal is aborted, the client is notified, and the current position is held.
 
@@ -169,7 +182,7 @@ Subscriber [#f1]_
 
 The topic interface is a fire-and-forget alternative. Use this interface if you don't care about execution monitoring.
 The goal tolerance specification is not used in this case, as there is no mechanism to notify the sender about tolerance violations. If state tolerances are violated, the trajectory is aborted and the current position is held.
-Note that although some degree of monitoring is available through the ``~/query_state`` service and ``~/state`` topic it is much more cumbersome to realize than with the action interface.
+Note that although some degree of monitoring is available through the ``~/query_state`` service and ``~/controller_state`` topic it is much more cumbersome to realize than with the action interface.
 
 
 Publishers

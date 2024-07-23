@@ -2,88 +2,111 @@
 Changelog for package ros2_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.36.0 (2024-07-09)
--------------------
-* Add custom rosdoc2 config for ros2_controllers metapackage (`#1100 <https://github.com/ros-controls/ros2_controllers/issues/1100>`_) (`#1142 <https://github.com/ros-controls/ros2_controllers/issues/1142>`_)
-* Contributors: mergify[bot]
-
-2.35.0 (2024-05-22)
+4.12.0 (2024-07-23)
 -------------------
 
-2.34.0 (2024-04-01)
+4.11.0 (2024-07-09)
 -------------------
 
-2.33.0 (2024-02-12)
+4.10.0 (2024-07-01)
 -------------------
 
-2.32.0 (2024-01-20)
+4.9.0 (2024-06-05)
+------------------
+* Add custom rosdoc2 config for ros2_controllers metapackage (`#1100 <https://github.com/ros-controls/ros2_controllers/issues/1100>`_)
+* Contributors: Christoph Fröhlich
+
+4.8.0 (2024-05-14)
+------------------
+
+4.7.0 (2024-03-22)
+------------------
+
+4.6.0 (2024-02-12)
+------------------
+
+4.5.0 (2024-01-31)
+------------------
+
+4.4.0 (2024-01-11)
+------------------
+
+4.3.0 (2024-01-08)
+------------------
+
+4.2.0 (2023-12-12)
+------------------
+* 🚀 Add PID controller 🎉 (`#434 <https://github.com/ros-controls/ros2_controllers/issues/434>`_)
+* Contributors: Dr. Denis
+
+4.1.0 (2023-12-01)
+------------------
+
+4.0.0 (2023-11-21)
+------------------
+
+3.17.0 (2023-10-31)
 -------------------
 
-2.31.0 (2024-01-11)
+3.16.0 (2023-09-20)
 -------------------
 
-2.30.0 (2023-12-20)
+3.15.0 (2023-09-11)
+-------------------
+* add a broadcaster for range sensor (`#725 <https://github.com/ros-controls/ros2_controllers/issues/725>`_)
+* Contributors: flochre
+
+3.14.0 (2023-08-16)
 -------------------
 
-2.29.0 (2023-12-05)
+3.13.0 (2023-08-04)
 -------------------
 
-2.28.0 (2023-11-30)
+3.12.0 (2023-07-18)
 -------------------
 
-2.27.0 (2023-11-14)
+3.11.0 (2023-06-24)
 -------------------
 
-2.26.0 (2023-10-03)
--------------------
-* add a broadcaster for range sensor (backport `#725 <https://github.com/ros-controls/ros2_controllers/issues/725>`_) (`#766 <https://github.com/ros-controls/ros2_controllers/issues/766>`_)
-* Contributors: mergify[bot]
-
-2.25.0 (2023-09-15)
+3.10.1 (2023-06-06)
 -------------------
 
-2.24.0 (2023-08-07)
+3.10.0 (2023-06-04)
 -------------------
 
-2.23.0 (2023-06-23)
--------------------
+3.9.0 (2023-05-28)
+------------------
+* Steering odometry library and controllers (`#484 <https://github.com/ros-controls/ros2_controllers/issues/484>`_)
+* Contributors: Tomislav Petković
 
-2.22.0 (2023-06-14)
--------------------
-* Steering odometry library and controllers (backport `#484 <https://github.com/ros-controls/ros2_controllers/issues/484>`_) (`#624 <https://github.com/ros-controls/ros2_controllers/issues/624>`_)
-* Contributors: Tomislav Petković, Reza Kermani, Denis Štogl
+3.8.0 (2023-05-14)
+------------------
 
-2.21.0 (2023-05-28)
--------------------
-* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_) (`#605 <https://github.com/ros-controls/ros2_controllers/issues/605>`_)
-* Contributors: Felix Exner (fexner)
+3.7.0 (2023-05-02)
+------------------
 
-2.20.0 (2023-05-14)
--------------------
+3.6.0 (2023-04-29)
+------------------
 
-2.19.0 (2023-05-02)
--------------------
+3.5.0 (2023-04-14)
+------------------
 
-2.18.0 (2023-04-29)
--------------------
+3.4.0 (2023-04-02)
+------------------
 
-2.17.3 (2023-04-14)
--------------------
+3.3.0 (2023-03-07)
+------------------
 
-2.17.2 (2023-03-07)
--------------------
+3.2.0 (2023-02-10)
+------------------
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
+* Contributors: Tyler Weaver, Chris Thrasher
 
-2.17.1 (2023-02-20)
--------------------
+3.1.0 (2023-01-26)
+------------------
 
-2.17.0 (2023-02-13)
--------------------
-
-2.16.1 (2023-01-31)
--------------------
-
-2.16.0 (2023-01-19)
--------------------
+3.0.0 (2023-01-19)
+------------------
 
 2.15.0 (2022-12-06)
 -------------------
