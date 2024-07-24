@@ -345,8 +345,8 @@ void SteeringOdometry::integrate_fk(const double v_bx, const double omega_bz, co
 
 void SteeringOdometry::reset_accumulators()
 {
-  linear_acc_ = rcppmath::RollingMeanAccumulator<double>(velocity_rolling_window_size_);
-  angular_acc_ = rcppmath::RollingMeanAccumulator<double>(velocity_rolling_window_size_);
+  linear_acc_ = rcpputils::RollingMeanAccumulator<double>(velocity_rolling_window_size_);
+  angular_acc_ = rcpputils::RollingMeanAccumulator<double>(velocity_rolling_window_size_);
 }
 
 }  // namespace steering_odometry
