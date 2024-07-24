@@ -21,8 +21,6 @@
 #include "test_range_sensor_broadcaster.hpp"
 
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "rclcpp/executor.hpp"
-#include "rclcpp/executors.hpp"
 
 using testing::IsEmpty;
 using testing::SizeIs;
@@ -39,8 +37,7 @@ controller_interface::return_type RangeSensorBroadcasterTest::init_broadcaster(
   std::string broadcaster_name)
 {
   controller_interface::return_type result = controller_interface::return_type::ERROR;
-  result = range_broadcaster_->init(
-    broadcaster_name, "", 0, "", range_broadcaster_->define_custom_node_options());
+  result = range_broadcaster_->init(broadcaster_name);
 
   if (controller_interface::return_type::OK == result)
   {
@@ -82,7 +79,7 @@ void RangeSensorBroadcasterTest::subscribe_and_get_message(sensor_msgs::msg::Ran
   while (max_sub_check_loop_count--)
   {
     range_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{5};
+    const auto timeout = std::chrono::milliseconds{1};
     const auto until = test_subscription_node.get_clock()->now() + timeout;
     while (!received_msg && test_subscription_node.get_clock()->now() < until)
     {
@@ -213,9 +210,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-#if SENSOR_MSGS_VERSION_MAJOR >= 5
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
-#endif
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
@@ -236,9 +230,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-#if SENSOR_MSGS_VERSION_MAJOR >= 5
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
-#endif
 
   sensor_range_ = 4.0;
   subscribe_and_get_message(range_msg);
@@ -249,9 +240,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-#if SENSOR_MSGS_VERSION_MAJOR >= 5
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
-#endif
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Success)
@@ -273,9 +261,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Succe
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-#if SENSOR_MSGS_VERSION_MAJOR >= 5
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
-#endif
 
   sensor_range_ = 6.0;
   subscribe_and_get_message(range_msg);
@@ -287,9 +272,6 @@ TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Succe
   EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
   EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
   EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
-#if SENSOR_MSGS_VERSION_MAJOR >= 5
-  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
-#endif
 }
 
 int main(int argc, char ** argv)

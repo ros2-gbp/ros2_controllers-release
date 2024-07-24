@@ -22,6 +22,7 @@
 #include <cassert>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "control_toolbox/pid.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"

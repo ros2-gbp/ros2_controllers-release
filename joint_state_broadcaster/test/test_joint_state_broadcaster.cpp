@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cstddef>
+#include <stddef.h>
 
 #include <functional>
 #include <memory>
@@ -23,11 +23,12 @@
 #include "gmock/gmock.h"
 
 #include "hardware_interface/loaned_state_interface.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
+#include "joint_state_broadcaster/joint_state_broadcaster.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
-#include "rclcpp/executor.hpp"
-#include "rclcpp/executors.hpp"
 #include "rclcpp/utilities.hpp"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "test_joint_state_broadcaster.hpp"
 
 using hardware_interface::HW_IF_EFFORT;
@@ -68,8 +69,7 @@ void JointStateBroadcasterTest::SetUpStateBroadcaster(
 void JointStateBroadcasterTest::init_broadcaster_and_set_parameters(
   const std::vector<std::string> & joint_names, const std::vector<std::string> & interfaces)
 {
-  const auto result = state_broadcaster_->init(
-    "joint_state_broadcaster", "", 0, "", state_broadcaster_->define_custom_node_options());
+  const auto result = state_broadcaster_->init("joint_state_broadcaster");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   state_broadcaster_->get_node()->set_parameter({"joints", joint_names});
@@ -679,7 +679,7 @@ void JointStateBroadcasterTest::activate_and_get_joint_state_message(
   while (max_sub_check_loop_count--)
   {
     state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{5};
+    const auto timeout = std::chrono::milliseconds{1};
     const auto until = test_node.get_clock()->now() + timeout;
     while (!received_msg && test_node.get_clock()->now() < until)
     {
@@ -757,7 +757,7 @@ void JointStateBroadcasterTest::test_published_dynamic_joint_state_message(
   while (max_sub_check_loop_count--)
   {
     state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{5};
+    const auto timeout = std::chrono::milliseconds{1};
     const auto until = test_node.get_clock()->now() + timeout;
     while (test_node.get_clock()->now() < until)
     {

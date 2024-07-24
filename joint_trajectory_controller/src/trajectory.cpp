@@ -20,6 +20,7 @@
 #include "hardware_interface/macros.hpp"
 #include "rclcpp/duration.hpp"
 #include "rclcpp/time.hpp"
+#include "std_msgs/msg/header.hpp"
 
 namespace joint_trajectory_controller
 {
