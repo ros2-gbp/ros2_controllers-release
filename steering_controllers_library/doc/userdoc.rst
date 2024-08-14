@@ -21,7 +21,7 @@ For an introduction to mobile robot kinematics and the nomenclature used here, s
 Execution logic of the controller
 ----------------------------------
 
-The controller uses velocity input, i.e., stamped or unstamped `twist messages <twist_msg_>`_ where linear ``x`` and angular ``z`` components are used.
+The controller uses velocity input, i.e., stamped `twist messages <twist_msg_>`_ where linear ``x`` and angular ``z`` components are used.
 Values in other components are ignored.
 
 In the chain mode the controller provides two reference interfaces, one for linear velocity and one for steering angle position.
@@ -97,9 +97,6 @@ Subscribers
 Used when controller is not in chained mode (``in_chained_mode == false``).
 
 - ``<controller_name>/reference``  [`geometry_msgs/msg/TwistStamped <twist_msg_>`_]
-  If parameter ``use_stamped_vel`` is ``true``.
-- ``<controller_name>/reference_unstamped``   [geometry_msgs/msg/Twist]
-  If parameter ``use_stamped_vel`` is ``false``.
 
 Publishers
 ,,,,,,,,,,,
