@@ -147,6 +147,18 @@ AdmittanceController::on_export_reference_interfaces()
 controller_interface::CallbackReturn AdmittanceController::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  try
+  {
+    parameter_handler_ = std::make_shared<admittance_controller::ParamListener>(get_node());
+    admittance_ = std::make_unique<admittance_controller::AdmittanceRule>(parameter_handler_);
+  }
+  catch (const std::exception & e)
+  {
+    RCLCPP_ERROR(
+      get_node()->get_logger(), "Exception thrown during init stage with message: %s \n", e.what());
+    return controller_interface::CallbackReturn::ERROR;
+  }
+
   command_joint_names_ = admittance_->parameters_.command_joints;
   if (command_joint_names_.empty())
   {
@@ -358,8 +370,7 @@ controller_interface::CallbackReturn AdmittanceController::on_activate(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type AdmittanceController::update_reference_from_subscribers(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+controller_interface::return_type AdmittanceController::update_reference_from_subscribers()
 {
   // update input reference from ros subscriber message
   if (!admittance_)
@@ -480,13 +491,13 @@ void AdmittanceController::read_state_from_hardware(
         state_interfaces_[pos_ind * num_joints_ + joint_ind].get_value();
       nan_position |= std::isnan(state_current.positions[joint_ind]);
     }
-    else if (has_velocity_state_interface_)
+    if (has_velocity_state_interface_)
     {
       state_current.velocities[joint_ind] =
         state_interfaces_[vel_ind * num_joints_ + joint_ind].get_value();
       nan_velocity |= std::isnan(state_current.velocities[joint_ind]);
     }
-    else if (has_acceleration_state_interface_)
+    if (has_acceleration_state_interface_)
     {
       state_current.accelerations[joint_ind] =
         state_interfaces_[acc_ind * num_joints_ + joint_ind].get_value();
@@ -532,15 +543,15 @@ void AdmittanceController::write_state_to_hardware(
       command_interfaces_[pos_ind * num_joints_ + joint_ind].set_value(
         state_commanded.positions[joint_ind]);
     }
-    else if (has_velocity_command_interface_)
+    if (has_velocity_command_interface_)
     {
       command_interfaces_[vel_ind * num_joints_ + joint_ind].set_value(
-        state_commanded.positions[joint_ind]);
+        state_commanded.velocities[joint_ind]);
     }
-    else if (has_acceleration_command_interface_)
+    if (has_acceleration_command_interface_)
     {
       command_interfaces_[acc_ind * num_joints_ + joint_ind].set_value(
-        state_commanded.positions[joint_ind]);
+        state_commanded.accelerations[joint_ind]);
     }
   }
   last_commanded_ = state_commanded;
