@@ -22,10 +22,14 @@
 #include <tuple>
 #include <vector>
 
-#include "realtime_tools/realtime_buffer.h"
-#include "realtime_tools/realtime_publisher.h"
+#include <rclcpp/time.hpp>
 
+// \note The versions conditioning is added here to support the source-compatibility with Humble
+#if RCPPUTILS_VERSION_MAJOR >= 2 && RCPPUTILS_VERSION_MINOR >= 6
 #include "rcpputils/rolling_mean_accumulator.hpp"
+#else
+#include "rcppmath/rolling_mean_accumulator.hpp"
+#endif
 
 namespace steering_odometry
 {
@@ -245,6 +249,13 @@ private:
    */
   void reset_accumulators();
 
+// \note The versions conditioning is added here to support the source-compatibility with Humble
+#if RCPPUTILS_VERSION_MAJOR >= 2 && RCPPUTILS_VERSION_MINOR >= 6
+  using RollingMeanAccumulator = rcpputils::RollingMeanAccumulator<double>;
+#else
+  using RollingMeanAccumulator = rcppmath::RollingMeanAccumulator<double>;
+#endif
+
   /// Current timestamp:
   rclcpp::Time timestamp_;
 
@@ -272,8 +283,8 @@ private:
   double traction_left_wheel_old_pos_;
   /// Rolling mean accumulators for the linear and angular velocities:
   size_t velocity_rolling_window_size_;
-  rcpputils::RollingMeanAccumulator<double> linear_acc_;
-  rcpputils::RollingMeanAccumulator<double> angular_acc_;
+  RollingMeanAccumulator linear_acc_;
+  RollingMeanAccumulator angular_acc_;
 };
 }  // namespace steering_odometry
 

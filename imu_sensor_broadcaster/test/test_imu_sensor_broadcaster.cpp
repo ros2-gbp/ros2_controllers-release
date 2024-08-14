@@ -23,12 +23,9 @@
 #include <vector>
 
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "hardware_interface/types/hardware_interface_type_values.hpp"
-#include "imu_sensor_broadcaster/imu_sensor_broadcaster.hpp"
-#include "lifecycle_msgs/msg/state.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 #include "rclcpp/utilities.hpp"
-#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 
 using hardware_interface::LoanedStateInterface;
@@ -39,7 +36,6 @@ namespace
 {
 constexpr auto NODE_SUCCESS = controller_interface::CallbackReturn::SUCCESS;
 constexpr auto NODE_ERROR = controller_interface::CallbackReturn::ERROR;
-
 }  // namespace
 
 void IMUSensorBroadcasterTest::SetUpTestCase() {}
@@ -56,7 +52,8 @@ void IMUSensorBroadcasterTest::TearDown() { imu_broadcaster_.reset(nullptr); }
 
 void IMUSensorBroadcasterTest::SetUpIMUBroadcaster()
 {
-  const auto result = imu_broadcaster_->init("test_imu_sensor_broadcaster");
+  const auto result = imu_broadcaster_->init(
+    "test_imu_sensor_broadcaster", "", 0, "", imu_broadcaster_->define_custom_node_options());
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedStateInterface> state_ifs;
@@ -91,7 +88,7 @@ void IMUSensorBroadcasterTest::subscribe_and_get_message(sensor_msgs::msg::Imu &
   while (max_sub_check_loop_count--)
   {
     imu_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{1};
+    const auto timeout = std::chrono::milliseconds{5};
     const auto until = test_subscription_node.get_clock()->now() + timeout;
     while (!received_msg && test_subscription_node.get_clock()->now() < until)
     {

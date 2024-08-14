@@ -17,6 +17,8 @@
 #ifndef TEST_ADMITTANCE_CONTROLLER_HPP_
 #define TEST_ADMITTANCE_CONTROLLER_HPP_
 
+#include <gmock/gmock.h>
+
 #include <chrono>
 #include <map>
 #include <memory>
@@ -25,21 +27,18 @@
 #include <utility>
 #include <vector>
 
-#include "gmock/gmock.h"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 
 #include "admittance_controller/admittance_controller.hpp"
 #include "control_msgs/msg/admittance_controller_state.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "hardware_interface/loaned_command_interface.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "rclcpp/parameter_value.hpp"
-#include "rclcpp/utilities.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "semantic_components/force_torque_sensor.hpp"
 #include "test_asset_6d_robot_description.hpp"
 #include "tf2_ros/transform_broadcaster.h"
-#include "trajectory_msgs/msg/joint_trajectory.hpp"
 
 // TODO(anyone): replace the state and command message types
 using ControllerCommandWrenchMsg = geometry_msgs::msg::WrenchStamped;
@@ -164,7 +163,7 @@ protected:
   controller_interface::return_type SetUpControllerCommon(
     const std::string & controller_name, const rclcpp::NodeOptions & options)
   {
-    auto result = controller_->init(controller_name, "", options);
+    auto result = controller_->init(controller_name, "", 0, "", options);
 
     controller_->export_reference_interfaces();
     assign_interfaces();
@@ -271,7 +270,7 @@ protected:
       controller_interface::return_type::OK);
 
     // wait for message to be passed
-    const auto timeout = std::chrono::milliseconds{1};
+    const auto timeout = std::chrono::milliseconds{5};
     const auto until = test_subscription_node_->get_clock()->now() + timeout;
     while (!received_msg && test_subscription_node_->get_clock()->now() < until)
     {
