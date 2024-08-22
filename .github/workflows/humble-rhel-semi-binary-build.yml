@@ -16,7 +16,7 @@ on:
       - 'ros2_controllers.humble.repos'
   schedule:
     # Run every day to detect flakiness and broken dependencies
-    - cron: '03 1 * * *'
+    - cron: '03 2 * * *'
 
 jobs:
   humble_rhel_binary:
