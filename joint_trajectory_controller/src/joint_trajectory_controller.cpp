@@ -22,17 +22,20 @@
 #include <vector>
 
 #include "angles/angles.h"
+#include "builtin_interfaces/msg/duration.hpp"
+#include "builtin_interfaces/msg/time.hpp"
 #include "controller_interface/helpers.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "joint_trajectory_controller/trajectory.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
+#include "rclcpp/event_handler.hpp"
 #include "rclcpp/logging.hpp"
 #include "rclcpp/qos.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp_action/create_server.hpp"
 #include "rclcpp_action/server_goal_handle.hpp"
 #include "rclcpp_lifecycle/state.hpp"
-#include "urdf/model.h"
 
 namespace joint_trajectory_controller
 {
@@ -55,39 +58,13 @@ controller_interface::CallbackReturn JointTrajectoryController::on_init()
     return CallbackReturn::ERROR;
   }
 
-  const std::string & urdf = get_robot_description();
-  if (!urdf.empty())
+  // TODO(christophfroehlich): remove deprecation warning
+  if (params_.allow_nonzero_velocity_at_trajectory_end == false)
   {
-    urdf::Model model;
-    if (!model.initString(urdf))
-    {
-      RCLCPP_ERROR(get_node()->get_logger(), "Failed to parse robot description!");
-      return CallbackReturn::ERROR;
-    }
-    else
-    {
-      /// initialize the URDF model and update the joint angles wraparound vector
-      // Configure joint position error normalization (angle_wraparound)
-      joints_angle_wraparound_.resize(params_.joints.size(), false);
-      for (size_t i = 0; i < params_.joints.size(); ++i)
-      {
-        auto urdf_joint = model.getJoint(params_.joints[i]);
-        if (urdf_joint && urdf_joint->type == urdf::Joint::CONTINUOUS)
-        {
-          RCLCPP_DEBUG(
-            get_node()->get_logger(), "joint '%s' is of type continuous, use angle_wraparound.",
-            params_.joints[i].c_str());
-          joints_angle_wraparound_[i] = true;
-        }
-        // do nothing if joint is not found in the URDF
-      }
-      RCLCPP_DEBUG(get_node()->get_logger(), "Successfully parsed URDF file");
-    }
-  }
-  else
-  {
-    // empty URDF is used for some tests
-    RCLCPP_DEBUG(get_node()->get_logger(), "No URDF file given");
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "\"allow_nonzero_velocity_at_trajectory_end\" is set to false. (The default behavior changed "
+      "to false, and trajectories might get discarded.)");
   }
 
   return CallbackReturn::SUCCESS;
@@ -715,6 +692,23 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
     update_pids();
   }
 
+  // Configure joint position error normalization from ROS parameters (angle_wraparound)
+  joints_angle_wraparound_.resize(dof_);
+  for (size_t i = 0; i < dof_; ++i)
+  {
+    const auto & gains = params_.gains.joints_map.at(params_.joints[i]);
+    if (gains.normalize_error)
+    {
+      // TODO(anyone): Remove deprecation warning in the end of 2023
+      RCLCPP_INFO(logger, "`normalize_error` is deprecated, use `angle_wraparound` instead!");
+      joints_angle_wraparound_[i] = gains.normalize_error;
+    }
+    else
+    {
+      joints_angle_wraparound_[i] = gains.angle_wraparound;
+    }
+  }
+
   if (params_.state_interfaces.empty())
   {
     RCLCPP_ERROR(logger, "'state_interfaces' parameter is empty.");
@@ -936,8 +930,19 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
     read_state_from_state_interfaces(last_commanded_state_);
   }
 
-  // The controller should start by holding position at the beginning of active state
-  add_new_trajectory_msg(set_hold_position());
+  // Should the controller start by holding position at the beginning of active state?
+  if (params_.start_with_holding)
+  {
+    add_new_trajectory_msg(set_hold_position());
+  }
+  else
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "Parameter \"start_with_holding\" is deprecated. "
+      "It will be removed in a future release and start with holding position will be the default "
+      "behavior.");
+  }
   rt_is_holding_.writeFromNonRT(true);
 
   // parse timeout parameter

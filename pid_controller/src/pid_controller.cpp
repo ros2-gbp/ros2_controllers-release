@@ -24,30 +24,18 @@
 
 #include "angles/angles.h"
 #include "control_msgs/msg/single_dof_state.hpp"
-#include "rclcpp/version.h"
+#include "controller_interface/helpers.hpp"
+
+#include "rclcpp/rclcpp.hpp"
 
 namespace
 {  // utility
 
 // Changed services history QoS to keep all so we don't lose any client service calls
-// \note The versions conditioning is added here to support the source-compatibility with Humble
-#if RCLCPP_VERSION_MAJOR >= 17
 rclcpp::QoS qos_services =
   rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_ALL, 1))
     .reliable()
     .durability_volatile();
-#else
-static const rmw_qos_profile_t qos_services = {
-  RMW_QOS_POLICY_HISTORY_KEEP_ALL,
-  1,  // message queue depth
-  RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-  RMW_QOS_POLICY_DURABILITY_VOLATILE,
-  RMW_QOS_DEADLINE_DEFAULT,
-  RMW_QOS_LIFESPAN_DEFAULT,
-  RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-  RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-  false};
-#endif
 
 using ControllerCommandMsg = pid_controller::PidController::ControllerReferenceMsg;
 
@@ -185,10 +173,10 @@ controller_interface::CallbackReturn PidController::on_configure(
   if (params_.use_external_measured_states)
   {
     auto measured_state_callback =
-      [&](const std::shared_ptr<ControllerMeasuredStateMsg> state_msg) -> void
+      [&](const std::shared_ptr<ControllerMeasuredStateMsg> msg) -> void
     {
       // TODO(destogl): Sort the input values based on joint and interface names
-      measured_state_.writeFromNonRT(state_msg);
+      measured_state_.writeFromNonRT(msg);
     };
     measured_state_subscriber_ = get_node()->create_subscription<ControllerMeasuredStateMsg>(
       "~/measured_state", subscribers_qos, measured_state_callback);

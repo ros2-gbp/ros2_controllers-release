@@ -30,11 +30,15 @@
 #include "diff_drive_controller/odometry.hpp"
 #include "diff_drive_controller/speed_limiter.hpp"
 #include "diff_drive_controller/visibility_control.h"
+#include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "hardware_interface/handle.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "odometry.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "realtime_tools/realtime_box.h"
+#include "realtime_tools/realtime_buffer.h"
 #include "realtime_tools/realtime_publisher.h"
 #include "tf2_msgs/msg/tf_message.hpp"
 
@@ -129,6 +133,8 @@ protected:
 
   bool subscriber_is_active_ = false;
   rclcpp::Subscription<Twist>::SharedPtr velocity_command_subscriber_ = nullptr;
+  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr
+    velocity_command_unstamped_subscriber_ = nullptr;
 
   realtime_tools::RealtimeBox<std::shared_ptr<Twist>> received_velocity_msg_ptr_{nullptr};
 
@@ -151,6 +157,7 @@ protected:
   rclcpp::Time previous_publish_timestamp_{0, 0, RCL_CLOCK_UNINITIALIZED};
 
   bool is_halted = false;
+  bool use_stamped_vel_ = true;
 
   bool reset();
   void halt();
