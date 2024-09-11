@@ -32,7 +32,7 @@ on:
       - 'ros2_controllers-not-released.humble.repos'
   schedule:
     # Run every morning to detect flakiness and broken dependencies
-    - cron: '03 2 * * *'
+    - cron: '03 1 * * *'
 
 jobs:
   binary:

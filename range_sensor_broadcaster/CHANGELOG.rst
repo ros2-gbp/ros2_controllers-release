@@ -2,103 +2,120 @@
 Changelog for package range_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.37.3 (2024-09-11)
+3.26.3 (2024-09-11)
 -------------------
 
-2.37.2 (2024-08-22)
+3.26.2 (2024-08-22)
 -------------------
 
-2.37.1 (2024-08-14)
+3.26.1 (2024-08-14)
 -------------------
 
-2.37.0 (2024-07-24)
+3.26.0 (2024-07-24)
 -------------------
-* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>`_)
+* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1212 <https://github.com/ros-controls/ros2_controllers/issues/1212>`_)
 * Contributors: mergify[bot]
 
-2.36.0 (2024-07-09)
+3.25.0 (2024-07-09)
 -------------------
 
-2.35.0 (2024-05-22)
+3.24.0 (2024-05-14)
 -------------------
 
-2.34.0 (2024-04-01)
+3.23.0 (2024-04-30)
 -------------------
-* Let sphinx add parameter description with nested structures to documentation (backport `#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1005 <https://github.com/ros-controls/ros2_controllers/issues/1005>`_)
+
+3.22.0 (2024-02-12)
+-------------------
+* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1020 <https://github.com/ros-controls/ros2_controllers/issues/1020>`_)
+* Add tests for `interface_configuration_type` consistently (backport `#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1007 <https://github.com/ros-controls/ros2_controllers/issues/1007>`_)
+* Let sphinx add parameter description with nested structures to documentation (`#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1006 <https://github.com/ros-controls/ros2_controllers/issues/1006>`_)
 * Contributors: mergify[bot]
 
-2.33.0 (2024-02-12)
--------------------
-* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>`_)
-* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>`_)
-* Contributors: mergify[bot]
-
-2.32.0 (2024-01-20)
--------------------
-* Increase test coverage of interface configuration getters (`#856 <https://github.com/ros-controls/ros2_controllers/issues/856>`_) (`#865 <https://github.com/ros-controls/ros2_controllers/issues/865>`_)
-* Contributors: mergify[bot]
-
-2.31.0 (2024-01-11)
+3.21.0 (2024-01-20)
 -------------------
 
-2.30.0 (2023-12-20)
+3.20.2 (2024-01-11)
 -------------------
 
-2.29.0 (2023-12-05)
+3.20.1 (2024-01-08)
 -------------------
 
-2.28.0 (2023-11-30)
+3.20.0 (2024-01-03)
 -------------------
 
-2.27.0 (2023-11-14)
+3.19.2 (2023-12-12)
 -------------------
 
-2.26.0 (2023-10-03)
--------------------
-* add a broadcaster for range sensor (backport `#725 <https://github.com/ros-controls/ros2_controllers/issues/725>`_) (`#766 <https://github.com/ros-controls/ros2_controllers/issues/766>`_)
-* Contributors: mergify[bot]
-
-2.25.0 (2023-09-15)
+3.19.1 (2023-12-05)
 -------------------
 
-2.24.0 (2023-08-07)
+3.19.0 (2023-12-01)
+-------------------
+* Increase test coverage of interface configuration getters (backport `#856 <https://github.com/ros-controls/ros2_controllers/issues/856>`_)
+* Contributors: Christoph Froehlich
+
+3.18.0 (2023-11-21)
 -------------------
 
-2.23.0 (2023-06-23)
+3.17.0 (2023-10-31)
 -------------------
 
-2.22.0 (2023-06-14)
+3.16.0 (2023-09-20)
 -------------------
 
-2.21.0 (2023-05-28)
+3.15.0 (2023-09-11)
+-------------------
+* add a broadcaster for range sensor (`#725 <https://github.com/ros-controls/ros2_controllers/issues/725>`_)
+* Contributors: flochre
+
+3.14.0 (2023-08-16)
 -------------------
 
-2.20.0 (2023-05-14)
+3.13.0 (2023-08-04)
 -------------------
 
-2.19.0 (2023-05-02)
+3.12.0 (2023-07-18)
 -------------------
 
-2.18.0 (2023-04-29)
+3.11.0 (2023-06-24)
 -------------------
 
-2.17.3 (2023-04-14)
+3.10.1 (2023-06-06)
 -------------------
 
-2.17.2 (2023-03-07)
+3.10.0 (2023-06-04)
 -------------------
 
-2.17.1 (2023-02-20)
--------------------
+3.9.0 (2023-05-28)
+------------------
 
-2.17.0 (2023-02-13)
--------------------
+3.8.0 (2023-05-14)
+------------------
 
-2.16.1 (2023-01-31)
--------------------
+3.7.0 (2023-05-02)
+------------------
 
-2.16.0 (2023-01-19)
--------------------
+3.6.0 (2023-04-29)
+------------------
+
+3.5.0 (2023-04-14)
+------------------
+
+3.4.0 (2023-04-02)
+------------------
+
+3.3.0 (2023-03-07)
+------------------
+
+3.2.0 (2023-02-10)
+------------------
+
+3.1.0 (2023-01-26)
+------------------
+
+3.0.0 (2023-01-19)
+------------------
 
 2.15.0 (2022-12-06)
 -------------------

@@ -2,122 +2,150 @@
 Changelog for package admittance_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.37.3 (2024-09-11)
+3.26.3 (2024-09-11)
 -------------------
 
-2.37.2 (2024-08-22)
+3.26.2 (2024-08-22)
 -------------------
-* Fix segfault at reconfigure of AdmittanceController (`#1248 <https://github.com/ros-controls/ros2_controllers/issues/1248>`_) (`#1265 <https://github.com/ros-controls/ros2_controllers/issues/1265>`_)
+* Fix segfault at reconfigure of AdmittanceController (`#1248 <https://github.com/ros-controls/ros2_controllers/issues/1248>`_) (`#1266 <https://github.com/ros-controls/ros2_controllers/issues/1266>`_)
 * Contributors: mergify[bot]
 
-2.37.1 (2024-08-14)
+3.26.1 (2024-08-14)
 -------------------
-* Fix admittance controller interface read/write logic (backport `#1232 <https://github.com/ros-controls/ros2_controllers/issues/1232>`_) (`#1234 <https://github.com/ros-controls/ros2_controllers/issues/1234>`_)
+* Fix admittance controller interface read/write logic (backport `#1232 <https://github.com/ros-controls/ros2_controllers/issues/1232>`_) (`#1235 <https://github.com/ros-controls/ros2_controllers/issues/1235>`_)
 * Contributors: mergify[bot]
 
-2.37.0 (2024-07-24)
+3.26.0 (2024-07-24)
 -------------------
-* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>`_)
+* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1212 <https://github.com/ros-controls/ros2_controllers/issues/1212>`_)
 * Contributors: mergify[bot]
 
-2.36.0 (2024-07-09)
+3.25.0 (2024-07-09)
 -------------------
 
-2.35.0 (2024-05-22)
+3.24.0 (2024-05-14)
 -------------------
 
-2.34.0 (2024-04-01)
+3.23.0 (2024-04-30)
 -------------------
-* Use CMake target for eigen (`#1058 <https://github.com/ros-controls/ros2_controllers/issues/1058>`_) (`#1066 <https://github.com/ros-controls/ros2_controllers/issues/1066>`_)
-* Let sphinx add parameter description with nested structures to documentation (backport `#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1005 <https://github.com/ros-controls/ros2_controllers/issues/1005>`_)
+* Use CMake target for eigen (`#1058 <https://github.com/ros-controls/ros2_controllers/issues/1058>`_) (`#1067 <https://github.com/ros-controls/ros2_controllers/issues/1067>`_)
 * Contributors: mergify[bot]
 
-2.33.0 (2024-02-12)
+3.22.0 (2024-02-12)
 -------------------
-* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>`_)
-* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>`_)
+* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1020 <https://github.com/ros-controls/ros2_controllers/issues/1020>`_)
+* Add tests for `interface_configuration_type` consistently (backport `#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1007 <https://github.com/ros-controls/ros2_controllers/issues/1007>`_)
+* Let sphinx add parameter description with nested structures to documentation (`#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1006 <https://github.com/ros-controls/ros2_controllers/issues/1006>`_)
 * Contributors: mergify[bot]
 
-2.32.0 (2024-01-20)
+3.21.0 (2024-01-20)
 -------------------
 
-2.31.0 (2024-01-11)
+3.20.2 (2024-01-11)
 -------------------
 
-2.30.0 (2023-12-20)
+3.20.1 (2024-01-08)
 -------------------
 
-2.29.0 (2023-12-05)
+3.20.0 (2024-01-03)
 -------------------
 
-2.28.0 (2023-11-30)
+3.19.2 (2023-12-12)
 -------------------
 
-2.27.0 (2023-11-14)
+3.19.1 (2023-12-05)
 -------------------
 
-2.26.0 (2023-10-03)
+3.19.0 (2023-12-01)
 -------------------
 
-2.25.0 (2023-09-15)
+3.18.0 (2023-11-21)
 -------------------
-* Update docs for diff drive controller (`#751 <https://github.com/ros-controls/ros2_controllers/issues/751>`_) (`#753 <https://github.com/ros-controls/ros2_controllers/issues/753>`_)
+
+3.17.0 (2023-10-31)
+-------------------
+
+3.16.0 (2023-09-20)
+-------------------
+
+3.15.0 (2023-09-11)
+-------------------
+* Update docs for diff drive controller (`#751 <https://github.com/ros-controls/ros2_controllers/issues/751>`_)
 * Contributors: Christoph Fröhlich
 
-2.24.0 (2023-08-07)
+3.14.0 (2023-08-16)
 -------------------
-* Activate AdmittanceControllerTestParameterizedInvalidParameters (`#711 <https://github.com/ros-controls/ros2_controllers/issues/711>`_) (`#733 <https://github.com/ros-controls/ros2_controllers/issues/733>`_)
-* Fix file name for include guard (backport `#681 <https://github.com/ros-controls/ros2_controllers/issues/681>`_)
-* Fix out of bound access in admittance controller (`#721 <https://github.com/ros-controls/ros2_controllers/issues/721>`_) (`#722 <https://github.com/ros-controls/ros2_controllers/issues/722>`_)
+
+3.13.0 (2023-08-04)
+-------------------
+* Fix out of bound access in admittance controller (`#721 <https://github.com/ros-controls/ros2_controllers/issues/721>`_)
+* Contributors: Abishalini Sivaraman
+
+3.12.0 (2023-07-18)
+-------------------
+* Activate AdmittanceControllerTestParameterizedInvalidParameters (`#711 <https://github.com/ros-controls/ros2_controllers/issues/711>`_)
 * Contributors: Christoph Fröhlich
 
-2.23.0 (2023-06-23)
+3.11.0 (2023-06-24)
 -------------------
-* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_) (`#677 <https://github.com/ros-controls/ros2_controllers/issues/677>`_)
-* Contributors: Bence Magyar
+* Fix cpplint (`#681 <https://github.com/ros-controls/ros2_controllers/issues/681>`_)
+* Added -Wconversion flag and fix warnings (`#667 <https://github.com/ros-controls/ros2_controllers/issues/667>`_)
+* Contributors: Christoph Fröhlich, gwalck
 
-2.22.0 (2023-06-14)
--------------------
-* Docs: Use branch name substitution for all links (backport `#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_) (`#633 <https://github.com/ros-controls/ros2_controllers/issues/633>`_)
-* [JTC] Fix missing parameter deprecation warnings (`#630 <https://github.com/ros-controls/ros2_controllers/issues/630>`_)
-* [Formatting] enable ReflowComments to also use ColumnLimit on comments   (`#628 <https://github.com/ros-controls/ros2_controllers/issues/628>`_)
-* Contributors: Noel Jiménez García, Sai Kishor Kothakota, Christoph Fröhlich
-
-2.21.0 (2023-05-28)
--------------------
-* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_) (`#617 <https://github.com/ros-controls/ros2_controllers/issues/617>`_)
-* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_) (`#605 <https://github.com/ros-controls/ros2_controllers/issues/605>`_)
-* Contributors: Felix Exner (fexner), Christoph Fröhlich
-
-2.20.0 (2023-05-14)
+3.10.1 (2023-06-06)
 -------------------
 
-2.19.0 (2023-05-02)
+3.10.0 (2023-06-04)
 -------------------
+* enable ReflowComments to also use ColumnLimit on comments (`#625 <https://github.com/ros-controls/ros2_controllers/issues/625>`_)
+* Contributors: Sai Kishor Kothakota
 
-2.18.0 (2023-04-29)
--------------------
-* Fix docs format (`#591 <https://github.com/ros-controls/ros2_controllers/issues/591>`_)
+3.9.0 (2023-05-28)
+------------------
+* Use branch name substitution for all links (`#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_)
+* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_)
 * Contributors: Christoph Fröhlich
 
-2.17.3 (2023-04-14)
--------------------
+3.8.0 (2023-05-14)
+------------------
 
-2.17.2 (2023-03-07)
--------------------
+3.7.0 (2023-05-02)
+------------------
 
-2.17.1 (2023-02-20)
--------------------
+3.6.0 (2023-04-29)
+------------------
+* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_)
+* Fix docs format (`#589 <https://github.com/ros-controls/ros2_controllers/issues/589>`_)
+* Contributors: Bence Magyar, Christoph Fröhlich
 
-2.17.0 (2023-02-13)
--------------------
+3.5.0 (2023-04-14)
+------------------
+* Misplaced param init in admittance_controller (`#547 <https://github.com/ros-controls/ros2_controllers/issues/547>`_)
+* [Parameters] Use `gt_eq` instead of deprecated `lower_bounds` in validators (`#561 <https://github.com/ros-controls/ros2_controllers/issues/561>`_)
+* Contributors: Dr. Denis, GuiHome
 
-2.16.1 (2023-01-31)
--------------------
+3.4.0 (2023-04-02)
+------------------
+* [AdmittanceController] Addintional argument in methods of ControllerInterface (`#553 <https://github.com/ros-controls/ros2_controllers/issues/553>`_)
+* Removed auto param decl (`#546 <https://github.com/ros-controls/ros2_controllers/issues/546>`_)
+* Contributors: Dr. Denis, GuiHome
 
-2.16.0 (2023-01-19)
--------------------
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
+3.3.0 (2023-03-07)
+------------------
+* Add comments about auto-generated header files (`#539 <https://github.com/ros-controls/ros2_controllers/issues/539>`_)
+* Contributors: AndyZe
+
+3.2.0 (2023-02-10)
+------------------
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
+* Contributors: Tyler Weaver, Chris Thrasher
+
+3.1.0 (2023-01-26)
+------------------
+
+3.0.0 (2023-01-19)
+------------------
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
 * Contributors: Bence Magyar
 
 2.15.0 (2022-12-06)

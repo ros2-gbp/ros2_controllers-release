@@ -1,8 +1,8 @@
 :github_url: https://github.com/ros-controls/ros2_controllers/blob/{REPOS_FILE_BRANCH}/doc/release_notes.rst
 
-Release Notes: Galactic to Humble
+Release Notes: Humble to Iron
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This list summarizes the changes between Galactic (previous) and Humble (current) releases. Bugfixes are not included in this list.
+This list summarizes the changes between Humble (previous) and Iron (current) releases. Bugfixes are not included in this list.
 
 .. note::
 
@@ -16,6 +16,7 @@ joint_trajectory_controller
 *****************************
 
 * Activate update of dynamic parameters (`#761 <https://github.com/ros-controls/ros2_controllers/pull/761>`_ and `#849 <https://github.com/ros-controls/ros2_controllers/pull/849>`_).
+* The parameter ``start_with_holding`` is deprecated, it will be removed in the next release (`#839 <https://github.com/ros-controls/ros2_controllers/pull/839>`_).
 * Continue with last trajectory-point on success, instead of hold-position from current state (`#842 <https://github.com/ros-controls/ros2_controllers/pull/842>`_).
 * Add console output for tolerance checks (`#932 <https://github.com/ros-controls/ros2_controllers/pull/932>`_):
 
@@ -51,3 +52,7 @@ pid_controller
 steering_controllers_library
 ********************************
 * Changing default int values to double in steering controller's yaml file. The controllers should now initialize successfully without specifying these parameters (`#927 <https://github.com/ros-controls/ros2_controllers/pull/927>`_).
+
+tricycle_controller
+************************
+* tricycle_controller now uses generate_parameter_library (`#957 <https://github.com/ros-controls/ros2_controllers/pull/957>`_).

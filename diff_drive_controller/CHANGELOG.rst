@@ -2,133 +2,158 @@
 Changelog for package diff_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.37.3 (2024-09-11)
+3.26.3 (2024-09-11)
 -------------------
 
-2.37.2 (2024-08-22)
+3.26.2 (2024-08-22)
 -------------------
 
-2.37.1 (2024-08-14)
+3.26.1 (2024-08-14)
 -------------------
 
-2.37.0 (2024-07-24)
+3.26.0 (2024-07-24)
 -------------------
-* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>`_)
+* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1212 <https://github.com/ros-controls/ros2_controllers/issues/1212>`_)
 * Contributors: mergify[bot]
 
-2.36.0 (2024-07-09)
+3.25.0 (2024-07-09)
 -------------------
-* Add mobile robot kinematics 101 and improve steering library docs (`#954 <https://github.com/ros-controls/ros2_controllers/issues/954>`_) (`#1160 <https://github.com/ros-controls/ros2_controllers/issues/1160>`_)
-* Bump version of pre-commit hooks (`#1157 <https://github.com/ros-controls/ros2_controllers/issues/1157>`_) (`#1158 <https://github.com/ros-controls/ros2_controllers/issues/1158>`_)
+* Add mobile robot kinematics 101 and improve steering library docs (`#954 <https://github.com/ros-controls/ros2_controllers/issues/954>`_) (`#1161 <https://github.com/ros-controls/ros2_controllers/issues/1161>`_)
+* Bump version of pre-commit hooks (`#1157 <https://github.com/ros-controls/ros2_controllers/issues/1157>`_) (`#1159 <https://github.com/ros-controls/ros2_controllers/issues/1159>`_)
 * Contributors: mergify[bot]
 
-2.35.0 (2024-05-22)
+3.24.0 (2024-05-14)
 -------------------
-* Add parameter check for geometric values (backport `#1120 <https://github.com/ros-controls/ros2_controllers/issues/1120>`_) (`#1125 <https://github.com/ros-controls/ros2_controllers/issues/1125>`_)
+* Remove non-existing parameter (`#1119 <https://github.com/ros-controls/ros2_controllers/issues/1119>`_) (`#1127 <https://github.com/ros-controls/ros2_controllers/issues/1127>`_)
+* Deprecate non-stamped twist for tricycle_controller and steering_controllers (`#1093 <https://github.com/ros-controls/ros2_controllers/issues/1093>`_) (`#1124 <https://github.com/ros-controls/ros2_controllers/issues/1124>`_)
+* Add parameter check for geometric values (`#1120 <https://github.com/ros-controls/ros2_controllers/issues/1120>`_) (`#1126 <https://github.com/ros-controls/ros2_controllers/issues/1126>`_)
 * Contributors: mergify[bot]
 
-2.34.0 (2024-04-01)
+3.23.0 (2024-04-30)
 -------------------
-* Let sphinx add parameter description with nested structures to documentation (backport `#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1005 <https://github.com/ros-controls/ros2_controllers/issues/1005>`_)
+* [diff_drive] Remove unused parameter and add simple validation #abi-breaking (backport `#958 <https://github.com/ros-controls/ros2_controllers/issues/958>`_) (`#1056 <https://github.com/ros-controls/ros2_controllers/issues/1056>`_)
+* Contributors: Christoph Fröhlich
+
+3.22.0 (2024-02-12)
+-------------------
+* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1020 <https://github.com/ros-controls/ros2_controllers/issues/1020>`_)
+* Add tests for `interface_configuration_type` consistently (backport `#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1007 <https://github.com/ros-controls/ros2_controllers/issues/1007>`_)
+* Let sphinx add parameter description with nested structures to documentation (`#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1006 <https://github.com/ros-controls/ros2_controllers/issues/1006>`_)
 * Contributors: mergify[bot]
 
-2.33.0 (2024-02-12)
--------------------
-* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>`_)
-* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>`_)
-* Contributors: mergify[bot]
-
-2.32.0 (2024-01-20)
+3.21.0 (2024-01-20)
 -------------------
 
-2.31.0 (2024-01-11)
+3.20.2 (2024-01-11)
 -------------------
 
-2.30.0 (2023-12-20)
--------------------
-* [DiffDriveController] Optional tf namespace prefixes instead of using node namespace (backport `#533 <https://github.com/ros-controls/ros2_controllers/issues/533>`_) (`#726 <https://github.com/ros-controls/ros2_controllers/issues/726>`_)
-* Contributors: mergify[bot]
-
-2.29.0 (2023-12-05)
+3.20.1 (2024-01-08)
 -------------------
 
-2.28.0 (2023-11-30)
+3.20.0 (2024-01-03)
 -------------------
 
-2.27.0 (2023-11-14)
+3.19.2 (2023-12-12)
 -------------------
-* [diff_drive_controller] Fixed typos in diff_drive_controller_parameter.yaml. (`#822 <https://github.com/ros-controls/ros2_controllers/issues/822>`_) (`#823 <https://github.com/ros-controls/ros2_controllers/issues/823>`_)
+
+3.19.1 (2023-12-05)
+-------------------
+
+3.19.0 (2023-12-01)
+-------------------
+
+3.18.0 (2023-11-21)
+-------------------
+* [diff_drive_controller] Fixed typos in diff_drive_controller_parameter.yaml. (`#822 <https://github.com/ros-controls/ros2_controllers/issues/822>`_) (`#824 <https://github.com/ros-controls/ros2_controllers/issues/824>`_)
 * Contributors: Tony Baltovski
 
-2.26.0 (2023-10-03)
+3.17.0 (2023-10-31)
 -------------------
 
-2.25.0 (2023-09-15)
--------------------
-* removed duplicated previous_publish_timestamp\_ increment by publish_period\_ in diff_drive_controller.cpp (`#644 <https://github.com/ros-controls/ros2_controllers/issues/644>`_) (`#777 <https://github.com/ros-controls/ros2_controllers/issues/777>`_)
-* Update docs for diff drive controller (`#751 <https://github.com/ros-controls/ros2_controllers/issues/751>`_) (`#753 <https://github.com/ros-controls/ros2_controllers/issues/753>`_)
-* Contributors: Christoph Fröhlich, Jules CARPENTIER
-
-2.24.0 (2023-08-07)
+3.16.0 (2023-09-20)
 -------------------
 
-2.23.0 (2023-06-23)
+3.15.0 (2023-09-11)
 -------------------
-* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_) (`#677 <https://github.com/ros-controls/ros2_controllers/issues/677>`_)
-* Contributors: Bence Magyar
+* Update docs for diff drive controller (`#751 <https://github.com/ros-controls/ros2_controllers/issues/751>`_)
+* Contributors: Christoph Fröhlich
 
-2.22.0 (2023-06-14)
+3.14.0 (2023-08-16)
 -------------------
-* Use generate_parameter_library for all params (`#601 <https://github.com/ros-controls/ros2_controllers/issues/601>`_) (`#627 <https://github.com/ros-controls/ros2_controllers/issues/627>`_)
-* Docs: Use branch name substitution for all links (backport `#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_) (`#633 <https://github.com/ros-controls/ros2_controllers/issues/633>`_)
-* [Formatting] enable ReflowComments to also use ColumnLimit on comments   (`#628 <https://github.com/ros-controls/ros2_controllers/issues/628>`_)
-* Contributors: Sai Kishor Kothakota, Christoph Fröhlich
 
-2.21.0 (2023-05-28)
+3.13.0 (2023-08-04)
 -------------------
-* Fix compilation warnings (`#621 <https://github.com/ros-controls/ros2_controllers/issues/621>`_) (`#623 <https://github.com/ros-controls/ros2_controllers/issues/623>`_)
-* Remove compile warnings. (`#519 <https://github.com/ros-controls/ros2_controllers/issues/519>`_) (`#620 <https://github.com/ros-controls/ros2_controllers/issues/620>`_)
-* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_) (`#617 <https://github.com/ros-controls/ros2_controllers/issues/617>`_)
-* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_) (`#605 <https://github.com/ros-controls/ros2_controllers/issues/605>`_)
-* Contributors: Felix Exner (fexner), Christoph Fröhlich, Mathias Lüdtke, Noel Jiménez García
+* [DiffDriveController] Optional tf namespace prefixes instead of using node namespace (`#533 <https://github.com/ros-controls/ros2_controllers/issues/533>`_)
+* Contributors: Ben Holden, Bence Magyar
 
-2.20.0 (2023-05-14)
+3.12.0 (2023-07-18)
 -------------------
-* Clear registered handles of DiffDriveController on deactivate (`#596 <https://github.com/ros-controls/ros2_controllers/issues/596>`_) (`#606 <https://github.com/ros-controls/ros2_controllers/issues/606>`_)
+
+3.11.0 (2023-06-24)
+-------------------
+* Added -Wconversion flag and fix warnings (`#667 <https://github.com/ros-controls/ros2_controllers/issues/667>`_)
+* Contributors: gwalck
+
+3.10.1 (2023-06-06)
+-------------------
+
+3.10.0 (2023-06-04)
+-------------------
+* removed duplicated previous_publish_timestamp\_ increment by publish_period\_ in diff_drive_controller.cpp (`#644 <https://github.com/ros-controls/ros2_controllers/issues/644>`_)
+* enable ReflowComments to also use ColumnLimit on comments (`#625 <https://github.com/ros-controls/ros2_controllers/issues/625>`_)
+* Contributors: Sai Kishor Kothakota, Jules CARPENTIER
+
+3.9.0 (2023-05-28)
+------------------
+* Use generate_parameter_library for all params (`#601 <https://github.com/ros-controls/ros2_controllers/issues/601>`_)
+* Use branch name substitution for all links (`#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_)
+* Fix compilation warnings (`#621 <https://github.com/ros-controls/ros2_controllers/issues/621>`_)
+* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_)
+* Contributors: Christoph Fröhlich, Noel Jiménez García, Mathias Lüdtke
+
+3.8.0 (2023-05-14)
+------------------
+* Clear registered handles of DiffDriveController on deactivate (`#596 <https://github.com/ros-controls/ros2_controllers/issues/596>`_)
 * Contributors: Noel Jiménez García
 
-2.19.0 (2023-05-02)
--------------------
-* Fix wrong publish timestamp initialization (`#585 <https://github.com/ros-controls/ros2_controllers/issues/585>`_) (`#593 <https://github.com/ros-controls/ros2_controllers/issues/593>`_)
-* Contributors: mergify[bot]
+3.7.0 (2023-05-02)
+------------------
+* Fix wrong publish timestamp initialization (`#585 <https://github.com/ros-controls/ros2_controllers/issues/585>`_)
+* Contributors: Noel Jiménez García
 
-2.18.0 (2023-04-29)
--------------------
-* adjusted open_loop param description in diff_drive_controller_parameter.yaml (`#570 <https://github.com/ros-controls/ros2_controllers/issues/570>`_) (`#576 <https://github.com/ros-controls/ros2_controllers/issues/576>`_)
-* Contributors: muritane
+3.6.0 (2023-04-29)
+------------------
+* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_)
+* adjusted open_loop param description in diff_drive_controller_parameter.yaml (`#570 <https://github.com/ros-controls/ros2_controllers/issues/570>`_)
+* Contributors: Bence Magyar, muritane
 
-2.17.3 (2023-04-14)
--------------------
+3.5.0 (2023-04-14)
+------------------
 
-2.17.2 (2023-03-07)
--------------------
+3.4.0 (2023-04-02)
+------------------
 
-2.17.1 (2023-02-20)
--------------------
-* [DiffDriveController] Fix prefixing of frame id with controller's namespace (`#522 <https://github.com/ros-controls/ros2_controllers/issues/522>`_)
-* Contributors: Tim Verbelen
+3.3.0 (2023-03-07)
+------------------
+* Add comments about auto-generated header files (`#539 <https://github.com/ros-controls/ros2_controllers/issues/539>`_)
+* Contributors: AndyZe
 
-2.17.0 (2023-02-13)
--------------------
+3.2.0 (2023-02-10)
+------------------
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
+* Remove compile warnings. (`#519 <https://github.com/ros-controls/ros2_controllers/issues/519>`_)
+* Contributors: Dr. Denis, Tyler Weaver, Chris Thrasher
 
-2.16.1 (2023-01-31)
--------------------
+3.1.0 (2023-01-26)
+------------------
 
-2.16.0 (2023-01-19)
--------------------
-* diff_drive base_frame_id param (`#495 <https://github.com/ros-controls/ros2_controllers/issues/495>`_) (`#498 <https://github.com/ros-controls/ros2_controllers/issues/498>`_)
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
-* Contributors: Bence Magyar, Jakub Delicat
+3.0.0 (2023-01-19)
+------------------
+* diff_drive base_frame_id param (`#495 <https://github.com/ros-controls/ros2_controllers/issues/495>`_)
+  changed default value from `odom` -> `base_link`
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
+* Remove compilation warnings from DiffDriveController (`#477 <https://github.com/ros-controls/ros2_controllers/issues/477>`_)
+* Contributors: Bence Magyar, Denis Štogl, Jakub Delicat
 
 2.15.0 (2022-12-06)
 -------------------
