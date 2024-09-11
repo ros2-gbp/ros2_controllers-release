@@ -2,152 +2,113 @@
 Changelog for package joint_state_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.14.0 (2024-09-11)
--------------------
-* [JSB] Move the initialize of urdf::Model from on_activate to on_configure to improve real-time performance (`#1269 <https://github.com/ros-controls/ros2_controllers/issues/1269>`_)
-* Contributors: Takashi Sato
-
-4.13.0 (2024-08-22)
--------------------
-* [Joint State Broadcaster] Publish the joint_states of joints present in the URDF (`#1233 <https://github.com/ros-controls/ros2_controllers/issues/1233>`_)
-* Contributors: Sai Kishor Kothakota
-
-4.12.1 (2024-08-14)
+2.37.3 (2024-09-11)
 -------------------
 
-4.12.0 (2024-07-23)
--------------------
-* Add missing includes (`#1226 <https://github.com/ros-controls/ros2_controllers/issues/1226>`_)
-* Change the subscription timeout in the tests to 5ms (`#1219 <https://github.com/ros-controls/ros2_controllers/issues/1219>`_)
-* Unused header cleanup (`#1199 <https://github.com/ros-controls/ros2_controllers/issues/1199>`_)
-* Fix WaitSet issue in tests  (`#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_)
-* Fix parallel gripper controller CI (`#1202 <https://github.com/ros-controls/ros2_controllers/issues/1202>`_)
-* Contributors: Christoph Fröhlich, Henry Moore, Sai Kishor Kothakota
-
-4.11.0 (2024-07-09)
--------------------
-* added changes corresponding to the logger and clock propagation in ResourceManager (`#1184 <https://github.com/ros-controls/ros2_controllers/issues/1184>`_)
-* Contributors: Sai Kishor Kothakota
-
-4.10.0 (2024-07-01)
+2.37.2 (2024-08-22)
 -------------------
 
-4.9.0 (2024-06-05)
-------------------
+2.37.1 (2024-08-14)
+-------------------
 
-4.8.0 (2024-05-14)
-------------------
+2.37.0 (2024-07-24)
+-------------------
+* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>`_)
+* Contributors: mergify[bot]
 
-4.7.0 (2024-03-22)
-------------------
-* added conditioning to have rolling tags compilable in older versions (`#1071 <https://github.com/ros-controls/ros2_controllers/issues/1071>`_)
-* Contributors: Sai Kishor Kothakota
+2.36.0 (2024-07-09)
+-------------------
 
-4.6.0 (2024-02-12)
-------------------
-* Add test_depend on `hardware_interface_testing` (`#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_)
-* Fix tests for using new `get_node_options` API (`#840 <https://github.com/ros-controls/ros2_controllers/issues/840>`_)
-* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
+2.35.0 (2024-05-22)
+-------------------
 
-4.5.0 (2024-01-31)
-------------------
-* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_)
-* Let sphinx add parameter description with nested structures to documentation (`#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_)
+2.34.0 (2024-04-01)
+-------------------
+* Let sphinx add parameter description with nested structures to documentation (backport `#652 <https://github.com/ros-controls/ros2_controllers/issues/652>`_) (`#1005 <https://github.com/ros-controls/ros2_controllers/issues/1005>`_)
+* Contributors: mergify[bot]
+
+2.33.0 (2024-02-12)
+-------------------
+* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>`_)
+* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>`_)
+* Contributors: mergify[bot]
+
+2.32.0 (2024-01-20)
+-------------------
+* Increase test coverage of interface configuration getters (`#856 <https://github.com/ros-controls/ros2_controllers/issues/856>`_) (`#865 <https://github.com/ros-controls/ros2_controllers/issues/865>`_)
+* Contributors: mergify[bot]
+
+2.31.0 (2024-01-11)
+-------------------
+
+2.30.0 (2023-12-20)
+-------------------
+
+2.29.0 (2023-12-05)
+-------------------
+
+2.28.0 (2023-11-30)
+-------------------
+* joint_state_broadcaster: Add proper subscription to TestCustomInterfaceMappingUpdate (`#859 <https://github.com/ros-controls/ros2_controllers/issues/859>`_) (`#863 <https://github.com/ros-controls/ros2_controllers/issues/863>`_)
+* Contributors: mergify[bot]
+
+2.27.0 (2023-11-14)
+-------------------
+
+2.26.0 (2023-10-03)
+-------------------
+
+2.25.0 (2023-09-15)
+-------------------
+
+2.24.0 (2023-08-07)
+-------------------
+
+2.23.0 (2023-06-23)
+-------------------
+* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_) (`#677 <https://github.com/ros-controls/ros2_controllers/issues/677>`_)
+* Contributors: Bence Magyar
+
+2.22.0 (2023-06-14)
+-------------------
+* Docs: Use branch name substitution for all links (backport `#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_) (`#633 <https://github.com/ros-controls/ros2_controllers/issues/633>`_)
 * Contributors: Christoph Fröhlich
 
-4.4.0 (2024-01-11)
-------------------
+2.21.0 (2023-05-28)
+-------------------
+* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_) (`#617 <https://github.com/ros-controls/ros2_controllers/issues/617>`_)
+* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_) (`#605 <https://github.com/ros-controls/ros2_controllers/issues/605>`_)
+* Contributors: Felix Exner (fexner), Christoph Fröhlich
 
-4.3.0 (2024-01-08)
-------------------
-* Add few warning flags to error (`#961 <https://github.com/ros-controls/ros2_controllers/issues/961>`_)
-* Contributors: Sai Kishor Kothakota
+2.20.0 (2023-05-14)
+-------------------
 
-4.2.0 (2023-12-12)
-------------------
+2.19.0 (2023-05-02)
+-------------------
 
-4.1.0 (2023-12-01)
-------------------
-* Increase test coverage of interface configuration getters (`#856 <https://github.com/ros-controls/ros2_controllers/issues/856>`_)
-* joint_state_broadcaster: Add proper subscription to TestCustomInterfaceMappingUpdate (`#859 <https://github.com/ros-controls/ros2_controllers/issues/859>`_)
+2.18.0 (2023-04-29)
+-------------------
+* Fix docs format (`#591 <https://github.com/ros-controls/ros2_controllers/issues/591>`_)
 * Contributors: Christoph Fröhlich
 
-4.0.0 (2023-11-21)
-------------------
-* fix tests for API break of passing controller manager update rate in init method (`#854 <https://github.com/ros-controls/ros2_controllers/issues/854>`_)
-* Adjust tests after passing URDF to controllers (`#817 <https://github.com/ros-controls/ros2_controllers/issues/817>`_)
-* Contributors: Bence Magyar, Sai Kishor Kothakota
-
-3.17.0 (2023-10-31)
+2.17.3 (2023-04-14)
 -------------------
 
-3.16.0 (2023-09-20)
+2.17.2 (2023-03-07)
 -------------------
 
-3.15.0 (2023-09-11)
+2.17.1 (2023-02-20)
 -------------------
 
-3.14.0 (2023-08-16)
+2.17.0 (2023-02-13)
 -------------------
 
-3.13.0 (2023-08-04)
+2.16.1 (2023-01-31)
 -------------------
 
-3.12.0 (2023-07-18)
+2.16.0 (2023-01-19)
 -------------------
-
-3.11.0 (2023-06-24)
--------------------
-* Added -Wconversion flag and fix warnings (`#667 <https://github.com/ros-controls/ros2_controllers/issues/667>`_)
-* Contributors: gwalck
-
-3.10.1 (2023-06-06)
--------------------
-
-3.10.0 (2023-06-04)
--------------------
-
-3.9.0 (2023-05-28)
-------------------
-* Use branch name substitution for all links (`#618 <https://github.com/ros-controls/ros2_controllers/issues/618>`_)
-* [JTC] Fix deprecated header (`#610 <https://github.com/ros-controls/ros2_controllers/issues/610>`_)
-* Fix github links on control.ros.org (`#604 <https://github.com/ros-controls/ros2_controllers/issues/604>`_)
-* Contributors: Christoph Fröhlich
-
-3.8.0 (2023-05-14)
-------------------
-
-3.7.0 (2023-05-02)
-------------------
-
-3.6.0 (2023-04-29)
-------------------
-* Renovate load controller tests (`#569 <https://github.com/ros-controls/ros2_controllers/issues/569>`_)
-* Fix docs format (`#589 <https://github.com/ros-controls/ros2_controllers/issues/589>`_)
-* Contributors: Bence Magyar, Christoph Fröhlich
-
-3.5.0 (2023-04-14)
-------------------
-
-3.4.0 (2023-04-02)
-------------------
-
-3.3.0 (2023-03-07)
-------------------
-* Add comments about auto-generated header files (`#539 <https://github.com/ros-controls/ros2_controllers/issues/539>`_)
-* Contributors: AndyZe
-
-3.2.0 (2023-02-10)
-------------------
-* Fix overriding of install (`#510 <https://github.com/ros-controls/ros2_controllers/issues/510>`_)
-* Contributors: Tyler Weaver, Chris Thrasher
-
-3.1.0 (2023-01-26)
-------------------
-
-3.0.0 (2023-01-19)
-------------------
-* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_)
+* Add backward_ros to all controllers (`#489 <https://github.com/ros-controls/ros2_controllers/issues/489>`_) (`#493 <https://github.com/ros-controls/ros2_controllers/issues/493>`_)
 * Contributors: Bence Magyar
 
 2.15.0 (2022-12-06)

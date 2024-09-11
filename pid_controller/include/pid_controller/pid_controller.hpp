@@ -28,10 +28,16 @@
 #include "controller_interface/chainable_controller_interface.hpp"
 #include "pid_controller/visibility_control.h"
 #include "pid_controller_parameters.hpp"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "realtime_tools/realtime_buffer.h"
 #include "realtime_tools/realtime_publisher.h"
 #include "std_srvs/srv/set_bool.hpp"
+
+#include "control_msgs/msg/joint_controller_state.hpp"
+
+#include "control_msgs/msg/pid_state.hpp"
+#include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
 namespace pid_controller
 {
@@ -74,10 +80,6 @@ public:
     const rclcpp_lifecycle::State & previous_state) override;
 
   PID_CONTROLLER__VISIBILITY_PUBLIC
-  controller_interface::return_type update_reference_from_subscribers(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
-
-  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::return_type update_and_write_commands(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
@@ -87,6 +89,8 @@ public:
   using ControllerStateMsg = control_msgs::msg::MultiDOFStateStamped;
 
 protected:
+  controller_interface::return_type update_reference_from_subscribers() override;
+
   std::shared_ptr<pid_controller::ParamListener> param_listener_;
   pid_controller::Params params_;
 
@@ -116,8 +120,6 @@ protected:
 
   // override methods from ChainableControllerInterface
   std::vector<hardware_interface::CommandInterface> on_export_reference_interfaces() override;
-
-  std::vector<hardware_interface::StateInterface> on_export_state_interfaces() override;
 
   bool on_set_chained_mode(bool chained_mode) override;
 

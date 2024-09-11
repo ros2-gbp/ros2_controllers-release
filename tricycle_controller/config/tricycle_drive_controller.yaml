@@ -9,6 +9,7 @@ tricycle_controller:
     # Odometry
     odom_frame_id: odom
     base_frame_id: base_link
+    publish_rate: 50.0 # publish rate of odom and tf
     open_loop: false # if True, uses cmd_vel instead of hardware interface feedback to compute odometry
     enable_odom_tf: true # If True, publishes odom<-base_link TF
     odom_only_twist: false # If True, publishes on /odom only linear.x and angular.z; Useful for computing odometry in another node, e.g robot_localization's ekf
@@ -36,6 +37,7 @@ tricycle_controller:
 
     # cmd_vel input
     cmd_vel_timeout: 500 # In milliseconds. Timeout to stop if no cmd_vel is received
+    use_stamped_vel: false # Set to True if using TwistStamped.
 
     # Debug
     publish_ackermann_command: true # Publishes AckermannDrive. The speed does not comply to the msg definition, it the wheel angular speed in rad/s.

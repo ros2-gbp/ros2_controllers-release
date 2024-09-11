@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(joint_state_broadcaster LANGUAGES CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror=conversion -Werror=unused-but-set-variable
-                      -Werror=return-type -Werror=shadow -Werror=format)
+  add_compile_options(-Wall -Wextra)
 endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
@@ -16,7 +15,6 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rcutils
   realtime_tools
   sensor_msgs
-  urdf
 )
 
 find_package(ament_cmake REQUIRED)
@@ -73,7 +71,6 @@ if(BUILD_TESTING)
   )
   ament_target_dependencies(test_joint_state_broadcaster
     hardware_interface
-    ros2_control_test_assets
   )
 endif()
 

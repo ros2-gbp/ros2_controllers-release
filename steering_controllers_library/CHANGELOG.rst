@@ -2,164 +2,120 @@
 Changelog for package steering_controllers_library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.14.0 (2024-09-11)
--------------------
-* fix(steering-odometry): handle infinite turning radius properly (`#1285 <https://github.com/ros-controls/ros2_controllers/issues/1285>`_)
-* Contributors: Rein Appeldoorn
-
-4.13.0 (2024-08-22)
+2.37.3 (2024-09-11)
 -------------------
 
-4.12.1 (2024-08-14)
+2.37.2 (2024-08-22)
 -------------------
 
-4.12.0 (2024-07-23)
--------------------
-* Add missing includes (`#1226 <https://github.com/ros-controls/ros2_controllers/issues/1226>`_)
-* Change the subscription timeout in the tests to 5ms (`#1219 <https://github.com/ros-controls/ros2_controllers/issues/1219>`_)
-* Unused header cleanup (`#1199 <https://github.com/ros-controls/ros2_controllers/issues/1199>`_)
-* Fix WaitSet issue in tests  (`#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_)
-* Contributors: Christoph Fröhlich, Henry Moore, Sai Kishor Kothakota
-
-4.11.0 (2024-07-09)
--------------------
-* Fix steering controllers library kinematics (`#1150 <https://github.com/ros-controls/ros2_controllers/issues/1150>`_)
-* Contributors: Christoph Fröhlich
-
-4.10.0 (2024-07-01)
--------------------
-* [STEERING] Add missing `tan` call for ackermann (`#1117 <https://github.com/ros-controls/ros2_controllers/issues/1117>`_)
-* [Steering controllers library] Reference interfaces are body twist (`#1168 <https://github.com/ros-controls/ros2_controllers/issues/1168>`_)
-* Fix steering controllers library code documentation and naming (`#1149 <https://github.com/ros-controls/ros2_controllers/issues/1149>`_)
-* Remove unstamped twist subscribers + parameters (`#1151 <https://github.com/ros-controls/ros2_controllers/issues/1151>`_)
-* Contributors: Christoph Fröhlich, Enrique Llorente Pastora, Quique Llorente
-
-4.9.0 (2024-06-05)
-------------------
-* Add mobile robot kinematics 101 and improve steering library docs (`#954 <https://github.com/ros-controls/ros2_controllers/issues/954>`_)
-* Fix correct usage of angular velocity in update_odometry() function (`#1118 <https://github.com/ros-controls/ros2_controllers/issues/1118>`_)
-* Contributors: Christoph Fröhlich, Ferry Schoenmakers
-
-4.8.0 (2024-05-14)
-------------------
-* Deprecate non-stamped twist for tricycle_controller and steering_controllers (`#1093 <https://github.com/ros-controls/ros2_controllers/issues/1093>`_)
-* add missing compiler definitions of RCPPUTILS_VERSION (`#1089 <https://github.com/ros-controls/ros2_controllers/issues/1089>`_)
-* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
-
-4.7.0 (2024-03-22)
-------------------
-* added conditioning to have rolling tags compilable in older versions (`#1071 <https://github.com/ros-controls/ros2_controllers/issues/1071>`_)
-* Fix usage of visibility macros (`#1039 <https://github.com/ros-controls/ros2_controllers/issues/1039>`_)
-* Contributors: Sai Kishor Kothakota, Silvio Traversaro
-
-4.6.0 (2024-02-12)
-------------------
-* Fix usage of M_PI on Windows (`#1036 <https://github.com/ros-controls/ros2_controllers/issues/1036>`_)
-* Fix tests for using new `get_node_options` API (`#840 <https://github.com/ros-controls/ros2_controllers/issues/840>`_)
-* Contributors: Sai Kishor Kothakota, Silvio Traversaro
-
-4.5.0 (2024-01-31)
-------------------
-* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_)
-* Contributors: Christoph Fröhlich
-
-4.4.0 (2024-01-11)
-------------------
-
-4.3.0 (2024-01-08)
-------------------
-* Add few warning flags to error (`#961 <https://github.com/ros-controls/ros2_controllers/issues/961>`_)
-* Fix ackermann steering odometry (`#921 <https://github.com/ros-controls/ros2_controllers/issues/921>`_)
-* Changing default int values to double in steering controller's yaml file (`#927 <https://github.com/ros-controls/ros2_controllers/issues/927>`_)
-* Contributors: Franz Rammerstorfer, Reza Kermani, Sai Kishor Kothakota
-
-4.2.0 (2023-12-12)
-------------------
-
-4.1.0 (2023-12-01)
-------------------
-
-4.0.0 (2023-11-21)
-------------------
-* fix tests for API break of passing controller manager update rate in init method (`#854 <https://github.com/ros-controls/ros2_controllers/issues/854>`_)
-* Adjust tests after passing URDF to controllers (`#817 <https://github.com/ros-controls/ros2_controllers/issues/817>`_)
-* Contributors: Bence Magyar, Sai Kishor Kothakota
-
-3.17.0 (2023-10-31)
--------------------
-* Steering controllers library: fix open loop mode (`#793 <https://github.com/ros-controls/ros2_controllers/issues/793>`_)
-  * set last*velocity variables for open loop odometry
-  * Make function arguments const
-  * Update function in header file too
-* Improve docs (`#785 <https://github.com/ros-controls/ros2_controllers/issues/785>`_)
-* Contributors: Christoph Fröhlich
-
-3.16.0 (2023-09-20)
+2.37.1 (2024-08-14)
 -------------------
 
-3.15.0 (2023-09-11)
+2.37.0 (2024-07-24)
+-------------------
+* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>`_)
+* Fix steering controllers library kinematics (`#1150 <https://github.com/ros-controls/ros2_controllers/issues/1150>`_) (`#1194 <https://github.com/ros-controls/ros2_controllers/issues/1194>`_)
+* Contributors: mergify[bot]
+
+2.36.0 (2024-07-09)
+-------------------
+* [Steering controllers library] Reference interfaces are body twist (`#1168 <https://github.com/ros-controls/ros2_controllers/issues/1168>`_) (`#1173 <https://github.com/ros-controls/ros2_controllers/issues/1173>`_)
+* [STEERING] Add missing `tan` call for ackermann (`#1117 <https://github.com/ros-controls/ros2_controllers/issues/1117>`_) (`#1176 <https://github.com/ros-controls/ros2_controllers/issues/1176>`_)
+* Fix steering controllers library code documentation and naming (`#1149 <https://github.com/ros-controls/ros2_controllers/issues/1149>`_) (`#1164 <https://github.com/ros-controls/ros2_controllers/issues/1164>`_)
+* Add mobile robot kinematics 101 and improve steering library docs (`#954 <https://github.com/ros-controls/ros2_controllers/issues/954>`_) (`#1160 <https://github.com/ros-controls/ros2_controllers/issues/1160>`_)
+* Fix correct usage of angular velocity in update_odometry() function (`#1118 <https://github.com/ros-controls/ros2_controllers/issues/1118>`_) (`#1153 <https://github.com/ros-controls/ros2_controllers/issues/1153>`_)
+* Contributors: mergify[bot]
+
+2.35.0 (2024-05-22)
 -------------------
 
-3.14.0 (2023-08-16)
+2.34.0 (2024-04-01)
 -------------------
 
-3.13.0 (2023-08-04)
+2.33.0 (2024-02-12)
 -------------------
-* Update ci-ros-lint.yml and copyright format (`#720 <https://github.com/ros-controls/ros2_controllers/issues/720>`_)
-* Contributors: Christoph Fröhlich
+* Fix usage of M_PI on Windows (`#1036 <https://github.com/ros-controls/ros2_controllers/issues/1036>`_) (`#1037 <https://github.com/ros-controls/ros2_controllers/issues/1037>`_)
+* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>`_)
+* Contributors: mergify[bot]
 
-3.12.0 (2023-07-18)
+2.32.0 (2024-01-20)
+-------------------
+* Update ci-ros-lint.yml and copyright format (backport `#720 <https://github.com/ros-controls/ros2_controllers/issues/720>`_) (`#918 <https://github.com/ros-controls/ros2_controllers/issues/918>`_)
+* Contributors: mergify[bot]
+
+2.31.0 (2024-01-11)
+-------------------
+* Fix ackermann steering odometry (`#921 <https://github.com/ros-controls/ros2_controllers/issues/921>`_) (`#955 <https://github.com/ros-controls/ros2_controllers/issues/955>`_)
+* Contributors: mergify[bot]
+
+2.30.0 (2023-12-20)
+-------------------
+* Changing default int values to double in steering controller's yaml file (`#927 <https://github.com/ros-controls/ros2_controllers/issues/927>`_) (`#928 <https://github.com/ros-controls/ros2_controllers/issues/928>`_)
+* Contributors: mergify[bot]
+
+2.29.0 (2023-12-05)
 -------------------
 
-3.11.0 (2023-06-24)
+2.28.0 (2023-11-30)
 -------------------
-* Added -Wconversion flag and fix warnings (`#667 <https://github.com/ros-controls/ros2_controllers/issues/667>`_)
-* Let sphinx add parameter description to documentation (`#651 <https://github.com/ros-controls/ros2_controllers/issues/651>`_)
-* Contributors: Christoph Fröhlich, gwalck
 
-3.10.1 (2023-06-06)
+2.27.0 (2023-11-14)
 -------------------
-* Second round of dependencies fix (`#655 <https://github.com/ros-controls/ros2_controllers/issues/655>`_)
-* Contributors: Bence Magyar
+* Steering controllers library: fix open loop mode (`#793 <https://github.com/ros-controls/ros2_controllers/issues/793>`_) (`#800 <https://github.com/ros-controls/ros2_controllers/issues/800>`_)
+* Improve docs (`#785 <https://github.com/ros-controls/ros2_controllers/issues/785>`_) (`#786 <https://github.com/ros-controls/ros2_controllers/issues/786>`_)
+* Contributors: mergify[bot]
 
-3.10.0 (2023-06-04)
+2.26.0 (2023-10-03)
 -------------------
-* Remove unnecessary include (`#645 <https://github.com/ros-controls/ros2_controllers/issues/645>`_)
-* enable ReflowComments to also use ColumnLimit on comments (`#625 <https://github.com/ros-controls/ros2_controllers/issues/625>`_)
-* Contributors: Bence Magyar, Sai Kishor Kothakota
 
-3.9.0 (2023-05-28)
-------------------
-* Fix sphinx for steering odometry library/controllers (`#626 <https://github.com/ros-controls/ros2_controllers/issues/626>`_)
-* Steering odometry library and controllers (`#484 <https://github.com/ros-controls/ros2_controllers/issues/484>`_)
-* Contributors: Bence Magyar, Christoph Fröhlich, Tomislav Petković
+2.25.0 (2023-09-15)
+-------------------
 
-3.8.0 (2023-05-14)
-------------------
+2.24.0 (2023-08-07)
+-------------------
 
-3.7.0 (2023-05-02)
-------------------
+2.23.0 (2023-06-23)
+-------------------
 
-3.6.0 (2023-04-29)
-------------------
+2.22.0 (2023-06-14)
+-------------------
+* Bump versions for release
+* Let sphinx add parameter description to documentation (backport `#651 <https://github.com/ros-controls/ros2_controllers/issues/651>`_) (`#663 <https://github.com/ros-controls/ros2_controllers/issues/663>`_)
+* Second round of dependencies fix (`#655 <https://github.com/ros-controls/ros2_controllers/issues/655>`_) (`#656 <https://github.com/ros-controls/ros2_controllers/issues/656>`_)
+* Fix sphinx for steering odometry library/controllers (`#626 <https://github.com/ros-controls/ros2_controllers/issues/626>`_) (`#661 <https://github.com/ros-controls/ros2_controllers/issues/661>`_)
+* Remove unnecessary include (backport `#645 <https://github.com/ros-controls/ros2_controllers/issues/645>`_) (`#646 <https://github.com/ros-controls/ros2_controllers/issues/646>`_)
+* Steering odometry library and controllers (backport `#484 <https://github.com/ros-controls/ros2_controllers/issues/484>`_) (`#624 <https://github.com/ros-controls/ros2_controllers/issues/624>`_)
+* Contributors: Bence Magyar, Christoph Fröhlich, Tomislav Petković, Reza Kermani, Denis Štogl
 
-3.5.0 (2023-04-14)
-------------------
+2.21.0 (2023-05-28)
+-------------------
 
-3.4.0 (2023-04-02)
-------------------
+2.20.0 (2023-05-14)
+-------------------
 
-3.3.0 (2023-03-07)
-------------------
+2.19.0 (2023-05-02)
+-------------------
 
-3.2.0 (2023-02-10)
-------------------
+2.18.0 (2023-04-29)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
+2.17.3 (2023-04-14)
+-------------------
 
-3.0.0 (2023-01-19)
-------------------
+2.17.2 (2023-03-07)
+-------------------
+
+2.17.1 (2023-02-20)
+-------------------
+
+2.17.0 (2023-02-13)
+-------------------
+
+2.16.1 (2023-01-31)
+-------------------
+
+2.16.0 (2023-01-19)
+-------------------
 
 2.15.0 (2022-12-06)
 -------------------

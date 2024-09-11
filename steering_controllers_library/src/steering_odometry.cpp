@@ -20,6 +20,7 @@
 #include "steering_controllers_library/steering_odometry.hpp"
 
 #include <cmath>
+#include <iostream>
 #include <limits>
 
 namespace steering_odometry
@@ -133,17 +134,11 @@ double SteeringOdometry::get_linear_velocity_double_traction_axle(
   const double steer_pos)
 {
   double turning_radius = wheelbase_ / std::tan(steer_pos);
-  const double vel_wheel_r = right_traction_wheel_vel * wheel_radius_;
-  const double vel_wheel_l = left_traction_wheel_vel * wheel_radius_;
-
-  if (std::isinf(turning_radius))
-  {
-    return (vel_wheel_r + vel_wheel_l) * 0.5;
-  }
-
   // overdetermined, we take the average
-  const double vel_r = vel_wheel_r * turning_radius / (turning_radius + wheel_track_ * 0.5);
-  const double vel_l = vel_wheel_l * turning_radius / (turning_radius - wheel_track_ * 0.5);
+  double vel_r = right_traction_wheel_vel * wheel_radius_ * turning_radius /
+                 (turning_radius + wheel_track_ * 0.5);
+  double vel_l = left_traction_wheel_vel * wheel_radius_ * turning_radius /
+                 (turning_radius - wheel_track_ * 0.5);
   return (vel_r + vel_l) * 0.5;
 }
 
@@ -350,8 +345,8 @@ void SteeringOdometry::integrate_fk(const double v_bx, const double omega_bz, co
 
 void SteeringOdometry::reset_accumulators()
 {
-  linear_acc_ = RollingMeanAccumulator(velocity_rolling_window_size_);
-  angular_acc_ = RollingMeanAccumulator(velocity_rolling_window_size_);
+  linear_acc_ = rcppmath::RollingMeanAccumulator<double>(velocity_rolling_window_size_);
+  angular_acc_ = rcppmath::RollingMeanAccumulator<double>(velocity_rolling_window_size_);
 }
 
 }  // namespace steering_odometry

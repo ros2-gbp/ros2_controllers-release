@@ -17,7 +17,10 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include "hardware_interface/types/hardware_interface_type_values.hpp"
 
 class SteeringControllersLibraryTest
 : public SteeringControllersLibraryFixture<TestableSteeringControllersLibrary>

@@ -14,8 +14,10 @@
 
 #include "test_ackermann_steering_controller.hpp"
 
+#include <limits>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 class AckermannSteeringControllerTest

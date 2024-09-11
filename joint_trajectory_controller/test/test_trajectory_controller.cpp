@@ -12,39 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cstddef>
+#include <stddef.h>
 
 #include <chrono>
 #include <cmath>
+#include <future>
 #include <limits>
+#include <memory>
+#include <stdexcept>
 #include <string>
+#include <system_error>
 #include <thread>
 #include <vector>
 
 #include "builtin_interfaces/msg/duration.hpp"
+#include "builtin_interfaces/msg/time.hpp"
+#include "controller_interface/controller_interface.hpp"
+#include "hardware_interface/resource_manager.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/clock.hpp"
 #include "rclcpp/duration.hpp"
 #include "rclcpp/executors/multi_threaded_executor.hpp"
 #include "rclcpp/executors/single_threaded_executor.hpp"
+#include "rclcpp/node.hpp"
 #include "rclcpp/parameter.hpp"
+#include "rclcpp/publisher.hpp"
+#include "rclcpp/qos.hpp"
+#include "rclcpp/qos_event.hpp"
+#include "rclcpp/subscription.hpp"
 #include "rclcpp/time.hpp"
+#include "rclcpp/utilities.hpp"
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
-#include "test_assets.hpp"
 #include "test_trajectory_controller_utils.hpp"
 
 using lifecycle_msgs::msg::State;
 using test_trajectory_controllers::TrajectoryControllerTest;
 using test_trajectory_controllers::TrajectoryControllerTestParameterized;
-
-TEST_P(TrajectoryControllerTestParameterized, invalid_robot_description)
-{
-  ASSERT_EQ(
-    controller_interface::return_type::ERROR,
-    SetUpTrajectoryControllerLocal({}, "<invalid_robot_description/>"));
-}
 
 TEST_P(TrajectoryControllerTestParameterized, configure_state_ignores_commands)
 {
@@ -237,6 +242,58 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
   expectCommandPoint(deactivated_positions);
 
   executor.cancel();
+}
+
+TEST_P(TrajectoryControllerTestParameterized, state_topic_legacy_consistency)
+{
+  rclcpp::executors::SingleThreadedExecutor executor;
+  SetUpAndActivateTrajectoryController(executor, {});
+  subscribeToStateLegacy();
+  updateController();
+
+  // Spin to receive latest state
+  executor.spin_some();
+  auto state = getStateLegacy();
+
+  size_t n_joints = joint_names_.size();
+
+  for (unsigned int i = 0; i < n_joints; ++i)
+  {
+    EXPECT_EQ(joint_names_[i], state->joint_names[i]);
+  }
+
+  // No trajectory by default, no desired state or error
+  EXPECT_TRUE(state->desired.positions.empty() || state->desired.positions == INITIAL_POS_JOINTS);
+  EXPECT_TRUE(state->desired.velocities.empty() || state->desired.velocities == INITIAL_VEL_JOINTS);
+  EXPECT_TRUE(
+    state->desired.accelerations.empty() || state->desired.accelerations == INITIAL_EFF_JOINTS);
+
+  EXPECT_EQ(n_joints, state->actual.positions.size());
+  if (
+    std::find(state_interface_types_.begin(), state_interface_types_.end(), "velocity") ==
+    state_interface_types_.end())
+  {
+    EXPECT_TRUE(state->actual.velocities.empty());
+  }
+  else
+  {
+    EXPECT_EQ(n_joints, state->actual.velocities.size());
+  }
+  if (
+    std::find(state_interface_types_.begin(), state_interface_types_.end(), "acceleration") ==
+    state_interface_types_.end())
+  {
+    EXPECT_TRUE(state->actual.accelerations.empty());
+  }
+  else
+  {
+    EXPECT_EQ(n_joints, state->actual.accelerations.size());
+  }
+
+  std::vector<double> zeros(3, 0);
+  EXPECT_EQ(state->error.positions, zeros);
+  EXPECT_TRUE(state->error.velocities.empty() || state->error.velocities == zeros);
+  EXPECT_TRUE(state->error.accelerations.empty() || state->error.accelerations == zeros);
 }
 
 /**
@@ -452,193 +509,16 @@ TEST_P(TrajectoryControllerTestParameterized, hold_on_startup)
 
 // Floating-point value comparison threshold
 const double EPS = 1e-6;
-
 /**
- * @brief check if calculated trajectory error is correct (angle wraparound) for continuous joints
- */
-TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_true)
-{
-  rclcpp::executors::MultiThreadedExecutor executor;
-  std::vector<rclcpp::Parameter> params = {};
-  SetUpAndActivateTrajectoryController(
-    executor, params, true, 0.0, 1.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_continuous);
-
-  size_t n_joints = joint_names_.size();
-
-  // send msg
-  constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
-  builtin_interfaces::msg::Duration time_from_start{rclcpp::Duration(FIRST_POINT_TIME)};
-  // *INDENT-OFF*
-  std::vector<std::vector<double>> points{
-    {{3.3, 4.4, 6.6}}, {{7.7, 8.8, 9.9}}, {{10.10, 11.11, 12.12}}};
-  std::vector<std::vector<double>> points_velocities{
-    {{0.01, 0.01, 0.01}}, {{0.05, 0.05, 0.05}}, {{0.06, 0.06, 0.06}}};
-  std::vector<std::vector<double>> points_accelerations{
-    {{0.1, 0.1, 0.1}}, {{0.5, 0.5, 0.5}}, {{0.6, 0.6, 0.6}}};
-  // *INDENT-ON*
-
-  trajectory_msgs::msg::JointTrajectoryPoint error, current, desired;
-  current.positions = {points[0].begin(), points[0].end()};
-  current.velocities = {points_velocities[0].begin(), points_velocities[0].end()};
-  current.accelerations = {points_accelerations[0].begin(), points_accelerations[0].end()};
-  traj_controller_->resize_joint_trajectory_point(error, n_joints);
-
-  // zero error
-  desired = current;
-  for (size_t i = 0; i < n_joints; ++i)
-  {
-    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
-    EXPECT_NEAR(error.positions[i], 0., EPS);
-    if (
-      traj_controller_->has_velocity_state_interface() &&
-      (traj_controller_->has_velocity_command_interface() ||
-       traj_controller_->has_effort_command_interface()))
-    {
-      // expect: error.velocities = desired.velocities - current.velocities;
-      EXPECT_NEAR(error.velocities[i], 0., EPS);
-    }
-    if (
-      traj_controller_->has_acceleration_state_interface() &&
-      traj_controller_->has_acceleration_command_interface())
-    {
-      // expect: error.accelerations = desired.accelerations - current.accelerations;
-      EXPECT_NEAR(error.accelerations[i], 0., EPS);
-    }
-  }
-
-  // angle wraparound of position error
-  desired.positions[0] += 3.0 * M_PI_2;
-  desired.velocities[0] += 1.0;
-  desired.accelerations[0] += 1.0;
-  traj_controller_->resize_joint_trajectory_point(error, n_joints);
-  for (size_t i = 0; i < n_joints; ++i)
-  {
-    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
-    if (i == 0)
-    {
-      EXPECT_NEAR(
-        error.positions[i], desired.positions[i] - current.positions[i] - 2.0 * M_PI, EPS);
-    }
-    else
-    {
-      EXPECT_NEAR(error.positions[i], desired.positions[i] - current.positions[i], EPS);
-    }
-
-    if (
-      traj_controller_->has_velocity_state_interface() &&
-      (traj_controller_->has_velocity_command_interface() ||
-       traj_controller_->has_effort_command_interface()))
-    {
-      // expect: error.velocities = desired.velocities - current.velocities;
-      EXPECT_NEAR(error.velocities[i], desired.velocities[i] - current.velocities[i], EPS);
-    }
-    if (
-      traj_controller_->has_acceleration_state_interface() &&
-      traj_controller_->has_acceleration_command_interface())
-    {
-      // expect: error.accelerations = desired.accelerations - current.accelerations;
-      EXPECT_NEAR(error.accelerations[i], desired.accelerations[i] - current.accelerations[i], EPS);
-    }
-  }
-
-  executor.cancel();
-}
-
-/**
- * @brief check if calculated trajectory error is correct (no angle wraparound) for revolute joints
- */
-TEST_P(TrajectoryControllerTestParameterized, compute_error_angle_wraparound_false)
-{
-  rclcpp::executors::MultiThreadedExecutor executor;
-  std::vector<rclcpp::Parameter> params = {};
-  SetUpAndActivateTrajectoryController(
-    executor, params, true, 0.0, 1.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_revolute);
-
-  size_t n_joints = joint_names_.size();
-
-  // send msg
-  constexpr auto FIRST_POINT_TIME = std::chrono::milliseconds(250);
-  builtin_interfaces::msg::Duration time_from_start{rclcpp::Duration(FIRST_POINT_TIME)};
-  // *INDENT-OFF*
-  std::vector<std::vector<double>> points{
-    {{3.3, 4.4, 6.6}}, {{7.7, 8.8, 9.9}}, {{10.10, 11.11, 12.12}}};
-  std::vector<std::vector<double>> points_velocities{
-    {{0.01, 0.01, 0.01}}, {{0.05, 0.05, 0.05}}, {{0.06, 0.06, 0.06}}};
-  std::vector<std::vector<double>> points_accelerations{
-    {{0.1, 0.1, 0.1}}, {{0.5, 0.5, 0.5}}, {{0.6, 0.6, 0.6}}};
-  // *INDENT-ON*
-
-  trajectory_msgs::msg::JointTrajectoryPoint error, current, desired;
-  current.positions = {points[0].begin(), points[0].end()};
-  current.velocities = {points_velocities[0].begin(), points_velocities[0].end()};
-  current.accelerations = {points_accelerations[0].begin(), points_accelerations[0].end()};
-  traj_controller_->resize_joint_trajectory_point(error, n_joints);
-
-  // zero error
-  desired = current;
-  for (size_t i = 0; i < n_joints; ++i)
-  {
-    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
-    EXPECT_NEAR(error.positions[i], 0., EPS);
-    if (
-      traj_controller_->has_velocity_state_interface() &&
-      (traj_controller_->has_velocity_command_interface() ||
-       traj_controller_->has_effort_command_interface()))
-    {
-      // expect: error.velocities = desired.velocities - current.velocities;
-      EXPECT_NEAR(error.velocities[i], 0., EPS);
-    }
-    if (
-      traj_controller_->has_acceleration_state_interface() &&
-      traj_controller_->has_acceleration_command_interface())
-    {
-      // expect: error.accelerations = desired.accelerations - current.accelerations;
-      EXPECT_NEAR(error.accelerations[i], 0., EPS);
-    }
-  }
-
-  // no normalization of position error
-  desired.positions[0] += 3.0 * M_PI_4;
-  desired.velocities[0] += 1.0;
-  desired.accelerations[0] += 1.0;
-  traj_controller_->resize_joint_trajectory_point(error, n_joints);
-  for (size_t i = 0; i < n_joints; ++i)
-  {
-    traj_controller_->testable_compute_error_for_joint(error, i, current, desired);
-    EXPECT_NEAR(error.positions[i], desired.positions[i] - current.positions[i], EPS);
-    if (
-      traj_controller_->has_velocity_state_interface() &&
-      (traj_controller_->has_velocity_command_interface() ||
-       traj_controller_->has_effort_command_interface()))
-    {
-      // expect: error.velocities = desired.velocities - current.velocities;
-      EXPECT_NEAR(error.velocities[i], desired.velocities[i] - current.velocities[i], EPS);
-    }
-    if (
-      traj_controller_->has_acceleration_state_interface() &&
-      traj_controller_->has_acceleration_command_interface())
-    {
-      // expect: error.accelerations = desired.accelerations - current.accelerations;
-      EXPECT_NEAR(error.accelerations[i], desired.accelerations[i] - current.accelerations[i], EPS);
-    }
-  }
-
-  executor.cancel();
-}
-
-/**
- * @brief check if position error of revolute joints aren't wrapped around (state topic)
+ * @brief check if position error of revolute joints are wrapped around if not configured so
  */
 TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparound)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   constexpr double k_p = 10.0;
   std::vector<rclcpp::Parameter> params = {};
-  SetUpAndActivateTrajectoryController(
-    executor, params, true, k_p, 0.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_revolute);
+  bool angle_wraparound = false;
+  SetUpAndActivateTrajectoryController(executor, params, true, k_p, 0.0, angle_wraparound);
   subscribeToState(executor);
 
   size_t n_joints = joint_names_.size();
@@ -731,16 +611,14 @@ TEST_P(TrajectoryControllerTestParameterized, position_error_not_angle_wraparoun
 }
 
 /**
- * @brief check if position error of continuous joints are wrapped around (state topic)
+ * @brief check if position error of revolute joints are wrapped around if configured so
  */
 TEST_P(TrajectoryControllerTestParameterized, position_error_angle_wraparound)
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   constexpr double k_p = 10.0;
   std::vector<rclcpp::Parameter> params = {};
-  SetUpAndActivateTrajectoryController(
-    executor, params, true, k_p, 0.0, INITIAL_POS_JOINTS, INITIAL_VEL_JOINTS, INITIAL_ACC_JOINTS,
-    INITIAL_EFF_JOINTS, test_trajectory_controllers::urdf_rrrbot_continuous);
+  SetUpAndActivateTrajectoryController(executor, params, true, k_p, 0.0, true);
 
   size_t n_joints = joint_names_.size();
 
@@ -972,6 +850,53 @@ TEST_P(TrajectoryControllerTestParameterized, timeout)
 
   executor.cancel();
 }
+
+void TrajectoryControllerTest::test_state_publish_rate_target(int target_msg_count)
+{
+  rclcpp::Parameter state_publish_rate_param(
+    "state_publish_rate", static_cast<double>(target_msg_count));
+  rclcpp::executors::SingleThreadedExecutor executor;
+  SetUpAndActivateTrajectoryController(executor, {state_publish_rate_param});
+
+  auto future_handle = std::async(std::launch::async, [&executor]() -> void { executor.spin(); });
+
+  using control_msgs::msg::JointTrajectoryControllerState;
+
+  const int qos_level = 10;
+  int echo_received_counter = 0;
+  rclcpp::Subscription<JointTrajectoryControllerState>::SharedPtr subs =
+    traj_controller_->get_node()->create_subscription<JointTrajectoryControllerState>(
+      controller_name_ + "/state", qos_level,
+      [&](JointTrajectoryControllerState::UniquePtr) { ++echo_received_counter; });
+
+  // update for 1second
+  auto clock = rclcpp::Clock(RCL_STEADY_TIME);
+  const auto start_time = clock.now();
+  const rclcpp::Duration wait = rclcpp::Duration::from_seconds(1.0);
+  const auto end_time = start_time + wait;
+  while (clock.now() < end_time)
+  {
+    traj_controller_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
+  }
+
+  // We may miss the last message since time allowed is exactly the time needed
+  EXPECT_NEAR(target_msg_count, echo_received_counter, 1);
+
+  executor.cancel();
+}
+
+/**
+ * @brief test_state_publish_rate Test that state publish rate matches configure rate
+ */
+TEST_P(TrajectoryControllerTestParameterized, test_state_publish_rate)
+{
+  test_state_publish_rate_target(10);
+}
+
+// TEST_P(TrajectoryControllerTestParameterized, zero_state_publish_rate)
+// {
+//   test_state_publish_rate_target(0);
+// }
 
 /**
  * @brief check if use_closed_loop_pid is active
@@ -1851,7 +1776,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_first_co
   std::vector<double> initial_acc_cmd{3, std::numeric_limits<double>::quiet_NaN()};
 
   SetUpAndActivateTrajectoryController(
-    executor, {is_open_loop_parameters}, true, 0., 1., initial_pos_cmd, initial_vel_cmd,
+    executor, {is_open_loop_parameters}, true, 0., 1., false, initial_pos_cmd, initial_vel_cmd,
     initial_acc_cmd);
 
   // no call of update method, so the values should be read from state interfaces
@@ -1895,7 +1820,7 @@ TEST_P(TrajectoryControllerTestParameterized, test_hw_states_has_offset_later_co
     initial_acc_cmd.push_back(0.02 + static_cast<double>(i) / 10.0);
   }
   SetUpAndActivateTrajectoryController(
-    executor, {is_open_loop_parameters}, true, 0., 1., initial_pos_cmd, initial_vel_cmd,
+    executor, {is_open_loop_parameters}, true, 0., 1., false, initial_pos_cmd, initial_vel_cmd,
     initial_acc_cmd);
 
   // no call of update method, so the values should be read from command interfaces

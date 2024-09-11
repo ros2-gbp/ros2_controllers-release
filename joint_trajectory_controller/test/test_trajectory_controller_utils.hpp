@@ -26,7 +26,6 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "joint_trajectory_controller/joint_trajectory_controller.hpp"
 #include "joint_trajectory_controller/tolerances.hpp"
-#include "ros2_control_test_assets/descriptions.hpp"
 
 namespace
 {
@@ -98,8 +97,6 @@ public:
     return ret;
   }
 
-  rclcpp::NodeOptions define_custom_node_options() const override { return node_options_; }
-
   /**
    * @brief wait_for_trajectory block until a new JointTrajectory is received.
    * Requires that the executor is not spinned elsewhere between the
@@ -138,13 +135,6 @@ public:
   }
 
   void trigger_declare_parameters() { param_listener_->declare_params(); }
-
-  void testable_compute_error_for_joint(
-    JointTrajectoryPoint & error, const size_t index, const JointTrajectoryPoint & current,
-    const JointTrajectoryPoint & desired)
-  {
-    compute_error_for_joint(error, index, current, desired);
-  }
 
   trajectory_msgs::msg::JointTrajectoryPoint get_current_state_when_offset() const
   {
@@ -194,30 +184,9 @@ public:
 
   double get_cmd_timeout() { return cmd_timeout_; }
 
-  void set_node_options(const rclcpp::NodeOptions & node_options) { node_options_ = node_options; }
-
   trajectory_msgs::msg::JointTrajectoryPoint get_state_feedback() { return state_current_; }
   trajectory_msgs::msg::JointTrajectoryPoint get_state_reference() { return state_desired_; }
   trajectory_msgs::msg::JointTrajectoryPoint get_state_error() { return state_error_; }
-
-  /**
-   * a copy of the private member function
-   */
-  void resize_joint_trajectory_point(
-    trajectory_msgs::msg::JointTrajectoryPoint & point, size_t size)
-  {
-    point.positions.resize(size, 0.0);
-    if (has_velocity_state_interface_)
-    {
-      point.velocities.resize(size, 0.0);
-    }
-    if (has_acceleration_state_interface_)
-    {
-      point.accelerations.resize(size, 0.0);
-    }
-  }
-
-  rclcpp::NodeOptions node_options_;
 };
 
 class TrajectoryControllerTest : public ::testing::Test
@@ -249,10 +218,9 @@ public:
   }
 
   void SetUpTrajectoryController(
-    rclcpp::Executor & executor, const std::vector<rclcpp::Parameter> & parameters = {},
-    const std::string & urdf = ros2_control_test_assets::minimal_robot_urdf)
+    rclcpp::Executor & executor, const std::vector<rclcpp::Parameter> & parameters = {})
   {
-    auto ret = SetUpTrajectoryControllerLocal(parameters, urdf);
+    auto ret = SetUpTrajectoryControllerLocal(parameters);
     if (ret != controller_interface::return_type::OK)
     {
       FAIL();
@@ -261,8 +229,7 @@ public:
   }
 
   controller_interface::return_type SetUpTrajectoryControllerLocal(
-    const std::vector<rclcpp::Parameter> & parameters = {},
-    const std::string & urdf = ros2_control_test_assets::minimal_robot_urdf)
+    const std::vector<rclcpp::Parameter> & parameters = {})
   {
     traj_controller_ = std::make_shared<TestableJointTrajectoryController>();
 
@@ -274,13 +241,12 @@ public:
     parameter_overrides.push_back(rclcpp::Parameter("state_interfaces", state_interface_types_));
     parameter_overrides.insert(parameter_overrides.end(), parameters.begin(), parameters.end());
     node_options.parameter_overrides(parameter_overrides);
-    traj_controller_->set_node_options(node_options);
 
-    return traj_controller_->init(
-      controller_name_, urdf, 0, "", traj_controller_->define_custom_node_options());
+    return traj_controller_->init(controller_name_, "", node_options);
   }
 
-  void SetPidParameters(double p_value = 0.0, double ff_value = 1.0)
+  void SetPidParameters(
+    double p_value = 0.0, double ff_value = 1.0, bool angle_wraparound_value = false)
   {
     traj_controller_->trigger_declare_parameters();
     auto node = traj_controller_->get_node();
@@ -293,18 +259,20 @@ public:
       const rclcpp::Parameter k_d(prefix + ".d", 0.0);
       const rclcpp::Parameter i_clamp(prefix + ".i_clamp", 0.0);
       const rclcpp::Parameter ff_velocity_scale(prefix + ".ff_velocity_scale", ff_value);
-      node->set_parameters({k_p, k_i, k_d, i_clamp, ff_velocity_scale});
+      const rclcpp::Parameter angle_wraparound(
+        prefix + ".angle_wraparound", angle_wraparound_value);
+      node->set_parameters({k_p, k_i, k_d, i_clamp, ff_velocity_scale, angle_wraparound});
     }
   }
 
   void SetUpAndActivateTrajectoryController(
     rclcpp::Executor & executor, const std::vector<rclcpp::Parameter> & parameters = {},
     bool separate_cmd_and_state_values = false, double k_p = 0.0, double ff = 1.0,
+    bool angle_wraparound = false,
     const std::vector<double> initial_pos_joints = INITIAL_POS_JOINTS,
     const std::vector<double> initial_vel_joints = INITIAL_VEL_JOINTS,
     const std::vector<double> initial_acc_joints = INITIAL_ACC_JOINTS,
-    const std::vector<double> initial_eff_joints = INITIAL_EFF_JOINTS,
-    const std::string & urdf = ros2_control_test_assets::minimal_robot_urdf)
+    const std::vector<double> initial_eff_joints = INITIAL_EFF_JOINTS)
   {
     auto has_nonzero_vel_param =
       std::find_if(
@@ -319,10 +287,10 @@ public:
       parameters_local.emplace_back("allow_nonzero_velocity_at_trajectory_end", true);
     }
     // read-only parameters have to be set before init -> won't be read otherwise
-    SetUpTrajectoryController(executor, parameters_local, urdf);
+    SetUpTrajectoryController(executor, parameters_local);
 
     // set pid parameters before configure
-    SetPidParameters(k_p, ff);
+    SetPidParameters(k_p, ff, angle_wraparound);
     traj_controller_->get_node()->configure();
 
     ActivateTrajectoryController(
@@ -393,9 +361,33 @@ public:
 
   static void TearDownTestCase() { rclcpp::shutdown(); }
 
+  void subscribeToStateLegacy()
+  {
+    auto traj_lifecycle_node = traj_controller_->get_node();
+    traj_lifecycle_node->set_parameter(
+      rclcpp::Parameter("state_publish_rate", static_cast<double>(100)));
+
+    using control_msgs::msg::JointTrajectoryControllerState;
+
+    auto qos = rclcpp::SensorDataQoS();
+    // Needed, otherwise spin_some() returns only the oldest message in the queue
+    // I do not understand why spin_some provides only one message
+    qos.keep_last(1);
+    state_legacy_subscriber_ =
+      traj_lifecycle_node->create_subscription<JointTrajectoryControllerState>(
+        controller_name_ + "/state", qos,
+        [&](std::shared_ptr<JointTrajectoryControllerState> msg)
+        {
+          std::lock_guard<std::mutex> guard(state_legacy_mutex_);
+          state_legacy_msg_ = msg;
+        });
+  }
+
   void subscribeToState(rclcpp::Executor & executor)
   {
     auto traj_lifecycle_node = traj_controller_->get_node();
+    traj_lifecycle_node->set_parameter(
+      rclcpp::Parameter("state_publish_rate", static_cast<double>(100)));
 
     using control_msgs::msg::JointTrajectoryControllerState;
 
@@ -565,7 +557,7 @@ public:
     for (size_t i = 0; i < expected_actual.positions.size(); ++i)
     {
       SCOPED_TRACE("Joint " + std::to_string(i));
-      // TODO(anyone): add checking for velocities and accelerations
+      // TODO(anyone): add checking for velocties and accelerations
       if (traj_controller_->has_position_command_interface())
       {
         EXPECT_NEAR(expected_actual.positions[i], state_feedback.positions[i], allowed_delta);
@@ -575,7 +567,7 @@ public:
     for (size_t i = 0; i < expected_desired.positions.size(); ++i)
     {
       SCOPED_TRACE("Joint " + std::to_string(i));
-      // TODO(anyone): add checking for velocities and accelerations
+      // TODO(anyone): add checking for velocties and accelerations
       if (traj_controller_->has_position_command_interface())
       {
         EXPECT_NEAR(expected_desired.positions[i], state_reference.positions[i], allowed_delta);
@@ -585,11 +577,17 @@ public:
     return end_time;
   }
 
+  std::shared_ptr<control_msgs::msg::JointTrajectoryControllerState> getStateLegacy() const
+  {
+    std::lock_guard<std::mutex> guard(state_legacy_mutex_);
+    return state_legacy_msg_;
+  }
   std::shared_ptr<control_msgs::msg::JointTrajectoryControllerState> getState() const
   {
     std::lock_guard<std::mutex> guard(state_mutex_);
     return state_msg_;
   }
+  void test_state_publish_rate_target(int target_msg_count);
 
   void expectCommandPoint(
     std::vector<double> position, std::vector<double> velocity = {0.0, 0.0, 0.0})
@@ -745,6 +743,10 @@ public:
     state_subscriber_;
   mutable std::mutex state_mutex_;
   std::shared_ptr<control_msgs::msg::JointTrajectoryControllerState> state_msg_;
+  rclcpp::Subscription<control_msgs::msg::JointTrajectoryControllerState>::SharedPtr
+    state_legacy_subscriber_;
+  mutable std::mutex state_legacy_mutex_;
+  std::shared_ptr<control_msgs::msg::JointTrajectoryControllerState> state_legacy_msg_;
 
   std::vector<double> joint_pos_;
   std::vector<double> joint_vel_;

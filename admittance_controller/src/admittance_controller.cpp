@@ -16,13 +16,17 @@
 
 #include "admittance_controller/admittance_controller.hpp"
 
+#include <chrono>
 #include <cmath>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "admittance_controller/admittance_rule_impl.hpp"
 #include "geometry_msgs/msg/wrench.hpp"
+#include "rcutils/logging_macros.h"
+#include "tf2_ros/buffer.h"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
 namespace admittance_controller
@@ -143,6 +147,18 @@ AdmittanceController::on_export_reference_interfaces()
 controller_interface::CallbackReturn AdmittanceController::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  try
+  {
+    parameter_handler_ = std::make_shared<admittance_controller::ParamListener>(get_node());
+    admittance_ = std::make_unique<admittance_controller::AdmittanceRule>(parameter_handler_);
+  }
+  catch (const std::exception & e)
+  {
+    RCLCPP_ERROR(
+      get_node()->get_logger(), "Exception thrown during init stage with message: %s \n", e.what());
+    return controller_interface::CallbackReturn::ERROR;
+  }
+
   command_joint_names_ = admittance_->parameters_.command_joints;
   if (command_joint_names_.empty())
   {
@@ -354,8 +370,7 @@ controller_interface::CallbackReturn AdmittanceController::on_activate(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type AdmittanceController::update_reference_from_subscribers(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+controller_interface::return_type AdmittanceController::update_reference_from_subscribers()
 {
   // update input reference from ros subscriber message
   if (!admittance_)
