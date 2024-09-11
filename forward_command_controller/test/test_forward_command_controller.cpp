@@ -50,7 +50,8 @@ void ForwardCommandControllerTest::TearDown() { controller_.reset(nullptr); }
 
 void ForwardCommandControllerTest::SetUpController()
 {
-  const auto result = controller_->init("forward_command_controller");
+  const auto result = controller_->init(
+    "forward_command_controller", "", 0, "", controller_->define_custom_node_options());
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedCommandInterface> command_ifs;
@@ -222,7 +223,7 @@ TEST_F(ForwardCommandControllerTest, CommandSuccessTest)
 
   // update successful, command received
   ASSERT_EQ(
-    controller_->update(rclcpp::Time(0.1), rclcpp::Duration::from_seconds(0.01)),
+    controller_->update(rclcpp::Time(100000000), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
 
   // check joint commands have been modified

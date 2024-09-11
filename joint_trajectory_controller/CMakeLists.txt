@@ -2,23 +2,24 @@ cmake_minimum_required(VERSION 3.16)
 project(joint_trajectory_controller LANGUAGES CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wall -Wextra -Werror=conversion -Werror=unused-but-set-variable -Werror=return-type -Werror=shadow -Werror=format)
 endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
-    angles
-    control_msgs
-    control_toolbox
-    controller_interface
-    generate_parameter_library
-    hardware_interface
-    pluginlib
-    rclcpp
-    rclcpp_lifecycle
-    realtime_tools
-    rsl
-    tl_expected
-    trajectory_msgs
+  angles
+  control_msgs
+  control_toolbox
+  controller_interface
+  generate_parameter_library
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+  realtime_tools
+  rsl
+  tl_expected
+  trajectory_msgs
+  urdf
 )
 
 find_package(ament_cmake REQUIRED)
@@ -58,10 +59,12 @@ if(BUILD_TESTING)
 
   ament_add_gmock(test_trajectory test/test_trajectory.cpp)
   target_link_libraries(test_trajectory joint_trajectory_controller)
+  ament_target_dependencies(test_trajectory ros2_control_test_assets)
   target_compile_definitions(test_trajectory PRIVATE _USE_MATH_DEFINES)
 
   ament_add_gmock(test_tolerances test/test_tolerances.cpp)
   target_link_libraries(test_tolerances joint_trajectory_controller)
+  ament_target_dependencies(test_tolerances ros2_control_test_assets)
   target_compile_definitions(test_tolerances PRIVATE _USE_MATH_DEFINES)
 
   ament_add_gmock(test_trajectory_controller
@@ -70,6 +73,7 @@ if(BUILD_TESTING)
   target_link_libraries(test_trajectory_controller
     joint_trajectory_controller
   )
+  ament_target_dependencies(test_trajectory_controller ros2_control_test_assets)
   target_compile_definitions(joint_trajectory_controller PRIVATE _USE_MATH_DEFINES)
 
   ament_add_gmock(test_load_joint_trajectory_controller
@@ -92,6 +96,7 @@ if(BUILD_TESTING)
   target_link_libraries(test_trajectory_actions
     joint_trajectory_controller
   )
+  ament_target_dependencies(test_trajectory_actions ros2_control_test_assets)
 endif()
 
 
