@@ -2,65 +2,89 @@
 Changelog for package ackermann_steering_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.26.3 (2024-09-11)
+4.15.0 (2024-10-07)
+-------------------
+* Adapt test to new way of exporting reference interfaces (Related to `#1240 <https://github.com/ros-controls/ros2_controllers/issues/1240>`_ in ros2_control) (`#1103 <https://github.com/ros-controls/ros2_controllers/issues/1103>`_)
+* Contributors: Manuel Muth
+
+4.14.0 (2024-09-11)
 -------------------
 
-3.26.2 (2024-08-22)
+4.13.0 (2024-08-22)
+-------------------
+* Fixes tests to work with use_global_arguments NodeOptions parameter  (`#1256 <https://github.com/ros-controls/ros2_controllers/issues/1256>`_)
+* Contributors: Sai Kishor Kothakota
+
+4.12.1 (2024-08-14)
 -------------------
 
-3.26.1 (2024-08-14)
+4.12.0 (2024-07-23)
 -------------------
+* Add missing includes (`#1226 <https://github.com/ros-controls/ros2_controllers/issues/1226>`_)
+* Change the subscription timeout in the tests to 5ms (`#1219 <https://github.com/ros-controls/ros2_controllers/issues/1219>`_)
+* Unused header cleanup (`#1199 <https://github.com/ros-controls/ros2_controllers/issues/1199>`_)
+* Fix WaitSet issue in tests  (`#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_)
+* Fix parallel gripper controller CI (`#1202 <https://github.com/ros-controls/ros2_controllers/issues/1202>`_)
+* Contributors: Christoph Fröhlich, Henry Moore, Sai Kishor Kothakota
 
-3.26.0 (2024-07-24)
+4.11.0 (2024-07-09)
 -------------------
-* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1212 <https://github.com/ros-controls/ros2_controllers/issues/1212>`_)
-* Contributors: mergify[bot]
+* added changes corresponding to the logger and clock propagation in ResourceManager (`#1184 <https://github.com/ros-controls/ros2_controllers/issues/1184>`_)
+* Fix steering controllers library kinematics (`#1150 <https://github.com/ros-controls/ros2_controllers/issues/1150>`_)
+* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
 
-3.25.0 (2024-07-09)
+4.10.0 (2024-07-01)
 -------------------
-* Fix steering controllers library kinematics (`#1150 <https://github.com/ros-controls/ros2_controllers/issues/1150>`_) (`#1195 <https://github.com/ros-controls/ros2_controllers/issues/1195>`_)
-* [Steering controllers library] Reference interfaces are body twist (`#1168 <https://github.com/ros-controls/ros2_controllers/issues/1168>`_) (`#1174 <https://github.com/ros-controls/ros2_controllers/issues/1174>`_)
-* 🚀 Add PID controller 🎉 (backport `#434 <https://github.com/ros-controls/ros2_controllers/issues/434>`_, `#975 <https://github.com/ros-controls/ros2_controllers/issues/975>`_, `#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_, `#1084 <https://github.com/ros-controls/ros2_controllers/issues/1084>`_, `#951 <https://github.com/ros-controls/ros2_controllers/issues/951>`_) (`#1163 <https://github.com/ros-controls/ros2_controllers/issues/1163>`_)
-* Fix steering controllers library code documentation and naming (`#1149 <https://github.com/ros-controls/ros2_controllers/issues/1149>`_) (`#1165 <https://github.com/ros-controls/ros2_controllers/issues/1165>`_)
-* Contributors: mergify[bot]
+* [Steering controllers library] Reference interfaces are body twist (`#1168 <https://github.com/ros-controls/ros2_controllers/issues/1168>`_)
+* Fix steering controllers library code documentation and naming (`#1149 <https://github.com/ros-controls/ros2_controllers/issues/1149>`_)
+* Remove unstamped twist subscribers + parameters (`#1151 <https://github.com/ros-controls/ros2_controllers/issues/1151>`_)
+* Contributors: Christoph Fröhlich, Sai Kishor Kothakota, Quique Llorente
 
-3.24.0 (2024-05-14)
--------------------
-* Add parameter check for geometric values (`#1120 <https://github.com/ros-controls/ros2_controllers/issues/1120>`_) (`#1126 <https://github.com/ros-controls/ros2_controllers/issues/1126>`_)
-* Contributors: mergify[bot]
+4.9.0 (2024-06-05)
+------------------
 
-3.23.0 (2024-04-30)
--------------------
+4.8.0 (2024-05-14)
+------------------
+* Add parameter check for geometric values (`#1120 <https://github.com/ros-controls/ros2_controllers/issues/1120>`_)
+* add missing compiler definitions of RCPPUTILS_VERSION (`#1089 <https://github.com/ros-controls/ros2_controllers/issues/1089>`_)
+* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
 
-3.22.0 (2024-02-12)
--------------------
-* Add test_depend on `hardware_interface_testing` (backport `#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_) (`#1020 <https://github.com/ros-controls/ros2_controllers/issues/1020>`_)
-* Add tests for `interface_configuration_type` consistently (backport `#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_) (`#1007 <https://github.com/ros-controls/ros2_controllers/issues/1007>`_)
-* Contributors: mergify[bot]
+4.7.0 (2024-03-22)
+------------------
+* Fix pid_controller build on ROS 2 Rolling on Ubuntu 24.04 (`#1084 <https://github.com/ros-controls/ros2_controllers/issues/1084>`_)
+* Fix usage of visibility macros (`#1039 <https://github.com/ros-controls/ros2_controllers/issues/1039>`_)
+* Contributors: Chris Lalancette, Silvio Traversaro
 
-3.21.0 (2024-01-20)
--------------------
+4.6.0 (2024-02-12)
+------------------
+* Add test_depend on `hardware_interface_testing` (`#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_)
+* Fix tests for using new `get_node_options` API (`#840 <https://github.com/ros-controls/ros2_controllers/issues/840>`_)
+* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
 
-3.20.2 (2024-01-11)
--------------------
+4.5.0 (2024-01-31)
+------------------
+* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_)
+* Contributors: Christoph Fröhlich
 
-3.20.1 (2024-01-08)
--------------------
+4.4.0 (2024-01-11)
+------------------
 
-3.20.0 (2024-01-03)
--------------------
+4.3.0 (2024-01-08)
+------------------
+* Add few warning flags to error (`#961 <https://github.com/ros-controls/ros2_controllers/issues/961>`_)
+* Contributors: Sai Kishor Kothakota
 
-3.19.2 (2023-12-12)
--------------------
+4.2.0 (2023-12-12)
+------------------
 
-3.19.1 (2023-12-05)
--------------------
+4.1.0 (2023-12-01)
+------------------
 
-3.19.0 (2023-12-01)
--------------------
-
-3.18.0 (2023-11-21)
--------------------
+4.0.0 (2023-11-21)
+------------------
+* fix tests for API break of passing controller manager update rate in init method (`#854 <https://github.com/ros-controls/ros2_controllers/issues/854>`_)
+* Adjust tests after passing URDF to controllers (`#817 <https://github.com/ros-controls/ros2_controllers/issues/817>`_)
+* Contributors: Bence Magyar, Sai Kishor Kothakota
 
 3.17.0 (2023-10-31)
 -------------------

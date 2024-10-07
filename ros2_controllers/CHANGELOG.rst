@@ -2,56 +2,60 @@
 Changelog for package ros2_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.26.3 (2024-09-11)
+4.15.0 (2024-10-07)
 -------------------
 
-3.26.2 (2024-08-22)
+4.14.0 (2024-09-11)
 -------------------
 
-3.26.1 (2024-08-14)
+4.13.0 (2024-08-22)
 -------------------
 
-3.26.0 (2024-07-24)
+4.12.1 (2024-08-14)
 -------------------
 
-3.25.0 (2024-07-09)
--------------------
-* 🚀 Add PID controller 🎉 (backport `#434 <https://github.com/ros-controls/ros2_controllers/issues/434>`_, `#975 <https://github.com/ros-controls/ros2_controllers/issues/975>`_, `#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_, `#1084 <https://github.com/ros-controls/ros2_controllers/issues/1084>`_, `#951 <https://github.com/ros-controls/ros2_controllers/issues/951>`_) (`#1163 <https://github.com/ros-controls/ros2_controllers/issues/1163>`_)
-* Add custom rosdoc2 config for ros2_controllers metapackage (`#1100 <https://github.com/ros-controls/ros2_controllers/issues/1100>`_) (`#1143 <https://github.com/ros-controls/ros2_controllers/issues/1143>`_)
-* Contributors: mergify[bot]
-
-3.24.0 (2024-05-14)
+4.12.0 (2024-07-23)
 -------------------
 
-3.23.0 (2024-04-30)
+4.11.0 (2024-07-09)
 -------------------
 
-3.22.0 (2024-02-12)
+4.10.0 (2024-07-01)
 -------------------
 
-3.21.0 (2024-01-20)
--------------------
+4.9.0 (2024-06-05)
+------------------
+* Add custom rosdoc2 config for ros2_controllers metapackage (`#1100 <https://github.com/ros-controls/ros2_controllers/issues/1100>`_)
+* Contributors: Christoph Fröhlich
 
-3.20.2 (2024-01-11)
--------------------
+4.8.0 (2024-05-14)
+------------------
 
-3.20.1 (2024-01-08)
--------------------
+4.7.0 (2024-03-22)
+------------------
 
-3.20.0 (2024-01-03)
--------------------
+4.6.0 (2024-02-12)
+------------------
 
-3.19.2 (2023-12-12)
--------------------
+4.5.0 (2024-01-31)
+------------------
 
-3.19.1 (2023-12-05)
--------------------
+4.4.0 (2024-01-11)
+------------------
 
-3.19.0 (2023-12-01)
--------------------
+4.3.0 (2024-01-08)
+------------------
 
-3.18.0 (2023-11-21)
--------------------
+4.2.0 (2023-12-12)
+------------------
+* 🚀 Add PID controller 🎉 (`#434 <https://github.com/ros-controls/ros2_controllers/issues/434>`_)
+* Contributors: Dr. Denis
+
+4.1.0 (2023-12-01)
+------------------
+
+4.0.0 (2023-11-21)
+------------------
 
 3.17.0 (2023-10-31)
 -------------------
