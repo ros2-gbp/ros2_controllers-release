@@ -52,7 +52,6 @@ The controllers are using `common hardware interface definitions`_, and may use 
    Forward Command Controller <../forward_command_controller/doc/userdoc.rst>
    Gripper Controller <../gripper_controllers/doc/userdoc.rst>
    Joint Trajectory Controller <../joint_trajectory_controller/doc/userdoc.rst>
-   Parallel Gripper Controller <../parallel_gripper_controller/doc/userdoc.rst>
    PID Controller <../pid_controller/doc/userdoc.rst>
    Position Controllers <../position_controllers/doc/userdoc.rst>
    Velocity Controllers <../velocity_controllers/doc/userdoc.rst>
@@ -71,6 +70,7 @@ In the sense of ros2_control, broadcasters are still controllers using the same 
    IMU Sensor Broadcaster <../imu_sensor_broadcaster/doc/userdoc.rst>
    Joint State Broadcaster <../joint_state_broadcaster/doc/userdoc.rst>
    Range Sensor Broadcaster <../range_sensor_broadcaster/doc/userdoc.rst>
+   Pose Broadcaster <../pose_broadcaster/doc/userdoc.rst>
 
 
 Common Controller Parameters

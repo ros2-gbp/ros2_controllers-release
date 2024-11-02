@@ -22,11 +22,14 @@
 #include <utility>
 #include <vector>
 
+#include "force_torque_sensor_broadcaster/force_torque_sensor_broadcaster.hpp"
 #include "geometry_msgs/msg/wrench_stamped.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "rclcpp/executor.hpp"
-#include "rclcpp/executors.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
+#include "hardware_interface/types/hardware_interface_type_values.hpp"
+#include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/utilities.hpp"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 
 using hardware_interface::LoanedStateInterface;
 using testing::IsEmpty;
@@ -52,9 +55,7 @@ void ForceTorqueSensorBroadcasterTest::TearDown() { fts_broadcaster_.reset(nullp
 
 void ForceTorqueSensorBroadcasterTest::SetUpFTSBroadcaster()
 {
-  const auto result = fts_broadcaster_->init(
-    "test_force_torque_sensor_broadcaster", "", 0, "",
-    fts_broadcaster_->define_custom_node_options());
+  const auto result = fts_broadcaster_->init("test_force_torque_sensor_broadcaster");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedStateInterface> state_ifs;
@@ -87,7 +88,7 @@ void ForceTorqueSensorBroadcasterTest::subscribe_and_get_message(
   while (max_sub_check_loop_count--)
   {
     fts_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{5};
+    const auto timeout = std::chrono::milliseconds{1};
     const auto until = test_subscription_node.get_clock()->now() + timeout;
     while (!received_msg && test_subscription_node.get_clock()->now() < until)
     {

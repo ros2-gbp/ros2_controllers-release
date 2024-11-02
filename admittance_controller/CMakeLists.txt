@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(admittance_controller LANGUAGES CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror=conversion -Werror=unused-but-set-variable
-                      -Werror=return-type -Werror=shadow -Werror=format)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
 endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
@@ -68,8 +67,10 @@ if(BUILD_TESTING)
   find_package(kinematics_interface_kdl REQUIRED)
 
   # test loading admittance controller
-  add_definitions(-DTEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
-  ament_add_gmock(test_load_admittance_controller test/test_load_admittance_controller.cpp)
+  add_rostest_with_parameters_gmock(test_load_admittance_controller
+    test/test_load_admittance_controller.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/test_params.yaml
+  )
   ament_target_dependencies(test_load_admittance_controller
     controller_manager
     hardware_interface
