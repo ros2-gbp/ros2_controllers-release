@@ -16,17 +16,13 @@
 
 #include "admittance_controller/admittance_controller.hpp"
 
-#include <chrono>
 #include <cmath>
-#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "admittance_controller/admittance_rule_impl.hpp"
 #include "geometry_msgs/msg/wrench.hpp"
-#include "rcutils/logging_macros.h"
-#include "tf2_ros/buffer.h"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
 namespace admittance_controller
@@ -284,7 +280,9 @@ controller_interface::CallbackReturn AdmittanceController::on_configure(
     semantic_components::ForceTorqueSensor(admittance_->parameters_.ft_sensor.name));
 
   // configure admittance rule
-  if (admittance_->configure(get_node(), num_joints_) == controller_interface::return_type::ERROR)
+  if (
+    admittance_->configure(get_node(), num_joints_, this->get_robot_description()) ==
+    controller_interface::return_type::ERROR)
   {
     return controller_interface::CallbackReturn::ERROR;
   }

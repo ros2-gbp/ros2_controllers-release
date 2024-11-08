@@ -2,75 +2,62 @@
 Changelog for package pose_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.27.0 (2024-11-02)
+4.16.0 (2024-11-08)
 -------------------
-* Implement new PoseBroadcaster controller (backport `#1311 <https://github.com/ros-controls/ros2_controllers/issues/1311>`_) (`#1327 <https://github.com/ros-controls/ros2_controllers/issues/1327>`_)
-  * Implement new PoseBroadcaster controller (`#1311 <https://github.com/ros-controls/ros2_controllers/issues/1311>`_)
-  (cherry picked from commit 7c89c17a5cf6ac5d553c79ccc63182f2e1454388)
-  * Fix API in tests
-  * Add hardware_interface_testing dependency
-  ---------
-  Co-authored-by: RobertWilbrandt <wilbrandt@fzi.de>
-  Co-authored-by: Christoph Froehlich <christoph.froehlich@ait.ac.at>
-* Contributors: mergify[bot]
+* Add hardware_interface_testing dependency (`#1335 <https://github.com/ros-controls/ros2_controllers/issues/1335>`_)
+* Implement new PoseBroadcaster controller (`#1311 <https://github.com/ros-controls/ros2_controllers/issues/1311>`_)
+* Contributors: Christoph Fröhlich, RobertWilbrandt
 
-* Implement new PoseBroadcaster controller (backport `#1311 <https://github.com/ros-controls/ros2_controllers/issues/1311>`_) (`#1327 <https://github.com/ros-controls/ros2_controllers/issues/1327>`_)
-  * Implement new PoseBroadcaster controller (`#1311 <https://github.com/ros-controls/ros2_controllers/issues/1311>`_)
-  (cherry picked from commit 7c89c17a5cf6ac5d553c79ccc63182f2e1454388)
-  * Fix API in tests
-  * Add hardware_interface_testing dependency
-  ---------
-  Co-authored-by: RobertWilbrandt <wilbrandt@fzi.de>
-  Co-authored-by: Christoph Froehlich <christoph.froehlich@ait.ac.at>
-* Contributors: mergify[bot]
-
-3.26.3 (2024-09-11)
+4.15.0 (2024-10-07)
 -------------------
 
-3.26.2 (2024-08-22)
+4.14.0 (2024-09-11)
 -------------------
 
-3.26.1 (2024-08-14)
+4.13.0 (2024-08-22)
 -------------------
 
-3.26.0 (2024-07-24)
+4.12.1 (2024-08-14)
 -------------------
 
-3.25.0 (2024-07-09)
+4.12.0 (2024-07-23)
 -------------------
 
-3.24.0 (2024-05-14)
+4.11.0 (2024-07-09)
 -------------------
 
-3.23.0 (2024-04-30)
+4.10.0 (2024-07-01)
 -------------------
 
-3.22.0 (2024-02-12)
--------------------
+4.9.0 (2024-06-05)
+------------------
 
-3.21.0 (2024-01-20)
--------------------
+4.8.0 (2024-05-14)
+------------------
 
-3.20.2 (2024-01-11)
--------------------
+4.7.0 (2024-03-22)
+------------------
 
-3.20.1 (2024-01-08)
--------------------
+4.6.0 (2024-02-12)
+------------------
 
-3.20.0 (2024-01-03)
--------------------
+4.5.0 (2024-01-31)
+------------------
 
-3.19.2 (2023-12-12)
--------------------
+4.4.0 (2024-01-11)
+------------------
 
-3.19.1 (2023-12-05)
--------------------
+4.3.0 (2024-01-08)
+------------------
 
-3.19.0 (2023-12-01)
--------------------
+4.2.0 (2023-12-12)
+------------------
 
-3.18.0 (2023-11-21)
--------------------
+4.1.0 (2023-12-01)
+------------------
+
+4.0.0 (2023-11-21)
+------------------
 
 3.17.0 (2023-10-31)
 -------------------

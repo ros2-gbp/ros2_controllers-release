@@ -18,7 +18,6 @@
 
 #include <gmock/gmock.h>
 
-#include <array>
 #include <memory>
 #include <string>
 #include <thread>
@@ -29,7 +28,8 @@
 #include "hardware_interface/loaned_state_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 #include "tricycle_controller/tricycle_controller.hpp"
 
 using CallbackReturn = controller_interface::CallbackReturn;
@@ -166,7 +166,7 @@ protected:
     parameter_overrides.insert(parameter_overrides.end(), parameters.begin(), parameters.end());
     node_options.parameter_overrides(parameter_overrides);
 
-    return controller_->init(controller_name, "", node_options);
+    return controller_->init(controller_name, urdf_, 0, "", node_options);
   }
 
   const std::string controller_name = "test_tricycle_controller";
@@ -189,11 +189,14 @@ protected:
 
   rclcpp::Node::SharedPtr pub_node;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_publisher;
+
+  const std::string urdf_ = "";
 };
 
 TEST_F(TestTricycleController, init_fails_without_parameters)
 {
-  const auto ret = controller_->init(controller_name);
+  const auto ret =
+    controller_->init(controller_name, urdf_, 0, "", controller_->define_custom_node_options());
   ASSERT_EQ(ret, controller_interface::return_type::ERROR);
 }
 

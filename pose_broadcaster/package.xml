@@ -2,11 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>pose_broadcaster</name>
-  <version>3.27.0</version>
+  <version>4.16.0</version>
   <description>Broadcaster to publish cartesian states.</description>
-  <maintainer email="bence.magyar.robotics@gmail.com">Bence Magyar</maintainer>
-  <maintainer email="denis@stogl.de">Denis Stogl</maintainer>
-  <author email="wilbrandt@fzi.de">Robert Wilbrandt</author>
+  <maintainer email="wilbrandt@fzi.de">Robert Wilbrandt</maintainer>
 
   <license>Apache License 2.0</license>
 

@@ -87,11 +87,6 @@ joint_trajectory_controller:
       one_of<>: [["splines", "none"]],
     }
   }
-  start_with_holding: {
-    type: bool,
-    default_value: true,
-    description: "(Deprecated) If true, start with holding position after activation. Otherwise, no command will be sent until the first trajectory is received.",
-  }
   allow_nonzero_velocity_at_trajectory_end: {
     type: bool,
     default_value: false,
@@ -131,20 +126,6 @@ joint_trajectory_controller:
         type: double,
         default_value: 0.0,
         description: "Feed-forward scaling :math:`k_{ff}` of velocity"
-      }
-      normalize_error: {
-        type: bool,
-        default_value: false,
-        description: "(Deprecated) Use position error normalization to -pi to pi."
-      }
-      angle_wraparound: {
-        type: bool,
-        default_value: false,
-        description: 'For joints that wrap around (without end stop, ie. are continuous),
-        where the shortest rotation to the target position is the desired motion.
-        If true, the position error :math:`e = normalize(s_d - s)` is normalized between :math:`-\pi, \pi`.
-        Otherwise  :math:`e = s_d - s` is used, with the desired position :math:`s_d` and the measured
-        position :math:`s` from the state interface.'
       }
   constraints:
     stopped_velocity_tolerance: {

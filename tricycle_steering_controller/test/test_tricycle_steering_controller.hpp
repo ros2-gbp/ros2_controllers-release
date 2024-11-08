@@ -15,21 +15,19 @@
 #ifndef TEST_TRICYCLE_STEERING_CONTROLLER_HPP_
 #define TEST_TRICYCLE_STEERING_CONTROLLER_HPP_
 
+#include <gmock/gmock.h>
+
 #include <chrono>
-#include <limits>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <utility>
 #include <vector>
 
-#include "gmock/gmock.h"
 #include "hardware_interface/loaned_command_interface.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "rclcpp/parameter_value.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 #include "rclcpp/time.hpp"
-#include "rclcpp/utilities.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "tricycle_steering_controller/tricycle_steering_controller.hpp"
 
@@ -134,7 +132,9 @@ public:
 protected:
   void SetUpController(const std::string controller_name = "test_tricycle_steering_controller")
   {
-    ASSERT_EQ(controller_->init(controller_name), controller_interface::return_type::OK);
+    ASSERT_EQ(
+      controller_->init(controller_name, "", 0, "", controller_->define_custom_node_options()),
+      controller_interface::return_type::OK);
 
     if (position_feedback_ == true)
     {
@@ -205,7 +205,7 @@ protected:
     while (max_sub_check_loop_count--)
     {
       controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01));
-      const auto timeout = std::chrono::milliseconds{1};
+      const auto timeout = std::chrono::milliseconds{5};
       const auto until = test_subscription_node.get_clock()->now() + timeout;
       while (!received_msg && test_subscription_node.get_clock()->now() < until)
       {
@@ -260,7 +260,6 @@ protected:
   bool open_loop_ = false;
   unsigned int velocity_rolling_window_size_ = 10;
   bool position_feedback_ = false;
-  bool use_stamped_vel_ = true;
   std::vector<std::string> rear_wheels_names_ = {"rear_right_wheel_joint", "rear_left_wheel_joint"};
   std::vector<std::string> front_wheels_names_ = {"steering_axis_joint"};
   std::vector<std::string> joint_names_ = {

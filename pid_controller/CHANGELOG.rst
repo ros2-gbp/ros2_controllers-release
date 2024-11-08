@@ -2,65 +2,89 @@
 Changelog for package pid_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.27.0 (2024-11-02)
+4.16.0 (2024-11-08)
 -------------------
-* fixes for windows compilation (`#1330 <https://github.com/ros-controls/ros2_controllers/issues/1330>`_) (`#1333 <https://github.com/ros-controls/ros2_controllers/issues/1333>`_)
-  Co-authored-by: SENAI-GilmarCorreia <gilmar.correia@sp.senai.br>
-  (cherry picked from commit fa42b5ec97b0af5420060844b7027b8e8912c05d)
-  Co-authored-by: Gilmar Correia <gilmar.jeronimo@sp.senai.br>
-* Contributors: mergify[bot]
+* fixes for windows compilation (`#1330 <https://github.com/ros-controls/ros2_controllers/issues/1330>`_)
+* Contributors: Gilmar Correia
 
-3.26.3 (2024-09-11)
+4.15.0 (2024-10-07)
 -------------------
+* Adapt test to new way of exporting reference interfaces (Related to `#1240 <https://github.com/ros-controls/ros2_controllers/issues/1240>`_ in ros2_control) (`#1103 <https://github.com/ros-controls/ros2_controllers/issues/1103>`_)
+* Contributors: Manuel Muth
 
-3.26.2 (2024-08-22)
+4.14.0 (2024-09-11)
 -------------------
+* [PID Controller] Export state interfaces for easier chaining with other controllers (`#1214 <https://github.com/ros-controls/ros2_controllers/issues/1214>`_)
+* Contributors: Sai Kishor Kothakota
 
-3.26.1 (2024-08-14)
--------------------
-
-3.26.0 (2024-07-24)
--------------------
-* Fix WaitSet issue in tests  (backport `#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_) (`#1212 <https://github.com/ros-controls/ros2_controllers/issues/1212>`_)
-* Contributors: mergify[bot]
-
-3.25.0 (2024-07-09)
--------------------
-* 🚀 Add PID controller 🎉 (backport `#434 <https://github.com/ros-controls/ros2_controllers/issues/434>`_, `#975 <https://github.com/ros-controls/ros2_controllers/issues/975>`_, `#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_, `#1084 <https://github.com/ros-controls/ros2_controllers/issues/1084>`_, `#951 <https://github.com/ros-controls/ros2_controllers/issues/951>`_) (`#1163 <https://github.com/ros-controls/ros2_controllers/issues/1163>`_)
-* Contributors: mergify[bot]
-
-3.24.0 (2024-05-14)
+4.13.0 (2024-08-22)
 -------------------
 
-3.23.0 (2024-04-30)
+4.12.1 (2024-08-14)
 -------------------
 
-3.22.0 (2024-02-12)
+4.12.0 (2024-07-23)
+-------------------
+* Add missing includes (`#1226 <https://github.com/ros-controls/ros2_controllers/issues/1226>`_)
+* Change the subscription timeout in the tests to 5ms (`#1219 <https://github.com/ros-controls/ros2_controllers/issues/1219>`_)
+* Unused header cleanup (`#1199 <https://github.com/ros-controls/ros2_controllers/issues/1199>`_)
+* Fix WaitSet issue in tests  (`#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>`_)
+* Fix parallel gripper controller CI (`#1202 <https://github.com/ros-controls/ros2_controllers/issues/1202>`_)
+* Contributors: Christoph Fröhlich, Henry Moore, Sai Kishor Kothakota
+
+4.11.0 (2024-07-09)
+-------------------
+* added changes corresponding to the logger and clock propagation in ResourceManager (`#1184 <https://github.com/ros-controls/ros2_controllers/issues/1184>`_)
+* Contributors: Sai Kishor Kothakota
+
+4.10.0 (2024-07-01)
 -------------------
 
-3.21.0 (2024-01-20)
--------------------
+4.9.0 (2024-06-05)
+------------------
 
-3.20.2 (2024-01-11)
--------------------
+4.8.0 (2024-05-14)
+------------------
+* [PID] Add example yaml to docs (`#951 <https://github.com/ros-controls/ros2_controllers/issues/951>`_)
+* Contributors: Christoph Fröhlich
 
-3.20.1 (2024-01-08)
--------------------
+4.7.0 (2024-03-22)
+------------------
+* Fix pid_controller build on ROS 2 Rolling on Ubuntu 24.04 (`#1084 <https://github.com/ros-controls/ros2_controllers/issues/1084>`_)
+* Added conditioning to have rolling tags compilable in older versions (`#1071 <https://github.com/ros-controls/ros2_controllers/issues/1071>`_)
+* Fix usage of visibility macros (`#1039 <https://github.com/ros-controls/ros2_controllers/issues/1039>`_)
+* Contributors: Chris Lalancette, Sai Kishor Kothakota, Silvio Traversaro
 
-3.20.0 (2024-01-03)
--------------------
+4.6.0 (2024-02-12)
+------------------
+* Add test_depend on `hardware_interface_testing` (`#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>`_)
+* Fix tests for using new `get_node_options` API (`#840 <https://github.com/ros-controls/ros2_controllers/issues/840>`_)
+* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
 
-3.19.2 (2023-12-12)
--------------------
+4.5.0 (2024-01-31)
+------------------
+* Add tests for `interface_configuration_type` consistently (`#899 <https://github.com/ros-controls/ros2_controllers/issues/899>`_)
+* [PID] Remove joint_jog include (`#975 <https://github.com/ros-controls/ros2_controllers/issues/975>`_)
+* Contributors: Christoph Fröhlich
 
-3.19.1 (2023-12-05)
--------------------
+4.4.0 (2024-01-11)
+------------------
 
-3.19.0 (2023-12-01)
--------------------
+4.3.0 (2024-01-08)
+------------------
+* Add few warning flags to error (`#961 <https://github.com/ros-controls/ros2_controllers/issues/961>`_)
+* Contributors: Sai Kishor Kothakota
 
-3.18.0 (2023-11-21)
--------------------
+4.2.0 (2023-12-12)
+------------------
+* 🚀 Add PID controller 🎉 (`#434 <https://github.com/ros-controls/ros2_controllers/issues/434>`_)
+* Contributors: Dr. Denis
+
+4.1.0 (2023-12-01)
+------------------
+
+4.0.0 (2023-11-21)
+------------------
 
 3.17.0 (2023-10-31)
 -------------------
