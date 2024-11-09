@@ -1,4 +1,4 @@
-name: Debian Humble Source Build
+name: Debian Humble Build
 on:
   workflow_dispatch:
   pull_request:
