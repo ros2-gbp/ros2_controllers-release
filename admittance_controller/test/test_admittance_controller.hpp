@@ -53,6 +53,8 @@ const double COMMON_THRESHOLD = 0.001;
 
 constexpr auto NODE_SUCCESS =
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+constexpr auto NODE_FAILURE =
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::FAILURE;
 constexpr auto NODE_ERROR =
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
 }  // namespace
@@ -101,7 +103,6 @@ public:
     }
   }
 
-private:
   const std::string robot_description_ = ros2_control_test_assets::valid_6d_robot_urdf;
   const std::string robot_description_semantic_ = ros2_control_test_assets::valid_6d_robot_srdf;
 };
@@ -109,10 +110,7 @@ private:
 class AdmittanceControllerTest : public ::testing::Test
 {
 public:
-  static void SetUpTestCase()
-  {
-    //    rclcpp::init(0, nullptr);
-  }
+  static void SetUpTestCase() {}
 
   void SetUp()
   {
@@ -146,7 +144,7 @@ protected:
     auto options = rclcpp::NodeOptions()
                      .allow_undeclared_parameters(false)
                      .parameter_overrides(parameter_overrides)
-                     .automatically_declare_parameters_from_overrides(true);
+                     .automatically_declare_parameters_from_overrides(false);
     return SetUpControllerCommon(controller_name, options);
   }
 
@@ -155,15 +153,15 @@ protected:
   {
     auto options = rclcpp::NodeOptions()
                      .allow_undeclared_parameters(false)
-                     .automatically_declare_parameters_from_overrides(true);
+                     .automatically_declare_parameters_from_overrides(false);
     return SetUpControllerCommon(controller_name, options);
   }
 
   controller_interface::return_type SetUpControllerCommon(
     const std::string & controller_name, const rclcpp::NodeOptions & options)
   {
+    // robot_description is received from node's parameter
     auto result = controller_->init(controller_name, "", options);
-
     controller_->export_reference_interfaces();
     assign_interfaces();
 

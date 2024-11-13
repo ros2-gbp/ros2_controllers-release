@@ -20,7 +20,6 @@
 #include <stdexcept>
 #include <string>
 
-#include "rcppmath/clamp.hpp"
 #include "tricycle_controller/traction_limiter.hpp"
 
 namespace tricycle_controller
@@ -45,13 +44,13 @@ TractionLimiter::TractionLimiter(
   if (!std::isnan(max_acceleration_) && std::isnan(min_acceleration_)) min_acceleration_ = 0.0;
 
   if (!std::isnan(min_deceleration_) && std::isnan(max_deceleration_)) max_deceleration_ = 1000.0;
-  if (!std::isnan(max_deceleration_) && std::isnan(min_acceleration_)) min_deceleration_ = 0.0;
+  if (!std::isnan(max_deceleration_) && std::isnan(min_deceleration_)) min_deceleration_ = 0.0;
 
   if (!std::isnan(min_jerk_) && std::isnan(max_jerk_)) max_jerk_ = 1000.0;
   if (!std::isnan(max_jerk_) && std::isnan(min_jerk_)) min_jerk_ = 0.0;
 
   const std::string error =
-    "The positive limit will be applied to both directions. Setting different limits for positive "
+    " The positive limit will be applied to both directions. Setting different limits for positive "
     "and negative directions is not supported. Actuators are "
     "assumed to have the same constraints in both directions";
   if (min_velocity_ < 0 || max_velocity_ < 0)
@@ -59,19 +58,39 @@ TractionLimiter::TractionLimiter(
     throw std::invalid_argument("Velocity cannot be negative." + error);
   }
 
+  if (min_velocity_ > max_velocity_)
+  {
+    throw std::invalid_argument("Min velocity cannot be greater than max velocity.");
+  }
+
   if (min_acceleration_ < 0 || max_acceleration_ < 0)
   {
-    throw std::invalid_argument("Acceleration cannot be negative." + error);
+    throw std::invalid_argument("Acceleration limits cannot be negative." + error);
+  }
+
+  if (min_acceleration_ > max_acceleration_)
+  {
+    throw std::invalid_argument("Min acceleration cannot be greater than max acceleration.");
   }
 
   if (min_deceleration_ < 0 || max_deceleration_ < 0)
   {
-    throw std::invalid_argument("Deceleration cannot be negative." + error);
+    throw std::invalid_argument("Deceleration limits cannot be negative." + error);
+  }
+
+  if (min_deceleration_ > max_deceleration_)
+  {
+    throw std::invalid_argument("Min deceleration cannot be greater than max deceleration.");
   }
 
   if (min_jerk_ < 0 || max_jerk_ < 0)
   {
-    throw std::invalid_argument("Jerk cannot be negative." + error);
+    throw std::invalid_argument("Jerk limits cannot be negative." + error);
+  }
+
+  if (min_jerk_ > max_jerk_)
+  {
+    throw std::invalid_argument("Min jerk cannot be greater than max jerk.");
   }
 }
 
@@ -91,7 +110,7 @@ double TractionLimiter::limit_velocity(double & v)
 {
   const double tmp = v;
 
-  v = rcppmath::clamp(std::fabs(v), min_velocity_, max_velocity_);
+  v = std::clamp(std::fabs(v), min_velocity_, max_velocity_);
 
   v *= tmp >= 0 ? 1 : -1;
   return tmp != 0.0 ? v / tmp : 1.0;
@@ -113,7 +132,7 @@ double TractionLimiter::limit_acceleration(double & v, double v0, double dt)
     dv_min = min_deceleration_ * dt;
     dv_max = max_deceleration_ * dt;
   }
-  double dv = rcppmath::clamp(std::fabs(v - v0), dv_min, dv_max);
+  double dv = std::clamp(std::fabs(v - v0), dv_min, dv_max);
   dv *= (v - v0 >= 0 ? 1 : -1);
   v = v0 + dv;
 
@@ -132,7 +151,7 @@ double TractionLimiter::limit_jerk(double & v, double v0, double v1, double dt)
   const double da_min = min_jerk_ * dt2;
   const double da_max = max_jerk_ * dt2;
 
-  double da = rcppmath::clamp(std::fabs(dv - dv0), da_min, da_max);
+  double da = std::clamp(std::fabs(dv - dv0), da_min, da_max);
   da *= (dv - dv0 >= 0 ? 1 : -1);
   v = v0 + dv0 + da;
 
