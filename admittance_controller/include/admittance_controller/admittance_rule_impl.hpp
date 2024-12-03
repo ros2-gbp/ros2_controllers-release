@@ -20,7 +20,6 @@
 #include "admittance_controller/admittance_rule.hpp"
 
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "rclcpp/duration.hpp"
@@ -34,8 +33,7 @@ constexpr auto NUM_CARTESIAN_DOF = 6;  // (3 translation + 3 rotation)
 
 /// Configure admittance rule memory for num joints and load kinematics interface
 controller_interface::return_type AdmittanceRule::configure(
-  const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node, const size_t num_joints,
-  const std::string & robot_description)
+  const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node, const size_t num_joints)
 {
   num_joints_ = num_joints;
 
@@ -59,7 +57,7 @@ controller_interface::return_type AdmittanceRule::configure(
         kinematics_loader_->createUnmanagedInstance(parameters_.kinematics.plugin_name));
 
       if (!kinematics_->initialize(
-            robot_description, node->get_node_parameters_interface(), "kinematics"))
+            node->get_node_parameters_interface(), parameters_.kinematics.tip))
       {
         return controller_interface::return_type::ERROR;
       }
