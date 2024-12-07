@@ -10,7 +10,7 @@ steering_controllers_library
 .. _twist_msg: https://github.com/ros2/common_interfaces/blob/{DISTRO}/geometry_msgs/msg/TwistStamped.msg
 .. _tf_msg: https://github.com/ros2/geometry2/blob/{DISTRO}/tf2_msgs/msg/TFMessage.msg
 
-Library with shared functionalities for mobile robot controllers with steering drives, with so-called non-holonomic constraints.
+Library with shared functionalities for mobile robot controllers with steering drives (2 degrees of freedom), with so-called non-holonomic constraints.
 
 The library implements generic odometry and update methods and defines the main interfaces.
 
@@ -21,7 +21,7 @@ For an introduction to mobile robot kinematics and the nomenclature used here, s
 Execution logic of the controller
 ----------------------------------
 
-The controller uses velocity input, i.e., stamped or unstamped `twist messages <twist_msg_>`_ where linear ``x`` and angular ``z`` components are used.
+The controller uses velocity input, i.e., stamped `twist messages <twist_msg_>`_ where linear ``x`` and angular ``z`` components are used.
 Values in other components are ignored.
 
 In the chain mode the controller provides two reference interfaces, one for linear velocity and one for steering angle position.
@@ -97,9 +97,6 @@ Subscribers
 Used when controller is not in chained mode (``in_chained_mode == false``).
 
 - ``<controller_name>/reference``  [`geometry_msgs/msg/TwistStamped <twist_msg_>`_]
-  If parameter ``use_stamped_vel`` is ``true``.
-- ``<controller_name>/reference_unstamped``   [geometry_msgs/msg/Twist]
-  If parameter ``use_stamped_vel`` is ``false``.
 
 Publishers
 ,,,,,,,,,,,
