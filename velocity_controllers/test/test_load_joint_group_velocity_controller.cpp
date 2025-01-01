@@ -30,7 +30,9 @@ TEST(TestLoadJointGroupVelocityController, load_controller)
     std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
   controller_manager::ControllerManager cm(
-    executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
+    std::make_unique<hardware_interface::ResourceManager>(
+      ros2_control_test_assets::minimal_robot_urdf),
+    executor, "test_controller_manager");
 
   ASSERT_NE(
     cm.load_controller(

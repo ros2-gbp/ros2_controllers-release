@@ -9,8 +9,9 @@ on:
         default: 'rolling'
         type: choice
         options:
+        - foxy
+        - galactic
         - humble
-        - iron
         - rolling
       branch:
         description: 'Chose branch for distro'
@@ -18,8 +19,9 @@ on:
         default: 'master'
         type: choice
         options:
+        - foxy
+        - galactic
         - humble
-        - iron
         - master
 
 jobs:
