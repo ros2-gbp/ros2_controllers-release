@@ -1,0 +1,12 @@
+Source: ros-humble-gripper-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake, ros-humble-ament-cmake-gmock <!nocheck>, ros-humble-backward-ros, ros-humble-control-msgs, ros-humble-control-toolbox, ros-humble-controller-interface, ros-humble-controller-manager <!nocheck>, ros-humble-generate-parameter-library, ros-humble-hardware-interface, ros-humble-hardware-interface-testing <!nocheck>, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-rclcpp-action, ros-humble-realtime-tools, ros-humble-ros2-control-test-assets <!nocheck>, ros-humble-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-humble-gripper-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-backward-ros, ros-humble-control-msgs, ros-humble-control-toolbox, ros-humble-controller-interface, ros-humble-generate-parameter-library, ros-humble-hardware-interface, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-rclcpp-action, ros-humble-realtime-tools, ros-humble-ros-workspace
+Description: The gripper_controllers package
