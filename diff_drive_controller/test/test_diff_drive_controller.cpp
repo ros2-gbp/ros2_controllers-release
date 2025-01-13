@@ -14,10 +14,8 @@
 
 #include <gmock/gmock.h>
 
-#include <array>
 #include <memory>
 #include <string>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -26,7 +24,8 @@
 #include "hardware_interface/loaned_state_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 
 using CallbackReturn = controller_interface::CallbackReturn;
 using hardware_interface::HW_IF_POSITION;
@@ -49,7 +48,8 @@ public:
   std::shared_ptr<geometry_msgs::msg::TwistStamped> getLastReceivedTwist()
   {
     std::shared_ptr<geometry_msgs::msg::TwistStamped> ret;
-    received_velocity_msg_ptr_.get(ret);
+    received_velocity_msg_ptr_.get(
+      [&ret](const std::shared_ptr<geometry_msgs::msg::TwistStamped> & msg) { ret = msg; });
     return ret;
   }
 
@@ -85,10 +85,11 @@ public:
 class TestDiffDriveController : public ::testing::Test
 {
 protected:
-  static void SetUpTestCase() { rclcpp::init(0, nullptr); }
-
   void SetUp() override
   {
+    // use the name of the test as the controller name (i.e, the node name) to be able to set
+    // parameters from yaml for each test
+    controller_name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     controller_ = std::make_unique<TestableDiffDriveController>();
 
     pub_node = std::make_shared<rclcpp::Node>("velocity_publisher");
@@ -187,10 +188,10 @@ protected:
     parameter_overrides.insert(parameter_overrides.end(), parameters.begin(), parameters.end());
     node_options.parameter_overrides(parameter_overrides);
 
-    return controller_->init(controller_name, ns, node_options);
+    return controller_->init(controller_name, urdf_, 0, ns, node_options);
   }
 
-  const std::string controller_name = "test_diff_drive_controller";
+  std::string controller_name;
   std::unique_ptr<TestableDiffDriveController> controller_;
 
   std::vector<double> position_values_ = {0.1, 0.2};
@@ -211,11 +212,14 @@ protected:
 
   rclcpp::Node::SharedPtr pub_node;
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_publisher;
+
+  const std::string urdf_ = "";
 };
 
 TEST_F(TestDiffDriveController, init_fails_without_parameters)
 {
-  const auto ret = controller_->init(controller_name);
+  const auto ret =
+    controller_->init(controller_name, urdf_, 0, "", controller_->define_custom_node_options());
   ASSERT_EQ(ret, controller_interface::return_type::ERROR);
 }
 
@@ -445,6 +449,194 @@ TEST_F(TestDiffDriveController, activate_succeeds_with_vel_resources_assigned)
   ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 }
 
+TEST_F(TestDiffDriveController, test_speed_limiter)
+{
+  ASSERT_EQ(
+    InitController(
+      left_wheel_names, right_wheel_names,
+      {
+        rclcpp::Parameter("linear.x.max_acceleration", rclcpp::ParameterValue(2.0)),
+        rclcpp::Parameter("linear.x.max_deceleration", rclcpp::ParameterValue(-4.0)),
+        rclcpp::Parameter("linear.x.max_acceleration_reverse", rclcpp::ParameterValue(-8.0)),
+        rclcpp::Parameter("linear.x.max_deceleration_reverse", rclcpp::ParameterValue(10.0)),
+      }),
+    controller_interface::return_type::OK);
+
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(controller_->get_node()->get_node_base_interface());
+  auto state = controller_->get_node()->configure();
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
+  assignResourcesPosFeedback();
+
+  state = controller_->get_node()->activate();
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, state.id());
+
+  waitForSetup();
+
+  // send msg
+  publish(0.0, 0.0);
+  // wait for msg is be published to the system
+  controller_->wait_for_twist(executor);
+
+  // wait for the speed limiter to fill the queue
+  for (int i = 0; i < 3; ++i)
+  {
+    ASSERT_EQ(
+      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
+      controller_interface::return_type::OK);
+    EXPECT_NEAR(0.0, left_wheel_vel_cmd_.get_value(), 1e-3);
+    EXPECT_NEAR(0.0, right_wheel_vel_cmd_.get_value(), 1e-3);
+  }
+
+  const double dt = 0.001;
+  const double wheel_radius = 0.1;
+
+  // we send four steps of acceleration, deceleration, reverse acceleration and reverse deceleration
+  {
+    const double linear = 1.0;
+    // send msg
+    publish(linear, 0.0);
+    // wait for msg is be published to the system
+    controller_->wait_for_twist(executor);
+
+    // should be in acceleration limit
+    const double time_acc = linear / 2.0;
+    for (int i = 0; i < floor(time_acc / dt) - 1; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+        controller_interface::return_type::OK);
+      EXPECT_GT(linear / wheel_radius, left_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+      EXPECT_GT(linear / wheel_radius, right_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+    }
+    ASSERT_EQ(
+      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+      controller_interface::return_type::OK);
+    EXPECT_NEAR(linear / wheel_radius, left_wheel_vel_cmd_.get_value(), 1e-3);
+    EXPECT_NEAR(linear / wheel_radius, right_wheel_vel_cmd_.get_value(), 1e-3);
+
+    // wait for the speed limiter to fill the queue
+    for (int i = 0; i < 3; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
+        controller_interface::return_type::OK);
+      EXPECT_EQ(linear / wheel_radius, left_wheel_vel_cmd_.get_value());
+      EXPECT_EQ(linear / wheel_radius, right_wheel_vel_cmd_.get_value());
+    }
+  }
+
+  {
+    const double linear = 0.0;
+    // send msg
+    publish(linear, 0.0);
+    // wait for msg is be published to the system
+    controller_->wait_for_twist(executor);
+
+    // should be in acceleration limit
+    const double time_acc = -1.0 / (-4.0);
+    for (int i = 0; i < floor(time_acc / dt) - 1; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+        controller_interface::return_type::OK);
+      EXPECT_LT(linear / wheel_radius, left_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+      EXPECT_LT(linear / wheel_radius, right_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+    }
+    ASSERT_EQ(
+      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+      controller_interface::return_type::OK);
+    EXPECT_NEAR(linear / wheel_radius, left_wheel_vel_cmd_.get_value(), 1e-3);
+    EXPECT_NEAR(linear / wheel_radius, right_wheel_vel_cmd_.get_value(), 1e-3);
+
+    // wait for the speed limiter to fill the queue
+    for (int i = 0; i < 3; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
+        controller_interface::return_type::OK);
+      EXPECT_NEAR(linear / wheel_radius, left_wheel_vel_cmd_.get_value(), 1e-3);
+      EXPECT_NEAR(linear / wheel_radius, right_wheel_vel_cmd_.get_value(), 1e-3);
+    }
+  }
+
+  {
+    const double linear = -1.0;
+    // send msg
+    publish(linear, 0.0);
+    // wait for msg is be published to the system
+    controller_->wait_for_twist(executor);
+
+    // should be in acceleration limit
+    const double time_acc = -1.0 / (-8.0);
+    for (int i = 0; i < floor(time_acc / dt) - 1; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+        controller_interface::return_type::OK);
+      EXPECT_LT(linear / wheel_radius, left_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+      EXPECT_LT(linear / wheel_radius, right_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+    }
+    ASSERT_EQ(
+      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+      controller_interface::return_type::OK);
+    EXPECT_NEAR(linear / wheel_radius, left_wheel_vel_cmd_.get_value(), 1e-3);
+    EXPECT_NEAR(linear / wheel_radius, right_wheel_vel_cmd_.get_value(), 1e-3);
+
+    // wait for the speed limiter to fill the queue
+    for (int i = 0; i < 3; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
+        controller_interface::return_type::OK);
+      EXPECT_NEAR(linear / wheel_radius, left_wheel_vel_cmd_.get_value(), 1e-3);
+      EXPECT_NEAR(linear / wheel_radius, right_wheel_vel_cmd_.get_value(), 1e-3);
+    }
+  }
+
+  {
+    const double linear = 0.0;
+    // send msg
+    publish(linear, 0.0);
+    // wait for msg is be published to the system
+    controller_->wait_for_twist(executor);
+
+    // should be in acceleration limit
+    const double time_acc = 1.0 / (10.0);
+    for (int i = 0; i < floor(time_acc / dt) - 1; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+        controller_interface::return_type::OK);
+      EXPECT_GT(linear / wheel_radius, left_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+      EXPECT_GT(linear / wheel_radius, right_wheel_vel_cmd_.get_value())
+        << "at t: " << i * dt << "s, but should be t: " << time_acc;
+    }
+    ASSERT_EQ(
+      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
+      controller_interface::return_type::OK);
+    EXPECT_NEAR(linear / wheel_radius, left_wheel_vel_cmd_.get_value(), 1e-3);
+    EXPECT_NEAR(linear / wheel_radius, right_wheel_vel_cmd_.get_value(), 1e-3);
+
+    // wait for the speed limiter to fill the queue
+    for (int i = 0; i < 3; ++i)
+    {
+      ASSERT_EQ(
+        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
+        controller_interface::return_type::OK);
+      EXPECT_NEAR(linear / wheel_radius, left_wheel_vel_cmd_.get_value(), 1e-3);
+      EXPECT_NEAR(linear / wheel_radius, right_wheel_vel_cmd_.get_value(), 1e-3);
+    }
+  }
+}
+
 TEST_F(TestDiffDriveController, activate_fails_with_wrong_resources_assigned_1)
 {
   ASSERT_EQ(
@@ -571,4 +763,13 @@ TEST_F(TestDiffDriveController, correct_initialization_using_parameters)
   state = controller_->get_node()->configure();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, state.id());
   executor.cancel();
+}
+
+int main(int argc, char ** argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  rclcpp::init(argc, argv);
+  int result = RUN_ALL_TESTS();
+  rclcpp::shutdown();
+  return result;
 }

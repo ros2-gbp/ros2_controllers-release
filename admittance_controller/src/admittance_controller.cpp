@@ -16,21 +16,34 @@
 
 #include "admittance_controller/admittance_controller.hpp"
 
-#include <chrono>
 #include <cmath>
-#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "admittance_controller/admittance_rule_impl.hpp"
 #include "geometry_msgs/msg/wrench.hpp"
-#include "rcutils/logging_macros.h"
-#include "tf2_ros/buffer.h"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
 namespace admittance_controller
 {
+
+geometry_msgs::msg::Wrench add_wrenches(
+  const geometry_msgs::msg::Wrench & a, const geometry_msgs::msg::Wrench & b)
+{
+  geometry_msgs::msg::Wrench res;
+
+  res.force.x = a.force.x + b.force.x;
+  res.force.y = a.force.y + b.force.y;
+  res.force.z = a.force.z + b.force.z;
+
+  res.torque.x = a.torque.x + b.torque.x;
+  res.torque.y = a.torque.y + b.torque.y;
+  res.torque.z = a.torque.z + b.torque.z;
+
+  return res;
+}
+
 controller_interface::CallbackReturn AdmittanceController::on_init()
 {
   // initialize controller config
@@ -120,6 +133,7 @@ AdmittanceController::on_export_reference_interfaces()
   reference_interfaces_.resize(num_chainable_interfaces, std::numeric_limits<double>::quiet_NaN());
   position_reference_ = {};
   velocity_reference_ = {};
+  input_wrench_command_.reset();
 
   // assign reference interfaces
   auto index = 0ul;
@@ -147,18 +161,6 @@ AdmittanceController::on_export_reference_interfaces()
 controller_interface::CallbackReturn AdmittanceController::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  try
-  {
-    parameter_handler_ = std::make_shared<admittance_controller::ParamListener>(get_node());
-    admittance_ = std::make_unique<admittance_controller::AdmittanceRule>(parameter_handler_);
-  }
-  catch (const std::exception & e)
-  {
-    RCLCPP_ERROR(
-      get_node()->get_logger(), "Exception thrown during init stage with message: %s \n", e.what());
-    return controller_interface::CallbackReturn::ERROR;
-  }
-
   command_joint_names_ = admittance_->parameters_.command_joints;
   if (command_joint_names_.empty())
   {
@@ -281,6 +283,24 @@ controller_interface::CallbackReturn AdmittanceController::on_configure(
   input_joint_command_subscriber_ =
     get_node()->create_subscription<trajectory_msgs::msg::JointTrajectoryPoint>(
       "~/joint_references", rclcpp::SystemDefaultsQoS(), joint_command_callback);
+
+  input_wrench_command_subscriber_ =
+    get_node()->create_subscription<geometry_msgs::msg::WrenchStamped>(
+      "~/wrench_reference", rclcpp::SystemDefaultsQoS(),
+      [&](const geometry_msgs::msg::WrenchStamped & msg)
+      {
+        if (
+          msg.header.frame_id != admittance_->parameters_.ft_sensor.frame.id &&
+          !msg.header.frame_id.empty())
+        {
+          RCLCPP_ERROR_STREAM(
+            get_node()->get_logger(), "Ignoring wrench reference as it is on the wrong frame: "
+                                        << msg.header.frame_id << ". Expected reference frame: "
+                                        << admittance_->parameters_.ft_sensor.frame.id);
+          return;
+        }
+        input_wrench_command_.writeFromNonRT(msg);
+      });
   s_publisher_ = get_node()->create_publisher<control_msgs::msg::AdmittanceControllerState>(
     "~/status", rclcpp::SystemDefaultsQoS());
   state_publisher_ =
@@ -296,7 +316,9 @@ controller_interface::CallbackReturn AdmittanceController::on_configure(
     semantic_components::ForceTorqueSensor(admittance_->parameters_.ft_sensor.name));
 
   // configure admittance rule
-  if (admittance_->configure(get_node(), num_joints_) == controller_interface::return_type::ERROR)
+  if (
+    admittance_->configure(get_node(), num_joints_, this->get_robot_description()) ==
+    controller_interface::return_type::ERROR)
   {
     return controller_interface::CallbackReturn::ERROR;
   }
@@ -370,7 +392,8 @@ controller_interface::CallbackReturn AdmittanceController::on_activate(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type AdmittanceController::update_reference_from_subscribers()
+controller_interface::return_type AdmittanceController::update_reference_from_subscribers(
+  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   // update input reference from ros subscriber message
   if (!admittance_)
@@ -411,8 +434,10 @@ controller_interface::return_type AdmittanceController::update_and_write_command
   // get all controller inputs
   read_state_from_hardware(joint_state_, ft_values_);
 
+  auto offsetted_ft_values = add_wrenches(ft_values_, input_wrench_command_.readFromRT()->wrench);
+
   // apply admittance control to reference to determine desired state
-  admittance_->update(joint_state_, ft_values_, reference_, period, reference_admittance_);
+  admittance_->update(joint_state_, offsetted_ft_values, reference_, period, reference_admittance_);
 
   // write calculated values to joint interfaces
   write_state_to_hardware(reference_admittance_);
