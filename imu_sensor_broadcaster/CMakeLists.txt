@@ -1,15 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(imu_sensor_broadcaster)
+project(imu_sensor_broadcaster LANGUAGES CXX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra -Wpedantic -Werror=conversion -Werror=unused-but-set-variable
-                      -Werror=return-type -Werror=shadow -Werror=format -Werror=range-loop-construct
-                      -Werror=missing-braces)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
 endif()
-
-# using this instead of visibility macros
-# S1 from https://github.com/ros-controls/ros2_controllers/issues/1053
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
@@ -45,6 +39,10 @@ target_link_libraries(imu_sensor_broadcaster PUBLIC
 )
 ament_target_dependencies(imu_sensor_broadcaster PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(imu_sensor_broadcaster PRIVATE "IMU_SENSOR_BROADCASTER_BUILDING_DLL")
+
 pluginlib_export_plugin_description_file(
   controller_interface imu_sensor_broadcaster.xml)
 
@@ -54,8 +52,9 @@ if(BUILD_TESTING)
   find_package(hardware_interface REQUIRED)
   find_package(ros2_control_test_assets REQUIRED)
 
-  add_definitions(-DTEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
-  ament_add_gmock(test_load_imu_sensor_broadcaster test/test_load_imu_sensor_broadcaster.cpp)
+  add_rostest_with_parameters_gmock(test_load_imu_sensor_broadcaster
+    test/test_load_imu_sensor_broadcaster.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/imu_sensor_broadcaster_params.yaml)
   target_include_directories(test_load_imu_sensor_broadcaster PRIVATE include)
   target_link_libraries(test_load_imu_sensor_broadcaster
     imu_sensor_broadcaster

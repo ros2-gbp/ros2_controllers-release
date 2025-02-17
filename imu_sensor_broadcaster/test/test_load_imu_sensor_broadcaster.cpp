@@ -32,15 +32,14 @@ TEST(TestLoadIMUSensorBroadcaster, load_controller)
     std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
   controller_manager::ControllerManager cm(
-    executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
-  const std::string test_file_path =
-    std::string(TEST_FILES_DIRECTORY) + "/imu_sensor_broadcaster_params.yaml";
+    std::make_unique<hardware_interface::ResourceManager>(
+      ros2_control_test_assets::minimal_robot_urdf),
+    executor, "test_controller_manager");
 
-  cm.set_parameter({"test_imu_sensor_broadcaster.params_file", test_file_path});
-  cm.set_parameter(
-    {"test_imu_sensor_broadcaster.type", "imu_sensor_broadcaster/IMUSensorBroadcaster"});
-
-  ASSERT_NE(cm.load_controller("test_imu_sensor_broadcaster"), nullptr);
+  ASSERT_NE(
+    cm.load_controller(
+      "test_imu_sensor_broadcaster", "imu_sensor_broadcaster/IMUSensorBroadcaster"),
+    nullptr);
 }
 
 int main(int argc, char ** argv)

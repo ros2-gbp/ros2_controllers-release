@@ -24,19 +24,14 @@
 
 #include "angles/angles.h"
 #include "control_msgs/msg/single_dof_state.hpp"
-#include "rclcpp/version.h"
+#include "controller_interface/helpers.hpp"
+
+#include "rclcpp/rclcpp.hpp"
 
 namespace
 {  // utility
 
 // Changed services history QoS to keep all so we don't lose any client service calls
-// \note The versions conditioning is added here to support the source-compatibility with Humble
-#if RCLCPP_VERSION_MAJOR >= 17
-rclcpp::QoS qos_services =
-  rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_ALL, 1))
-    .reliable()
-    .durability_volatile();
-#else
 static const rmw_qos_profile_t qos_services = {
   RMW_QOS_POLICY_HISTORY_KEEP_ALL,
   1,  // message queue depth
@@ -47,7 +42,6 @@ static const rmw_qos_profile_t qos_services = {
   RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
   RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
   false};
-#endif
 
 using ControllerCommandMsg = pid_controller::PidController::ControllerReferenceMsg;
 
@@ -185,47 +179,10 @@ controller_interface::CallbackReturn PidController::on_configure(
   if (params_.use_external_measured_states)
   {
     auto measured_state_callback =
-      [&](const std::shared_ptr<ControllerMeasuredStateMsg> state_msg) -> void
+      [&](const std::shared_ptr<ControllerMeasuredStateMsg> msg) -> void
     {
-      if (state_msg->dof_names.size() != reference_and_state_dof_names_.size())
-      {
-        RCLCPP_ERROR(
-          get_node()->get_logger(),
-          "Size of input data names (%zu) is not matching the expected size (%zu).",
-          state_msg->dof_names.size(), reference_and_state_dof_names_.size());
-        return;
-      }
-      if (state_msg->values.size() != reference_and_state_dof_names_.size())
-      {
-        RCLCPP_ERROR(
-          get_node()->get_logger(),
-          "Size of input data values (%zu) is not matching the expected size (%zu).",
-          state_msg->values.size(), reference_and_state_dof_names_.size());
-        return;
-      }
-
-      if (!state_msg->values_dot.empty())
-      {
-        if (params_.reference_and_state_interfaces.size() != 2)
-        {
-          RCLCPP_ERROR(
-            get_node()->get_logger(),
-            "The reference_and_state_interfaces parameter has to have two interfaces [the "
-            "interface and the derivative of the interface], in order to use the values_dot "
-            "field.");
-          return;
-        }
-        if (state_msg->values_dot.size() != reference_and_state_dof_names_.size())
-        {
-          RCLCPP_ERROR(
-            get_node()->get_logger(),
-            "Size of input data values_dot (%zu) is not matching the expected size (%zu).",
-            state_msg->values_dot.size(), reference_and_state_dof_names_.size());
-          return;
-        }
-      }
       // TODO(destogl): Sort the input values based on joint and interface names
-      measured_state_.writeFromNonRT(state_msg);
+      measured_state_.writeFromNonRT(msg);
     };
     measured_state_subscriber_ = get_node()->create_subscription<ControllerMeasuredStateMsg>(
       "~/measured_state", subscribers_qos, measured_state_callback);
@@ -400,27 +357,6 @@ std::vector<hardware_interface::CommandInterface> PidController::on_export_refer
   return reference_interfaces;
 }
 
-std::vector<hardware_interface::StateInterface> PidController::on_export_state_interfaces()
-{
-  std::vector<hardware_interface::StateInterface> state_interfaces;
-  state_interfaces.reserve(state_interfaces_values_.size());
-
-  state_interfaces_values_.resize(
-    reference_and_state_dof_names_.size() * params_.reference_and_state_interfaces.size(),
-    std::numeric_limits<double>::quiet_NaN());
-  size_t index = 0;
-  for (const auto & interface : params_.reference_and_state_interfaces)
-  {
-    for (const auto & dof_name : reference_and_state_dof_names_)
-    {
-      state_interfaces.push_back(hardware_interface::StateInterface(
-        get_node()->get_name(), dof_name + "/" + interface, &state_interfaces_values_[index]));
-      ++index;
-    }
-  }
-  return state_interfaces;
-}
-
 bool PidController::on_set_chained_mode(bool chained_mode)
 {
   // Always accept switch to/from chained mode
@@ -443,8 +379,13 @@ controller_interface::CallbackReturn PidController::on_activate(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type PidController::update_reference_from_subscribers(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+controller_interface::CallbackReturn PidController::on_deactivate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  return controller_interface::CallbackReturn::SUCCESS;
+}
+
+controller_interface::return_type PidController::update_reference_from_subscribers()
 {
   auto current_ref = input_ref_.readFromRT();
 
@@ -470,6 +411,7 @@ controller_interface::return_type PidController::update_and_write_commands(
   // check for any parameter updates
   update_parameters();
 
+  // Update feedback either from external measured state or from state interfaces
   if (params_.use_external_measured_states)
   {
     const auto measured_state = *(measured_state_.readFromRT());
@@ -490,28 +432,29 @@ controller_interface::return_type PidController::update_and_write_commands(
     }
   }
 
-  // Fill the information of the exported state interfaces
-  for (size_t i = 0; i < measured_state_values_.size(); ++i)
-  {
-    state_interfaces_values_[i] = measured_state_values_[i];
-  }
-
   for (size_t i = 0; i < dof_; ++i)
   {
-    double tmp_command = std::numeric_limits<double>::quiet_NaN();
+    double tmp_command = 0.0;
 
-    // Using feedforward
-    if (!std::isnan(reference_interfaces_[i]) && !std::isnan(measured_state_values_[i]))
+    if (std::isfinite(reference_interfaces_[i]) && std::isfinite(measured_state_values_[i]))
     {
       // calculate feed-forward
       if (*(control_mode_.readFromRT()) == feedforward_mode_type::ON)
       {
-        tmp_command = reference_interfaces_[dof_ + i] *
-                      params_.gains.dof_names_map[params_.dof_names[i]].feedforward_gain;
-      }
-      else
-      {
-        tmp_command = 0.0;
+        // two interfaces
+        if (reference_interfaces_.size() == 2 * dof_)
+        {
+          if (std::isfinite(reference_interfaces_[dof_ + i]))
+          {
+            tmp_command = reference_interfaces_[dof_ + i] *
+                          params_.gains.dof_names_map[params_.dof_names[i]].feedforward_gain;
+          }
+        }
+        else  // one interface
+        {
+          tmp_command = reference_interfaces_[i] *
+                        params_.gains.dof_names_map[params_.dof_names[i]].feedforward_gain;
+        }
       }
 
       double error = reference_interfaces_[i] - measured_state_values_[i];
@@ -526,8 +469,8 @@ controller_interface::return_type PidController::update_and_write_commands(
       if (reference_interfaces_.size() == 2 * dof_ && measured_state_values_.size() == 2 * dof_)
       {
         if (
-          !std::isnan(reference_interfaces_[dof_ + i]) &&
-          !std::isnan(measured_state_values_[dof_ + i]))
+          std::isfinite(reference_interfaces_[dof_ + i]) &&
+          std::isfinite(measured_state_values_[dof_ + i]))
         {
           // use calculation with 'error' and 'error_dot'
           tmp_command += pids_[i]->computeCommand(
