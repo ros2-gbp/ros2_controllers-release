@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stddef.h>
+
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "hardware_interface/loaned_command_interface.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/utilities.hpp"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "test_joint_group_velocity_controller.hpp"
 
 using CallbackReturn = controller_interface::CallbackReturn;
@@ -38,8 +43,7 @@ void JointGroupVelocityControllerTest::TearDown() { controller_.reset(nullptr); 
 
 void JointGroupVelocityControllerTest::SetUpController()
 {
-  const auto result = controller_->init(
-    "test_joint_group_velocity_controller", "", 0, "", controller_->define_custom_node_options());
+  const auto result = controller_->init("test_joint_group_velocity_controller");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedCommandInterface> command_ifs;
@@ -85,12 +89,13 @@ TEST_F(JointGroupVelocityControllerTest, ActivateWithWrongJointsNamesFails)
   // activate failed, 'joint4' is not a valid joint name for the hardware
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
   ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
+  ASSERT_EQ(controller_->on_cleanup(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
   controller_->get_node()->set_parameter({"joints", std::vector<std::string>{"joint1", "joint2"}});
 
-  // activate failed, 'acceleration' is not a registered interface for `joint1`
+  // activate should succeed now
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 }
 
 TEST_F(JointGroupVelocityControllerTest, CommandSuccessTest)

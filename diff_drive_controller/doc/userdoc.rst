@@ -20,7 +20,6 @@ Other features
    + Odometry publishing
    + Task-space velocity, acceleration and jerk limits
    + Automatic stop after command time-out
-   + Chainable Controller
 
 
 Description of controller's interfaces
@@ -29,13 +28,7 @@ Description of controller's interfaces
 References
 ,,,,,,,,,,,,,,,,,,
 
-When controller is in chained mode, it exposes the following references which can be commanded by the preceding controller:
-
-- ``<controller_name>/linear/velocity``      double, in m/s
-- ``<controller_name>/angular/velocity``     double, in rad/s
-
-Together, these represent the body twist (which in unchained-mode would be obtained from ~/cmd_vel).
-The ``<controller_name>`` is commonly set to ``diff_drive_controller``.
+(the controller is not yet implemented as chainable controller)
 
 Feedback
 ,,,,,,,,,,,,,,
@@ -55,7 +48,10 @@ Subscribers
 ,,,,,,,,,,,,
 
 ~/cmd_vel [geometry_msgs/msg/TwistStamped]
-  Velocity command for the controller. The controller extracts the x component of the linear velocity and the z component of the angular velocity. Velocities on other components are ignored.
+  Velocity command for the controller, if ``use_stamped_vel=true``. The controller extracts the x component of the linear velocity and the z component of the angular velocity. Velocities on other components are ignored.
+
+~/cmd_vel_unstamped [geometry_msgs::msg::Twist]
+  Velocity command for the controller, if ``use_stamped_vel=false``. The controller extracts the x component of the linear velocity and the z component of the angular velocity. Velocities on other components are ignored.
 
 
 Publishers

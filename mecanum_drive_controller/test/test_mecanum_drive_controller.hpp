@@ -82,6 +82,7 @@ class TestableMecanumDriveController : public mecanum_drive_controller::MecanumD
   FRIEND_TEST(
     MecanumDriveControllerTest,
     when_ref_timeout_zero_for_reference_callback_expect_reference_msg_being_used_only_once);
+  FRIEND_TEST(MecanumDriveControllerTest, SideToSideAndRotationOdometryTest);
 
 public:
   controller_interface::CallbackReturn on_configure(
@@ -162,11 +163,7 @@ public:
 protected:
   void SetUpController(const std::string controller_name = "test_mecanum_drive_controller")
   {
-    const auto urdf = "";
-    const auto ns = "";
-    ASSERT_EQ(
-      controller_->init(controller_name, urdf, 0, ns, controller_->define_custom_node_options()),
-      controller_interface::return_type::OK);
+    ASSERT_EQ(controller_->init(controller_name), controller_interface::return_type::OK);
 
     std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
     command_itfs_.reserve(joint_command_values_.size());
@@ -269,7 +266,8 @@ protected:
   }
 
 protected:
-  std::vector<std::string> reference_interface_names = {"linear/x", "linear/y", "angular/z"};
+  std::vector<std::string> reference_interface_names = {
+    "linear/x/velocity", "linear/y/velocity", "angular/z/velocity"};
 
   static constexpr char TEST_FRONT_LEFT_CMD_JOINT_NAME[] = "front_left_wheel_joint";
   static constexpr char TEST_FRONT_RIGHT_CMD_JOINT_NAME[] = "front_right_wheel_joint";
