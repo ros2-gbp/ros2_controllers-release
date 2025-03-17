@@ -1,0 +1,10 @@
+ros-humble-mecanum-drive-controller (2.43.0-1jammy) jammy; urgency=high
+
+  * Add changelog for mecanum_drive_controller
+  * [mecanum_drive_controller] Fix Odometry Initialization  (backport #1573 <https://github.com/ros-controls/ros2_controllers/issues/1573>) (#1583 <https://github.com/ros-controls/ros2_controllers/issues/1583>)
+  * Add Mecanum Drive Controller (backport #512 <https://github.com/ros-controls/ros2_controllers/issues/512>, #1444 <https://github.com/ros-controls/ros2_controllers/issues/1444>, #1547 <https://github.com/ros-controls/ros2_controllers/issues/1547>) (#1376 <https://github.com/ros-controls/ros2_controllers/issues/1376>)
+  * Contributors: Christoph Froehlich, Julia Jia, mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+
