@@ -1,1 +1,1 @@
-{"base": "acf3744b3b", "parent": "debian/rolling/gripper_controllers", "previous": "2e5c6baa37", "trim": "", "trimbase": ""}
+{"base": "2ccd2e135b", "parent": "debian/rolling/gripper_controllers", "previous": "0573eb94b6", "trim": "", "trimbase": ""}
