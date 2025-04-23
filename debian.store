@@ -1,1 +1,1 @@
-{"base": "4f9471b74a", "parent": "debian/rolling/gps_sensor_broadcaster", "previous": "7c65837db9", "trim": "", "trimbase": ""}
+{"base": "2921250a7943", "parent": "debian/kilted/gps_sensor_broadcaster", "previous": "24f86b6fc848", "trim": "", "trimbase": ""}
