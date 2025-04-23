@@ -1,1 +1,1 @@
-{"base": "5b0adfe45c", "parent": "debian/rolling/gpio_controllers", "previous": "02c1b7b473", "trim": "", "trimbase": ""}
+{"base": "fec4343536af", "parent": "debian/kilted/gpio_controllers", "previous": "280b17030aa0", "trim": "", "trimbase": ""}
