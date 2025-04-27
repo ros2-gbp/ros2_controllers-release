@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
-project(gripper_controllers)
+project(gripper_controllers LANGUAGES CXX)
 
-find_package(ros2_control_cmake REQUIRED)
-set_compiler_options()
-export_windows_symbols()
+if(APPLE OR WIN32)
+  message(WARNING "gripper controllers are not available on OSX or Windows")
+  return()
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra -Wconversion)
+endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   control_msgs

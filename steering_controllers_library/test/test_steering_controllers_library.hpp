@@ -15,24 +15,26 @@
 #ifndef TEST_STEERING_CONTROLLERS_LIBRARY_HPP_
 #define TEST_STEERING_CONTROLLERS_LIBRARY_HPP_
 
-#include <gmock/gmock.h>
-
 #include <chrono>
+#include <limits>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
+#include "gmock/gmock.h"
 #include "hardware_interface/loaned_command_interface.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "rclcpp/executor.hpp"
-#include "rclcpp/executors.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
+#include "rclcpp/parameter_value.hpp"
 #include "rclcpp/time.hpp"
+#include "rclcpp/utilities.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "steering_controllers_library/steering_controllers_library.hpp"
 
 using ControllerStateMsg =
-  steering_controllers_library::SteeringControllersLibrary::AckermannControllerState;
+  steering_controllers_library::SteeringControllersLibrary::SteeringControllerStateMsg;
 using ControllerReferenceMsg =
   steering_controllers_library::SteeringControllersLibrary::ControllerTwistReferenceMsg;
 
@@ -154,9 +156,7 @@ public:
 protected:
   void SetUpController(const std::string controller_name = "test_steering_controllers_library")
   {
-    ASSERT_EQ(
-      controller_->init(controller_name, "", 0, "", controller_->define_custom_node_options()),
-      controller_interface::return_type::OK);
+    ASSERT_EQ(controller_->init(controller_name), controller_interface::return_type::OK);
 
     if (position_feedback_ == true)
     {
@@ -247,7 +247,7 @@ protected:
     while (max_sub_check_loop_count--)
     {
       controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01));
-      const auto timeout = std::chrono::milliseconds{5};
+      const auto timeout = std::chrono::milliseconds{1};
       const auto until = test_subscription_node.get_clock()->now() + timeout;
       while (!received_msg && test_subscription_node.get_clock()->now() < until)
       {
@@ -302,19 +302,20 @@ protected:
   bool open_loop_ = false;
   unsigned int velocity_rolling_window_size_ = 10;
   bool position_feedback_ = false;
+  bool use_stamped_vel_ = true;
   std::vector<std::string> rear_wheels_names_ = {"rear_right_wheel_joint", "rear_left_wheel_joint"};
   std::vector<std::string> front_wheels_names_ = {
     "front_right_steering_joint", "front_left_steering_joint"};
   std::vector<std::string> joint_names_ = {
     rear_wheels_names_[0], rear_wheels_names_[1], front_wheels_names_[0], front_wheels_names_[1]};
 
-  std::vector<std::string> rear_wheels_preceeding_names_ = {
+  std::vector<std::string> rear_wheels_preceding_names_ = {
     "pid_controller/rear_right_wheel_joint", "pid_controller/rear_left_wheel_joint"};
-  std::vector<std::string> front_wheels_preceeding_names_ = {
+  std::vector<std::string> front_wheels_preceding_names_ = {
     "pid_controller/front_right_steering_joint", "pid_controller/front_left_steering_joint"};
-  std::vector<std::string> preceeding_joint_names_ = {
-    rear_wheels_preceeding_names_[0], rear_wheels_preceeding_names_[1],
-    front_wheels_preceeding_names_[0], front_wheels_preceeding_names_[1]};
+  std::vector<std::string> preceding_joint_names_ = {
+    rear_wheels_preceding_names_[0], rear_wheels_preceding_names_[1],
+    front_wheels_preceding_names_[0], front_wheels_preceding_names_[1]};
 
   double wheelbase_ = 3.24644;
   double front_wheel_track_ = 2.12321;
@@ -322,14 +323,14 @@ protected:
   double front_wheels_radius_ = 0.45;
   double rear_wheels_radius_ = 0.45;
 
-  std::array<double, 4> joint_state_values_ = {{0.5, 0.5, 0.0, 0.0}};
-  std::array<double, 4> joint_command_values_ = {{1.1, 3.3, 2.2, 4.4}};
+  std::array<double, 4> joint_state_values_ = {0.5, 0.5, 0.0, 0.0};
+  std::array<double, 4> joint_command_values_ = {1.1, 3.3, 2.2, 4.4};
 
-  std::array<std::string, 2> joint_reference_interfaces_ = {{"linear", "angular"}};
+  std::array<std::string, 2> joint_reference_interfaces_ = {"linear/velocity", "angular/velocity"};
   std::string steering_interface_name_ = "position";
   // defined in setup
   std::string traction_interface_name_ = "";
-  std::string preceeding_prefix_ = "pid_controller";
+  std::string preceding_prefix_ = "pid_controller";
 
   std::vector<hardware_interface::StateInterface> state_itfs_;
   std::vector<hardware_interface::CommandInterface> command_itfs_;

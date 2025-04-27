@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(mecanum_drive_controller)
+project(mecanum_drive_controller LANGUAGES CXX)
 
-find_package(ros2_control_cmake REQUIRED)
-set_compiler_options()
-export_windows_symbols()
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
+endif()
 
 # find dependencies
 set(THIS_PACKAGE_INCLUDE_DEPENDS
@@ -45,6 +45,10 @@ target_link_libraries(mecanum_drive_controller PUBLIC
   mecanum_drive_controller_parameters)
 ament_target_dependencies(mecanum_drive_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(mecanum_drive_controller PRIVATE "ACKERMANN_STEERING_CONTROLLER_BUILDING_DLL")
+
 pluginlib_export_plugin_description_file(
   controller_interface mecanum_drive_controller.xml)
 
@@ -75,12 +79,12 @@ if(BUILD_TESTING)
   )
 
   add_rostest_with_parameters_gmock(
-    test_mecanum_drive_controller_preceeding test/test_mecanum_drive_controller_preceeding.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/mecanum_drive_controller_preceeding_params.yaml)
-  target_include_directories(test_mecanum_drive_controller_preceeding PRIVATE include)
-  target_link_libraries(test_mecanum_drive_controller_preceeding mecanum_drive_controller)
+    test_mecanum_drive_controller_preceding test/test_mecanum_drive_controller_preceding.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/mecanum_drive_controller_preceding_params.yaml)
+  target_include_directories(test_mecanum_drive_controller_preceding PRIVATE include)
+  target_link_libraries(test_mecanum_drive_controller_preceding mecanum_drive_controller)
   ament_target_dependencies(
-    test_mecanum_drive_controller_preceeding
+    test_mecanum_drive_controller_preceding
     controller_interface
     hardware_interface
   )
