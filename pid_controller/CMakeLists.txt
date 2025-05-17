@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(pid_controller LANGUAGES CXX)
+project(pid_controller)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra)
-endif()
+find_package(ros2_control_cmake REQUIRED)
+set_compiler_options()
+export_windows_symbols()
 
 if(WIN32)
   add_compile_definitions(
@@ -52,10 +52,6 @@ target_link_libraries(pid_controller PUBLIC
   pid_controller_parameters
 )
 ament_target_dependencies(pid_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
-
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
-target_compile_definitions(pid_controller PRIVATE "PID_CONTROLLER_BUILDING_DLL")
 
 pluginlib_export_plugin_description_file(controller_interface pid_controller.xml)
 
