@@ -2,6 +2,16 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.0.0 (2025-05-17)
+------------------
+* [JTC] Remove deprecated open_loop_control code (`#1598 <https://github.com/ros-controls/ros2_controllers/issues/1598>`_)
+* Contributors: Thies Oelerich
+
+4.24.0 (2025-04-27)
+-------------------
+* Call `configure()` of base class instead of node (`#1659 <https://github.com/ros-controls/ros2_controllers/issues/1659>`_)
+* Contributors: Christoph Fröhlich
+
 4.23.0 (2025-04-10)
 -------------------
 * Bump version of pre-commit hooks (`#1618 <https://github.com/ros-controls/ros2_controllers/issues/1618>`_)
