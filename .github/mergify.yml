@@ -1,18 +1,18 @@
 pull_request_rules:
-  - name: Backport to humble at reviewers discretion
+
+  - name: Backport to jazzy at reviewers discretion
     conditions:
       - base=master
-      - "label=backport-humble"
+      - "label=backport-jazzy"
     actions:
       backport:
         branches:
-          - humble
+          - jazzy
 
   - name: Ask to resolve conflict
     conditions:
       - conflict
-      - author!=mergify[bot]
-      - author!=dependabot[bot]
+      - author!=mergify
     actions:
         comment:
           message: This pull request is in conflict. Could you fix it @{{author}}?

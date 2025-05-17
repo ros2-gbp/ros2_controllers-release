@@ -20,6 +20,7 @@
 #include "hardware_interface/macros.hpp"
 #include "rclcpp/duration.hpp"
 #include "rclcpp/time.hpp"
+#include "std_msgs/msg/header.hpp"
 
 namespace joint_trajectory_controller
 {
@@ -91,8 +92,7 @@ bool Trajectory::sample(
   const rclcpp::Time & sample_time,
   const interpolation_methods::InterpolationMethod interpolation_method,
   trajectory_msgs::msg::JointTrajectoryPoint & output_state,
-  TrajectoryPointConstIter & start_segment_itr, TrajectoryPointConstIter & end_segment_itr,
-  const bool search_monotonically_increasing)
+  TrajectoryPointConstIter & start_segment_itr, TrajectoryPointConstIter & end_segment_itr)
 {
   THROW_ON_NULLPTR(trajectory_msg_)
 
@@ -177,10 +177,7 @@ bool Trajectory::sample(
       }
       start_segment_itr = begin() + static_cast<TrajectoryPointConstIter::difference_type>(i);
       end_segment_itr = begin() + static_cast<TrajectoryPointConstIter::difference_type>(i + 1);
-      if (search_monotonically_increasing)
-      {
-        last_sample_idx_ = i;
-      }
+      last_sample_idx_ = i;
       return true;
     }
   }
@@ -199,10 +196,6 @@ bool Trajectory::sample(
   {
     output_state.accelerations.resize(output_state.positions.size(), 0.0);
   }
-  if (output_state.effort.empty())
-  {
-    output_state.effort.resize(output_state.positions.size(), 0.0);
-  }
   return true;
 }
 
@@ -218,7 +211,6 @@ void Trajectory::interpolate_between_points(
   output.positions.resize(dim, 0.0);
   output.velocities.resize(dim, 0.0);
   output.accelerations.resize(dim, 0.0);
-  output.effort.resize(dim, 0.0);
 
   auto generate_powers = [](int n, double x, double * powers)
   {
@@ -231,7 +223,6 @@ void Trajectory::interpolate_between_points(
 
   bool has_velocity = !state_a.velocities.empty() && !state_b.velocities.empty();
   bool has_accel = !state_a.accelerations.empty() && !state_b.accelerations.empty();
-  bool has_effort = !state_a.effort.empty() && !state_b.effort.empty();
   if (duration_so_far.seconds() < 0.0)
   {
     duration_so_far = rclcpp::Duration::from_seconds(0.0);
@@ -245,25 +236,6 @@ void Trajectory::interpolate_between_points(
 
   double t[6];
   generate_powers(5, duration_so_far.seconds(), t);
-
-  if (has_effort)
-  {
-    // do linear interpolation
-    for (size_t i = 0; i < dim; ++i)
-    {
-      double start_effort = state_a.effort[i];
-      double end_effort = state_b.effort[i];
-
-      double coefficients[2] = {0.0, 0.0};
-      coefficients[0] = start_effort;
-      if (duration_btwn_points.seconds() != 0.0)
-      {
-        coefficients[1] = (end_effort - start_effort) / duration_btwn_points.seconds();
-      }
-
-      output.effort[i] = t[0] * coefficients[0] + t[1] * coefficients[1];
-    }
-  }
 
   if (!has_velocity && !has_accel)
   {
@@ -363,14 +335,6 @@ void Trajectory::deduce_from_derivatives(
   trajectory_msgs::msg::JointTrajectoryPoint & first_state,
   trajectory_msgs::msg::JointTrajectoryPoint & second_state, const size_t dim, const double delta_t)
 {
-  if (first_state.effort.empty())
-  {
-    first_state.effort.assign(dim, 0.0);
-  }
-  if (second_state.effort.empty())
-  {
-    second_state.effort.assign(dim, 0.0);
-  }
   if (second_state.positions.empty())
   {
     second_state.positions.resize(dim);
