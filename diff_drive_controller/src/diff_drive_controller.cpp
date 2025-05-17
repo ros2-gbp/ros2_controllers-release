@@ -26,7 +26,7 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/logging.hpp"
-#include "tf2/LinearMath/Quaternion.h"
+#include "tf2/LinearMath/Quaternion.hpp"
 
 namespace
 {
@@ -703,11 +703,7 @@ controller_interface::CallbackReturn DiffDriveController::configure_side(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-bool DiffDriveController::on_set_chained_mode(bool chained_mode)
-{
-  // Always accept switch to/from chained mode (without linting type-cast error)
-  return true || chained_mode;
-}
+bool DiffDriveController::on_set_chained_mode(bool /*chained_mode*/) { return true; }
 
 std::vector<hardware_interface::CommandInterface>
 DiffDriveController::on_export_reference_interfaces()
