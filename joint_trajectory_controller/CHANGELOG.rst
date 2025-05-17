@@ -2,10 +2,8 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.0 (2025-05-17)
-------------------
-* [JTC] Remove deprecated open_loop_control code (`#1598 <https://github.com/ros-controls/ros2_controllers/issues/1598>`_)
-* Contributors: Thies Oelerich
+4.25.0 (2025-05-17)
+-------------------
 
 4.24.0 (2025-04-27)
 -------------------
