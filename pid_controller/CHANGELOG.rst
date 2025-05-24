@@ -2,11 +2,16 @@
 Changelog for package pid_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.25.0 (2025-05-17)
--------------------
-* [Pid] Add enable_feedforward parameter (backport `#1553 <https://github.com/ros-controls/ros2_controllers/issues/1553>`_) (`#1689 <https://github.com/ros-controls/ros2_controllers/issues/1689>`_)
-* Simplify `on_set_chained_mode` avoiding cpplint warnings (backport `#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_) (`#1688 <https://github.com/ros-controls/ros2_controllers/issues/1688>`_)
-* Contributors: mergify[bot], Pascal Auf der Maur, hagyesh Agresar
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
+
+5.0.0 (2025-05-17)
+------------------
+* [Pid] Add enable_feedforward parameter (`#1553 <https://github.com/ros-controls/ros2_controllers/issues/1553>`_)
+* Simplify `on_set_chained_mode` implementations avoiding cpplint warnings (`#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_)
+* Contributors: Bhagyesh Agresar, Pascal Auf der Maur
 
 4.24.0 (2025-04-27)
 -------------------

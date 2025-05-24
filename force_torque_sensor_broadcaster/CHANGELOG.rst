@@ -2,10 +2,15 @@
 Changelog for package force_torque_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.25.0 (2025-05-17)
--------------------
-* Add multiplier support to ForceTorqueSensorBroadcaster (backport `#1647 <https://github.com/ros-controls/ros2_controllers/issues/1647>`_) (`#1686 <https://github.com/ros-controls/ros2_controllers/issues/1686>`_)
-* Contributors: mergify[bot], edward.ix
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
+
+5.0.0 (2025-05-17)
+------------------
+* Add multiplier support to ForceTorqueSensorBroadcaster (`#1647 <https://github.com/ros-controls/ros2_controllers/issues/1647>`_)
+* Contributors: edward.ix
 
 4.24.0 (2025-04-27)
 -------------------
