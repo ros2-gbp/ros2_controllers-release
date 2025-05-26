@@ -1,0 +1,486 @@
+ros-kilted-gpio-controllers (5.0.2-1noble) noble; urgency=high
+
+  * Fix JSB+GPIO CMakeLists and dependencies (#1705 <https://github.com/ros-controls/ros2_controllers/issues/1705>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 26 May 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (5.0.1-1noble) noble; urgency=high
+
+  * Use target_link_libraries instead of ament_target_dependencies (#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>)
+  * Contributors: Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 24 May 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (5.0.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 17 May 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.24.0-1noble) noble; urgency=high
+
+  * Use smart pointer of ctrl in GpsSensor and GpioCommandController tests (#1658 <https://github.com/ros-controls/ros2_controllers/issues/1658>)
+  * Contributors: Junius Santoso
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 27 Apr 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.23.0-1noble) noble; urgency=high
+
+  * Use gmock instead of gtest (#1625 <https://github.com/ros-controls/ros2_controllers/issues/1625>)
+  * Use global cmake macros and fix gcc-10 build (#1527 <https://github.com/ros-controls/ros2_controllers/issues/1527>)
+  * Contributors: Christoph Fröhlich, Yassine Cherni
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 10 Apr 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.22.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.21.0-1noble) noble; urgency=high
+
+  * Cleanup wrong lifecycle transitions in tests and unnecessary checks (#1534 <https://github.com/ros-controls/ros2_controllers/issues/1534>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 01 Mar 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.20.0-1noble) noble; urgency=high
+
+  * Update paths of GPL includes (#1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Jan 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.19.0-1noble) noble; urgency=high
+
+  * Remove visibility macros (#1451 <https://github.com/ros-controls/ros2_controllers/issues/1451>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Jan 2025 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.18.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Dec 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.17.0-1noble) noble; urgency=high
+
+  * Add missing dependency to gpio_controllers (#1410 <https://github.com/ros-controls/ros2_controllers/issues/1410>)
+  * Use the .hpp headers from realtime_tools package (#1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>)
+  * Gpio command controller (#1251 <https://github.com/ros-controls/ros2_controllers/issues/1251>)
+  * Contributors: Christoph Fröhlich, Sai Kishor Kothakota, Wiktor Bajor
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 07 Dec 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.16.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 08 Nov 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.15.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 07 Oct 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.14.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 11 Sep 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.13.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 22 Aug 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.12.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 14 Aug 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.12.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 23 Jul 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.11.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 09 Jul 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.10.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 01 Jul 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.9.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 05 Jun 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.8.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 14 May 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.7.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 22 Mar 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.6.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 12 Feb 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.5.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Jan 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.4.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 11 Jan 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.3.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jan 2024 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.2.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 12 Dec 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.1.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 01 Dec 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (4.0.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 21 Nov 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.17.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 31 Oct 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.16.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Sep 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.15.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 11 Sep 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.14.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 16 Aug 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.13.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 04 Aug 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.12.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 18 Jul 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.11.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 24 Jun 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.10.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 06 Jun 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.10.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 04 Jun 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.9.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 28 May 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.8.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 14 May 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.7.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 02 May 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.6.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 29 Apr 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.5.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 14 Apr 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.4.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 02 Apr 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.3.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 07 Mar 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.2.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 10 Feb 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.1.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 26 Jan 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (3.0.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Jan 2023 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.15.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 06 Dec 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.14.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 18 Nov 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.13.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 05 Oct 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.12.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 01 Sep 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.11.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 04 Aug 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.10.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 01 Aug 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.9.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 14 Jul 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.8.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 09 Jul 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.7.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 03 Jul 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.6.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 18 Jun 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.5.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 13 May 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.4.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 29 Apr 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.3.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 21 Apr 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.2.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 25 Mar 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.1.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Feb 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.0.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 01 Feb 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (2.0.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Jan 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (1.3.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 11 Jan 2022 00:00:00 -0000
+
+ros-kilted-gpio-controllers (1.2.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Dec 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (1.1.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 25 Oct 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (1.0.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Sep 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.5.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 30 Aug 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.4.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 08 Jul 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.4.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 28 Jun 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.3.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 23 May 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.3.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 21 May 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.2.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 03 May 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.2.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 06 Feb 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.1.2-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.1.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-kilted-gpio-controllers (0.1.0-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
