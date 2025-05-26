@@ -1,0 +1,12 @@
+Source: ros-kilted-joint-trajectory-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-kilted-ament-cmake, ros-kilted-ament-cmake-gmock <!nocheck>, ros-kilted-angles, ros-kilted-backward-ros, ros-kilted-control-msgs, ros-kilted-control-toolbox, ros-kilted-controller-interface, ros-kilted-controller-manager <!nocheck>, ros-kilted-generate-parameter-library, ros-kilted-hardware-interface, ros-kilted-hardware-interface-testing <!nocheck>, ros-kilted-pluginlib, ros-kilted-rclcpp, ros-kilted-rclcpp-lifecycle, ros-kilted-realtime-tools, ros-kilted-ros2-control-cmake, ros-kilted-ros2-control-test-assets <!nocheck>, ros-kilted-rsl, ros-kilted-tl-expected, ros-kilted-trajectory-msgs, ros-kilted-urdf, ros-kilted-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-kilted-joint-trajectory-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-kilted-angles, ros-kilted-backward-ros, ros-kilted-control-msgs, ros-kilted-control-toolbox, ros-kilted-controller-interface, ros-kilted-generate-parameter-library, ros-kilted-hardware-interface, ros-kilted-pluginlib, ros-kilted-rclcpp, ros-kilted-rclcpp-lifecycle, ros-kilted-realtime-tools, ros-kilted-rsl, ros-kilted-tl-expected, ros-kilted-trajectory-msgs, ros-kilted-urdf, ros-kilted-ros-workspace
+Description: Controller for executing joint-space trajectories on a group of joints
