@@ -1,0 +1,605 @@
+ros-jazzy-diff-drive-controller (4.26.0-1bookworm) bookworm; urgency=high
+
+  * Fix DiffDrive claiming state when open_loop is set (#1730 <https://github.com/ros-controls/ros2_controllers/issues/1730>)
+  * Use target_link_libraries instead of ament_target_dependencies (backport #1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>) (#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>)
+  * Contributors: Jasper van Brakel, mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 05 Jun 2025 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.25.0-1bookworm) bookworm; urgency=high
+
+  * Simplify on_set_chained_mode avoiding cpplint warnings (backport #1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>) (#1688 <https://github.com/ros-controls/ros2_controllers/issues/1688>)
+  * Deprecating tf2 C Headers (#1325 <https://github.com/ros-controls/ros2_controllers/issues/1325>)
+  * Contributors: Lucas Wendland, mergify[bot], Bhagyesh Agresar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 16 May 2025 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.24.0-1bookworm) bookworm; urgency=high
+
+  * Call configure() of base class instead of node (#1659 <https://github.com/ros-controls/ros2_controllers/issues/1659>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 26 Apr 2025 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.23.0-1bookworm) bookworm; urgency=high
+
+  * Bump version of pre-commit hooks (#1618 <https://github.com/ros-controls/ros2_controllers/issues/1618>)
+  * Use global cmake macros and fix gcc-10 build (#1527 <https://github.com/ros-controls/ros2_controllers/issues/1527>)
+  * Contributors: Christoph Fröhlich, github-actions[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 09 Apr 2025 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.22.0-1bookworm) bookworm; urgency=high
+
+  * Use the custom validators directly from control_toolbox (#1504 <https://github.com/ros-controls/ros2_controllers/issues/1504>)
+  * Use new handles API in diff_drive_controller (#1565 <https://github.com/ros-controls/ros2_controllers/issues/1565>)
+  * Contributors: Christoph Fröhlich, Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.21.0-1bookworm) bookworm; urgency=high
+
+  * Fix the exported interface naming in the chainable controllers (#1528 <https://github.com/ros-controls/ros2_controllers/issues/1528>)
+  * Cleanup wrong lifecycle transitions in tests and unnecessary checks (#1534 <https://github.com/ros-controls/ros2_controllers/issues/1534>)
+  * Fix reference in chained diff drive controller (#1529 <https://github.com/ros-controls/ros2_controllers/issues/1529>)
+  * docs for chainable diff_drive_controller (#1518 <https://github.com/ros-controls/ros2_controllers/issues/1518>)
+  * Contributors: Arthur Lovekin, Christoph Fröhlich, Sai Kishor Kothakota, Thibault Poignonec
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 01 Mar 2025 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.20.0-1bookworm) bookworm; urgency=high
+
+  * Make diff_drive_controller a ChainableControllerInterface (#1485 <https://github.com/ros-controls/ros2_controllers/issues/1485>)
+  * Update paths of GPL includes (#1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>)
+  * Fix SpeedLimiter Constructor regression (#1478 <https://github.com/ros-controls/ros2_controllers/issues/1478>)
+  * Contributors: Arthur Lovekin, Christoph Fröhlich, Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Jan 2025 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.19.0-1bookworm) bookworm; urgency=high
+
+  * Check dt in updateFromVelocity (#1481 <https://github.com/ros-controls/ros2_controllers/issues/1481>)
+  * Remove empty on_shutdown() callbacks (#1477 <https://github.com/ros-controls/ros2_controllers/issues/1477>)
+  * Remove visibility macros (#1451 <https://github.com/ros-controls/ros2_controllers/issues/1451>)
+  * Contributors: Bence Magyar, Julia Jia, Tony Najjar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Jan 2025 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.18.0-1bookworm) bookworm; urgency=high
+
+  * Update command limiter of diff_drive_controller (#1315 <https://github.com/ros-controls/ros2_controllers/issues/1315>)
+  * Improve tf_prefix based on namespace (#1420 <https://github.com/ros-controls/ros2_controllers/issues/1420>)
+  * [CI] Add clang job and setup concurrency (#1407 <https://github.com/ros-controls/ros2_controllers/issues/1407>)
+  * Contributors: Christoph Fröhlich, Rafal Gorecki
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Dec 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.17.0-1bookworm) bookworm; urgency=high
+
+  * Use the .hpp headers from realtime_tools package (#1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>)
+  * Fix RealtimeBox API changes (#1385 <https://github.com/ros-controls/ros2_controllers/issues/1385>)
+  * Rename Twist->TwistStamped (#1393 <https://github.com/ros-controls/ros2_controllers/issues/1393>)
+  * Add few warning flags to error in all ros2_controllers packages and fix tests (#1370 <https://github.com/ros-controls/ros2_controllers/issues/1370>)
+  * Update maintainers and add url tags (#1363 <https://github.com/ros-controls/ros2_controllers/issues/1363>)
+  * Contributors: Christoph Fröhlich, Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 07 Dec 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.16.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 08 Nov 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.15.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 06 Oct 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.14.0-1bookworm) bookworm; urgency=high
+
+  * rename get/set_state to get/set_lifecylce_state (#1250 <https://github.com/ros-controls/ros2_controllers/issues/1250>)
+  * Contributors: Manuel Muth
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 10 Sep 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.13.0-1bookworm) bookworm; urgency=high
+
+  * Fixes tests to work with use_global_arguments NodeOptions parameter  (#1256 <https://github.com/ros-controls/ros2_controllers/issues/1256>)
+  * Contributors: Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 21 Aug 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.12.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Aug 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.12.0-1bookworm) bookworm; urgency=high
+
+  * Add missing includes (#1226 <https://github.com/ros-controls/ros2_controllers/issues/1226>)
+  * Remove duplicated call to rclcpp::shutdown in test (#1220 <https://github.com/ros-controls/ros2_controllers/issues/1220>)
+  * Unused header cleanup (#1199 <https://github.com/ros-controls/ros2_controllers/issues/1199>)
+  * Fix WaitSet issue in tests  (#1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>)
+  * Fix parallel gripper controller CI (#1202 <https://github.com/ros-controls/ros2_controllers/issues/1202>)
+  * Contributors: Christoph Fröhlich, Henry Moore, Noel Jiménez García, Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 22 Jul 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.11.0-1bookworm) bookworm; urgency=high
+
+  * added changes corresponding to the logger and clock propagation in ResourceManager (#1184 <https://github.com/ros-controls/ros2_controllers/issues/1184>)
+  * Contributors: Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jul 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.10.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 30 Jun 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.9.0-1bookworm) bookworm; urgency=high
+
+  * Add mobile robot kinematics 101 and improve steering library docs (#954 <https://github.com/ros-controls/ros2_controllers/issues/954>)
+  * Bump version of pre-commit hooks (#1157 <https://github.com/ros-controls/ros2_controllers/issues/1157>)
+  * Contributors: Christoph Fröhlich, github-actions[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 04 Jun 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.8.0-1bookworm) bookworm; urgency=high
+
+  * Remove non-existing parameter (#1119 <https://github.com/ros-controls/ros2_controllers/issues/1119>)
+  * Add parameter check for geometric values (#1120 <https://github.com/ros-controls/ros2_controllers/issues/1120>)
+  * Deprecate non-stamped twist for tricycle_controller and steering_controllers (#1093 <https://github.com/ros-controls/ros2_controllers/issues/1093>)
+  * add missing compiler definitions of RCPPUTILS_VERSION (#1089 <https://github.com/ros-controls/ros2_controllers/issues/1089>)
+  * Contributors: Christoph Fröhlich, Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 May 2024 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.7.0-1bookworm) bookworm; urgency=high
+
+  * added conditioning to have rolling tags compilable in older versions (#1071 <https://github.com/ros-controls/ros2_controllers/issues/1071>)
+  * Contributors: Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 22 Mar 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.6.0-1bookworm) bookworm; urgency=high
+
+  * Add test_depend on hardware_interface_testing also for diff_drive (#1021 <https://github.com/ros-controls/ros2_controllers/issues/1021>)
+  * Add test_depend on hardware_interface_testing (#1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>)
+  * Fix tests for using new get_node_options API (#840 <https://github.com/ros-controls/ros2_controllers/issues/840>)
+  * Contributors: Christoph Fröhlich, Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 12 Feb 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.5.0-1bookworm) bookworm; urgency=high
+
+  * [diff_drive] Remove unused parameter and add simple validation #abi-breaking (#958 <https://github.com/ros-controls/ros2_controllers/issues/958>)
+  * Add tests for interface_configuration_type consistently (#899 <https://github.com/ros-controls/ros2_controllers/issues/899>)
+  * Let sphinx add parameter description with nested structures to documentation (#652 <https://github.com/ros-controls/ros2_controllers/issues/652>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Jan 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.4.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 11 Jan 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.3.0-1bookworm) bookworm; urgency=high
+
+  * Add few warning flags to error (#961 <https://github.com/ros-controls/ros2_controllers/issues/961>)
+  * Contributors: Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jan 2024 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.2.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 12 Dec 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 01 Dec 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (4.0.0-1bookworm) bookworm; urgency=high
+
+  * fix tests for API break of passing controller manager update rate in init method (#854 <https://github.com/ros-controls/ros2_controllers/issues/854>)
+  * [diff_drive_controller] Fixed typos in diff_drive_controller_parameter.yaml. (#822 <https://github.com/ros-controls/ros2_controllers/issues/822>)
+  * [diff_drive_controller] Remove non-stamped Twist option (#812 <https://github.com/ros-controls/ros2_controllers/issues/812>)
+  * Adjust tests after passing URDF to controllers (#817 <https://github.com/ros-controls/ros2_controllers/issues/817>)
+  * Contributors: Bence Magyar, Sai Kishor Kothakota, Tony Baltovski
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 21 Nov 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.17.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 31 Oct 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.16.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 19 Sep 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.15.0-1bookworm) bookworm; urgency=high
+
+  * Update docs for diff drive controller (#751 <https://github.com/ros-controls/ros2_controllers/issues/751>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 10 Sep 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.14.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 15 Aug 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.13.0-1bookworm) bookworm; urgency=high
+
+  * [DiffDriveController] Optional tf namespace prefixes instead of using node namespace (#533 <https://github.com/ros-controls/ros2_controllers/issues/533>)
+  * Contributors: Ben Holden, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 03 Aug 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.12.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Jul 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.11.0-1bookworm) bookworm; urgency=high
+
+  * Added -Wconversion flag and fix warnings (#667 <https://github.com/ros-controls/ros2_controllers/issues/667>)
+  * Contributors: gwalck
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 23 Jun 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.10.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 05 Jun 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.10.0-1bookworm) bookworm; urgency=high
+
+  * removed duplicated previous_publish_timestamp_ increment by publish_period_ in diff_drive_controller.cpp (#644 <https://github.com/ros-controls/ros2_controllers/issues/644>)
+  * enable ReflowComments to also use ColumnLimit on comments (#625 <https://github.com/ros-controls/ros2_controllers/issues/625>)
+  * Contributors: Sai Kishor Kothakota, Jules CARPENTIER
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 03 Jun 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.9.0-1bookworm) bookworm; urgency=high
+
+  * Use generate_parameter_library for all params (#601 <https://github.com/ros-controls/ros2_controllers/issues/601>)
+  * Use branch name substitution for all links (#618 <https://github.com/ros-controls/ros2_controllers/issues/618>)
+  * Fix compilation warnings (#621 <https://github.com/ros-controls/ros2_controllers/issues/621>)
+  * Fix github links on control.ros.org (#604 <https://github.com/ros-controls/ros2_controllers/issues/604>)
+  * Contributors: Christoph Fröhlich, Noel Jiménez García, Mathias Lüdtke
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 27 May 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.8.0-1bookworm) bookworm; urgency=high
+
+  * Clear registered handles of DiffDriveController on deactivate (#596 <https://github.com/ros-controls/ros2_controllers/issues/596>)
+  * Contributors: Noel Jiménez García
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 13 May 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.7.0-1bookworm) bookworm; urgency=high
+
+  * Fix wrong publish timestamp initialization (#585 <https://github.com/ros-controls/ros2_controllers/issues/585>)
+  * Contributors: Noel Jiménez García
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 01 May 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.6.0-1bookworm) bookworm; urgency=high
+
+  * Renovate load controller tests (#569 <https://github.com/ros-controls/ros2_controllers/issues/569>)
+  * adjusted open_loop param description in diff_drive_controller_parameter.yaml (#570 <https://github.com/ros-controls/ros2_controllers/issues/570>)
+  * Contributors: Bence Magyar, muritane
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Apr 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.5.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 13 Apr 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.4.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 01 Apr 2023 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.3.0-1bookworm) bookworm; urgency=high
+
+  * Add comments about auto-generated header files (#539 <https://github.com/ros-controls/ros2_controllers/issues/539>)
+  * Contributors: AndyZe
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 07 Mar 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.2.0-1bookworm) bookworm; urgency=high
+
+  * Fix overriding of install (#510 <https://github.com/ros-controls/ros2_controllers/issues/510>)
+  * Remove compile warnings. (#519 <https://github.com/ros-controls/ros2_controllers/issues/519>)
+  * Contributors: Dr. Denis, Tyler Weaver, Chris Thrasher
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 10 Feb 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 26 Jan 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (3.0.0-1bookworm) bookworm; urgency=high
+
+  * diff_drive base_frame_id param (#495 <https://github.com/ros-controls/ros2_controllers/issues/495>)
+    changed default value from odom -> base_link
+  * Add backward_ros to all controllers (#489 <https://github.com/ros-controls/ros2_controllers/issues/489>)
+  * Remove compilation warnings from DiffDriveController (#477 <https://github.com/ros-controls/ros2_controllers/issues/477>)
+  * Contributors: Bence Magyar, Denis Štogl, Jakub Delicat
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Jan 2023 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.15.0-1bookworm) bookworm; urgency=high
+
+  * [DiffDriveController] Use generate parameter library (#386 <https://github.com/ros-controls/ros2_controllers/issues/386>)
+  * [DiffDriveController] Change units of velocity feedback (#452 <https://github.com/ros-controls/ros2_controllers/issues/452>)
+  * Contributors: Maciej Stępień, Paul Gesel, Denis Štogl, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 06 Dec 2022 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.14.0-1bookworm) bookworm; urgency=high
+
+  * Odom Topic & Frame Namespaces  (#461 <https://github.com/ros-controls/ros2_controllers/issues/461>)
+  * Write detailed Diff-Drive-Controller documentation to make all the interfaces understandable. (#371 <https://github.com/ros-controls/ros2_controllers/issues/371>)
+  * Contributors: Denis Štogl, sp-sophia-labs
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 18 Nov 2022 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.13.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 04 Oct 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.12.0-1bookworm) bookworm; urgency=high
+
+  * Fix formatting CI job (#418 <https://github.com/ros-controls/ros2_controllers/issues/418>)
+  * Contributors: Tyler Weaver
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Aug 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.11.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 03 Aug 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.10.0-1bookworm) bookworm; urgency=high
+
+  * Formatting changes from pre-commit (#400 <https://github.com/ros-controls/ros2_controllers/issues/400>)
+  * Parameter loading fixup in diff_drive and gripper controllers (#385 <https://github.com/ros-controls/ros2_controllers/issues/385>)
+  * Contributors: Andy Zelenak, Tyler Weaver
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 31 Jul 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.9.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 13 Jul 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.8.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 08 Jul 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.7.0-1bookworm) bookworm; urgency=high
+
+  * Update controllers with new get_name hardware interfaces (#369 <https://github.com/ros-controls/ros2_controllers/issues/369>)
+  * Contributors: Lucas Schulze
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 02 Jul 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.6.0-1bookworm) bookworm; urgency=high
+
+  * Disable failing workflows (#363 <https://github.com/ros-controls/ros2_controllers/issues/363>)
+  * CMakeLists cleanup (#362 <https://github.com/ros-controls/ros2_controllers/issues/362>)
+  * Fix exception about parameter already been declared & Change default c++ version to 17 (#360 <https://github.com/ros-controls/ros2_controllers/issues/360>)
+    * Default C++ version to 17
+    * Replace explicit use of declare_paremeter with auto_declare
+  * Contributors: Andy Zelenak, Jafar Abdi
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 17 Jun 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.5.0-1bookworm) bookworm; urgency=high
+
+  * [diff_drive_controller] Made odom topic name relative as it was in ROS1. (#343 <https://github.com/ros-controls/ros2_controllers/issues/343>)
+  * Fix wrong integration of velocity feedback in odometry in diff_drive_controller (#331 <https://github.com/ros-controls/ros2_controllers/issues/331>)
+  * Contributors: Patrick Roncagliolo, Tony Baltovski
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 12 May 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.4.0-1bookworm) bookworm; urgency=high
+
+  * updated to use node getter functions (#329 <https://github.com/ros-controls/ros2_controllers/issues/329>)
+  * Contributors: Bence Magyar, Denis Štogl, Jack Center
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 28 Apr 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.3.0-1bookworm) bookworm; urgency=high
+
+  * Use CallbackReturn from controller_interface namespace (#333 <https://github.com/ros-controls/ros2_controllers/issues/333>)
+  * Contributors: Bence Magyar, Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Apr 2022 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.2.0-1bookworm) bookworm; urgency=high
+
+  * Use lifecycle node as base for controllers (#244 <https://github.com/ros-controls/ros2_controllers/issues/244>)
+  * Contributors: Denis Štogl, Vatan Aksoy Tezer, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 25 Mar 2022 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.1.0-1bookworm) bookworm; urgency=high
+
+  * use rolling mean from rcppmath (#211 <https://github.com/ros-controls/ros2_controllers/issues/211>)
+  * Contributors: Karsten Knese, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Feb 2022 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.0.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 01 Feb 2022 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (2.0.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Jan 2022 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (1.3.0-1bookworm) bookworm; urgency=high
+
+  * Add publish_rate option for the diff_drive_controller (#278 <https://github.com/ros-controls/ros2_controllers/issues/278>)
+  * Fix angular velocity direction of diff_drive_controller odometry (#281 <https://github.com/ros-controls/ros2_controllers/issues/281>)
+  * Contributors: Benjamin Hug, Paul Verhoeckx
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 11 Jan 2022 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (1.2.0-1bookworm) bookworm; urgency=high
+
+  * Add velocity feedback option for diff_drive_controller (#260 <https://github.com/ros-controls/ros2_controllers/issues/260>)
+  * Contributors: Patrick Roncagliolo
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Dec 2021 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (1.1.0-1bookworm) bookworm; urgency=high
+
+  * Use common test URDF from descriptions.hpp (#258 <https://github.com/ros-controls/ros2_controllers/issues/258>)
+  * Fix header include on Fedora <https://github.com/ros-controls/ros2_controllers/issues/255>`_ (#256 <https://github.com/ros-controls/ros2_controllers/issues/256>)
+  * Fix diff_drive accel limit (#242 <https://github.com/ros-controls/ros2_controllers/issues/242>) (#252 <https://github.com/ros-controls/ros2_controllers/issues/252>)
+  * Contributors: Denis Štogl, Josh Newans, Noeël Moeskops, bailaC
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 24 Oct 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (1.0.0-1bookworm) bookworm; urgency=high
+
+  * Add time and period to update function (#241 <https://github.com/ros-controls/ros2_controllers/issues/241>)
+  * Unify style of controllers. (#236 <https://github.com/ros-controls/ros2_controllers/issues/236>)
+  * ros2_controllers code changes to support ros2_controls issue #489 <https://github.com/ros-controls/ros2_controllers/issues/489> (#233 <https://github.com/ros-controls/ros2_controllers/issues/233>)
+  * Removing Boost from controllers. (#235 <https://github.com/ros-controls/ros2_controllers/issues/235>)
+  * refactor get_current_state to get_state (#232 <https://github.com/ros-controls/ros2_controllers/issues/232>)
+  * Contributors: Bence Magyar, Denis Štogl, Márk Szitanics, bailaC
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 28 Sep 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.5.0-1bookworm) bookworm; urgency=high
+
+  * Add auto declaration of parameters. (#224 <https://github.com/ros-controls/ros2_controllers/issues/224>)
+  * Bring precommit config up to speed with ros2_control (#227 <https://github.com/ros-controls/ros2_controllers/issues/227>)
+  * Add initial pre-commit setup. (#220 <https://github.com/ros-controls/ros2_controllers/issues/220>)
+  * Reduce docs warnings and correct adding guidelines (#219 <https://github.com/ros-controls/ros2_controllers/issues/219>)
+  * Contributors: Bence Magyar, Denis Štogl, Lovro Ivanov
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 29 Aug 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.4.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 07 Jul 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.4.0-1bookworm) bookworm; urgency=high
+
+  * Force torque sensor broadcaster (#152 <https://github.com/ros-controls/ros2_controllers/issues/152>)
+    * Add  rclcpp::shutdown(); to all standalone test functions
+  * Fixes for Windows (#205 <https://github.com/ros-controls/ros2_controllers/issues/205>)
+    * Fix MSVC build for diff_drive_controller test
+  * Fix parameter initialisation for galactic (#199 <https://github.com/ros-controls/ros2_controllers/issues/199>)
+  * Contributors: Akash, Denis Štogl, Tim Clephas
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 27 Jun 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.3.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 22 May 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.3.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 20 May 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.2.1-1bookworm) bookworm; urgency=high
+
+  * Migrate from deprecated controller_interface::return_type::SUCCESS -> OK (#167 <https://github.com/ros-controls/ros2_controllers/issues/167>)
+  * Add basic user docs pages for each package (#156 <https://github.com/ros-controls/ros2_controllers/issues/156>)
+  * [diff_drive_controller] Change header math.h in cmath for better C++ compliance (#148 <https://github.com/ros-controls/ros2_controllers/issues/148>)
+    and isnan inclusion.
+  * Contributors: Bence Magyar, Olivier Stasse
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 02 May 2021 23:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.2.0-1bookworm) bookworm; urgency=high
+
+  * Fix diff drive twist concurrency issues (#146 <https://github.com/ros-controls/ros2_controllers/issues/146>)
+    * Fix diff drive twist concurrency issues
+    Before this fix, a twist message could be received and stored one
+    thread, in the middle of the update() of the controller.
+    This would be fixed by making a copy of the shared pointer at the
+    beginning of the update() function, added realtime box to ensure safe
+    concurrent access to the pointer.
+    * Don't store limited command as last command
+    Before these changes, the limited command overwrote the original
+    command, which mean that it too much more time to reach the commanded
+    speed.
+    We only want this behavior when the command is too old and we replace it
+    with 0 speed.
+  * Diff drive parameter fixes (#145 <https://github.com/ros-controls/ros2_controllers/issues/145>)
+    * Recover old speed limiter behavior, if unspecified min defaults to -max
+    * Change cmd_vel_timeout to seconds (double) as ROS1 instead of ms(int)
+  * Unstamped cmd_vel subscriber rebased (#143 <https://github.com/ros-controls/ros2_controllers/issues/143>)
+  * Contributors: Anas Abou Allaban, Victor Lopez
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 06 Feb 2021 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.1.2-1bookworm) bookworm; urgency=high
+
+  * Remove unused sensor_msgs dependency (was non-declared in package.xml) (#139 <https://github.com/ros-controls/ros2_controllers/issues/139>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.1.1-1bookworm) bookworm; urgency=high
+
+  * avoid warnings (#137 <https://github.com/ros-controls/ros2_controllers/issues/137>)
+  * Migrate diff drive controller to resourcemanager (#128 <https://github.com/ros-controls/ros2_controllers/issues/128>)
+  * Contributors: Bence Magyar, Karsten Knese
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-jazzy-diff-drive-controller (0.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
