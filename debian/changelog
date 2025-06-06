@@ -1,0 +1,485 @@
+ros-jazzy-rqt-joint-trajectory-controller (4.26.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 05 Jun 2025 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.25.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 16 May 2025 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.24.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 26 Apr 2025 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.23.0-1bookworm) bookworm; urgency=high
+
+  * Bump version of pre-commit hooks (#1618 <https://github.com/ros-controls/ros2_controllers/issues/1618>)
+  * Contributors: github-actions[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 09 Apr 2025 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.22.0-1bookworm) bookworm; urgency=high
+
+  * [JTC] Accept larger number of joints than command_joints (#809 <https://github.com/ros-controls/ros2_controllers/issues/809>)
+  * Update documentation of rqt_joint_trajectory_controller (#1578 <https://github.com/ros-controls/ros2_controllers/issues/1578>)
+  * Contributors: Aditya Pawar, Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.21.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 01 Mar 2025 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.20.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Jan 2025 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.19.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Jan 2025 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.18.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Dec 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.17.0-1bookworm) bookworm; urgency=high
+
+  * Update maintainers and add url tags (#1363 <https://github.com/ros-controls/ros2_controllers/issues/1363>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 07 Dec 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.16.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 08 Nov 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.15.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 06 Oct 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.14.0-1bookworm) bookworm; urgency=high
+
+  * Fix bug for displaying all controllers (#1259 <https://github.com/ros-controls/ros2_controllers/issues/1259>)
+  * Contributors: Francisco Martín Rico
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 10 Sep 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.13.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 21 Aug 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.12.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Aug 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.12.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 22 Jul 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.11.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jul 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.10.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 30 Jun 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.9.0-1bookworm) bookworm; urgency=high
+
+  * [RQT-JTC] limits from jtc controlled joints (#1146 <https://github.com/ros-controls/ros2_controllers/issues/1146>)
+  * Contributors: Jakub Delicat
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 04 Jun 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.8.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 May 2024 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.7.0-1bookworm) bookworm; urgency=high
+
+  * [CI] Code coverage + pre-commit (#1057 <https://github.com/ros-controls/ros2_controllers/issues/1057>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 22 Mar 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.6.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 12 Feb 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.5.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Jan 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.4.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 11 Jan 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.3.0-1bookworm) bookworm; urgency=high
+
+  * Add rqt_JTC to docs (#950 <https://github.com/ros-controls/ros2_controllers/issues/950>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jan 2024 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.2.0-1bookworm) bookworm; urgency=high
+
+  * Fix rqt jtc bugs for continuous joints and other minor bugs (#890 <https://github.com/ros-controls/ros2_controllers/issues/890>)
+  * Contributors: Sai Kishor Kothakota
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 12 Dec 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 01 Dec 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (4.0.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 21 Nov 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.17.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 31 Oct 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.16.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 19 Sep 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.15.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 10 Sep 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.14.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 15 Aug 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.13.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 03 Aug 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.12.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Jul 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.11.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 23 Jun 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.10.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 05 Jun 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.10.0-1bookworm) bookworm; urgency=high
+
+  * Adapted rqt_jtc to newest control_msgs for jtc (#643 <https://github.com/ros-controls/ros2_controllers/issues/643>)
+  * Contributors: gwalck
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 03 Jun 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.9.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 27 May 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.8.0-1bookworm) bookworm; urgency=high
+
+  * switch from dash to underscore in setup.cfg (#595 <https://github.com/ros-controls/ros2_controllers/issues/595>)
+  * Contributors: Alex Moriarty
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 13 May 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.7.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 01 May 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.6.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Apr 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.5.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 13 Apr 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.4.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 01 Apr 2023 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.3.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 07 Mar 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.2.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 10 Feb 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 26 Jan 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (3.0.0-1bookworm) bookworm; urgency=high
+
+  * 🔧 Fixes and updated on pre-commit hooks and their action (#492 <https://github.com/ros-controls/ros2_controllers/issues/492>)
+  * Contributors: Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Jan 2023 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.15.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 06 Dec 2022 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.14.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 18 Nov 2022 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.13.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 04 Oct 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.12.0-1bookworm) bookworm; urgency=high
+
+  * fix: :bug: make bare exceptions more narrow (#422 <https://github.com/ros-controls/ros2_controllers/issues/422>)
+  * Fix formatting because pre-commit was not running on CI for some time. (#409 <https://github.com/ros-controls/ros2_controllers/issues/409>)
+  * Contributors: Denis Štogl, Jaron Lundwall
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Aug 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.11.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 03 Aug 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.10.0-1bookworm) bookworm; urgency=high
+
+  * Formatting changes from pre-commit (#400 <https://github.com/ros-controls/ros2_controllers/issues/400>)
+  * port rqt_joint_trajectory_controller to ros2 (#356 <https://github.com/ros-controls/ros2_controllers/issues/356>)
+  * Contributors: Bence Magyar, Noel Jiménez García, Tyler Weaver
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 31 Jul 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.9.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 13 Jul 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.8.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 08 Jul 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.7.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 02 Jul 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.6.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 17 Jun 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.5.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 12 May 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.4.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 28 Apr 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.3.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Apr 2022 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.2.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 25 Mar 2022 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Feb 2022 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.0.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 01 Feb 2022 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (2.0.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Jan 2022 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (1.3.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 11 Jan 2022 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (1.2.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Dec 2021 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (1.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 24 Oct 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (1.0.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 28 Sep 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.5.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 29 Aug 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.4.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 07 Jul 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.4.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 27 Jun 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.3.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 22 May 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.3.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 20 May 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.2.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 02 May 2021 23:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.2.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 06 Feb 2021 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.1.2-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.1.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-jazzy-rqt-joint-trajectory-controller (0.1.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
