@@ -2,18 +2,16 @@
 Changelog for package steering_controllers_library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.0.2 (2025-05-26)
-------------------
+4.26.0 (2025-06-06)
+-------------------
+* Fix steering_controllers_library docs (`#1734 <https://github.com/ros-controls/ros2_controllers/issues/1734>`_)
+* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
+* Contributors: Christoph Fröhlich, mergify[bot]
 
-5.0.1 (2025-05-24)
-------------------
-* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
-* Contributors: Sai Kishor Kothakota
-
-5.0.0 (2025-05-17)
-------------------
-* Simplify `on_set_chained_mode` implementations avoiding cpplint warnings (`#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_)
-* Contributors: Bhagyesh Agresar
+4.25.0 (2025-05-17)
+-------------------
+* Simplify `on_set_chained_mode` avoiding cpplint warnings (backport `#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_) (`#1688 <https://github.com/ros-controls/ros2_controllers/issues/1688>`_)
+* Contributors: mergify[bot], Bhagyesh Agresar
 
 4.24.0 (2025-04-27)
 -------------------
