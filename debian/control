@@ -1,0 +1,12 @@
+Source: ros-humble-joint-state-broadcaster
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake, ros-humble-ament-cmake-gmock <!nocheck>, ros-humble-backward-ros, ros-humble-builtin-interfaces, ros-humble-control-msgs, ros-humble-controller-interface, ros-humble-controller-manager <!nocheck>, ros-humble-generate-parameter-library, ros-humble-hardware-interface <!nocheck>, ros-humble-hardware-interface-testing <!nocheck>, ros-humble-pluginlib, ros-humble-rclcpp <!nocheck>, ros-humble-rclcpp-lifecycle, ros-humble-rcutils, ros-humble-realtime-tools, ros-humble-ros2-control-test-assets <!nocheck>, ros-humble-sensor-msgs, ros-humble-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-humble-joint-state-broadcaster
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-backward-ros, ros-humble-builtin-interfaces, ros-humble-control-msgs, ros-humble-controller-interface, ros-humble-generate-parameter-library, ros-humble-pluginlib, ros-humble-rclcpp-lifecycle, ros-humble-rcutils, ros-humble-realtime-tools, ros-humble-sensor-msgs, ros-humble-ros-workspace
+Description: Broadcaster to publish joint state
