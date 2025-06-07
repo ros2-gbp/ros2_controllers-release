@@ -1,0 +1,38 @@
+ros-humble-mecanum-drive-controller (2.47.0-1jammy) jammy; urgency=high
+
+  * Add missing github_url to rst files (backport #1717 <https://github.com/ros-controls/ros2_controllers/issues/1717>) (#1718 <https://github.com/ros-controls/ros2_controllers/issues/1718>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 06 Jun 2025 23:00:00 -0000
+
+ros-humble-mecanum-drive-controller (2.46.0-1jammy) jammy; urgency=high
+
+  * Simplify on_set_chained_mode avoiding cpplint warnings (backport #1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>) (#1687 <https://github.com/ros-controls/ros2_controllers/issues/1687>)
+  * Contributors: mergify[bot], Bhagyesh Agresar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 16 May 2025 23:00:00 -0000
+
+ros-humble-mecanum-drive-controller (2.45.0-1jammy) jammy; urgency=high
+
+  * Fix preceeding->preceding typos (backport #1655 <https://github.com/ros-controls/ros2_controllers/issues/1655>) (#1657 <https://github.com/ros-controls/ros2_controllers/issues/1657>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 26 Apr 2025 23:00:00 -0000
+
+ros-humble-mecanum-drive-controller (2.44.0-1jammy) jammy; urgency=high
+
+  * Bump version of pre-commit hooks (backport #1618 <https://github.com/ros-controls/ros2_controllers/issues/1618>) (#1620 <https://github.com/ros-controls/ros2_controllers/issues/1620>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 09 Apr 2025 23:00:00 -0000
+
+ros-humble-mecanum-drive-controller (2.43.0-1jammy) jammy; urgency=high
+
+  * Add changelog for mecanum_drive_controller
+  * [mecanum_drive_controller] Fix Odometry Initialization  (backport #1573 <https://github.com/ros-controls/ros2_controllers/issues/1573>) (#1583 <https://github.com/ros-controls/ros2_controllers/issues/1583>)
+  * Add Mecanum Drive Controller (backport #512 <https://github.com/ros-controls/ros2_controllers/issues/512>, #1444 <https://github.com/ros-controls/ros2_controllers/issues/1444>, #1547 <https://github.com/ros-controls/ros2_controllers/issues/1547>) (#1376 <https://github.com/ros-controls/ros2_controllers/issues/1376>)
+  * Contributors: Christoph Froehlich, Julia Jia, mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+
