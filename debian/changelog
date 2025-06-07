@@ -1,0 +1,296 @@
+ros-humble-tricycle-controller (2.47.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 06 Jun 2025 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.46.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 16 May 2025 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.45.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 26 Apr 2025 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.44.0-1jammy) jammy; urgency=high
+
+  * Bump version of pre-commit hooks (backport #1618 <https://github.com/ros-controls/ros2_controllers/issues/1618>) (#1620 <https://github.com/ros-controls/ros2_controllers/issues/1620>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 09 Apr 2025 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.43.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.42.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 24 Feb 2025 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.42.0-1jammy) jammy; urgency=high
+
+  * Update paths of GPL includes (backport #1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>) (#1493 <https://github.com/ros-controls/ros2_controllers/issues/1493>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Feb 2025 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.41.0-1jammy) jammy; urgency=high
+
+  * Remove empty on_shutdown() callbacks (backport #1477 <https://github.com/ros-controls/ros2_controllers/issues/1477>) (#1482 <https://github.com/ros-controls/ros2_controllers/issues/1482>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Jan 2025 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.40.0-1jammy) jammy; urgency=high
+
+  * Use the .hpp headers from realtime_tools package (backport #1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>) (#1427 <https://github.com/ros-controls/ros2_controllers/issues/1427>)
+  * [CI] Add clang job and setup concurrency (backport #1407 <https://github.com/ros-controls/ros2_controllers/issues/1407>) (#1418 <https://github.com/ros-controls/ros2_controllers/issues/1418>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 01 Jan 2025 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.39.0-1jammy) jammy; urgency=high
+
+  * TractionLimiter: Fix wrong input checks (#1341 <https://github.com/ros-controls/ros2_controllers/issues/1341>) (#1366 <https://github.com/ros-controls/ros2_controllers/issues/1366>)
+  * Update maintainers and add url tags (#1363 <https://github.com/ros-controls/ros2_controllers/issues/1363>) (#1364 <https://github.com/ros-controls/ros2_controllers/issues/1364>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 03 Dec 2024 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.38.0-1jammy) jammy; urgency=high
+
+  * Added -Wconversion flag and fix warnings (#667 <https://github.com/ros-controls/ros2_controllers/issues/667>) (#1321 <https://github.com/ros-controls/ros2_controllers/issues/1321>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 09 Nov 2024 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.37.3-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 10 Sep 2024 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.37.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 21 Aug 2024 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.37.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Aug 2024 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.37.0-1jammy) jammy; urgency=high
+
+  * Fix WaitSet issue in tests  (backport #1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>) (#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 23 Jul 2024 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.36.0-1jammy) jammy; urgency=high
+
+  * Add mobile robot kinematics 101 and improve steering library docs (#954 <https://github.com/ros-controls/ros2_controllers/issues/954>) (#1160 <https://github.com/ros-controls/ros2_controllers/issues/1160>)
+  * Bump version of pre-commit hooks (#1157 <https://github.com/ros-controls/ros2_controllers/issues/1157>) (#1158 <https://github.com/ros-controls/ros2_controllers/issues/1158>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jul 2024 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.35.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 21 May 2024 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.34.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 31 Mar 2024 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.33.0-1jammy) jammy; urgency=high
+
+  * Fix usage of M_PI on Windows (#1036 <https://github.com/ros-controls/ros2_controllers/issues/1036>) (#1037 <https://github.com/ros-controls/ros2_controllers/issues/1037>)
+  * Add test_depend on hardware_interface_testing (backport #1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>) (#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 12 Feb 2024 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.32.0-1jammy) jammy; urgency=high
+
+  * Increase test coverage of interface configuration getters (#856 <https://github.com/ros-controls/ros2_controllers/issues/856>) (#865 <https://github.com/ros-controls/ros2_controllers/issues/865>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 20 Jan 2024 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.31.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 11 Jan 2024 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.30.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Dec 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.29.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 05 Dec 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.28.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 30 Nov 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.27.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 14 Nov 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.26.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 02 Oct 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.25.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 14 Sep 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.24.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 06 Aug 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.23.0-1jammy) jammy; urgency=high
+
+  * Renovate load controller tests (#569 <https://github.com/ros-controls/ros2_controllers/issues/569>) (#677 <https://github.com/ros-controls/ros2_controllers/issues/677>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 22 Jun 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.22.0-1jammy) jammy; urgency=high
+
+  * Docs: Use branch name substitution for all links (backport #618 <https://github.com/ros-controls/ros2_controllers/issues/618>) (#633 <https://github.com/ros-controls/ros2_controllers/issues/633>)
+  * [Formatting] enable ReflowComments to also use ColumnLimit on comments   (#628 <https://github.com/ros-controls/ros2_controllers/issues/628>)
+  * Contributors: Sai Kishor Kothakota, Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Jun 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.21.0-1jammy) jammy; urgency=high
+
+  * Fix github links on control.ros.org (#604 <https://github.com/ros-controls/ros2_controllers/issues/604>) (#617 <https://github.com/ros-controls/ros2_controllers/issues/617>)
+  * Fix overriding of install (#510 <https://github.com/ros-controls/ros2_controllers/issues/510>) (#605 <https://github.com/ros-controls/ros2_controllers/issues/605>)
+  * Contributors: Felix Exner (fexner), Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 27 May 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.20.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 13 May 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.19.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 01 May 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.18.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Apr 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.17.3-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 13 Apr 2023 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.17.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 07 Mar 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.17.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 20 Feb 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.17.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Feb 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.16.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 31 Jan 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.16.0-1jammy) jammy; urgency=high
+
+  * Add backward_ros to all controllers (#489 <https://github.com/ros-controls/ros2_controllers/issues/489>) (#493 <https://github.com/ros-controls/ros2_controllers/issues/493>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Jan 2023 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.15.0-1jammy) jammy; urgency=high
+
+  * [TricycleController] Removed “publish period” functionality ⏱ #abi-break #behavior-break (#468 <https://github.com/ros-controls/ros2_controllers/issues/468>)
+  * Contributors: Robotgir, Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 06 Dec 2022 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.14.0-1jammy) jammy; urgency=high
+
+  * Include <string> to fix compilation error on macOS (#467 <https://github.com/ros-controls/ros2_controllers/issues/467>)
+  * Contributors: light-tech
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 18 Nov 2022 00:00:00 -0000
+
+ros-humble-tricycle-controller (2.13.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 04 Oct 2022 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.12.0-1jammy) jammy; urgency=high
+
+  * Fix formatting CI job (#418 <https://github.com/ros-controls/ros2_controllers/issues/418>)
+  * Fix formatting because pre-commit was not running on CI for some time. (#409 <https://github.com/ros-controls/ros2_controllers/issues/409>)
+  * Contributors: Denis Štogl, Tyler Weaver
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Aug 2022 23:00:00 -0000
+
+ros-humble-tricycle-controller (2.11.0-1jammy) jammy; urgency=high
+
+  * Tricycle controller (#345 <https://github.com/ros-controls/ros2_controllers/issues/345>)
+  * Contributors: Bence Magyar, Tony Najjar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 03 Aug 2022 23:00:00 -0000
+
+
