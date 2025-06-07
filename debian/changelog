@@ -1,0 +1,465 @@
+ros-humble-steering-controllers-library (2.47.0-1jammy) jammy; urgency=high
+
+  * Fix steering_controllers_library docs (backport #1734 <https://github.com/ros-controls/ros2_controllers/issues/1734>) (#1735 <https://github.com/ros-controls/ros2_controllers/issues/1735>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 06 Jun 2025 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.46.0-1jammy) jammy; urgency=high
+
+  * Simplify on_set_chained_mode avoiding cpplint warnings (backport #1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>) (#1687 <https://github.com/ros-controls/ros2_controllers/issues/1687>)
+  * Contributors: mergify[bot], Bhagyesh Agresar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 16 May 2025 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.45.0-1jammy) jammy; urgency=high
+
+  * Rename ackermann msg to controller state msg type (backport #1662 <https://github.com/ros-controls/ros2_controllers/issues/1662>) (#1663 <https://github.com/ros-controls/ros2_controllers/issues/1663>)
+  * Fix preceeding->preceding typos (backport #1655 <https://github.com/ros-controls/ros2_controllers/issues/1655>) (#1657 <https://github.com/ros-controls/ros2_controllers/issues/1657>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 26 Apr 2025 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.44.0-1jammy) jammy; urgency=high
+
+  * Bump version of pre-commit hooks (backport #1618 <https://github.com/ros-controls/ros2_controllers/issues/1618>) (#1620 <https://github.com/ros-controls/ros2_controllers/issues/1620>)
+  * Fix open-loop odometry in case of ref timeout (backport #1454 <https://github.com/ros-controls/ros2_controllers/issues/1454>) (#1460 <https://github.com/ros-controls/ros2_controllers/issues/1460>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 09 Apr 2025 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.43.0-1jammy) jammy; urgency=high
+
+  * Add Mecanum Drive Controller (backport #512 <https://github.com/ros-controls/ros2_controllers/issues/512>, #1444 <https://github.com/ros-controls/ros2_controllers/issues/1444>, #1547 <https://github.com/ros-controls/ros2_controllers/issues/1547>) (#1376 <https://github.com/ros-controls/ros2_controllers/issues/1376>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.42.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 24 Feb 2025 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.42.0-1jammy) jammy; urgency=high
+
+  * Update paths of GPL includes (backport #1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>) (#1493 <https://github.com/ros-controls/ros2_controllers/issues/1493>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Feb 2025 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.41.0-1jammy) jammy; urgency=high
+
+  * Update generate_parameter_library dependency in steering_controllers_library (backport #1465 <https://github.com/ros-controls/ros2_controllers/issues/1465>) (#1468 <https://github.com/ros-controls/ros2_controllers/issues/1468>)
+  * Fix typos in steering_controllers_lib (backport #1464 <https://github.com/ros-controls/ros2_controllers/issues/1464>) (#1466 <https://github.com/ros-controls/ros2_controllers/issues/1466>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Jan 2025 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.40.0-1jammy) jammy; urgency=high
+
+  * fix(timeout): do not reset steer wheels to 0. on timeout (backport #1289 <https://github.com/ros-controls/ros2_controllers/issues/1289>) (#1452 <https://github.com/ros-controls/ros2_controllers/issues/1452>)
+  * steering_controllers_library: Add reduce_wheel_speed_until_steering_reached parameter (backport #1314 <https://github.com/ros-controls/ros2_controllers/issues/1314>) (#1429 <https://github.com/ros-controls/ros2_controllers/issues/1429>)
+  * Use the .hpp headers from realtime_tools package (backport #1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>) (#1427 <https://github.com/ros-controls/ros2_controllers/issues/1427>)
+  * [CI] Add clang job and setup concurrency (backport #1407 <https://github.com/ros-controls/ros2_controllers/issues/1407>) (#1418 <https://github.com/ros-controls/ros2_controllers/issues/1418>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 01 Jan 2025 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.39.0-1jammy) jammy; urgency=high
+
+  * Update maintainers and add url tags (#1363 <https://github.com/ros-controls/ros2_controllers/issues/1363>) (#1364 <https://github.com/ros-controls/ros2_controllers/issues/1364>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 03 Dec 2024 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.38.0-1jammy) jammy; urgency=high
+
+  * Added -Wconversion flag and fix warnings (#667 <https://github.com/ros-controls/ros2_controllers/issues/667>) (#1321 <https://github.com/ros-controls/ros2_controllers/issues/1321>)
+  * fix(steering-odometry): convert twist to steering angle (#1288 <https://github.com/ros-controls/ros2_controllers/issues/1288>) (#1295 <https://github.com/ros-controls/ros2_controllers/issues/1295>)
+  * fix(steering-odometry): handle infinite turning radius properly (#1285 <https://github.com/ros-controls/ros2_controllers/issues/1285>) (#1286 <https://github.com/ros-controls/ros2_controllers/issues/1286>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 09 Nov 2024 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.37.3-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 10 Sep 2024 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.37.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 21 Aug 2024 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.37.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Aug 2024 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.37.0-1jammy) jammy; urgency=high
+
+  * Fix WaitSet issue in tests  (backport #1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>) (#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>)
+  * Fix steering controllers library kinematics (#1150 <https://github.com/ros-controls/ros2_controllers/issues/1150>) (#1194 <https://github.com/ros-controls/ros2_controllers/issues/1194>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 23 Jul 2024 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.36.0-1jammy) jammy; urgency=high
+
+  * [Steering controllers library] Reference interfaces are body twist (#1168 <https://github.com/ros-controls/ros2_controllers/issues/1168>) (#1173 <https://github.com/ros-controls/ros2_controllers/issues/1173>)
+  * [STEERING] Add missing tan call for ackermann (#1117 <https://github.com/ros-controls/ros2_controllers/issues/1117>) (#1176 <https://github.com/ros-controls/ros2_controllers/issues/1176>)
+  * Fix steering controllers library code documentation and naming (#1149 <https://github.com/ros-controls/ros2_controllers/issues/1149>) (#1164 <https://github.com/ros-controls/ros2_controllers/issues/1164>)
+  * Add mobile robot kinematics 101 and improve steering library docs (#954 <https://github.com/ros-controls/ros2_controllers/issues/954>) (#1160 <https://github.com/ros-controls/ros2_controllers/issues/1160>)
+  * Fix correct usage of angular velocity in update_odometry() function (#1118 <https://github.com/ros-controls/ros2_controllers/issues/1118>) (#1153 <https://github.com/ros-controls/ros2_controllers/issues/1153>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jul 2024 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.35.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 21 May 2024 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.34.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 31 Mar 2024 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.33.0-1jammy) jammy; urgency=high
+
+  * Fix usage of M_PI on Windows (#1036 <https://github.com/ros-controls/ros2_controllers/issues/1036>) (#1037 <https://github.com/ros-controls/ros2_controllers/issues/1037>)
+  * Add tests for interface_configuration_type consistently (#899 <https://github.com/ros-controls/ros2_controllers/issues/899>) (#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 12 Feb 2024 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.32.0-1jammy) jammy; urgency=high
+
+  * Update ci-ros-lint.yml and copyright format (backport #720 <https://github.com/ros-controls/ros2_controllers/issues/720>) (#918 <https://github.com/ros-controls/ros2_controllers/issues/918>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 20 Jan 2024 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.31.0-1jammy) jammy; urgency=high
+
+  * Fix ackermann steering odometry (#921 <https://github.com/ros-controls/ros2_controllers/issues/921>) (#955 <https://github.com/ros-controls/ros2_controllers/issues/955>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 11 Jan 2024 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.30.0-1jammy) jammy; urgency=high
+
+  * Changing default int values to double in steering controller's yaml file (#927 <https://github.com/ros-controls/ros2_controllers/issues/927>) (#928 <https://github.com/ros-controls/ros2_controllers/issues/928>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Dec 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.29.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 05 Dec 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.28.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 30 Nov 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.27.0-1jammy) jammy; urgency=high
+
+  * Steering controllers library: fix open loop mode (#793 <https://github.com/ros-controls/ros2_controllers/issues/793>) (#800 <https://github.com/ros-controls/ros2_controllers/issues/800>)
+  * Improve docs (#785 <https://github.com/ros-controls/ros2_controllers/issues/785>) (#786 <https://github.com/ros-controls/ros2_controllers/issues/786>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 14 Nov 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.26.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 02 Oct 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.25.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 14 Sep 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.24.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 06 Aug 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.23.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 22 Jun 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.22.0-1jammy) jammy; urgency=high
+
+  * Bump versions for release
+  * Let sphinx add parameter description to documentation (backport #651 <https://github.com/ros-controls/ros2_controllers/issues/651>) (#663 <https://github.com/ros-controls/ros2_controllers/issues/663>)
+  * Second round of dependencies fix (#655 <https://github.com/ros-controls/ros2_controllers/issues/655>) (#656 <https://github.com/ros-controls/ros2_controllers/issues/656>)
+  * Fix sphinx for steering odometry library/controllers (#626 <https://github.com/ros-controls/ros2_controllers/issues/626>) (#661 <https://github.com/ros-controls/ros2_controllers/issues/661>)
+  * Remove unnecessary include (backport #645 <https://github.com/ros-controls/ros2_controllers/issues/645>) (#646 <https://github.com/ros-controls/ros2_controllers/issues/646>)
+  * Steering odometry library and controllers (backport #484 <https://github.com/ros-controls/ros2_controllers/issues/484>) (#624 <https://github.com/ros-controls/ros2_controllers/issues/624>)
+  * Contributors: Bence Magyar, Christoph Fröhlich, Tomislav Petković, Reza Kermani, Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Jun 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.21.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 27 May 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.20.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 13 May 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.19.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 01 May 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.18.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Apr 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.17.3-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 13 Apr 2023 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.17.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 07 Mar 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.17.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 20 Feb 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.17.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Feb 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.16.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 31 Jan 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.16.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Jan 2023 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.15.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 06 Dec 2022 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.14.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 18 Nov 2022 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.13.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 04 Oct 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.12.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Aug 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.11.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 03 Aug 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.10.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 31 Jul 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.9.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 13 Jul 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.8.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 08 Jul 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.7.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 02 Jul 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.6.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 17 Jun 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.5.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 12 May 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.4.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 28 Apr 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.3.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Apr 2022 23:00:00 -0000
+
+ros-humble-steering-controllers-library (2.2.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 25 Mar 2022 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.1.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Feb 2022 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.0.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 01 Feb 2022 00:00:00 -0000
+
+ros-humble-steering-controllers-library (2.0.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Jan 2022 00:00:00 -0000
+
+ros-humble-steering-controllers-library (1.3.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 11 Jan 2022 00:00:00 -0000
+
+ros-humble-steering-controllers-library (1.2.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Dec 2021 00:00:00 -0000
+
+ros-humble-steering-controllers-library (1.1.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 24 Oct 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (1.0.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 28 Sep 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (0.5.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 29 Aug 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (0.4.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 07 Jul 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (0.4.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 27 Jun 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (0.3.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 22 May 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (0.3.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 20 May 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (0.2.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 02 May 2021 23:00:00 -0000
+
+ros-humble-steering-controllers-library (0.2.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 06 Feb 2021 00:00:00 -0000
+
+ros-humble-steering-controllers-library (0.1.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-humble-steering-controllers-library (0.1.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-humble-steering-controllers-library (0.1.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
