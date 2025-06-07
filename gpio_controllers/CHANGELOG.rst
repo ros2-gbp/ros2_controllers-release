@@ -2,165 +2,133 @@
 Changelog for package gpio_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.26.0 (2025-06-06)
+2.47.0 (2025-06-07)
 -------------------
-* Add missing github_url to rst files (backport `#1717 <https://github.com/ros-controls/ros2_controllers/issues/1717>`_) (`#1719 <https://github.com/ros-controls/ros2_controllers/issues/1719>`_)
-* Fix JSB+GPIO CMakeLists and dependencies (backport `#1705 <https://github.com/ros-controls/ros2_controllers/issues/1705>`_) (`#1707 <https://github.com/ros-controls/ros2_controllers/issues/1707>`_)
-* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
+* Add missing github_url to rst files (backport `#1717 <https://github.com/ros-controls/ros2_controllers/issues/1717>`_) (`#1718 <https://github.com/ros-controls/ros2_controllers/issues/1718>`_)
 * Contributors: mergify[bot]
 
-4.25.0 (2025-05-17)
+2.46.0 (2025-05-17)
 -------------------
 
-4.24.0 (2025-04-27)
--------------------
-* Use smart pointer of ctrl in GpsSensor and GpioCommandController tests (`#1658 <https://github.com/ros-controls/ros2_controllers/issues/1658>`_)
-* Contributors: Junius Santoso
-
-4.23.0 (2025-04-10)
--------------------
-* Use gmock instead of gtest (`#1625 <https://github.com/ros-controls/ros2_controllers/issues/1625>`_)
-* Use global cmake macros and fix gcc-10 build (`#1527 <https://github.com/ros-controls/ros2_controllers/issues/1527>`_)
-* Contributors: Christoph Fröhlich, Yassine Cherni
-
-4.22.0 (2025-03-17)
+2.45.0 (2025-04-27)
 -------------------
 
-4.21.0 (2025-03-01)
+2.44.0 (2025-04-10)
 -------------------
-* Cleanup wrong lifecycle transitions in tests and unnecessary checks (`#1534 <https://github.com/ros-controls/ros2_controllers/issues/1534>`_)
+
+2.43.0 (2025-03-17)
+-------------------
+
+2.42.1 (2025-02-24)
+-------------------
+
+2.42.0 (2025-02-17)
+-------------------
+* Update paths of GPL includes (backport `#1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>`_) (`#1493 <https://github.com/ros-controls/ros2_controllers/issues/1493>`_)
 * Contributors: Christoph Fröhlich
 
-4.20.0 (2025-01-29)
--------------------
-* Update paths of GPL includes (`#1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>`_)
-* Contributors: Christoph Fröhlich
-
-4.19.0 (2025-01-13)
--------------------
-* Remove visibility macros (`#1451 <https://github.com/ros-controls/ros2_controllers/issues/1451>`_)
-* Contributors: Bence Magyar
-
-4.18.0 (2024-12-19)
+2.41.0 (2025-01-13)
 -------------------
 
-4.17.0 (2024-12-07)
+2.40.0 (2025-01-01)
 -------------------
-* Add missing dependency to gpio_controllers (`#1410 <https://github.com/ros-controls/ros2_controllers/issues/1410>`_)
-* Use the .hpp headers from `realtime_tools` package (`#1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>`_)
-* Gpio command controller (`#1251 <https://github.com/ros-controls/ros2_controllers/issues/1251>`_)
-* Contributors: Christoph Fröhlich, Sai Kishor Kothakota, Wiktor Bajor
+* Use the .hpp headers from `realtime_tools` package (backport `#1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>`_) (`#1427 <https://github.com/ros-controls/ros2_controllers/issues/1427>`_)
+* [CI] Add clang job and setup concurrency (backport `#1407 <https://github.com/ros-controls/ros2_controllers/issues/1407>`_) (`#1418 <https://github.com/ros-controls/ros2_controllers/issues/1418>`_)
+* Gpio command controller (backport `#1251 <https://github.com/ros-controls/ros2_controllers/issues/1251>`_) (`#1372 <https://github.com/ros-controls/ros2_controllers/issues/1372>`_)
+* Contributors: mergify[bot]
 
-4.16.0 (2024-11-08)
--------------------
-
-4.15.0 (2024-10-07)
+2.39.0 (2024-12-03)
 -------------------
 
-4.14.0 (2024-09-11)
+2.38.0 (2024-11-09)
 -------------------
 
-4.13.0 (2024-08-22)
+2.37.3 (2024-09-11)
 -------------------
 
-4.12.1 (2024-08-14)
+2.37.2 (2024-08-22)
 -------------------
 
-4.12.0 (2024-07-23)
+2.37.1 (2024-08-14)
 -------------------
 
-4.11.0 (2024-07-09)
+2.37.0 (2024-07-24)
 -------------------
 
-4.10.0 (2024-07-01)
+2.36.0 (2024-07-09)
 -------------------
 
-4.9.0 (2024-06-05)
-------------------
-
-4.8.0 (2024-05-14)
-------------------
-
-4.7.0 (2024-03-22)
-------------------
-
-4.6.0 (2024-02-12)
-------------------
-
-4.5.0 (2024-01-31)
-------------------
-
-4.4.0 (2024-01-11)
-------------------
-
-4.3.0 (2024-01-08)
-------------------
-
-4.2.0 (2023-12-12)
-------------------
-
-4.1.0 (2023-12-01)
-------------------
-
-4.0.0 (2023-11-21)
-------------------
-
-3.17.0 (2023-10-31)
+2.35.0 (2024-05-22)
 -------------------
 
-3.16.0 (2023-09-20)
+2.34.0 (2024-04-01)
 -------------------
 
-3.15.0 (2023-09-11)
+2.33.0 (2024-02-12)
 -------------------
 
-3.14.0 (2023-08-16)
+2.32.0 (2024-01-20)
 -------------------
 
-3.13.0 (2023-08-04)
+2.31.0 (2024-01-11)
 -------------------
 
-3.12.0 (2023-07-18)
+2.30.0 (2023-12-20)
 -------------------
 
-3.11.0 (2023-06-24)
+2.29.0 (2023-12-05)
 -------------------
 
-3.10.1 (2023-06-06)
+2.28.0 (2023-11-30)
 -------------------
 
-3.10.0 (2023-06-04)
+2.27.0 (2023-11-14)
 -------------------
 
-3.9.0 (2023-05-28)
-------------------
+2.26.0 (2023-10-03)
+-------------------
 
-3.8.0 (2023-05-14)
-------------------
+2.25.0 (2023-09-15)
+-------------------
 
-3.7.0 (2023-05-02)
-------------------
+2.24.0 (2023-08-07)
+-------------------
 
-3.6.0 (2023-04-29)
-------------------
+2.23.0 (2023-06-23)
+-------------------
 
-3.5.0 (2023-04-14)
-------------------
+2.22.0 (2023-06-14)
+-------------------
 
-3.4.0 (2023-04-02)
-------------------
+2.21.0 (2023-05-28)
+-------------------
 
-3.3.0 (2023-03-07)
-------------------
+2.20.0 (2023-05-14)
+-------------------
 
-3.2.0 (2023-02-10)
-------------------
+2.19.0 (2023-05-02)
+-------------------
 
-3.1.0 (2023-01-26)
-------------------
+2.18.0 (2023-04-29)
+-------------------
 
-3.0.0 (2023-01-19)
-------------------
+2.17.3 (2023-04-14)
+-------------------
+
+2.17.2 (2023-03-07)
+-------------------
+
+2.17.1 (2023-02-20)
+-------------------
+
+2.17.0 (2023-02-13)
+-------------------
+
+2.16.1 (2023-01-31)
+-------------------
+
+2.16.0 (2023-01-19)
+-------------------
 
 2.15.0 (2022-12-06)
 -------------------

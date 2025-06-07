@@ -12,7 +12,6 @@ commands for the tricycle drive base. Odometry is computed from hardware feedbac
 
 For an introduction to mobile robot kinematics and the nomenclature used here, see :ref:`mobile_robot_kinematics`.
 
-
 Other features
 --------------
 
@@ -20,6 +19,7 @@ Other features
     Odometry publishing
     Velocity, acceleration and jerk limits
     Automatic stop after command timeout
+
 
 ROS 2 Interfaces
 ------------------------
@@ -29,11 +29,3 @@ Subscribers
 
 ~/cmd_vel [geometry_msgs/msg/TwistStamped]
   Velocity command for the controller. The controller extracts the x component of the linear velocity and the z component of the angular velocity. Velocities on other components are ignored.
-
-
-Parameters
---------------
-
-This controller uses the `generate_parameter_library <https://github.com/PickNikRobotics/generate_parameter_library>`_ to handle its parameters.
-
-.. generate_parameter_library_details:: ../src/tricycle_controller_parameter.yaml

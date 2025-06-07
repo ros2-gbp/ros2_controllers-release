@@ -52,9 +52,7 @@ void MultiInterfaceForwardCommandControllerTest::TearDown() { controller_.reset(
 
 void MultiInterfaceForwardCommandControllerTest::SetUpController(bool set_params_and_activate)
 {
-  const auto result = controller_->init(
-    "multi_interface_forward_command_controller", "", 0, "",
-    controller_->define_custom_node_options());
+  const auto result = controller_->init("multi_interface_forward_command_controller");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedCommandInterface> command_ifs;
@@ -76,7 +74,7 @@ void MultiInterfaceForwardCommandControllerTest::SetParametersAndActivateControl
   controller_->get_node()->set_parameter(
     {"interface_names", std::vector<std::string>{"position", "velocity", "effort"}});
 
-  auto node_state = controller_->configure();
+  auto node_state = controller_->get_node()->configure();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
   node_state = controller_->get_node()->activate();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);

@@ -461,9 +461,12 @@ class JointTrajectoryController(Plugin):
 
 
 def _jtc_joint_names(jtc_info):
+    # NOTE: We assume that there is at least one hardware interface that
+    # claims resources (there should be), and the resource list is fetched
+    # from the first available interface
 
     joint_names = []
-    for interface in jtc_info.required_state_interfaces:
+    for interface in jtc_info.claimed_interfaces:
         name = interface.split("/")[-2]
         if name not in joint_names:
             joint_names.append(name)

@@ -21,6 +21,7 @@
 
 #include "controller_interface/controller_interface.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "pose_broadcaster/visibility_control.h"
 #include "rclcpp/publisher.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "realtime_tools/realtime_publisher.hpp"
@@ -35,22 +36,24 @@ namespace pose_broadcaster
 class PoseBroadcaster : public controller_interface::ControllerInterface
 {
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
+  POSE_BROADCASTER_PUBLIC controller_interface::InterfaceConfiguration
+  command_interface_configuration() const override;
 
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
+  POSE_BROADCASTER_PUBLIC controller_interface::InterfaceConfiguration
+  state_interface_configuration() const override;
 
-  controller_interface::CallbackReturn on_init() override;
+  POSE_BROADCASTER_PUBLIC controller_interface::CallbackReturn on_init() override;
 
-  controller_interface::CallbackReturn on_configure(
+  POSE_BROADCASTER_PUBLIC controller_interface::CallbackReturn on_configure(
     const rclcpp_lifecycle::State & previous_state) override;
 
-  controller_interface::CallbackReturn on_activate(
+  POSE_BROADCASTER_PUBLIC controller_interface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & previous_state) override;
 
-  controller_interface::CallbackReturn on_deactivate(
+  POSE_BROADCASTER_PUBLIC controller_interface::CallbackReturn on_deactivate(
     const rclcpp_lifecycle::State & previous_state) override;
 
-  controller_interface::return_type update(
+  POSE_BROADCASTER_PUBLIC controller_interface::return_type update(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
@@ -63,10 +66,8 @@ private:
   std::unique_ptr<realtime_tools::RealtimePublisher<geometry_msgs::msg::PoseStamped>>
     realtime_publisher_;
 
-  // TODO(amronos): Remove these two member variables
   std::optional<rclcpp::Duration> tf_publish_period_;
   rclcpp::Time tf_last_publish_time_{0, 0, RCL_CLOCK_UNINITIALIZED};
-
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr tf_publisher_;
   std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage>>
     realtime_tf_publisher_;
