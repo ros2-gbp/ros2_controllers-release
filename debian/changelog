@@ -1,0 +1,653 @@
+ros-humble-joint-trajectory-controller (2.47.0-1jammy) jammy; urgency=high
+
+  * JTC: Use std::atomic<bool> (backport #1720 <https://github.com/ros-controls/ros2_controllers/issues/1720>) (#1722 <https://github.com/ros-controls/ros2_controllers/issues/1722>)
+  * Reset both sec and nanosec in time_from_start (backport #1709 <https://github.com/ros-controls/ros2_controllers/issues/1709>) (#1710 <https://github.com/ros-controls/ros2_controllers/issues/1710>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 06 Jun 2025 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.46.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 16 May 2025 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.45.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 26 Apr 2025 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.44.0-1jammy) jammy; urgency=high
+
+  * Bump version of pre-commit hooks (backport #1618 <https://github.com/ros-controls/ros2_controllers/issues/1618>) (#1620 <https://github.com/ros-controls/ros2_controllers/issues/1620>)
+  * Replace RCLCPP_*_STREAM macros with RCLCPP_* (backport #1600 <https://github.com/ros-controls/ros2_controllers/issues/1600>) (#1602 <https://github.com/ros-controls/ros2_controllers/issues/1602>)
+  * [jtc tests] avoid dangling ref of command / state interfaces (backport #1596 <https://github.com/ros-controls/ros2_controllers/issues/1596>) (#1597 <https://github.com/ros-controls/ros2_controllers/issues/1597>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 09 Apr 2025 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.43.0-1jammy) jammy; urgency=high
+
+  * Use constructor parameters instead of initializer list (backport #1587 <https://github.com/ros-controls/ros2_controllers/issues/1587>) (#1589 <https://github.com/ros-controls/ros2_controllers/issues/1589>)
+  * Contributors: Felix Exner (fexner)
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Mar 2025 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.42.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 24 Feb 2025 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.42.0-1jammy) jammy; urgency=high
+
+  * [JTC]: Abort goal on deactivate (backport #1517 <https://github.com/ros-controls/ros2_controllers/issues/1517>) (#1521 <https://github.com/ros-controls/ros2_controllers/issues/1521>)
+  * Update paths of GPL includes (backport #1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>) (#1493 <https://github.com/ros-controls/ros2_controllers/issues/1493>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 17 Feb 2025 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.41.0-1jammy) jammy; urgency=high
+
+  * Remove empty on_shutdown() callbacks (backport #1477 <https://github.com/ros-controls/ros2_controllers/issues/1477>) (#1482 <https://github.com/ros-controls/ros2_controllers/issues/1482>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Jan 2025 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.40.0-1jammy) jammy; urgency=high
+
+  * Increase margin for state_publish_rate  (#1430 <https://github.com/ros-controls/ros2_controllers/issues/1430>)
+  * Add an error msg if empty message is received (backport #1424 <https://github.com/ros-controls/ros2_controllers/issues/1424>) (#1428 <https://github.com/ros-controls/ros2_controllers/issues/1428>)
+  * Use the .hpp headers from realtime_tools package (backport #1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>) (#1427 <https://github.com/ros-controls/ros2_controllers/issues/1427>)
+  * [CI] Add clang job and setup concurrency (backport #1407 <https://github.com/ros-controls/ros2_controllers/issues/1407>) (#1418 <https://github.com/ros-controls/ros2_controllers/issues/1418>)
+  * Contributors: Christoph Fröhlich, mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 01 Jan 2025 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.39.0-1jammy) jammy; urgency=high
+
+  * Update maintainers and add url tags (#1363 <https://github.com/ros-controls/ros2_controllers/issues/1363>) (#1364 <https://github.com/ros-controls/ros2_controllers/issues/1364>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 03 Dec 2024 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.38.0-1jammy) jammy; urgency=high
+
+  * [JTC] Fix the JTC length_error exceptions in the tests (backport #1360 <https://github.com/ros-controls/ros2_controllers/issues/1360>) (#1361 <https://github.com/ros-controls/ros2_controllers/issues/1361>)
+  * [jtc] Improve trajectory sampling efficiency (#1297 <https://github.com/ros-controls/ros2_controllers/issues/1297>) (#1357 <https://github.com/ros-controls/ros2_controllers/issues/1357>)
+  * fixes for windows compilation (#1330 <https://github.com/ros-controls/ros2_controllers/issues/1330>) (#1332 <https://github.com/ros-controls/ros2_controllers/issues/1332>)
+  * [JTC] Add Parameter to Toggle State Setting on Activation (backport #1231 <https://github.com/ros-controls/ros2_controllers/issues/1231>) (#1320 <https://github.com/ros-controls/ros2_controllers/issues/1320>)
+  * Added -Wconversion flag and fix warnings (#667 <https://github.com/ros-controls/ros2_controllers/issues/667>) (#1321 <https://github.com/ros-controls/ros2_controllers/issues/1321>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 09 Nov 2024 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.37.3-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 10 Sep 2024 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.37.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 21 Aug 2024 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.37.1-1jammy) jammy; urgency=high
+
+  * Fix admittance controller interface read/write logic (backport #1232 <https://github.com/ros-controls/ros2_controllers/issues/1232>) (#1234 <https://github.com/ros-controls/ros2_controllers/issues/1234>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Aug 2024 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.37.0-1jammy) jammy; urgency=high
+
+  * Fix WaitSet issue in tests  (backport #1206 <https://github.com/ros-controls/ros2_controllers/issues/1206>) (#1211 <https://github.com/ros-controls/ros2_controllers/issues/1211>)
+  * [JTC] Make goal_time_tolerance overwrite default value only if explicitly set (backport #1192 <https://github.com/ros-controls/ros2_controllers/issues/1192> + #1209 <https://github.com/ros-controls/ros2_controllers/issues/1209>) (#1208 <https://github.com/ros-controls/ros2_controllers/issues/1208>)
+  * [JTC] Process tolerances sent with action goal (backport #716 <https://github.com/ros-controls/ros2_controllers/issues/716>) (#1189 <https://github.com/ros-controls/ros2_controllers/issues/1189>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 23 Jul 2024 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.36.0-1jammy) jammy; urgency=high
+
+  * Still fill desired/actual deprecated fields (#1172 <https://github.com/ros-controls/ros2_controllers/issues/1172>)
+  * JTC trajectory end time validation fix (#1090 <https://github.com/ros-controls/ros2_controllers/issues/1090>) (#1140 <https://github.com/ros-controls/ros2_controllers/issues/1140>)
+  * Contributors: Bence Magyar, mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 08 Jul 2024 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.35.0-1jammy) jammy; urgency=high
+
+  * [JTC] Remove unused test code (#1095 <https://github.com/ros-controls/ros2_controllers/issues/1095>) (#1096 <https://github.com/ros-controls/ros2_controllers/issues/1096>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 21 May 2024 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.34.0-1jammy) jammy; urgency=high
+
+  * Remove action_msg dependency (#1077 <https://github.com/ros-controls/ros2_controllers/issues/1077>) (#1080 <https://github.com/ros-controls/ros2_controllers/issues/1080>)
+  * [JTC] Angle wraparound for first segment of trajectory (#796 <https://github.com/ros-controls/ros2_controllers/issues/796>) (#1033 <https://github.com/ros-controls/ros2_controllers/issues/1033>)
+  * Bump version of pre-commit hooks (#1073 <https://github.com/ros-controls/ros2_controllers/issues/1073>) (#1074 <https://github.com/ros-controls/ros2_controllers/issues/1074>)
+  * Let sphinx add parameter description with nested structures to documentation (backport #652 <https://github.com/ros-controls/ros2_controllers/issues/652>) (#1005 <https://github.com/ros-controls/ros2_controllers/issues/1005>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 31 Mar 2024 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.33.0-1jammy) jammy; urgency=high
+
+  * Fix usage of M_PI on Windows (#1036 <https://github.com/ros-controls/ros2_controllers/issues/1036>) (#1037 <https://github.com/ros-controls/ros2_controllers/issues/1037>)
+  * Add test_depend on hardware_interface_testing (backport #1018 <https://github.com/ros-controls/ros2_controllers/issues/1018>) (#1019 <https://github.com/ros-controls/ros2_controllers/issues/1019>)
+  * Add tests for interface_configuration_type consistently (#899 <https://github.com/ros-controls/ros2_controllers/issues/899>) (#1011 <https://github.com/ros-controls/ros2_controllers/issues/1011>)
+  * [JTC] Fill action error_strings (#887 <https://github.com/ros-controls/ros2_controllers/issues/887>) (#1009 <https://github.com/ros-controls/ros2_controllers/issues/1009>)
+  * [JTC] Invalidate empty trajectory messages (#902 <https://github.com/ros-controls/ros2_controllers/issues/902>) (#1000 <https://github.com/ros-controls/ros2_controllers/issues/1000>)
+  * Revert "[JTC] Remove read_only from 'joints', 'state_interfaces' and 'command_interfaces' parameters (#967 <https://github.com/ros-controls/ros2_controllers/issues/967>)" (#978 <https://github.com/ros-controls/ros2_controllers/issues/978>) (#986 <https://github.com/ros-controls/ros2_controllers/issues/986>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 12 Feb 2024 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.32.0-1jammy) jammy; urgency=high
+
+  * Cleanup package.xml und clarify tests of JTC. (backport #889 <https://github.com/ros-controls/ros2_controllers/issues/889>) (#924 <https://github.com/ros-controls/ros2_controllers/issues/924>)
+  * [JTC] Remove deprecation from parameters validation file. (#476 <https://github.com/ros-controls/ros2_controllers/issues/476>) (#926 <https://github.com/ros-controls/ros2_controllers/issues/926>)
+  * [JTC] Cancel goal in on_deactivate (#962 <https://github.com/ros-controls/ros2_controllers/issues/962>) (#970 <https://github.com/ros-controls/ros2_controllers/issues/970>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 20 Jan 2024 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.31.0-1jammy) jammy; urgency=high
+
+  * [JTC] Remove read_only from 'joints', 'state_interfaces' and 'command_interfaces' parameters (#967 <https://github.com/ros-controls/ros2_controllers/issues/967>) (#968 <https://github.com/ros-controls/ros2_controllers/issues/968>)
+  * [JTC] Add console output for tolerance checks (backport #932 <https://github.com/ros-controls/ros2_controllers/issues/932>) (#938 <https://github.com/ros-controls/ros2_controllers/issues/938>)
+  * [JTC] Cleanup includes (#943 <https://github.com/ros-controls/ros2_controllers/issues/943>) (#959 <https://github.com/ros-controls/ros2_controllers/issues/959>)
+  * Fix whitespace
+  * Add rqt_JTC to docs (#950 <https://github.com/ros-controls/ros2_controllers/issues/950>) (#952 <https://github.com/ros-controls/ros2_controllers/issues/952>)
+  * Contributors: Bence Magyar, mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 11 Jan 2024 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.30.0-1jammy) jammy; urgency=high
+
+  * Fix floating point comparison in JTC (backport #879 <https://github.com/ros-controls/ros2_controllers/issues/879>)
+  * [JTC] Continue with last trajectory-point on success (backport #842 <https://github.com/ros-controls/ros2_controllers/issues/842>)
+  * [JTC] Remove start_with_holding option (backport #839 <https://github.com/ros-controls/ros2_controllers/issues/839>)
+  * [JTC] Activate checks for parameter validation backport (#857 <https://github.com/ros-controls/ros2_controllers/issues/857>)
+  * [JTC] Improve update methods for tests (backport #858 <https://github.com/ros-controls/ros2_controllers/issues/858>)
+  * [JTC] Fix dynamic reconfigure of tolerances (backport #849 <https://github.com/ros-controls/ros2_controllers/issues/849>)
+  * [JTC] Remove unused home pose (backport #845 <https://github.com/ros-controls/ros2_controllers/issues/845>)
+  * [JTC] Activate update of dynamic parameters (backport #761 <https://github.com/ros-controls/ros2_controllers/issues/761>)
+  * [JTC] Fix tests when state offset is used (backport #797 <https://github.com/ros-controls/ros2_controllers/issues/797>)
+  * Rename wraparound class variables (backport #834 <https://github.com/ros-controls/ros2_controllers/issues/834>)
+  * Update requirements of state interfaces (backport #798 <https://github.com/ros-controls/ros2_controllers/issues/798>)
+  * [JTC] Fix typos, implicit cast, const member functions (backport #748 <https://github.com/ros-controls/ros2_controllers/issues/748>)
+  * Cleanup comments and unnecessary checks (backport #803 <https://github.com/ros-controls/ros2_controllers/issues/803>)
+  * [JTC] Add tests for acceleration command interface (backport #752 <https://github.com/ros-controls/ros2_controllers/issues/752>)
+  * [Docs] Improve interface description of JTC (backport #770 <https://github.com/ros-controls/ros2_controllers/issues/770>)
+  * [JTC] Add time-out for trajectory interfaces (backport #609 <https://github.com/ros-controls/ros2_controllers/issues/609>)
+  * [JTC] Fix hold position mode with goal_time>0 (backport #758 <https://github.com/ros-controls/ros2_controllers/issues/758>)
+  * [JTC] Add note on goal_time=0 in docs (backport #773 <https://github.com/ros-controls/ros2_controllers/issues/773>)
+  * [JTC] Make most parameters read-only (backport #771 <https://github.com/ros-controls/ros2_controllers/issues/771>)
+  * [JTC] Tolerance tests + Hold on time violation (backport #613 <https://github.com/ros-controls/ros2_controllers/issues/613>)
+  * [JTC] Explicitly set hold position (backport #558 <https://github.com/ros-controls/ros2_controllers/issues/558>)
+  * [Doc] Fix links (backport #715 <https://github.com/ros-controls/ros2_controllers/issues/715>)
+  * Contributors: Christoph Fröhlich, Dr Denis Stogl, Bence Magyar, Abishalini Sivaraman
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Dec 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.29.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 05 Dec 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.28.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 30 Nov 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.27.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 14 Nov 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.26.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 02 Oct 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.25.0-1jammy) jammy; urgency=high
+
+  * [JTC] Rename parameter: normalize_error to angle_wraparound (#772 <https://github.com/ros-controls/ros2_controllers/issues/772>) (#776 <https://github.com/ros-controls/ros2_controllers/issues/776>)
+  * Remove wrong description (#742 <https://github.com/ros-controls/ros2_controllers/issues/742>) (#747 <https://github.com/ros-controls/ros2_controllers/issues/747>)
+  * [JTC] Update trajectory documentation (#714 <https://github.com/ros-controls/ros2_controllers/issues/714>) (#741 <https://github.com/ros-controls/ros2_controllers/issues/741>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 14 Sep 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.24.0-1jammy) jammy; urgency=high
+
+  * [JTC] Disable use of closed-loop PID adapter if controller is used in open-loop mode. (#551 <https://github.com/ros-controls/ros2_controllers/issues/551>) (#740 <https://github.com/ros-controls/ros2_controllers/issues/740>)
+  * [JTC] Reject messages with effort fields (#699 <https://github.com/ros-controls/ros2_controllers/issues/699>) (#719 <https://github.com/ros-controls/ros2_controllers/issues/719>) (#738 <https://github.com/ros-controls/ros2_controllers/issues/738>)
+  * [JTC] Re-enabling test, bugfixing and hardening. Adding a parameter to define when trajectories with non-zero velocity at the end are used. (backport #705 <https://github.com/ros-controls/ros2_controllers/issues/705>) (#706 <https://github.com/ros-controls/ros2_controllers/issues/706>)
+  * Small improvement in remapping (#393 <https://github.com/ros-controls/ros2_controllers/issues/393>) (#724 <https://github.com/ros-controls/ros2_controllers/issues/724>)
+  * Contributors: Christoph Fröhlich, Dr. Denis, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 06 Aug 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.23.0-1jammy) jammy; urgency=high
+
+  * Renovate load controller tests (#569 <https://github.com/ros-controls/ros2_controllers/issues/569>) (#677 <https://github.com/ros-controls/ros2_controllers/issues/677>)
+  * jtc: fix minor typo in traj validation error msg (#674 <https://github.com/ros-controls/ros2_controllers/issues/674>) (#676 <https://github.com/ros-controls/ros2_controllers/issues/676>)
+  * Contributors: G.A. vd. Hoorn, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 22 Jun 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.22.0-1jammy) jammy; urgency=high
+
+  * Docs: Use branch name substitution for all links (backport #618 <https://github.com/ros-controls/ros2_controllers/issues/618>) (#633 <https://github.com/ros-controls/ros2_controllers/issues/633>)
+  * [JTC] Import docs from wiki.ros.org (backport #566 <https://github.com/ros-controls/ros2_controllers/issues/566>) (#634 <https://github.com/ros-controls/ros2_controllers/issues/634>)
+  * [Formatting] enable ReflowComments to also use ColumnLimit on comments   (#628 <https://github.com/ros-controls/ros2_controllers/issues/628>)
+  * Contributors: Sai Kishor Kothakota, Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 13 Jun 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.21.0-1jammy) jammy; urgency=high
+
+  * Deprecations in generate_parameter_library. (#616 <https://github.com/ros-controls/ros2_controllers/issues/616>)
+  * Remove compile warnings. (#519 <https://github.com/ros-controls/ros2_controllers/issues/519>) (#620 <https://github.com/ros-controls/ros2_controllers/issues/620>)
+  * ported the joint_trajectory_controller query_state service to ROS2 (backport #481 <https://github.com/ros-controls/ros2_controllers/issues/481>) (#614 <https://github.com/ros-controls/ros2_controllers/issues/614>)
+  * Fix github links on control.ros.org (#604 <https://github.com/ros-controls/ros2_controllers/issues/604>) (#617 <https://github.com/ros-controls/ros2_controllers/issues/617>)
+  * Fix overriding of install (#510 <https://github.com/ros-controls/ros2_controllers/issues/510>) (#605 <https://github.com/ros-controls/ros2_controllers/issues/605>)
+  * Contributors: Dr. Denis, Felix Exner (fexner), Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 27 May 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.20.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 13 May 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.19.0-1jammy) jammy; urgency=high
+
+  * Fix JTC from immediately returning success (#565 <https://github.com/ros-controls/ros2_controllers/issues/565>) (#592 <https://github.com/ros-controls/ros2_controllers/issues/592>)
+  * Implement new ~/controller_state message (#578 <https://github.com/ros-controls/ros2_controllers/issues/578>)
+  * Contributors: Christoph Fröhlich, mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 01 May 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.18.0-1jammy) jammy; urgency=high
+
+  * Fix docs format (#591 <https://github.com/ros-controls/ros2_controllers/issues/591>)
+  * [JTC] Configurable joint positon error normalization behavior (#491 <https://github.com/ros-controls/ros2_controllers/issues/491>) (#579 <https://github.com/ros-controls/ros2_controllers/issues/579>)
+  * Contributors: Christoph Fröhlich, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Apr 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.17.3-1jammy) jammy; urgency=high
+
+  * [JTC] Add pid gain structure to documentation (#485 <https://github.com/ros-controls/ros2_controllers/issues/485>) (#543 <https://github.com/ros-controls/ros2_controllers/issues/543>)
+  * Fix markup in userdoc.rst (#480 <https://github.com/ros-controls/ros2_controllers/issues/480>) (#542 <https://github.com/ros-controls/ros2_controllers/issues/542>)
+  * Contributors: Christoph Fröhlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 13 Apr 2023 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.17.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 07 Mar 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.17.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 20 Feb 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.17.0-1jammy) jammy; urgency=high
+
+  * fix interpolation logic (#516 <https://github.com/ros-controls/ros2_controllers/issues/516>) (#523 <https://github.com/ros-controls/ros2_controllers/issues/523>)
+  * fix JTC segfault (#518 <https://github.com/ros-controls/ros2_controllers/issues/518>) (#524 <https://github.com/ros-controls/ros2_controllers/issues/524>)
+  * Fix JTC segfault on unload (#515 <https://github.com/ros-controls/ros2_controllers/issues/515>) (#525 <https://github.com/ros-controls/ros2_controllers/issues/525>)
+  * Contributors: Solomon Wiznitzer, Márk Szitanics, Michael Wiznitzer
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Mon, 13 Feb 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.16.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 31 Jan 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.16.0-1jammy) jammy; urgency=high
+
+  * Add backward_ros to all controllers (#489 <https://github.com/ros-controls/ros2_controllers/issues/489>) (#493 <https://github.com/ros-controls/ros2_controllers/issues/493>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 19 Jan 2023 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.15.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 06 Dec 2022 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.14.0-1jammy) jammy; urgency=high
+
+  * Fix parameter library export (#448 <https://github.com/ros-controls/ros2_controllers/issues/448>)
+  * Contributors: Tyler Weaver
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 18 Nov 2022 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.13.0-1jammy) jammy; urgency=high
+
+  * Generate Parameter Library for Joint Trajectory Controller (#384 <https://github.com/ros-controls/ros2_controllers/issues/384>)
+  * Fix rates in JTC userdoc.rst (#433 <https://github.com/ros-controls/ros2_controllers/issues/433>)
+  * Fix for high CPU usage by JTC in gzserver (#428 <https://github.com/ros-controls/ros2_controllers/issues/428>)
+    * Change type cast wall timer period from second to nanoseconds.
+    create_wall_timer() expects delay in nanoseconds (duration object) however the type cast to seconds will result in 0 (if duration is less than 1s) and thus causing timer to be fired non stop resulting in very high CPU usage.
+    * Reset smartpointer so that create_wall_timer() call can destroy previous trajectory timer.
+    node->create_wall_timer() first removes timers associated with expired smartpointers before servicing current request.  The JTC timer pointer gets overwrite only after the create_wall_timer() returns and thus not able to remove previous trajectory timer resulting in upto two timers running for JTC during trajectory execution.  Althougth the previous timer does nothing but still get fired.
+  * Contributors: Arshad Mehmood, Borong Yuan, Tyler Weaver, Andy Zelenak, Bence Magyar, Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 04 Oct 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.12.0-1jammy) jammy; urgency=high
+
+  * Use a "steady clock" when measuring time differences (#427 <https://github.com/ros-controls/ros2_controllers/issues/427>)
+  * [JTC] Add additional parameter to enable configuration of interfaces for following controllers in a chain. (#380 <https://github.com/ros-controls/ros2_controllers/issues/380>)
+  * test: :white_check_mark: fix and add back joint_trajectory_controller state_topic_consistency (#415 <https://github.com/ros-controls/ros2_controllers/issues/415>)
+  * Reinstate JTC tests (#391 <https://github.com/ros-controls/ros2_controllers/issues/391>)
+  * [JTC] Hold position if tolerance is violated even during non-active goal (#368 <https://github.com/ros-controls/ros2_controllers/issues/368>)
+  * Small fixes for JTC. (#390 <https://github.com/ros-controls/ros2_controllers/issues/390>)
+    variables in JTC to not clutter other PR with them.
+    fixes of updating parameters on renewed configuration of JTC that were missed
+  * Contributors: Andy Zelenak, Bence Magyar, Denis Štogl, Jaron Lundwall, Michael Wiznitzer
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Aug 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.11.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 03 Aug 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.10.0-1jammy) jammy; urgency=high
+
+  * Make JTC callbacks methods with clear names (#397 <https://github.com/ros-controls/ros2_controllers/issues/397>) #abi-breaking
+  * Use system time in all tests to avoid error with different time sources. (#334 <https://github.com/ros-controls/ros2_controllers/issues/334>)
+  * Contributors: Bence Magyar, Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 31 Jul 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.9.0-1jammy) jammy; urgency=high
+
+  * Add option to skip interpolation in the joint trajectory controller (#374 <https://github.com/ros-controls/ros2_controllers/issues/374>)
+    * Introduce InterpolationMethods structure
+    * Use parameters to define interpolation use in JTC
+  * Contributors: Andy Zelenak
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 13 Jul 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.8.0-1jammy) jammy; urgency=high
+
+  * Preallocate JTC variables to avoid resizing in realtime loops (#340 <https://github.com/ros-controls/ros2_controllers/issues/340>)
+  * Contributors: Andy Zelenak
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 08 Jul 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.7.0-1jammy) jammy; urgency=high
+
+  * Properly retrieve parameters in the Joint Trajectory Controller (#365 <https://github.com/ros-controls/ros2_controllers/issues/365>)
+  * Rename the "abort" variable in the joint traj controller (#367 <https://github.com/ros-controls/ros2_controllers/issues/367>)
+  * account for edge case in JTC (#350 <https://github.com/ros-controls/ros2_controllers/issues/350>)
+  * Contributors: Andy Zelenak, Michael Wiznitzer
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 02 Jul 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.6.0-1jammy) jammy; urgency=high
+
+  * Disable failing workflows (#363 <https://github.com/ros-controls/ros2_controllers/issues/363>)
+  * Fixed lof message in joint_trayectory_controller (#366 <https://github.com/ros-controls/ros2_controllers/issues/366>)
+  * CMakeLists cleanup (#362 <https://github.com/ros-controls/ros2_controllers/issues/362>)
+  * Fix exception about parameter already been declared & Change default c++ version to 17 (#360 <https://github.com/ros-controls/ros2_controllers/issues/360>)
+    * Default C++ version to 17
+    * Replace explicit use of declare_paremeter with auto_declare
+  * Member variable renaming in the Joint Traj Controller (#361 <https://github.com/ros-controls/ros2_controllers/issues/361>)
+  * Contributors: Alejandro Hernández Cordero, Andy Zelenak, Jafar Abdi
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 17 Jun 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.5.0-1jammy) jammy; urgency=high
+
+  * check for nans in command interface (#346 <https://github.com/ros-controls/ros2_controllers/issues/346>)
+  * Contributors: Michael Wiznitzer
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 12 May 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.4.0-1jammy) jammy; urgency=high
+
+  * Fix a gtest deprecation warning (#341 <https://github.com/ros-controls/ros2_controllers/issues/341>)
+  * Delete unused variable in joint_traj_controller (#339 <https://github.com/ros-controls/ros2_controllers/issues/339>)
+  * updated to use node getter functions (#329 <https://github.com/ros-controls/ros2_controllers/issues/329>)
+  * Fix JTC state tolerance and goal_time tolerance check bug (#316 <https://github.com/ros-controls/ros2_controllers/issues/316>)
+    * fix state tolerance check bug
+    * hold position when canceling or aborting. update state tolerance test
+    * add goal tolerance fail test
+    * better state tolerance test
+    * use predefined constants
+    * fix goal_time logic and tests
+    * add comments
+  * Contributors: Andy Zelenak, Jack Center, Michael Wiznitzer, Bence Magyar, Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 28 Apr 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.3.0-1jammy) jammy; urgency=high
+
+  * [JTC] Allow integration of states in goal trajectories (#190 <https://github.com/ros-controls/ros2_controllers/issues/190>)
+    * Added position and velocity deduction to trajectory.
+    * Added support for deduction of states from their derivatives.
+  * Use CallbackReturn from controller_interface namespace (#333 <https://github.com/ros-controls/ros2_controllers/issues/333>)
+  * [JTC] Implement effort-only command interface (#225 <https://github.com/ros-controls/ros2_controllers/issues/225>)
+    * Fix trajectory tolerance parameters
+    * Implement effort command interface for JTC
+    * Use auto_declare for pid params
+    * Set effort to 0 on deactivate
+  * [JTC] Variable renaming for clearer API (#323 <https://github.com/ros-controls/ros2_controllers/issues/323>)
+  * Remove unused include to fix JTC test (#319 <https://github.com/ros-controls/ros2_controllers/issues/319>)
+  * Contributors: Akash, Andy Zelenak, Bence Magyar, Denis Štogl, Jafar Abdi, Victor Lopez
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 20 Apr 2022 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.2.0-1jammy) jammy; urgency=high
+
+  * Use lifecycle node as base for controllers (#244 <https://github.com/ros-controls/ros2_controllers/issues/244>)
+  * JointTrajectoryController: added missing control_toolbox dependencies (#315 <https://github.com/ros-controls/ros2_controllers/issues/315>)
+  * Use time argument on update function instead of node time (#296 <https://github.com/ros-controls/ros2_controllers/issues/296>)
+  * Export dependency (#310 <https://github.com/ros-controls/ros2_controllers/issues/310>)
+  * Contributors: DasRoteSkelett, Erick G. Islas-Osuna, Jafar Abdi, Denis Štogl, Vatan Aksoy Tezer, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 25 Mar 2022 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.1.0-1jammy) jammy; urgency=high
+
+  * INSTANTIATE_TEST_CASE_P -> INSTANTIATE_TEST_SUITE_P (#293 <https://github.com/ros-controls/ros2_controllers/issues/293>)
+  * Contributors: Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Feb 2022 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.0.1-1jammy) jammy; urgency=high
+
+  * Fix missing control_toolbox dependency (#291 <https://github.com/ros-controls/ros2_controllers/issues/291>)
+  * Contributors: Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 01 Feb 2022 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (2.0.0-1jammy) jammy; urgency=high
+
+  * [JointTrajectoryController] Add velocity-only command option for JTC with closed loop controller (#239 <https://github.com/ros-controls/ros2_controllers/issues/239>)
+    * Add velocity pid support.
+    * Remove incorrect init test for only velocity command interface.
+    * Add clarification comments for pid aux variables. Adapt update loop.
+    * Change dt for pid to appropriate measure.
+    * Improve partial commands for velocity-only mode.
+    * Extend tests to use velocity-only mode.
+    * Increase timeout for velocity-only mode parametrized tests.
+    * add is_same_sign for better refactor
+    * refactor boolean logic
+    * set velocity to 0.0 on deactivate
+  * Contributors: Lovro Ivanov, Bence Magyar
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 28 Jan 2022 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (1.3.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 11 Jan 2022 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (1.2.0-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 29 Dec 2021 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (1.1.0-1jammy) jammy; urgency=high
+
+  * Move interface sorting into ControllerInterface (#259 <https://github.com/ros-controls/ros2_controllers/issues/259>)
+  * Revise for-loop style (#254 <https://github.com/ros-controls/ros2_controllers/issues/254>)
+  * Contributors: bailaC
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 24 Oct 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (1.0.0-1jammy) jammy; urgency=high
+
+  * Remove compile warnings. (#245 <https://github.com/ros-controls/ros2_controllers/issues/245>)
+  * Add time and period to update function (#241 <https://github.com/ros-controls/ros2_controllers/issues/241>)
+  * Quickfix 🛠: Correct confusing variable name (#240 <https://github.com/ros-controls/ros2_controllers/issues/240>)
+  * Unify style of controllers. (#236 <https://github.com/ros-controls/ros2_controllers/issues/236>)
+  * Change test to work with Foxy and posterior action API (#237 <https://github.com/ros-controls/ros2_controllers/issues/237>)
+  * ros2_controllers code changes to support ros2_controls issue #489 <https://github.com/ros-controls/ros2_controllers/issues/489> (#233 <https://github.com/ros-controls/ros2_controllers/issues/233>)
+  * Removing Boost from controllers. (#235 <https://github.com/ros-controls/ros2_controllers/issues/235>)
+  * refactor get_current_state to get_state (#232 <https://github.com/ros-controls/ros2_controllers/issues/232>)
+  * Contributors: Bence Magyar, Denis Štogl, Márk Szitanics, Tyler Weaver, bailaC
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Tue, 28 Sep 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.5.0-1jammy) jammy; urgency=high
+
+  * Add auto declaration of parameters. (#224 <https://github.com/ros-controls/ros2_controllers/issues/224>)
+  * Bring precommit config up to speed with ros2_control (#227 <https://github.com/ros-controls/ros2_controllers/issues/227>)
+  * Add initial pre-commit setup. (#220 <https://github.com/ros-controls/ros2_controllers/issues/220>)
+  * Enable JTC for hardware having offset from state measurements (#189 <https://github.com/ros-controls/ros2_controllers/issues/189>)
+    * Avoid "jumps" with states that have tracking error. All test are passing but separatelly. Is there some kind of timeout?
+    * Remove allow_integration_flag
+    * Add reading from command interfaces when restarting controller
+  * Reduce docs warnings and correct adding guidelines (#219 <https://github.com/ros-controls/ros2_controllers/issues/219>)
+  * Contributors: Bence Magyar, Denis Štogl, Lovro Ivanov
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 29 Aug 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.4.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 07 Jul 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.4.0-1jammy) jammy; urgency=high
+
+  * Force torque sensor broadcaster (#152 <https://github.com/ros-controls/ros2_controllers/issues/152>)
+    * Stabilize joint_trajectory_controller tests
+    * Add  rclcpp::shutdown(); to all standalone test functions
+  * Fixes for Windows (#205 <https://github.com/ros-controls/ros2_controllers/issues/205>)
+    * Export protected joint trajectory controller functions
+  * Fix deprecation warnings on Rolling, remove rcutils dependency (#204 <https://github.com/ros-controls/ros2_controllers/issues/204>)
+  * Fix parameter initialisation for galactic (#199 <https://github.com/ros-controls/ros2_controllers/issues/199>)
+    * Fix parameter initialisation for galactic
+    * Fix forward_command_controller the same way
+    * Fix other compiler warnings
+    * Missing space
+  * Fix rolling build (#200 <https://github.com/ros-controls/ros2_controllers/issues/200>)
+    * Fix rolling build
+    * Stick to printf style
+    * Add back :: around interface type
+    Co-authored-by: Bence Magyar <mailto:bence.magyar.robotics@gmail.com>
+  * Contributors: Akash, Bence Magyar, Denis Štogl, Tim Clephas, Vatan Aksoy Tezer
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 27 Jun 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.3.1-1jammy) jammy; urgency=high
+
+  * Reset external trajectory message upon activation (#185 <https://github.com/ros-controls/ros2_controllers/issues/185>)
+    * Reset external trajectory message to prevent preserving the old goal on systems with hardware offsets
+    * Fix has_trajectory_msg() function: two wrongs were making a right so functionally things were fine
+  * Contributors: Nathan Brooks, Matt Reynolds
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 22 May 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.3.0-1jammy) jammy; urgency=high
+
+  * joint_trajectory_controller publishes state in node namespace (#187 <https://github.com/ros-controls/ros2_controllers/issues/187>)
+  * [JointTrajectoryController] Enable position, velocity and acceleration interfaces (#140 <https://github.com/ros-controls/ros2_controllers/issues/140>)
+    * joint_trajectory_controller should not go into FINALIZED state when fails to configure, remain in UNCONFIGURED
+  * Contributors: Bence Magyar, Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 20 May 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.2.1-1jammy) jammy; urgency=high
+
+  * Migrate from deprecated controller_interface::return_type::SUCCESS -> OK (#167 <https://github.com/ros-controls/ros2_controllers/issues/167>)
+  * [JTC] Add link to TODOs to provide better trackability (#169 <https://github.com/ros-controls/ros2_controllers/issues/169>)
+  * Fix JTC segfault (#164 <https://github.com/ros-controls/ros2_controllers/issues/164>)
+    * Use a copy of the rt_active_goal to avoid segfault
+    * Use RealtimeBuffer for thread-safety
+  * Add basic user docs pages for each package (#156 <https://github.com/ros-controls/ros2_controllers/issues/156>)
+  * Contributors: Bence Magyar, Matt Reynolds
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sun, 02 May 2021 23:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.2.0-1jammy) jammy; urgency=high
+
+  * Use ros2 contol test assets (#138 <https://github.com/ros-controls/ros2_controllers/issues/138>)
+    * Add description to test trajecotry_controller
+    * Use ros2_control_test_assets package
+    * Delete obsolete components plugin export
+  * Contributors: Denis Štogl
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 06 Feb 2021 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.1.2-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Thu, 07 Jan 2021 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.1.1-1jammy) jammy; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 06 Jan 2021 00:00:00 -0000
+
+ros-humble-joint-trajectory-controller (0.1.0-1jammy) jammy; urgency=high
+
+  * Remove lifecycle node controllers (#124 <https://github.com/ros-controls/ros2_controllers/issues/124>)
+  * Use resource manager on joint trajectory controller (#112 <https://github.com/ros-controls/ros2_controllers/issues/112>)
+  * Use new joint handles in all controllers (#90 <https://github.com/ros-controls/ros2_controllers/issues/90>)
+  * More jtc tests (#75 <https://github.com/ros-controls/ros2_controllers/issues/75>)
+  * remove unused variables (#86 <https://github.com/ros-controls/ros2_controllers/issues/86>)
+  * Port over interpolation formulae, abort if goals tolerance violated (#62 <https://github.com/ros-controls/ros2_controllers/issues/62>)
+  * Partial joints (#68 <https://github.com/ros-controls/ros2_controllers/issues/68>)
+  * Use clamp function from rcppmath (#79 <https://github.com/ros-controls/ros2_controllers/issues/79>)
+  * Reorder incoming out of order joint_names in trajectory messages (#53 <https://github.com/ros-controls/ros2_controllers/issues/53>)
+  * Action server for JointTrajectoryController (#26 <https://github.com/ros-controls/ros2_controllers/issues/26>)
+  * Add state_publish_rate to JointTrajectoryController (#25 <https://github.com/ros-controls/ros2_controllers/issues/25>)
+  * Contributors: Alejandro Hernández Cordero, Anas Abou Allaban, Bence Magyar, Denis Štogl, Edwin Fan, Jordan Palacios, Karsten Knese, Victor Lopez
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 23 Dec 2020 00:00:00 -0000
+
+
