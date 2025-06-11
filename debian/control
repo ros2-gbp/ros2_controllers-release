@@ -1,0 +1,12 @@
+Source: ros-rolling-ros2-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-rolling-ros2-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-ackermann-steering-controller, ros-rolling-admittance-controller, ros-rolling-bicycle-steering-controller, ros-rolling-diff-drive-controller, ros-rolling-effort-controllers, ros-rolling-force-torque-sensor-broadcaster, ros-rolling-forward-command-controller, ros-rolling-gpio-controllers, ros-rolling-gps-sensor-broadcaster, ros-rolling-imu-sensor-broadcaster, ros-rolling-joint-state-broadcaster, ros-rolling-joint-trajectory-controller, ros-rolling-mecanum-drive-controller, ros-rolling-parallel-gripper-controller, ros-rolling-pid-controller, ros-rolling-pose-broadcaster, ros-rolling-position-controllers, ros-rolling-range-sensor-broadcaster, ros-rolling-steering-controllers-library, ros-rolling-tricycle-controller, ros-rolling-tricycle-steering-controller, ros-rolling-velocity-controllers, ros-rolling-ros-workspace
+Description: Metapackage for ros2_controllers related packages
