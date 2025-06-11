@@ -1,13 +1,17 @@
 :github_url: https://github.com/ros-controls/ros2_controllers/blob/{REPOS_FILE_BRANCH}/doc/migration.rst
 
-Migration Guides: Galactic to Humble
+Migration Guides: Jazzy to Kilted
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This list summarizes important changes between Galactic (previous) and Humble (current) releases, where changes to user code might be necessary.
+This list summarizes important changes between Jazzy (previous) and Kilted (current) releases, where changes to user code might be necessary.
 
-.. note::
-
-  This list was created in July 2024, earlier changes are not included.
-
-joint_trajectory_controller
+GripperActionController
 *****************************
-  * Tolerances sent with the action goal were not used before, but are now processed and used for the upcoming action. (`#716 <https://github.com/ros-controls/ros2_controllers/pull/716>`_). Adaptions to the action goal might be necessary.
+The ``effort_controllers/GripperActionController`` and ``position_controllers/GripperActionController`` have been removed. The ``parallel_gripper_action_controller/GripperActionController`` should be used instead. `(#1652 <https://github.com/ros-controls/ros2_controllers/pull/1652>`__).
+
+diff_drive_controller
+*****************************
+* Parameters ``has_velocity_limits``, ``has_acceleration_limits``, and ``has_jerk_limits`` are removed. Instead, set the respective limits to ``.NAN``. (`#1653 <https://github.com/ros-controls/ros2_controllers/pull/1653>`_).
+
+pid_controller
+*****************************
+* Parameters ``enable_feedforward`` and service ``set_feedforward_control`` are removed. Instead, set the feedforward_gain to zero or a non-zero value. (`#1553 <https://github.com/ros-controls/ros2_controllers/pull/1553>`_).

@@ -24,14 +24,19 @@
 
 #include "angles/angles.h"
 #include "control_msgs/msg/single_dof_state.hpp"
-#include "controller_interface/helpers.hpp"
-
-#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/version.h"
 
 namespace
 {  // utility
 
 // Changed services history QoS to keep all so we don't lose any client service calls
+// \note The versions conditioning is added here to support the source-compatibility with Humble
+#if RCLCPP_VERSION_MAJOR >= 17
+rclcpp::QoS qos_services =
+  rclcpp::QoS(rclcpp::QoSInitialization(RMW_QOS_POLICY_HISTORY_KEEP_ALL, 1))
+    .reliable()
+    .durability_volatile();
+#else
 static const rmw_qos_profile_t qos_services = {
   RMW_QOS_POLICY_HISTORY_KEEP_ALL,
   1,  // message queue depth
@@ -42,6 +47,7 @@ static const rmw_qos_profile_t qos_services = {
   RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
   RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
   false};
+#endif
 
 using ControllerCommandMsg = pid_controller::PidController::ControllerReferenceMsg;
 
@@ -68,8 +74,6 @@ PidController::PidController() : controller_interface::ChainableControllerInterf
 
 controller_interface::CallbackReturn PidController::on_init()
 {
-  control_mode_.initRT(feedforward_mode_type::OFF);
-
   try
   {
     param_listener_ = std::make_shared<pid_controller::ParamListener>(get_node());
@@ -134,7 +138,7 @@ controller_interface::CallbackReturn PidController::configure_parameters()
     // prefix should be interpreted as parameters prefix
     pids_[i] =
       std::make_shared<control_toolbox::PidROS>(get_node(), "gains." + params_.dof_names[i], true);
-    if (!pids_[i]->initPid())
+    if (!pids_[i]->initialize_from_ros_parameters())
     {
       return CallbackReturn::FAILURE;
     }
@@ -179,14 +183,52 @@ controller_interface::CallbackReturn PidController::on_configure(
   if (params_.use_external_measured_states)
   {
     auto measured_state_callback =
-      [&](const std::shared_ptr<ControllerMeasuredStateMsg> msg) -> void
+      [&](const std::shared_ptr<ControllerMeasuredStateMsg> state_msg) -> void
     {
+      if (state_msg->dof_names.size() != reference_and_state_dof_names_.size())
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Size of input data names (%zu) is not matching the expected size (%zu).",
+          state_msg->dof_names.size(), reference_and_state_dof_names_.size());
+        return;
+      }
+      if (state_msg->values.size() != reference_and_state_dof_names_.size())
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Size of input data values (%zu) is not matching the expected size (%zu).",
+          state_msg->values.size(), reference_and_state_dof_names_.size());
+        return;
+      }
+
+      if (!state_msg->values_dot.empty())
+      {
+        if (params_.reference_and_state_interfaces.size() != 2)
+        {
+          RCLCPP_ERROR(
+            get_node()->get_logger(),
+            "The reference_and_state_interfaces parameter has to have two interfaces [the "
+            "interface and the derivative of the interface], in order to use the values_dot "
+            "field.");
+          return;
+        }
+        if (state_msg->values_dot.size() != reference_and_state_dof_names_.size())
+        {
+          RCLCPP_ERROR(
+            get_node()->get_logger(),
+            "Size of input data values_dot (%zu) is not matching the expected size (%zu).",
+            state_msg->values_dot.size(), reference_and_state_dof_names_.size());
+          return;
+        }
+      }
       // TODO(destogl): Sort the input values based on joint and interface names
-      measured_state_.writeFromNonRT(msg);
+      measured_state_.writeFromNonRT(state_msg);
     };
     measured_state_subscriber_ = get_node()->create_subscription<ControllerMeasuredStateMsg>(
       "~/measured_state", subscribers_qos, measured_state_callback);
   }
+
   std::shared_ptr<ControllerMeasuredStateMsg> measured_state_msg =
     std::make_shared<ControllerMeasuredStateMsg>();
   reset_controller_measured_state_msg(measured_state_msg, reference_and_state_dof_names_);
@@ -194,25 +236,6 @@ controller_interface::CallbackReturn PidController::on_configure(
 
   measured_state_values_.resize(
     dof_ * params_.reference_and_state_interfaces.size(), std::numeric_limits<double>::quiet_NaN());
-
-  auto set_feedforward_control_callback =
-    [&](
-      const std::shared_ptr<ControllerModeSrvType::Request> request,
-      std::shared_ptr<ControllerModeSrvType::Response> response)
-  {
-    if (request->data)
-    {
-      control_mode_.writeFromNonRT(feedforward_mode_type::ON);
-    }
-    else
-    {
-      control_mode_.writeFromNonRT(feedforward_mode_type::OFF);
-    }
-    response->success = true;
-  };
-
-  set_feedforward_control_service_ = get_node()->create_service<ControllerModeSrvType>(
-    "~/set_feedforward_control", set_feedforward_control_callback, qos_services);
 
   try
   {
@@ -350,12 +373,36 @@ std::vector<hardware_interface::CommandInterface> PidController::on_export_refer
     {
       reference_interfaces.push_back(
         hardware_interface::CommandInterface(
-          get_node()->get_name(), dof_name + "/" + interface, &reference_interfaces_[index]));
+          std::string(get_node()->get_name()) + "/" + dof_name, interface,
+          &reference_interfaces_[index]));
       ++index;
     }
   }
 
   return reference_interfaces;
+}
+
+std::vector<hardware_interface::StateInterface> PidController::on_export_state_interfaces()
+{
+  std::vector<hardware_interface::StateInterface> state_interfaces;
+  state_interfaces.reserve(state_interfaces_values_.size());
+
+  state_interfaces_values_.resize(
+    reference_and_state_dof_names_.size() * params_.reference_and_state_interfaces.size(),
+    std::numeric_limits<double>::quiet_NaN());
+  size_t index = 0;
+  for (const auto & interface : params_.reference_and_state_interfaces)
+  {
+    for (const auto & dof_name : reference_and_state_dof_names_)
+    {
+      state_interfaces.push_back(
+        hardware_interface::StateInterface(
+          std::string(get_node()->get_name()) + "/" + dof_name, interface,
+          &state_interfaces_values_[index]));
+      ++index;
+    }
+  }
+  return state_interfaces;
 }
 
 bool PidController::on_set_chained_mode(bool /*chained_mode*/) { return true; }
@@ -373,16 +420,16 @@ controller_interface::CallbackReturn PidController::on_activate(
   measured_state_values_.assign(
     measured_state_values_.size(), std::numeric_limits<double>::quiet_NaN());
 
+  // prefixed save_i_term parameter is read from ROS parameters
+  for (auto & pid : pids_)
+  {
+    pid->reset();
+  }
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn PidController::on_deactivate(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  return controller_interface::CallbackReturn::SUCCESS;
-}
-
-controller_interface::return_type PidController::update_reference_from_subscribers()
+controller_interface::return_type PidController::update_reference_from_subscribers(
+  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   auto current_ref = input_ref_.readFromRT();
 
@@ -429,6 +476,13 @@ controller_interface::return_type PidController::update_and_write_commands(
     }
   }
 
+  // Fill the information of the exported state interfaces
+  for (size_t i = 0; i < measured_state_values_.size(); ++i)
+  {
+    state_interfaces_values_[i] = measured_state_values_[i];
+  }
+
+  // Iterate through all the dofs to calculate the output command
   for (size_t i = 0; i < dof_; ++i)
   {
     double tmp_command = 0.0;
@@ -436,22 +490,19 @@ controller_interface::return_type PidController::update_and_write_commands(
     if (std::isfinite(reference_interfaces_[i]) && std::isfinite(measured_state_values_[i]))
     {
       // calculate feed-forward
-      if (*(control_mode_.readFromRT()) == feedforward_mode_type::ON)
+      // two interfaces
+      if (reference_interfaces_.size() == 2 * dof_)
       {
-        // two interfaces
-        if (reference_interfaces_.size() == 2 * dof_)
+        if (std::isfinite(reference_interfaces_[dof_ + i]))
         {
-          if (std::isfinite(reference_interfaces_[dof_ + i]))
-          {
-            tmp_command = reference_interfaces_[dof_ + i] *
-                          params_.gains.dof_names_map[params_.dof_names[i]].feedforward_gain;
-          }
-        }
-        else  // one interface
-        {
-          tmp_command = reference_interfaces_[i] *
+          tmp_command = reference_interfaces_[dof_ + i] *
                         params_.gains.dof_names_map[params_.dof_names[i]].feedforward_gain;
         }
+      }
+      else  // one interface
+      {
+        tmp_command = reference_interfaces_[i] *
+                      params_.gains.dof_names_map[params_.dof_names[i]].feedforward_gain;
       }
 
       double error = reference_interfaces_[i] - measured_state_values_[i];
@@ -470,23 +521,29 @@ controller_interface::return_type PidController::update_and_write_commands(
           std::isfinite(measured_state_values_[dof_ + i]))
         {
           // use calculation with 'error' and 'error_dot'
-          tmp_command += pids_[i]->computeCommand(
+          tmp_command += pids_[i]->compute_command(
             error, reference_interfaces_[dof_ + i] - measured_state_values_[dof_ + i], period);
         }
         else
         {
           // Fallback to calculation with 'error' only
-          tmp_command += pids_[i]->computeCommand(error, period);
+          tmp_command += pids_[i]->compute_command(error, period);
         }
       }
       else
       {
         // use calculation with 'error' only
-        tmp_command += pids_[i]->computeCommand(error, period);
+        tmp_command += pids_[i]->compute_command(error, period);
       }
 
       // write calculated values
-      command_interfaces_[i].set_value(tmp_command);
+      auto success = command_interfaces_[i].set_value(tmp_command);
+      if (!success)
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(), "Failed to set command value for %s",
+          command_interfaces_[i].get_name().c_str());
+      }
     }
   }
 
