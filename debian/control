@@ -1,0 +1,13 @@
+Source: ros-kilted-ackermann-steering-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-kilted-ament-cmake, ros-kilted-ament-cmake-gmock <!nocheck>, ros-kilted-backward-ros, ros-kilted-control-msgs, ros-kilted-controller-interface, ros-kilted-controller-manager <!nocheck>, ros-kilted-generate-parameter-library, ros-kilted-hardware-interface, ros-kilted-hardware-interface-testing <!nocheck>, ros-kilted-pluginlib, ros-kilted-rclcpp, ros-kilted-rclcpp-lifecycle, ros-kilted-ros2-control-cmake, ros-kilted-ros2-control-test-assets <!nocheck>, ros-kilted-std-srvs, ros-kilted-steering-controllers-library, ros-kilted-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-kilted-ackermann-steering-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-kilted-backward-ros, ros-kilted-control-msgs, ros-kilted-controller-interface, ros-kilted-hardware-interface, ros-kilted-pluginlib, ros-kilted-rclcpp, ros-kilted-rclcpp-lifecycle, ros-kilted-std-srvs, ros-kilted-steering-controllers-library, ros-kilted-ros-workspace
+Description: Steering controller for Ackermann kinematics.
+ Rear fixed wheels are powering the vehicle and front wheels are steering it.
