@@ -22,15 +22,12 @@
 #include <utility>
 #include <vector>
 
-#include "force_torque_sensor_broadcaster/force_torque_sensor_broadcaster.hpp"
 #include "geometry_msgs/msg/wrench_stamped.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 #include "rclcpp/utilities.hpp"
-#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
-
 using hardware_interface::LoanedStateInterface;
 using testing::IsEmpty;
 using testing::SizeIs;
@@ -55,7 +52,9 @@ void ForceTorqueSensorBroadcasterTest::TearDown() { fts_broadcaster_.reset(nullp
 
 void ForceTorqueSensorBroadcasterTest::SetUpFTSBroadcaster()
 {
-  const auto result = fts_broadcaster_->init("test_force_torque_sensor_broadcaster");
+  const auto result = fts_broadcaster_->init(
+    "test_force_torque_sensor_broadcaster", "", 0, "",
+    fts_broadcaster_->define_custom_node_options());
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedStateInterface> state_ifs;
@@ -88,7 +87,7 @@ void ForceTorqueSensorBroadcasterTest::subscribe_and_get_message(
   while (max_sub_check_loop_count--)
   {
     fts_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{1};
+    const auto timeout = std::chrono::milliseconds{5};
     const auto until = test_subscription_node.get_clock()->now() + timeout;
     while (!received_msg && test_subscription_node.get_clock()->now() < until)
     {
@@ -185,9 +184,11 @@ TEST_F(ForceTorqueSensorBroadcasterTest, InterfaceNames_Configure_Success)
   fts_broadcaster_->get_node()->set_parameter({"interface_names.force.x", "fts_sensor/force.x"});
   fts_broadcaster_->get_node()->set_parameter({"interface_names.torque.z", "fts_sensor/torque.z"});
 
+  RCLCPP_INFO(fts_broadcaster_->get_node()->get_logger(), "Setting up frame_id");
   // set the 'frame_id'
   fts_broadcaster_->get_node()->set_parameter({"frame_id", frame_id_});
 
+  RCLCPP_INFO(fts_broadcaster_->get_node()->get_logger(), "Calling on_configure");
   // configure passed
   ASSERT_EQ(fts_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
 }
@@ -279,6 +280,138 @@ TEST_F(ForceTorqueSensorBroadcasterTest, SensorName_Publish_Success)
   ASSERT_EQ(wrench_msg.wrench.torque.z, sensor_values_[5]);
 }
 
+TEST_F(ForceTorqueSensorBroadcasterTest, SensorName_Publish_Success_with_Offsets)
+{
+  SetUpFTSBroadcaster();
+
+  std::array<double, 3> force_offsets = {{10.0, 30.0, -50.0}};
+  std::array<double, 3> torque_offsets = {{1.0, -1.2, -5.2}};
+  // set the params 'sensor_name' and 'frame_id'
+  fts_broadcaster_->get_node()->set_parameter({"sensor_name", sensor_name_});
+  fts_broadcaster_->get_node()->set_parameter({"frame_id", frame_id_});
+  fts_broadcaster_->get_node()->set_parameter({"offset.force.x", force_offsets[0]});
+  fts_broadcaster_->get_node()->set_parameter({"offset.force.y", force_offsets[1]});
+  fts_broadcaster_->get_node()->set_parameter({"offset.force.z", force_offsets[2]});
+  fts_broadcaster_->get_node()->set_parameter({"offset.torque.x", torque_offsets[0]});
+  fts_broadcaster_->get_node()->set_parameter({"offset.torque.y", torque_offsets[1]});
+  fts_broadcaster_->get_node()->set_parameter({"offset.torque.z", torque_offsets[2]});
+
+  ASSERT_EQ(fts_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(fts_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+
+  geometry_msgs::msg::WrenchStamped wrench_msg;
+  subscribe_and_get_message(wrench_msg);
+
+  ASSERT_EQ(wrench_msg.header.frame_id, frame_id_);
+  ASSERT_EQ(wrench_msg.wrench.force.x, sensor_values_[0] + force_offsets[0]);
+  ASSERT_EQ(wrench_msg.wrench.force.y, sensor_values_[1] + force_offsets[1]);
+  ASSERT_EQ(wrench_msg.wrench.force.z, sensor_values_[2] + force_offsets[2]);
+  ASSERT_EQ(wrench_msg.wrench.torque.x, sensor_values_[3] + torque_offsets[0]);
+  ASSERT_EQ(wrench_msg.wrench.torque.y, sensor_values_[4] + torque_offsets[1]);
+  ASSERT_EQ(wrench_msg.wrench.torque.z, sensor_values_[5] + torque_offsets[2]);
+
+  // Check the exported state interfaces
+  const auto exported_state_interfaces = fts_broadcaster_->export_state_interfaces();
+  ASSERT_EQ(exported_state_interfaces.size(), 6u);
+  const std::string controller_name = fts_broadcaster_->get_node()->get_name();
+  ASSERT_EQ(
+    exported_state_interfaces[0]->get_name(), controller_name + "/" + sensor_name_ + "/force.x");
+  ASSERT_EQ(
+    exported_state_interfaces[1]->get_name(), controller_name + "/" + sensor_name_ + "/force.y");
+  ASSERT_EQ(
+    exported_state_interfaces[2]->get_name(), controller_name + "/" + sensor_name_ + "/force.z");
+  ASSERT_EQ(
+    exported_state_interfaces[3]->get_name(), controller_name + "/" + sensor_name_ + "/torque.x");
+  ASSERT_EQ(
+    exported_state_interfaces[4]->get_name(), controller_name + "/" + sensor_name_ + "/torque.y");
+  ASSERT_EQ(
+    exported_state_interfaces[5]->get_name(), controller_name + "/" + sensor_name_ + "/torque.z");
+  ASSERT_EQ(exported_state_interfaces[0]->get_interface_name(), "force.x");
+  ASSERT_EQ(exported_state_interfaces[1]->get_interface_name(), "force.y");
+  ASSERT_EQ(exported_state_interfaces[2]->get_interface_name(), "force.z");
+  ASSERT_EQ(exported_state_interfaces[3]->get_interface_name(), "torque.x");
+  ASSERT_EQ(exported_state_interfaces[4]->get_interface_name(), "torque.y");
+  ASSERT_EQ(exported_state_interfaces[5]->get_interface_name(), "torque.z");
+  for (size_t i = 0; i < 6; ++i)
+  {
+    ASSERT_EQ(
+      exported_state_interfaces[i]->get_prefix_name(), controller_name + "/" + sensor_name_);
+    ASSERT_EQ(
+      exported_state_interfaces[i]->get_value(),
+      sensor_values_[i] + (i < 3 ? force_offsets[i] : torque_offsets[i - 3]));
+  }
+}
+
+TEST_F(ForceTorqueSensorBroadcasterTest, SensorName_Publish_Success_with_Multipliers)
+{
+  SetUpFTSBroadcaster();
+
+  // some non‐trivial multipliers
+  std::array<double, 3> force_multipliers = {{2.0, 0.5, -1.0}};
+  std::array<double, 3> torque_multipliers = {{-2.0, 3.0, 0.0}};
+
+  // Set the required params
+  fts_broadcaster_->get_node()->set_parameter({"sensor_name", sensor_name_});
+  fts_broadcaster_->get_node()->set_parameter({"frame_id", frame_id_});
+
+  // Set all multiplier parameters
+  fts_broadcaster_->get_node()->set_parameter({"multiplier.force.x", force_multipliers[0]});
+  fts_broadcaster_->get_node()->set_parameter({"multiplier.force.y", force_multipliers[1]});
+  fts_broadcaster_->get_node()->set_parameter({"multiplier.force.z", force_multipliers[2]});
+  fts_broadcaster_->get_node()->set_parameter({"multiplier.torque.x", torque_multipliers[0]});
+  fts_broadcaster_->get_node()->set_parameter({"multiplier.torque.y", torque_multipliers[1]});
+  fts_broadcaster_->get_node()->set_parameter({"multiplier.torque.z", torque_multipliers[2]});
+
+  // Configure & activate
+  ASSERT_EQ(fts_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(fts_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+
+  // Publish & grab the message
+  geometry_msgs::msg::WrenchStamped wrench_msg;
+  subscribe_and_get_message(wrench_msg);
+
+  // Check header
+  ASSERT_EQ(wrench_msg.header.frame_id, frame_id_);
+
+  // Check that each field was scaled accordingly
+  ASSERT_EQ(wrench_msg.wrench.force.x, sensor_values_[0] * force_multipliers[0]);
+  ASSERT_EQ(wrench_msg.wrench.force.y, sensor_values_[1] * force_multipliers[1]);
+  ASSERT_EQ(wrench_msg.wrench.force.z, sensor_values_[2] * force_multipliers[2]);
+  ASSERT_EQ(wrench_msg.wrench.torque.x, sensor_values_[3] * torque_multipliers[0]);
+  ASSERT_EQ(wrench_msg.wrench.torque.y, sensor_values_[4] * torque_multipliers[1]);
+  ASSERT_EQ(wrench_msg.wrench.torque.z, sensor_values_[5] * torque_multipliers[2]);
+
+  // the exported state interfaces reflect the same scaled values
+  const auto exported_state_interfaces = fts_broadcaster_->export_state_interfaces();
+  ASSERT_EQ(exported_state_interfaces.size(), 6u);
+
+  const std::string controller_name = fts_broadcaster_->get_node()->get_name();
+  ASSERT_EQ(
+    exported_state_interfaces[0]->get_name(), controller_name + "/" + sensor_name_ + "/force.x");
+  ASSERT_EQ(
+    exported_state_interfaces[1]->get_name(), controller_name + "/" + sensor_name_ + "/force.y");
+  ASSERT_EQ(
+    exported_state_interfaces[2]->get_name(), controller_name + "/" + sensor_name_ + "/force.z");
+  ASSERT_EQ(
+    exported_state_interfaces[3]->get_name(), controller_name + "/" + sensor_name_ + "/torque.x");
+  ASSERT_EQ(
+    exported_state_interfaces[4]->get_name(), controller_name + "/" + sensor_name_ + "/torque.y");
+  ASSERT_EQ(
+    exported_state_interfaces[5]->get_name(), controller_name + "/" + sensor_name_ + "/torque.z");
+  ASSERT_EQ(exported_state_interfaces[0]->get_interface_name(), "force.x");
+  ASSERT_EQ(exported_state_interfaces[1]->get_interface_name(), "force.y");
+  ASSERT_EQ(exported_state_interfaces[2]->get_interface_name(), "force.z");
+  ASSERT_EQ(exported_state_interfaces[3]->get_interface_name(), "torque.x");
+  ASSERT_EQ(exported_state_interfaces[4]->get_interface_name(), "torque.y");
+  ASSERT_EQ(exported_state_interfaces[5]->get_interface_name(), "torque.z");
+  for (size_t i = 0; i < 6; ++i)
+  {
+    ASSERT_EQ(
+      exported_state_interfaces[i]->get_value(),
+      sensor_values_[i] * (i < 3 ? force_multipliers[i] : torque_multipliers[i - 3]));
+  }
+}
+
 TEST_F(ForceTorqueSensorBroadcasterTest, InterfaceNames_Publish_Success)
 {
   SetUpFTSBroadcaster();
@@ -301,6 +434,19 @@ TEST_F(ForceTorqueSensorBroadcasterTest, InterfaceNames_Publish_Success)
   ASSERT_TRUE(std::isnan(wrench_msg.wrench.torque.x));
   ASSERT_TRUE(std::isnan(wrench_msg.wrench.torque.y));
   ASSERT_EQ(wrench_msg.wrench.torque.z, sensor_values_[5]);
+
+  // Check the exported state interfaces
+  const auto exported_state_interfaces = fts_broadcaster_->export_state_interfaces();
+  ASSERT_EQ(exported_state_interfaces.size(), 2u);
+  const std::string controller_name = fts_broadcaster_->get_node()->get_name();
+  ASSERT_EQ(exported_state_interfaces[0]->get_name(), controller_name + "/fts_sensor/force.x");
+  ASSERT_EQ(exported_state_interfaces[1]->get_name(), controller_name + "/fts_sensor/torque.z");
+  ASSERT_EQ(exported_state_interfaces[0]->get_prefix_name(), controller_name);
+  ASSERT_EQ(exported_state_interfaces[1]->get_prefix_name(), controller_name);
+  ASSERT_EQ(exported_state_interfaces[0]->get_interface_name(), "fts_sensor/force.x");
+  ASSERT_EQ(exported_state_interfaces[1]->get_interface_name(), "fts_sensor/torque.z");
+  ASSERT_EQ(exported_state_interfaces[0]->get_value(), sensor_values_[0]);
+  ASSERT_EQ(exported_state_interfaces[1]->get_value(), sensor_values_[5]);
 }
 
 TEST_F(ForceTorqueSensorBroadcasterTest, All_InterfaceNames_Publish_Success)
@@ -329,6 +475,28 @@ TEST_F(ForceTorqueSensorBroadcasterTest, All_InterfaceNames_Publish_Success)
   ASSERT_EQ(wrench_msg.wrench.torque.x, sensor_values_[3]);
   ASSERT_EQ(wrench_msg.wrench.torque.y, sensor_values_[4]);
   ASSERT_EQ(wrench_msg.wrench.torque.z, sensor_values_[5]);
+
+  // Check the exported state interfaces
+  const auto exported_state_interfaces = fts_broadcaster_->export_state_interfaces();
+  ASSERT_EQ(exported_state_interfaces.size(), 6u);
+  const std::string controller_name = fts_broadcaster_->get_node()->get_name();
+  ASSERT_EQ(exported_state_interfaces[0]->get_name(), controller_name + "/fts_sensor/force.x");
+  ASSERT_EQ(exported_state_interfaces[1]->get_name(), controller_name + "/fts_sensor/force.y");
+  ASSERT_EQ(exported_state_interfaces[2]->get_name(), controller_name + "/fts_sensor/force.z");
+  ASSERT_EQ(exported_state_interfaces[3]->get_name(), controller_name + "/fts_sensor/torque.x");
+  ASSERT_EQ(exported_state_interfaces[4]->get_name(), controller_name + "/fts_sensor/torque.y");
+  ASSERT_EQ(exported_state_interfaces[5]->get_name(), controller_name + "/fts_sensor/torque.z");
+  ASSERT_EQ(exported_state_interfaces[0]->get_interface_name(), "fts_sensor/force.x");
+  ASSERT_EQ(exported_state_interfaces[1]->get_interface_name(), "fts_sensor/force.y");
+  ASSERT_EQ(exported_state_interfaces[2]->get_interface_name(), "fts_sensor/force.z");
+  ASSERT_EQ(exported_state_interfaces[3]->get_interface_name(), "fts_sensor/torque.x");
+  ASSERT_EQ(exported_state_interfaces[4]->get_interface_name(), "fts_sensor/torque.y");
+  ASSERT_EQ(exported_state_interfaces[5]->get_interface_name(), "fts_sensor/torque.z");
+  for (size_t i = 0; i < 6; ++i)
+  {
+    ASSERT_EQ(exported_state_interfaces[0]->get_prefix_name(), controller_name);
+    ASSERT_EQ(exported_state_interfaces[i]->get_value(), sensor_values_[i]);
+  }
 }
 
 int main(int argc, char ** argv)
