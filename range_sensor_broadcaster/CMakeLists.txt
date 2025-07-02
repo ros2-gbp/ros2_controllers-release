@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.8)
 project(range_sensor_broadcaster)
 
-find_package(ros2_control_cmake REQUIRED)
-set_compiler_options()
-export_windows_symbols()
+# Default to C++17
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
@@ -36,15 +42,13 @@ target_include_directories(range_sensor_broadcaster
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(range_sensor_broadcaster PUBLIC
-                      range_sensor_broadcaster_parameters
-                      controller_interface::controller_interface
-                      hardware_interface::hardware_interface
-                      pluginlib::pluginlib
-                      rclcpp::rclcpp
-                      rclcpp_lifecycle::rclcpp_lifecycle
-                      realtime_tools::realtime_tools
-                      ${sensor_msgs_TARGETS})
+ament_target_dependencies(range_sensor_broadcaster ${THIS_PACKAGE_INCLUDE_DEPENDS})
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(range_sensor_broadcaster PRIVATE "RANGE_SENSOR_BROADCASTER_BUILDING_DLL")
+target_link_libraries(range_sensor_broadcaster
+  range_sensor_broadcaster_parameters
+)
 
 pluginlib_export_plugin_description_file(
   controller_interface range_sensor_broadcaster.xml)
@@ -55,14 +59,17 @@ if(BUILD_TESTING)
   find_package(hardware_interface REQUIRED)
   find_package(ros2_control_test_assets REQUIRED)
 
-  add_definitions(-DTEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
-  ament_add_gmock(test_load_range_sensor_broadcaster test/test_load_range_sensor_broadcaster.cpp)
+  add_rostest_with_parameters_gmock(test_load_range_sensor_broadcaster
+  test/test_load_range_sensor_broadcaster.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test/range_sensor_broadcaster_params.yaml)
   target_include_directories(test_load_range_sensor_broadcaster PRIVATE include)
   target_link_libraries(test_load_range_sensor_broadcaster
     range_sensor_broadcaster
-    controller_manager::controller_manager
-    hardware_interface::hardware_interface
-    ros2_control_test_assets::ros2_control_test_assets
+  )
+  ament_target_dependencies(test_load_range_sensor_broadcaster
+    controller_manager
+    hardware_interface
+    ros2_control_test_assets
   )
 
   add_rostest_with_parameters_gmock(test_range_sensor_broadcaster
@@ -71,6 +78,9 @@ if(BUILD_TESTING)
   target_include_directories(test_range_sensor_broadcaster PRIVATE include)
   target_link_libraries(test_range_sensor_broadcaster
     range_sensor_broadcaster
+  )
+  ament_target_dependencies(test_range_sensor_broadcaster
+    hardware_interface
   )
 endif()
 

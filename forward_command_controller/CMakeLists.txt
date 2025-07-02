@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(forward_command_controller)
+project(forward_command_controller LANGUAGES CXX)
 
-find_package(ros2_control_cmake REQUIRED)
-set_compiler_options()
-export_windows_symbols()
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
+endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
@@ -42,16 +42,15 @@ target_include_directories(forward_command_controller PUBLIC
   $<INSTALL_INTERFACE:include/forward_command_controller>
 )
 target_link_libraries(forward_command_controller PUBLIC
-                      forward_command_controller_parameters
-                      multi_interface_forward_command_controller_parameters
-                      controller_interface::controller_interface
-                      hardware_interface::hardware_interface
-                      pluginlib::pluginlib
-                      rclcpp::rclcpp
-                      rclcpp_lifecycle::rclcpp_lifecycle
-                      realtime_tools::realtime_tools
-                      ${std_msgs_TARGETS})
+  forward_command_controller_parameters
+  multi_interface_forward_command_controller_parameters
+)
+ament_target_dependencies(forward_command_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(forward_command_controller PRIVATE "FORWARD_COMMAND_CONTROLLER_BUILDING_DLL")
 pluginlib_export_plugin_description_file(controller_interface forward_command_plugin.xml)
+
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
@@ -63,8 +62,11 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_load_forward_command_controller
     forward_command_controller
-    controller_manager::controller_manager
-    ros2_control_test_assets::ros2_control_test_assets
+  )
+  ament_target_dependencies(test_load_forward_command_controller
+    controller_manager
+    hardware_interface
+    ros2_control_test_assets
   )
 
   ament_add_gmock(test_forward_command_controller
@@ -79,8 +81,11 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_load_multi_interface_forward_command_controller
     forward_command_controller
-    controller_manager::controller_manager
-    ros2_control_test_assets::ros2_control_test_assets
+  )
+  ament_target_dependencies(test_load_multi_interface_forward_command_controller
+    controller_manager
+    hardware_interface
+    ros2_control_test_assets
   )
 
   ament_add_gmock(test_multi_interface_forward_command_controller
