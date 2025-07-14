@@ -2,25 +2,23 @@
 Changelog for package rqt_joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.3.0 (2025-07-14)
-------------------
-* fix rqt_joint_trajectory_controller for robots with namespace (`#1792 <https://github.com/ros-controls/ros2_controllers/issues/1792>`_)
-* Contributors: Oscar Lima
+4.28.0 (2025-07-14)
+-------------------
+* fix rqt_joint_trajectory_controller for robots with namespace (backport `#1792 <https://github.com/ros-controls/ros2_controllers/issues/1792>`_) (`#1803 <https://github.com/ros-controls/ros2_controllers/issues/1803>`_)
+  Co-authored-by: Oscar Lima <olima_84@yahoo.com>
+* Contributors: mergify[bot]
 
-5.2.0 (2025-06-23)
-------------------
+4.27.1 (2025-07-02)
+-------------------
 
-5.1.0 (2025-06-11)
-------------------
+4.27.0 (2025-06-23)
+-------------------
 
-5.0.2 (2025-05-26)
-------------------
+4.26.0 (2025-06-06)
+-------------------
 
-5.0.1 (2025-05-24)
-------------------
-
-5.0.0 (2025-05-17)
-------------------
+4.25.0 (2025-05-17)
+-------------------
 
 4.24.0 (2025-04-27)
 -------------------

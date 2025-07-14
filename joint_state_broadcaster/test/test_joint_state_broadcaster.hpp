@@ -112,7 +112,6 @@ protected:
   std::vector<hardware_interface::StateInterface> test_interfaces_;
 
   std::unique_ptr<FriendJointStateBroadcaster> state_broadcaster_;
-  std::string frame_id_ = "base_link";
 };
 
 #endif  // TEST_JOINT_STATE_BROADCASTER_HPP_

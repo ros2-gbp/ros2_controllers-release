@@ -107,13 +107,15 @@ controller_interface::return_type DiffDriveController::update_reference_from_sub
 {
   auto logger = get_node()->get_logger();
 
-  auto current_ref_op = received_velocity_msg_.try_get();
-  if (current_ref_op.has_value())
+  const std::shared_ptr<TwistStamped> command_msg_ptr = *(received_velocity_msg_ptr_.readFromRT());
+
+  if (command_msg_ptr == nullptr)
   {
-    command_msg_ = current_ref_op.value();
+    RCLCPP_WARN(logger, "Velocity message received was a nullptr.");
+    return controller_interface::return_type::ERROR;
   }
 
-  const auto age_of_last_command = time - command_msg_.header.stamp;
+  const auto age_of_last_command = time - command_msg_ptr->header.stamp;
   // Brake if cmd_vel has timeout, override the stored command
   if (age_of_last_command > cmd_vel_timeout_)
   {
@@ -121,10 +123,11 @@ controller_interface::return_type DiffDriveController::update_reference_from_sub
     reference_interfaces_[1] = 0.0;
   }
   else if (
-    std::isfinite(command_msg_.twist.linear.x) && std::isfinite(command_msg_.twist.angular.z))
+    std::isfinite(command_msg_ptr->twist.linear.x) &&
+    std::isfinite(command_msg_ptr->twist.angular.z))
   {
-    reference_interfaces_[0] = command_msg_.twist.linear.x;
-    reference_interfaces_[1] = command_msg_.twist.angular.z;
+    reference_interfaces_[0] = command_msg_ptr->twist.linear.x;
+    reference_interfaces_[1] = command_msg_ptr->twist.angular.z;
   }
   else
   {
@@ -312,8 +315,9 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
   auto logger = get_node()->get_logger();
 
   // update parameters if they have changed
-  if (param_listener_->try_update_params(params_))
+  if (param_listener_->is_old(params_))
   {
+    params_ = param_listener_->get_params();
     RCLCPP_INFO(logger, "Parameters were updated");
   }
 
@@ -339,6 +343,67 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
   const int nr_ref_itfs = 2;
   reference_interfaces_.resize(nr_ref_itfs, std::numeric_limits<double>::quiet_NaN());
 
+  // TODO(christophfroehlich) remove deprecated parameters
+  // START DEPRECATED
+  if (!params_.linear.x.has_velocity_limits)
+  {
+    RCLCPP_WARN(
+      logger,
+      "[deprecated] has_velocity_limits parameter is deprecated, instead set the respective limits "
+      "to NAN");
+    params_.linear.x.min_velocity = params_.linear.x.max_velocity =
+      std::numeric_limits<double>::quiet_NaN();
+  }
+  if (!params_.linear.x.has_acceleration_limits)
+  {
+    RCLCPP_WARN(
+      logger,
+      "[deprecated] has_acceleration_limits parameter is deprecated, instead set the respective "
+      "limits to "
+      "NAN");
+    params_.linear.x.max_deceleration = params_.linear.x.max_acceleration =
+      params_.linear.x.max_deceleration_reverse = params_.linear.x.max_acceleration_reverse =
+        std::numeric_limits<double>::quiet_NaN();
+  }
+  if (!params_.linear.x.has_jerk_limits)
+  {
+    RCLCPP_WARN(
+      logger,
+      "[deprecated] has_jerk_limits parameter is deprecated, instead set the respective limits to "
+      "NAN");
+    params_.linear.x.min_jerk = params_.linear.x.max_jerk =
+      std::numeric_limits<double>::quiet_NaN();
+  }
+  if (!params_.angular.z.has_velocity_limits)
+  {
+    RCLCPP_WARN(
+      logger,
+      "[deprecated] has_velocity_limits parameter is deprecated, instead set the respective limits "
+      "to NAN");
+    params_.angular.z.min_velocity = params_.angular.z.max_velocity =
+      std::numeric_limits<double>::quiet_NaN();
+  }
+  if (!params_.angular.z.has_acceleration_limits)
+  {
+    RCLCPP_WARN(
+      logger,
+      "[deprecated] has_acceleration_limits parameter is deprecated, instead set the respective "
+      "limits to "
+      "NAN");
+    params_.angular.z.max_deceleration = params_.angular.z.max_acceleration =
+      params_.angular.z.max_deceleration_reverse = params_.angular.z.max_acceleration_reverse =
+        std::numeric_limits<double>::quiet_NaN();
+  }
+  if (!params_.angular.z.has_jerk_limits)
+  {
+    RCLCPP_WARN(
+      logger,
+      "[deprecated] has_jerk_limits parameter is deprecated, instead set the respective limits to "
+      "NAN");
+    params_.angular.z.min_jerk = params_.angular.z.max_jerk =
+      std::numeric_limits<double>::quiet_NaN();
+  }
+  // END DEPRECATED
   limiter_linear_ = std::make_unique<SpeedLimiter>(
     params_.linear.x.min_velocity, params_.linear.x.max_velocity,
     params_.linear.x.max_acceleration_reverse, params_.linear.x.max_acceleration,
@@ -393,7 +458,7 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
         cmd_vel_timeout_ == rclcpp::Duration::from_seconds(0.0) ||
         current_time_diff < cmd_vel_timeout_)
       {
-        received_velocity_msg_.set(*msg);
+        received_velocity_msg_ptr_.writeFromNonRT(msg);
       }
       else
       {
@@ -564,16 +629,18 @@ void DiffDriveController::reset_buffers()
   previous_two_commands_.push({{0.0, 0.0}});
   previous_two_commands_.push({{0.0, 0.0}});
 
-  // Fill RealtimeBox with NaNs so it will contain a known value
+  // Fill RealtimeBuffer with NaNs so it will contain a known value
   // but still indicate that no command has yet been sent.
-  command_msg_.header.stamp = get_node()->now();
-  command_msg_.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-  command_msg_.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-  command_msg_.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-  command_msg_.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-  command_msg_.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-  command_msg_.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
-  received_velocity_msg_.set(command_msg_);
+  received_velocity_msg_ptr_.reset();
+  std::shared_ptr<TwistStamped> empty_msg_ptr = std::make_shared<TwistStamped>();
+  empty_msg_ptr->header.stamp = get_node()->now();
+  empty_msg_ptr->twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+  empty_msg_ptr->twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+  empty_msg_ptr->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+  empty_msg_ptr->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+  empty_msg_ptr->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+  empty_msg_ptr->twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+  received_velocity_msg_ptr_.writeFromNonRT(empty_msg_ptr);
 }
 
 void DiffDriveController::halt()

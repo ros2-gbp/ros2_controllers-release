@@ -15,7 +15,6 @@
 /// \authors: Jack Center, Denis Stogl
 
 #include <functional>
-#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -200,9 +199,9 @@ TEST_F(MultiInterfaceForwardCommandControllerTest, CommandSuccessTest)
   SetUpController(true);
 
   // send command
-  forward_command_controller::CmdType command;
-  command.data = {10.0, 20.0, 30.0};
-  controller_->rt_command_.set(command);
+  auto command_ptr = std::make_shared<forward_command_controller::CmdType>();
+  command_ptr->data = {10.0, 20.0, 30.0};
+  controller_->rt_command_ptr_.writeFromNonRT(command_ptr);
 
   // update successful, command received
   ASSERT_EQ(
@@ -235,9 +234,9 @@ TEST_F(MultiInterfaceForwardCommandControllerTest, WrongCommandCheckTest)
   SetUpController(true);
 
   // send command with wrong number of joints
-  forward_command_controller::CmdType command;
-  command.data = {10.0, 20.0};
-  controller_->rt_command_.set(command);
+  auto command_ptr = std::make_shared<forward_command_controller::CmdType>();
+  command_ptr->data = {10.0, 20.0};
+  controller_->rt_command_ptr_.writeFromNonRT(command_ptr);
 
   // update failed, command size does not match number of joints
   ASSERT_EQ(
@@ -295,9 +294,9 @@ TEST_F(MultiInterfaceForwardCommandControllerTest, ActivateDeactivateCommandsRes
   EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::NONE);
 
   // send command
-  forward_command_controller::CmdType command;
-  command.data = {10.0, 20.0, 30.0};
-  controller_->rt_command_.set(command);
+  auto command_ptr = std::make_shared<forward_command_controller::CmdType>();
+  command_ptr->data = {10.0, 20.0, 30.0};
+  controller_->rt_command_ptr_.writeFromNonRT(command_ptr);
 
   // update successful, command received
   ASSERT_EQ(
@@ -320,32 +319,35 @@ TEST_F(MultiInterfaceForwardCommandControllerTest, ActivateDeactivateCommandsRes
   ASSERT_THAT(state_if_conf.names, IsEmpty());
   EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::NONE);
 
-  // command ptr should be reset after deactivation - same check as in `update`
-  auto cmd = controller_->rt_command_.get();
-  ASSERT_THAT(
-    cmd.data,
-    ::testing::Each(::testing::NanSensitiveDoubleEq(std::numeric_limits<double>::quiet_NaN())));
+  // command ptr should be reset (nullptr) after deactivation - same check as in `update`
+  ASSERT_FALSE(
+    controller_->rt_command_ptr_.readFromNonRT() &&
+    *(controller_->rt_command_ptr_.readFromNonRT()));
+  ASSERT_FALSE(
+    controller_->rt_command_ptr_.readFromRT() && *(controller_->rt_command_ptr_.readFromRT()));
 
   // Controller is inactive but let's put some data into buffer (simulate callback when inactive)
-  command.data = {5.5, 6.6, 7.7};
-  controller_->rt_command_.set(command);
+  auto command_msg = std::make_shared<std_msgs::msg::Float64MultiArray>();
+  command_msg->data = {5.5, 6.6, 7.7};
+  controller_->rt_command_ptr_.writeFromNonRT(command_msg);
 
   // command ptr should be available and message should be there - same check as in `update`
-  cmd = controller_->rt_command_.get();
-  ASSERT_THAT(
-    cmd.data,
-    ::testing::Each(
-      ::testing::Not(::testing::NanSensitiveDoubleEq(std::numeric_limits<double>::quiet_NaN()))));
+  ASSERT_TRUE(
+    controller_->rt_command_ptr_.readFromNonRT() &&
+    *(controller_->rt_command_ptr_.readFromNonRT()));
+  ASSERT_TRUE(
+    controller_->rt_command_ptr_.readFromRT() && *(controller_->rt_command_ptr_.readFromRT()));
 
   // Now activate again
   node_state = controller_->get_node()->activate();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
 
-  // command ptr should be reset after activation - same check as in `update`
-  cmd = controller_->rt_command_.get();
-  ASSERT_THAT(
-    cmd.data,
-    ::testing::Each(::testing::NanSensitiveDoubleEq(std::numeric_limits<double>::quiet_NaN())));
+  // command ptr should be reset (nullptr) after activation - same check as in `update`
+  ASSERT_FALSE(
+    controller_->rt_command_ptr_.readFromNonRT() &&
+    *(controller_->rt_command_ptr_.readFromNonRT()));
+  ASSERT_FALSE(
+    controller_->rt_command_ptr_.readFromRT() && *(controller_->rt_command_ptr_.readFromRT()));
 
   // update successful
   ASSERT_EQ(
@@ -358,7 +360,7 @@ TEST_F(MultiInterfaceForwardCommandControllerTest, ActivateDeactivateCommandsRes
   ASSERT_EQ(joint_1_eff_cmd_.get_value(), 30.0);
 
   // set commands again
-  controller_->rt_command_.set(command);
+  controller_->rt_command_ptr_.writeFromNonRT(command_msg);
 
   // update successful
   ASSERT_EQ(

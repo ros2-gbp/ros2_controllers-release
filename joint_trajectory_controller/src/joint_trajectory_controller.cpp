@@ -113,10 +113,6 @@ JointTrajectoryController::command_interface_configuration() const
       conf.names.push_back(joint_name + "/" + interface_type);
     }
   }
-  if (!params_.speed_scaling.command_interface.empty())
-  {
-    conf.names.push_back(params_.speed_scaling.command_interface);
-  }
   return conf;
 }
 
@@ -133,34 +129,17 @@ JointTrajectoryController::state_interface_configuration() const
       conf.names.push_back(joint_name + "/" + interface_type);
     }
   }
-  if (!params_.speed_scaling.state_interface.empty())
-  {
-    conf.names.push_back(params_.speed_scaling.state_interface);
-  }
   return conf;
 }
 
 controller_interface::return_type JointTrajectoryController::update(
   const rclcpp::Time & time, const rclcpp::Duration & period)
 {
-  if (scaling_state_interface_.has_value())
-  {
-    scaling_factor_ = scaling_state_interface_->get().get_value();
-  }
-
-  if (scaling_command_interface_.has_value())
-  {
-    if (!scaling_command_interface_->get().set_value(scaling_factor_cmd_.load()))
-    {
-      RCLCPP_ERROR(
-        get_node()->get_logger(), "Could not set speed scaling factor through command interfaces.");
-    }
-  }
-
   auto logger = this->get_node()->get_logger();
   // update dynamic parameters
-  if (param_listener_->try_update_params(params_))
+  if (param_listener_->is_old(params_))
   {
+    params_ = param_listener_->get_params();
     default_tolerances_ = get_segment_tolerances(logger, params_);
     // update the PID gains
     // variable use_closed_loop_pid_adapter_ is updated in on_configure only
@@ -200,7 +179,7 @@ controller_interface::return_type JointTrajectoryController::update(
     if (!current_trajectory_->is_sampled_already())
     {
       first_sample = true;
-      if (params_.interpolate_from_desired_state)
+      if (params_.interpolate_from_desired_state || params_.open_loop_control)
       {
         if (std::abs(last_commanded_time_.seconds()) < std::numeric_limits<float>::epsilon())
         {
@@ -218,20 +197,17 @@ controller_interface::return_type JointTrajectoryController::update(
     }
     else
     {
-      traj_time_ += period * scaling_factor_.load();
+      traj_time_ += period;
     }
 
     // Sample expected state from the trajectory
     current_trajectory_->sample(
       traj_time_, interpolation_method_, state_desired_, start_segment_itr, end_segment_itr);
-    state_desired_.time_from_start = traj_time_ - current_trajectory_->time_from_start();
 
     // Sample setpoint for next control cycle
     const bool valid_point = current_trajectory_->sample(
       traj_time_ + update_period_, interpolation_method_, command_next_, start_segment_itr,
       end_segment_itr, false);
-
-    state_current_.time_from_start = time - current_trajectory_->time_from_start();
 
     if (valid_point)
     {
@@ -716,6 +692,16 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
 {
   auto logger = get_node()->get_logger();
 
+  // START DEPRECATE
+  if (params_.open_loop_control)
+  {
+    RCLCPP_WARN(
+      logger,
+      "[deprecated] 'open_loop_control' parameter is deprecated. Instead, set the feedback gains "
+      "to zero and use 'interpolate_from_desired_state' parameter");
+  }
+  // END DEPRECATE
+
   // update the dynamic map parameters
   param_listener_->refresh_dynamic_parameters();
 
@@ -796,7 +782,8 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   // if there is only velocity or if there is effort command interface
   // then use also PID adapter
   use_closed_loop_pid_adapter_ =
-    (has_velocity_command_interface_ && params_.command_interfaces.size() == 1) ||
+    (has_velocity_command_interface_ && params_.command_interfaces.size() == 1 &&
+     !params_.open_loop_control) ||
     (has_effort_command_interface_ && params_.command_interfaces.size() == 1);
 
   tmp_command_.resize(dof_, 0.0);
@@ -961,46 +948,9 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   resize_joint_trajectory_point(
     last_commanded_state_, dof_, std::numeric_limits<double>::quiet_NaN());
 
-  // create services
   query_state_srv_ = get_node()->create_service<control_msgs::srv::QueryTrajectoryState>(
     std::string(get_node()->get_name()) + "/query_state",
     std::bind(&JointTrajectoryController::query_state_service, this, _1, _2));
-
-  if (
-    !has_velocity_command_interface_ && !has_acceleration_command_interface_ &&
-    !has_effort_command_interface_)
-  {
-    auto qos = rclcpp::SystemDefaultsQoS();
-    qos.transient_local();
-    scaling_factor_sub_ = get_node()->create_subscription<SpeedScalingMsg>(
-      "~/speed_scaling_input", qos,
-      [&](const SpeedScalingMsg & msg) { set_scaling_factor(msg.factor); });
-    RCLCPP_INFO(
-      logger, "Setting initial scaling factor to %2f",
-      params_.speed_scaling.initial_scaling_factor);
-    scaling_factor_ = params_.speed_scaling.initial_scaling_factor;
-  }
-  else
-  {
-    RCLCPP_WARN_EXPRESSION(
-      logger, params_.speed_scaling.initial_scaling_factor != 1.0,
-      "Speed scaling is currently only supported for position interfaces. If you want to make use "
-      "of speed scaling, please only use a position interface when configuring this controller.");
-    scaling_factor_ = 1.0;
-  }
-  if (!params_.speed_scaling.state_interface.empty())
-  {
-    RCLCPP_INFO(
-      logger, "Using scaling state from the hardware from interface %s.",
-      params_.speed_scaling.state_interface.c_str());
-  }
-  else
-  {
-    RCLCPP_INFO(
-      get_node()->get_logger(),
-      "No scaling interface set. This controller will not read speed scaling from the hardware.");
-  }
-  scaling_factor_cmd_.store(scaling_factor_.load());
 
   if (get_update_rate() == 0)
   {
@@ -1025,42 +975,6 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
 
   // parse remaining parameters
   default_tolerances_ = get_segment_tolerances(logger, params_);
-
-  // Set scaling interfaces
-  if (!params_.speed_scaling.state_interface.empty())
-  {
-    auto it = std::find_if(
-      state_interfaces_.begin(), state_interfaces_.end(), [&](auto & interface)
-      { return (interface.get_name() == params_.speed_scaling.state_interface); });
-    if (it != state_interfaces_.end())
-    {
-      scaling_state_interface_ = *it;
-    }
-    else
-    {
-      RCLCPP_ERROR(
-        logger, "Did not find speed scaling interface '%s' in state interfaces.",
-        params_.speed_scaling.state_interface.c_str());
-      return CallbackReturn::ERROR;
-    }
-  }
-  if (!params_.speed_scaling.command_interface.empty())
-  {
-    auto it = std::find_if(
-      command_interfaces_.begin(), command_interfaces_.end(), [&](auto & interface)
-      { return (interface.get_name() == params_.speed_scaling.command_interface); });
-    if (it != command_interfaces_.end())
-    {
-      scaling_command_interface_ = *it;
-    }
-    else
-    {
-      RCLCPP_ERROR(
-        logger, "Did not find speed scaling interface '%s' in command interfaces.",
-        params_.speed_scaling.command_interface.c_str());
-      return CallbackReturn::ERROR;
-    }
-  }
 
   // order all joints in the storage
   for (const auto & interface : params_.command_interfaces)
@@ -1103,9 +1017,8 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
   resize_joint_trajectory_point(state, dof_);
   // read from cmd joints only if all joints have command interface
   // otherwise it leaves the entries of joints without command interface NaN.
-  // if no interpolate_from_desired_state, state_current_ is then used for
-  // `set_point_before_trajectory_msg` and future trajectory sampling will always give NaN for these
-  // joints
+  // if no open_loop control, state_current_ is then used for `set_point_before_trajectory_msg` and
+  // future trajectory sampling will always give NaN for these joints
   if (
     params_.set_last_command_interface_value_as_state_on_activation && dof_ == num_cmd_joints_ &&
     read_state_from_command_interfaces(state))
@@ -1256,7 +1169,6 @@ void JointTrajectoryController::publish_state(
     {
       state_publisher_->msg_.output = command_current_;
     }
-    state_publisher_->msg_.speed_scaling_factor = scaling_factor_;
 
     state_publisher_->unlockAndPublish();
   }
@@ -1749,40 +1661,6 @@ void JointTrajectoryController::resize_joint_trajectory_point_command(
   {
     point.effort.resize(size, value);
   }
-}
-
-bool JointTrajectoryController::set_scaling_factor(double scaling_factor)
-{
-  if (scaling_factor < 0)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "Scaling factor has to be greater or equal to 0.0 - Ignoring input!");
-    return false;
-  }
-
-  if (scaling_factor != scaling_factor_.load())
-  {
-    RCLCPP_INFO(
-      get_node()->get_logger().get_child("speed_scaling"), "New scaling factor will be %f",
-      scaling_factor);
-  }
-  scaling_factor_.store(scaling_factor);
-  if (
-    params_.speed_scaling.command_interface.empty() &&
-    !params_.speed_scaling.state_interface.empty())
-  {
-    RCLCPP_WARN_ONCE(
-      get_node()->get_logger(),
-      "Setting the scaling factor while only one-way communication with the hardware is setup. "
-      "This will likely get overwritten by the hardware again. If available, please also setup "
-      "the speed_scaling_command_interface_name");
-  }
-  else
-  {
-    scaling_factor_cmd_.store(scaling_factor);
-  }
-  return true;
 }
 
 bool JointTrajectoryController::has_active_trajectory() const
