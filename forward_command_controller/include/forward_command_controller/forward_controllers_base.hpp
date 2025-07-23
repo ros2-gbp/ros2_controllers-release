@@ -22,7 +22,7 @@
 #include "controller_interface/controller_interface.hpp"
 #include "rclcpp/subscription.hpp"
 #include "rclcpp_lifecycle/state.hpp"
-#include "realtime_tools/realtime_thread_safe_box.hpp"
+#include "realtime_tools/realtime_buffer.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
 
 namespace forward_command_controller
@@ -86,11 +86,7 @@ protected:
 
   std::vector<std::string> command_interface_types_;
 
-  // the realtime container to exchange the reference from subscriber
-  realtime_tools::RealtimeThreadSafeBox<CmdType> rt_command_;
-  // save the last reference in case of unable to get value from box
-  CmdType joint_commands_;
-
+  realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>> rt_command_ptr_;
   rclcpp::Subscription<CmdType>::SharedPtr joints_command_subscriber_;
 };
 
