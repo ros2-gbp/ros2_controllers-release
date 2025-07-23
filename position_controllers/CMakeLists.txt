@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(position_controllers LANGUAGES CXX)
+project(position_controllers)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
-endif()
+find_package(ros2_control_cmake REQUIRED)
+set_compiler_options()
+export_windows_symbols()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   forward_command_controller
@@ -25,11 +25,11 @@ target_include_directories(position_controllers PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/position_controllers>
 )
-ament_target_dependencies(position_controllers PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
+target_link_libraries(position_controllers PUBLIC
+                      forward_command_controller::forward_command_controller
+                      pluginlib::pluginlib
+                      rclcpp::rclcpp)
 
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
-target_compile_definitions(position_controllers PRIVATE "POSITION_CONTROLLERS_BUILDING_DLL")
 pluginlib_export_plugin_description_file(controller_interface position_controllers_plugins.xml)
 
 if(BUILD_TESTING)
@@ -42,10 +42,8 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_load_joint_group_position_controller
     position_controllers
-  )
-  ament_target_dependencies(test_load_joint_group_position_controller
-    controller_manager
-    ros2_control_test_assets
+    controller_manager::controller_manager
+    ros2_control_test_assets::ros2_control_test_assets
   )
 
   ament_add_gmock(test_joint_group_position_controller
