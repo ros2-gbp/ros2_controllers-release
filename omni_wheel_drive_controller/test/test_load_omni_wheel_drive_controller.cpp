@@ -1,4 +1,4 @@
-// Copyright 2020 PAL Robotics SL.
+// Copyright 2025 Aarav Gupta
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,33 +13,38 @@
 // limitations under the License.
 
 #include <gmock/gmock.h>
+
 #include <memory>
 
 #include "controller_manager/controller_manager.hpp"
-#include "hardware_interface/resource_manager.hpp"
 #include "rclcpp/executor.hpp"
 #include "rclcpp/executors/single_threaded_executor.hpp"
 #include "rclcpp/utilities.hpp"
 #include "ros2_control_test_assets/descriptions.hpp"
 
-TEST(TestLoadGripperActionControllers, load_controller)
+TEST(TestLoadOmniWheelDriveController, load_controller)
 {
-  rclcpp::init(0, nullptr);
-
   std::shared_ptr<rclcpp::Executor> executor =
     std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
   controller_manager::ControllerManager cm(
     executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
+  const std::string test_file_path =
+    std::string(TEST_FILES_DIRECTORY) + "/config/test_omni_wheel_drive_controller.yaml";
 
-  ASSERT_NE(
-    cm.load_controller(
-      "test_gripper_action_position_controller", "position_controllers/GripperActionController"),
-    nullptr);
-  ASSERT_NE(
-    cm.load_controller(
-      "test_gripper_action_effort_controller", "effort_controllers/GripperActionController"),
-    nullptr);
+  cm.set_parameter({"test_omni_wheel_drive_controller.params_file", test_file_path});
+  cm.set_parameter(
+    {"test_omni_wheel_drive_controller.type",
+     "omni_wheel_drive_controller/OmniWheelDriveController"});
 
+  ASSERT_NE(cm.load_controller("test_omni_wheel_drive_controller"), nullptr);
+}
+
+int main(int argc, char ** argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  rclcpp::init(argc, argv);
+  int result = RUN_ALL_TESTS();
   rclcpp::shutdown();
+  return result;
 }
