@@ -10,11 +10,22 @@ bicycle_steering_controller:
       }
     }
 
-  traction_wheel_radius:
+  front_wheel_radius:
     {
       type: double,
       default_value: 0.0,
-      description: "Traction wheel radius.",
+      description: "Front wheel radius.",
+      read_only: false,
+      validation: {
+        gt<>: [0.0]
+      }
+    }
+
+  rear_wheel_radius:
+    {
+      type: double,
+      default_value: 0.0,
+      description: "Rear wheel radius.",
       read_only: false,
       validation: {
         gt<>: [0.0]

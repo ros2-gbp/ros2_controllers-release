@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(effort_controllers)
+project(effort_controllers LANGUAGES CXX)
 
-find_package(ros2_control_cmake REQUIRED)
-set_compiler_options()
-export_windows_symbols()
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
+endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   forward_command_controller
@@ -25,12 +25,11 @@ target_include_directories(effort_controllers PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/effort_controllers>
 )
-target_link_libraries(effort_controllers PUBLIC
-  forward_command_controller::forward_command_controller
-  pluginlib::pluginlib
-  rclcpp::rclcpp
-)
+ament_target_dependencies(effort_controllers PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
 
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(effort_controllers PRIVATE "EFFORT_CONTROLLERS_BUILDING_DLL")
 pluginlib_export_plugin_description_file(controller_interface effort_controllers_plugins.xml)
 
 if(BUILD_TESTING)
@@ -43,8 +42,10 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_load_joint_group_effort_controller
     effort_controllers
-    controller_manager::controller_manager
-    ros2_control_test_assets::ros2_control_test_assets
+  )
+  ament_target_dependencies(test_load_joint_group_effort_controller
+    controller_manager
+    ros2_control_test_assets
   )
 
   ament_add_gmock(test_joint_group_effort_controller
