@@ -1,0 +1,12 @@
+Source: ros-jazzy-joint-state-broadcaster
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-jazzy-ament-cmake, ros-jazzy-ament-cmake-gmock <!nocheck>, ros-jazzy-backward-ros, ros-jazzy-builtin-interfaces, ros-jazzy-control-msgs, ros-jazzy-controller-interface, ros-jazzy-controller-manager <!nocheck>, ros-jazzy-generate-parameter-library, ros-jazzy-hardware-interface <!nocheck>, ros-jazzy-hardware-interface-testing <!nocheck>, ros-jazzy-pluginlib, ros-jazzy-rclcpp, ros-jazzy-rclcpp-lifecycle, ros-jazzy-realtime-tools, ros-jazzy-ros2-control-cmake, ros-jazzy-ros2-control-test-assets <!nocheck>, ros-jazzy-sensor-msgs, ros-jazzy-urdf, ros-jazzy-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-joint-state-broadcaster
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-jazzy-backward-ros, ros-jazzy-builtin-interfaces, ros-jazzy-control-msgs, ros-jazzy-controller-interface, ros-jazzy-generate-parameter-library, ros-jazzy-pluginlib, ros-jazzy-rclcpp, ros-jazzy-rclcpp-lifecycle, ros-jazzy-realtime-tools, ros-jazzy-sensor-msgs, ros-jazzy-urdf, ros-jazzy-ros-workspace
+Description: Broadcaster to publish joint state
