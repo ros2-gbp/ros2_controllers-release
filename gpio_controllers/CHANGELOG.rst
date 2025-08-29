@@ -2,38 +2,43 @@
 Changelog for package gpio_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.31.0 (2025-08-27)
--------------------
+5.6.0 (2025-08-29)
+------------------
 
-4.30.1 (2025-08-03)
--------------------
+5.5.0 (2025-07-31)
+------------------
 
-4.30.0 (2025-07-31)
--------------------
+5.4.0 (2025-07-23)
+------------------
+* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
+* Contributors: Sanjeev Kumar
 
-4.29.0 (2025-07-23)
--------------------
+5.3.0 (2025-07-14)
+------------------
+* Fix cmake deprecation (`#1780 <https://github.com/ros-controls/ros2_controllers/issues/1780>`_)
+* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
+* Contributors: Christoph Fröhlich, mosfet80
 
-4.28.0 (2025-07-14)
--------------------
+5.2.0 (2025-06-23)
+------------------
 
-4.27.1 (2025-07-02)
--------------------
-* Fix cmake deprecation (backport `#1780 <https://github.com/ros-controls/ros2_controllers/issues/1780>`_) (`#1782 <https://github.com/ros-controls/ros2_controllers/issues/1782>`_)
-* Contributors: mergify[bot]
+5.1.0 (2025-06-11)
+------------------
+* Add missing github_url to rst files (`#1717 <https://github.com/ros-controls/ros2_controllers/issues/1717>`_)
+* Contributors: Christoph Fröhlich
 
-4.27.0 (2025-06-23)
--------------------
+5.0.2 (2025-05-26)
+------------------
+* Fix JSB+GPIO CMakeLists and dependencies (`#1705 <https://github.com/ros-controls/ros2_controllers/issues/1705>`_)
+* Contributors: Christoph Fröhlich
 
-4.26.0 (2025-06-06)
--------------------
-* Add missing github_url to rst files (backport `#1717 <https://github.com/ros-controls/ros2_controllers/issues/1717>`_) (`#1719 <https://github.com/ros-controls/ros2_controllers/issues/1719>`_)
-* Fix JSB+GPIO CMakeLists and dependencies (backport `#1705 <https://github.com/ros-controls/ros2_controllers/issues/1705>`_) (`#1707 <https://github.com/ros-controls/ros2_controllers/issues/1707>`_)
-* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
-* Contributors: mergify[bot]
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
 
-4.25.0 (2025-05-17)
--------------------
+5.0.0 (2025-05-17)
+------------------
 
 4.24.0 (2025-04-27)
 -------------------
