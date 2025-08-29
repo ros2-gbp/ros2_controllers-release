@@ -1,1 +1,1 @@
-{"base": "62184f5599", "parent": "debian/rolling/imu_sensor_broadcaster", "previous": "15e6514380", "trim": "", "trimbase": ""}
+{"base": "53c1b8ceba", "parent": "debian/rolling/imu_sensor_broadcaster", "previous": "fe27e8bd4d", "trim": "", "trimbase": ""}
