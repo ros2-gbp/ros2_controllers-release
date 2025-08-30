@@ -2,6 +2,9 @@
 Changelog for package ros2_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.6.1 (2025-08-30)
+------------------
+
 5.6.0 (2025-08-29)
 ------------------
 * Add motion_primitives_controllers to metapackage
