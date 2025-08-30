@@ -1,8 +1,0 @@
-ros-rolling-motion-primitives-controllers (5.6.0-1noble) noble; urgency=high
-
-  * Refactoring to motion_primitives_base_controller (#1857 <https://github.com/ros-controls/ros2_controllers/issues/1857>)
-  * Contributors: Mathias Fuhrer
-
- -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 29 Aug 2025 00:00:00 -0000
-
-
