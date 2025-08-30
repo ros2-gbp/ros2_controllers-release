@@ -1,0 +1,14 @@
+ros-rolling-chained-filter-controller (5.6.1-1noble) noble; urgency=high
+
+
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Sat, 30 Aug 2025 00:00:00 -0000
+
+ros-rolling-chained-filter-controller (5.6.0-1noble) noble; urgency=high
+
+  * Add a generic chained_filter_controller (#1634 <https://github.com/ros-controls/ros2_controllers/issues/1634>)
+  * Contributors: Ankur Bodhe, Christoph Froehlich
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Fri, 29 Aug 2025 00:00:00 -0000
+
+
