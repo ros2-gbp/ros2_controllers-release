@@ -1,1 +1,1 @@
-{"base": "6200a43045", "parent": "debian/rolling/ackermann_steering_controller", "previous": "3796b28b44", "trim": "", "trimbase": ""}
+{"base": "28bd2baf92", "parent": "debian/rolling/ackermann_steering_controller", "previous": "a77d196d36", "trim": "", "trimbase": ""}
