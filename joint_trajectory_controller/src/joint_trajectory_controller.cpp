@@ -707,6 +707,10 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   // Check if only allowed interface types are used and initialize storage to avoid memory
   // allocation during activation
   joint_command_interface_.resize(allowed_interface_types_.size());
+  for (auto & itf : joint_command_interface_)
+  {
+    itf.reserve(params_.joints.size());
+  }
 
   has_position_command_interface_ =
     contains_interface_type(params_.command_interfaces, hardware_interface::HW_IF_POSITION);
@@ -760,6 +764,10 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   // allocation during activation
   // Note: 'effort' storage is also here, but never used. Still, for this is OK.
   joint_state_interface_.resize(allowed_interface_types_.size());
+  for (auto & itf : joint_state_interface_)
+  {
+    itf.reserve(params_.joints.size());
+  }
 
   has_position_state_interface_ =
     contains_interface_type(params_.state_interfaces, hardware_interface::HW_IF_POSITION);
@@ -1007,6 +1015,11 @@ controller_interface::CallbackReturn JointTrajectoryController::on_activate(
     // Initialize current state storage from hardware
     read_state_from_state_interfaces(state_current_);
     read_state_from_state_interfaces(last_commanded_state_);
+  }
+  // reset/zero out all of the PID's (The integral term is not retained and reset to zero)
+  for (auto & pid : pids_)
+  {
+    pid->reset();
   }
 
   // The controller should start by holding position at the beginning of active state
