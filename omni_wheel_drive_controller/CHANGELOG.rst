@@ -2,43 +2,40 @@
 Changelog for package omni_wheel_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.7.0 (2025-09-12)
-------------------
-* Fix use of M_PI in omni_wheel_driver_controller on MSVC (`#1886 <https://github.com/ros-controls/ros2_controllers/issues/1886>`_)
-* [omni_wheel_drive_controller] Fix the broken links (`#1882 <https://github.com/ros-controls/ros2_controllers/issues/1882>`_)
-* Contributors: Sai Kishor Kothakota, Silvio Traversaro
+4.32.0 (2025-09-12)
+-------------------
+* Fix use of M_PI in omni_wheel_driver_controller on MSVC (backport `#1886 <https://github.com/ros-controls/ros2_controllers/issues/1886>`_) (`#1887 <https://github.com/ros-controls/ros2_controllers/issues/1887>`_)
+* [omni_wheel_drive_controller] Fix the broken links (backport `#1882 <https://github.com/ros-controls/ros2_controllers/issues/1882>`_) (`#1883 <https://github.com/ros-controls/ros2_controllers/issues/1883>`_)
+* Contributors: mergify[bot]
 
-5.6.1 (2025-08-30)
-------------------
+4.31.0 (2025-08-27)
+-------------------
 
-5.6.0 (2025-08-29)
-------------------
+4.30.1 (2025-08-03)
+-------------------
 
-5.5.0 (2025-07-31)
-------------------
-* Add omni_wheel_drive_controller (`#1535 <https://github.com/ros-controls/ros2_controllers/issues/1535>`_)
-* Contributors: Aarav Gupta
+4.30.0 (2025-07-31)
+-------------------
+* Add omni_wheel_drive_controller (backport `#1535 <https://github.com/ros-controls/ros2_controllers/issues/1535>`_) (`#1836 <https://github.com/ros-controls/ros2_controllers/issues/1836>`_)
+* Contributors: mergify[bot]
 
-5.4.0 (2025-07-23)
-------------------
+4.29.0 (2025-07-23)
+-------------------
 
-5.3.0 (2025-07-14)
-------------------
+4.28.0 (2025-07-14)
+-------------------
 
-5.2.0 (2025-06-23)
-------------------
+4.27.1 (2025-07-02)
+-------------------
 
-5.1.0 (2025-06-11)
-------------------
+4.27.0 (2025-06-23)
+-------------------
 
-5.0.2 (2025-05-26)
-------------------
+4.26.0 (2025-06-06)
+-------------------
 
-5.0.1 (2025-05-24)
-------------------
-
-5.0.0 (2025-05-17)
-------------------
+4.25.0 (2025-05-17)
+-------------------
 
 4.24.0 (2025-04-27)
 -------------------

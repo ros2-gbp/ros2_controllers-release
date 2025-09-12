@@ -47,7 +47,7 @@ public:
   void SetUp();
   void TearDown();
 
-  void SetUpController(const std::vector<rclcpp::Parameter> & parameters = {});
+  void SetUpController();
 
 protected:
   std::unique_ptr<FriendJointGroupVelocityController> controller_;
