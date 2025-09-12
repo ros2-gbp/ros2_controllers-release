@@ -14,8 +14,10 @@
 
 #include "forward_command_controller/forward_controllers_base.hpp"
 
+#include <algorithm>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "controller_interface/helpers.hpp"
@@ -58,21 +60,7 @@ controller_interface::CallbackReturn ForwardControllersBase::on_configure(
 
   joints_command_subscriber_ = get_node()->create_subscription<CmdType>(
     "~/commands", rclcpp::SystemDefaultsQoS(),
-    [this](const CmdType::SharedPtr msg)
-    {
-      const auto cmd = *msg;
-
-      if (!std::all_of(
-            cmd.data.cbegin(), cmd.data.cend(),
-            [](const auto & value) { return std::isfinite(value); }))
-      {
-        RCLCPP_WARN_THROTTLE(
-          get_node()->get_logger(), *(get_node()->get_clock()), 1000,
-          "Non-finite value received. Dropping message");
-        return;
-      }
-      rt_command_ptr_.writeFromNonRT(msg);
-    });
+    [this](const CmdType::SharedPtr msg) { rt_command_ptr_.writeFromNonRT(msg); });
 
   RCLCPP_INFO(get_node()->get_logger(), "configure successful");
   return controller_interface::CallbackReturn::SUCCESS;
