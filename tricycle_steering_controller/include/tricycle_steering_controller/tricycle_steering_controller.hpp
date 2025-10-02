@@ -22,7 +22,6 @@
 
 #include "steering_controllers_library/steering_controllers_library.hpp"
 #include "tricycle_steering_controller/tricycle_steering_controller_parameters.hpp"
-#include "tricycle_steering_controller/visibility_control.h"
 
 namespace tricycle_steering_controller
 {
@@ -45,14 +44,11 @@ class TricycleSteeringController : public steering_controllers_library::Steering
 public:
   TricycleSteeringController();
 
-  STEERING_CONTROLLERS__VISIBILITY_PUBLIC controller_interface::CallbackReturn configure_odometry()
-    override;
+  controller_interface::CallbackReturn configure_odometry() override;
 
-  STEERING_CONTROLLERS__VISIBILITY_PUBLIC bool update_odometry(
-    const rclcpp::Duration & period) override;
+  bool update_odometry(const rclcpp::Duration & period) override;
 
-  STEERING_CONTROLLERS__VISIBILITY_PUBLIC void initialize_implementation_parameter_listener()
-    override;
+  void initialize_implementation_parameter_listener() override;
 
 protected:
   std::shared_ptr<tricycle_steering_controller::ParamListener> tricycle_param_listener_;
