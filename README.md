@@ -1,3 +1,50 @@
+## ros2_controllers (humble) - 2.50.1-1
+
+The packages in the `ros2_controllers` repository were released into the `humble` distro by running `/usr/bin/bloom-release --rosdistro humble ros2_controllers` on `Thu, 02 Oct 2025 11:02:32 -0000`
+
+These packages were released:
+- `ackermann_steering_controller`
+- `admittance_controller`
+- `bicycle_steering_controller`
+- `diff_drive_controller`
+- `effort_controllers`
+- `force_torque_sensor_broadcaster`
+- `forward_command_controller`
+- `gpio_controllers`
+- `gripper_controllers`
+- `imu_sensor_broadcaster`
+- `joint_state_broadcaster`
+- `joint_trajectory_controller`
+- `mecanum_drive_controller`
+- `pid_controller`
+- `pose_broadcaster`
+- `position_controllers`
+- `range_sensor_broadcaster`
+- `ros2_controllers`
+- `ros2_controllers_test_nodes`
+- `rqt_joint_trajectory_controller`
+- `steering_controllers_library`
+- `tricycle_controller`
+- `tricycle_steering_controller`
+- `velocity_controllers`
+
+Version of package(s) in repository `ros2_controllers`:
+
+- upstream repository: https://github.com/ros-controls/ros2_controllers.git
+- release repository: https://github.com/ros2-gbp/ros2_controllers-release.git
+- rosdistro version: `2.50.0-1`
+- old version: `2.50.0-1`
+- new version: `2.50.1-1`
+
+Versions of tools used:
+
+- bloom version: `0.13.0`
+- catkin_pkg version: `1.1.0`
+- rosdep version: `0.26.0`
+- rosdistro version: `1.0.1`
+- vcstools version: `0.1.42`
+
+
 ## ros2_controllers (kilted) - 5.8.0-1
 
 The packages in the `ros2_controllers` repository were released into the `kilted` distro by running `/usr/bin/bloom-release --rosdistro kilted ros2_controllers` on `Thu, 02 Oct 2025 09:34:01 -0000`
