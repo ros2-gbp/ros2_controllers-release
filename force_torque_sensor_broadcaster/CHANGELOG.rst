@@ -2,6 +2,9 @@
 Changelog for package force_torque_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.50.1 (2025-10-02)
+-------------------
+
 2.50.0 (2025-09-12)
 -------------------
 * FTS: Don't make a temporary copy of semantic component (backport `#1902 <https://github.com/ros-controls/ros2_controllers/issues/1902>`_) (`#1903 <https://github.com/ros-controls/ros2_controllers/issues/1903>`_)
