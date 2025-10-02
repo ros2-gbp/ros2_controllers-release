@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
-project(pose_broadcaster)
+project(pose_broadcaster
+  LANGUAGES
+    CXX
+)
 
-find_package(ros2_control_cmake REQUIRED)
-set_compiler_options()
-export_windows_symbols()
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror=conversion -Werror=unused-but-set-variable
+                      -Werror=return-type -Werror=shadow -Werror=format)
+endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
@@ -38,15 +42,15 @@ target_include_directories(pose_broadcaster PUBLIC
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
 )
 target_link_libraries(pose_broadcaster PUBLIC
-                      pose_broadcaster_parameters
-                      controller_interface::controller_interface
-                      hardware_interface::hardware_interface
-                      pluginlib::pluginlib
-                      rclcpp::rclcpp
-                      rclcpp_lifecycle::rclcpp_lifecycle
-                      realtime_tools::realtime_tools
-                      ${tf2_msgs_TARGETS}
-                      ${geometry_msgs_TARGETS})
+  pose_broadcaster_parameters
+)
+ament_target_dependencies(pose_broadcaster PUBLIC
+    ${THIS_PACKAGE_INCLUDE_DEPENDS}
+)
+
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(pose_broadcaster PRIVATE "POSE_BROADCASTER_BUILDING_DLL")
 
 pluginlib_export_plugin_description_file(
   controller_interface pose_broadcaster.xml
@@ -64,8 +68,10 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_load_pose_broadcaster
     pose_broadcaster
-    controller_manager::controller_manager
-    ros2_control_test_assets::ros2_control_test_assets
+  )
+  ament_target_dependencies(test_load_pose_broadcaster
+    controller_manager
+    ros2_control_test_assets
   )
 
   add_rostest_with_parameters_gmock(test_pose_broadcaster
@@ -74,6 +80,9 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_pose_broadcaster
     pose_broadcaster
+  )
+  ament_target_dependencies(test_pose_broadcaster
+    hardware_interface
   )
 endif()
 
