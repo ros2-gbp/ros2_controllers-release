@@ -107,15 +107,13 @@ controller_interface::return_type DiffDriveController::update_reference_from_sub
 {
   auto logger = get_node()->get_logger();
 
-  const std::shared_ptr<TwistStamped> command_msg_ptr = *(received_velocity_msg_ptr_.readFromRT());
-
-  if (command_msg_ptr == nullptr)
+  auto current_ref_op = received_velocity_msg_.try_get();
+  if (current_ref_op.has_value())
   {
-    RCLCPP_WARN(logger, "Velocity message received was a nullptr.");
-    return controller_interface::return_type::ERROR;
+    command_msg_ = current_ref_op.value();
   }
 
-  const auto age_of_last_command = time - command_msg_ptr->header.stamp;
+  const auto age_of_last_command = time - command_msg_.header.stamp;
   // Brake if cmd_vel has timeout, override the stored command
   if (age_of_last_command > cmd_vel_timeout_)
   {
@@ -123,11 +121,10 @@ controller_interface::return_type DiffDriveController::update_reference_from_sub
     reference_interfaces_[1] = 0.0;
   }
   else if (
-    std::isfinite(command_msg_ptr->twist.linear.x) &&
-    std::isfinite(command_msg_ptr->twist.angular.z))
+    std::isfinite(command_msg_.twist.linear.x) && std::isfinite(command_msg_.twist.angular.z))
   {
-    reference_interfaces_[0] = command_msg_ptr->twist.linear.x;
-    reference_interfaces_[1] = command_msg_ptr->twist.angular.z;
+    reference_interfaces_[0] = command_msg_.twist.linear.x;
+    reference_interfaces_[1] = command_msg_.twist.angular.z;
   }
   else
   {
@@ -234,24 +231,23 @@ controller_interface::return_type DiffDriveController::update_and_write_commands
 
   if (should_publish)
   {
-    if (realtime_odometry_publisher_->trylock())
+    if (realtime_odometry_publisher_)
     {
-      auto & odometry_message = realtime_odometry_publisher_->msg_;
-      odometry_message.header.stamp = time;
-      odometry_message.pose.pose.position.x = odometry_.getX();
-      odometry_message.pose.pose.position.y = odometry_.getY();
-      odometry_message.pose.pose.orientation.x = orientation.x();
-      odometry_message.pose.pose.orientation.y = orientation.y();
-      odometry_message.pose.pose.orientation.z = orientation.z();
-      odometry_message.pose.pose.orientation.w = orientation.w();
-      odometry_message.twist.twist.linear.x = odometry_.getLinear();
-      odometry_message.twist.twist.angular.z = odometry_.getAngular();
-      realtime_odometry_publisher_->unlockAndPublish();
+      odometry_message_.header.stamp = time;
+      odometry_message_.pose.pose.position.x = odometry_.getX();
+      odometry_message_.pose.pose.position.y = odometry_.getY();
+      odometry_message_.pose.pose.orientation.x = orientation.x();
+      odometry_message_.pose.pose.orientation.y = orientation.y();
+      odometry_message_.pose.pose.orientation.z = orientation.z();
+      odometry_message_.pose.pose.orientation.w = orientation.w();
+      odometry_message_.twist.twist.linear.x = odometry_.getLinear();
+      odometry_message_.twist.twist.angular.z = odometry_.getAngular();
+      realtime_odometry_publisher_->try_publish(odometry_message_);
     }
 
-    if (params_.enable_odom_tf && realtime_odometry_transform_publisher_->trylock())
+    if (params_.enable_odom_tf && realtime_odometry_transform_publisher_)
     {
-      auto & transform = realtime_odometry_transform_publisher_->msg_.transforms.front();
+      auto & transform = odometry_transform_message_.transforms.front();
       transform.header.stamp = time;
       transform.transform.translation.x = odometry_.getX();
       transform.transform.translation.y = odometry_.getY();
@@ -259,7 +255,7 @@ controller_interface::return_type DiffDriveController::update_and_write_commands
       transform.transform.rotation.y = orientation.y();
       transform.transform.rotation.z = orientation.z();
       transform.transform.rotation.w = orientation.w();
-      realtime_odometry_transform_publisher_->unlockAndPublish();
+      realtime_odometry_transform_publisher_->try_publish(odometry_transform_message_);
     }
   }
 
@@ -274,17 +270,16 @@ controller_interface::return_type DiffDriveController::update_and_write_commands
   previous_two_commands_.push({{linear_command, angular_command}});
 
   //    Publish limited velocity
-  if (publish_limited_velocity_ && realtime_limited_velocity_publisher_->trylock())
+  if (publish_limited_velocity_ && realtime_limited_velocity_publisher_)
   {
-    auto & limited_velocity_command = realtime_limited_velocity_publisher_->msg_;
-    limited_velocity_command.header.stamp = time;
-    limited_velocity_command.twist.linear.x = linear_command;
-    limited_velocity_command.twist.linear.y = 0.0;
-    limited_velocity_command.twist.linear.z = 0.0;
-    limited_velocity_command.twist.angular.x = 0.0;
-    limited_velocity_command.twist.angular.y = 0.0;
-    limited_velocity_command.twist.angular.z = angular_command;
-    realtime_limited_velocity_publisher_->unlockAndPublish();
+    limited_velocity_message_.header.stamp = time;
+    limited_velocity_message_.twist.linear.x = linear_command;
+    limited_velocity_message_.twist.linear.y = 0.0;
+    limited_velocity_message_.twist.linear.z = 0.0;
+    limited_velocity_message_.twist.angular.x = 0.0;
+    limited_velocity_message_.twist.angular.y = 0.0;
+    limited_velocity_message_.twist.angular.z = angular_command;
+    realtime_limited_velocity_publisher_->try_publish(limited_velocity_message_);
   }
 
   // Compute wheels velocities:
@@ -458,7 +453,7 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
         cmd_vel_timeout_ == rclcpp::Duration::from_seconds(0.0) ||
         current_time_diff < cmd_vel_timeout_)
       {
-        received_velocity_msg_ptr_.writeFromNonRT(msg);
+        received_velocity_msg_.set(*msg);
       }
       else
       {
@@ -534,10 +529,9 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
       odometry_transform_publisher_);
 
   // keeping track of odom and base_link transforms only
-  auto & odometry_transform_message = realtime_odometry_transform_publisher_->msg_;
-  odometry_transform_message.transforms.resize(1);
-  odometry_transform_message.transforms.front().header.frame_id = odom_frame_id;
-  odometry_transform_message.transforms.front().child_frame_id = base_frame_id;
+  odometry_transform_message_.transforms.resize(1);
+  odometry_transform_message_.transforms.front().header.frame_id = odom_frame_id;
+  odometry_transform_message_.transforms.front().child_frame_id = base_frame_id;
 
   previous_update_timestamp_ = get_node()->get_clock()->now();
   return controller_interface::CallbackReturn::SUCCESS;
@@ -629,27 +623,29 @@ void DiffDriveController::reset_buffers()
   previous_two_commands_.push({{0.0, 0.0}});
   previous_two_commands_.push({{0.0, 0.0}});
 
-  // Fill RealtimeBuffer with NaNs so it will contain a known value
+  // Fill RealtimeBox with NaNs so it will contain a known value
   // but still indicate that no command has yet been sent.
-  received_velocity_msg_ptr_.reset();
-  std::shared_ptr<TwistStamped> empty_msg_ptr = std::make_shared<TwistStamped>();
-  empty_msg_ptr->header.stamp = get_node()->now();
-  empty_msg_ptr->twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-  empty_msg_ptr->twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-  empty_msg_ptr->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-  empty_msg_ptr->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-  empty_msg_ptr->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-  empty_msg_ptr->twist.angular.z = std::numeric_limits<double>::quiet_NaN();
-  received_velocity_msg_ptr_.writeFromNonRT(empty_msg_ptr);
+  command_msg_.header.stamp = get_node()->now();
+  command_msg_.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+  command_msg_.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+  command_msg_.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+  command_msg_.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+  command_msg_.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+  command_msg_.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+  received_velocity_msg_.set(command_msg_);
 }
 
 void DiffDriveController::halt()
 {
-  const auto halt_wheels = [](auto & wheel_handles)
+  auto logger = get_node()->get_logger();
+  const auto halt_wheels = [&](auto & wheel_handles)
   {
     for (const auto & wheel_handle : wheel_handles)
     {
-      wheel_handle.velocity.get().set_value(0.0);
+      if (!wheel_handle.velocity.get().set_value(0.0))
+      {
+        RCLCPP_WARN(logger, "Failed to set wheel velocity to value 0.0");
+      }
     }
   };
 
