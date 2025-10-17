@@ -1,0 +1,12 @@
+Source: ros-humble-rqt-joint-trajectory-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-humble-rqt-joint-trajectory-controller
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-rospkg, ros-humble-control-msgs, ros-humble-controller-manager-msgs, ros-humble-python-qt-binding, ros-humble-qt-gui, ros-humble-rclpy, ros-humble-rqt-gui, ros-humble-rqt-gui-py, ros-humble-trajectory-msgs, ros-humble-ros-workspace
+Description: Graphical frontend for interacting with joint_trajectory_controller instances.
