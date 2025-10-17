@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gmock/gmock.h>
-
+#include <chrono>
 #include <cmath>
 #include <memory>
 #include <vector>
 
+#include "gmock/gmock.h"
+
+#include "builtin_interfaces/msg/duration.hpp"
+#include "builtin_interfaces/msg/time.hpp"
 #include "joint_trajectory_controller/trajectory.hpp"
 #include "rclcpp/clock.hpp"
 #include "rclcpp/duration.hpp"

@@ -23,13 +23,7 @@
 #include <vector>
 
 #include <rclcpp/time.hpp>
-
-// \note The versions conditioning is added here to support the source-compatibility with Humble
-#if RCPPUTILS_VERSION_MAJOR >= 2 && RCPPUTILS_VERSION_MINOR >= 6
-#include "rcpputils/rolling_mean_accumulator.hpp"
-#else
 #include "rcppmath/rolling_mean_accumulator.hpp"
-#endif
 
 namespace steering_odometry
 {
@@ -146,12 +140,6 @@ public:
   void set_odometry_type(const unsigned int type);
 
   /**
-   * \brief Get odometry type
-   * \return odometry type
-   */
-  unsigned int get_odometry_type() const { return static_cast<unsigned int>(config_type_); }
-
-  /**
    * \brief heading getter
    * \return heading [rad]
    */
@@ -182,17 +170,10 @@ public:
   double get_angular() const { return angular_; }
 
   /**
-   * \brief Sets the wheel parameters: radius, wheel_base, and wheel_track
+   * \brief Sets the wheel parameters: radius, separation and wheelbase
    */
   void set_wheel_params(
-    const double wheel_radius, const double wheel_base = 0.0, const double wheel_track = 0.0);
-
-  /**
-   * \brief Sets the wheel parameters: radius, wheel_base, and wheel_track for steering and traction
-   */
-  void set_wheel_params(
-    const double wheel_radius, const double wheel_base, const double wheel_track_steering,
-    const double wheel_track_traction);
+    const double wheel_radius, const double wheelbase = 0.0, const double wheel_track = 0.0);
 
   /**
    * \brief Velocity rolling window size setter
@@ -265,13 +246,6 @@ private:
    */
   void reset_accumulators();
 
-// \note The versions conditioning is added here to support the source-compatibility with Humble
-#if RCPPUTILS_VERSION_MAJOR >= 2 && RCPPUTILS_VERSION_MINOR >= 6
-  using RollingMeanAccumulator = rcpputils::RollingMeanAccumulator<double>;
-#else
-  using RollingMeanAccumulator = rcppmath::RollingMeanAccumulator<double>;
-#endif
-
   /// Current timestamp:
   rclcpp::Time timestamp_;
 
@@ -286,10 +260,9 @@ private:
   double angular_;  // [rad/s]
 
   /// Kinematic parameters
-  double wheel_track_traction_;  // [m]
-  double wheel_track_steering_;  // [m]
-  double wheel_base_;            // [m]
-  double wheel_radius_;          // [m]
+  double wheel_track_;   // [m]
+  double wheelbase_;     // [m]
+  double wheel_radius_;  // [m]
 
   /// Configuration type used for the forward kinematics
   int config_type_ = -1;
@@ -300,8 +273,8 @@ private:
   double traction_left_wheel_old_pos_;
   /// Rolling mean accumulators for the linear and angular velocities:
   size_t velocity_rolling_window_size_;
-  RollingMeanAccumulator linear_acc_;
-  RollingMeanAccumulator angular_acc_;
+  rcppmath::RollingMeanAccumulator<double> linear_acc_;
+  rcppmath::RollingMeanAccumulator<double> angular_acc_;
 };
 }  // namespace steering_odometry
 
