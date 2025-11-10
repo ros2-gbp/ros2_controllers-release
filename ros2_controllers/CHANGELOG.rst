@@ -2,51 +2,48 @@
 Changelog for package ros2_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.0.0 (2025-11-10)
-------------------
+4.34.0 (2025-11-10)
+-------------------
 
-5.8.0 (2025-10-02)
-------------------
+4.33.1 (2025-10-17)
+-------------------
 
-5.7.0 (2025-09-12)
-------------------
+4.33.0 (2025-10-03)
+-------------------
 
-5.6.1 (2025-08-30)
-------------------
+4.32.0 (2025-09-12)
+-------------------
 
-5.6.0 (2025-08-29)
-------------------
-* Add motion_primitives_controllers to metapackage
-* Add a generic chained_filter_controller (`#1634 <https://github.com/ros-controls/ros2_controllers/issues/1634>`_)
-* Contributors: Ankur Bodhe, Mathias Fuhrer, Christoph Froehlich
+4.31.0 (2025-08-27)
+-------------------
+* Add a generic chained_filter_controller (backport `#1634 <https://github.com/ros-controls/ros2_controllers/issues/1634>`_) (`#1856 <https://github.com/ros-controls/ros2_controllers/issues/1856>`_)
+* Contributors: mergify[bot]
 
-5.5.0 (2025-07-31)
-------------------
-* Add omni_wheel_drive_controller (`#1535 <https://github.com/ros-controls/ros2_controllers/issues/1535>`_)
-* Contributors: Aarav Gupta
+4.30.1 (2025-08-03)
+-------------------
 
-5.4.0 (2025-07-23)
-------------------
+4.30.0 (2025-07-31)
+-------------------
+* Add omni_wheel_drive_controller (backport `#1535 <https://github.com/ros-controls/ros2_controllers/issues/1535>`_) (`#1836 <https://github.com/ros-controls/ros2_controllers/issues/1836>`_)
+* Contributors: mergify[bot]
 
-5.3.0 (2025-07-14)
-------------------
+4.29.0 (2025-07-23)
+-------------------
 
-5.2.0 (2025-06-23)
-------------------
+4.28.0 (2025-07-14)
+-------------------
 
-5.1.0 (2025-06-11)
-------------------
+4.27.1 (2025-07-02)
+-------------------
 
-5.0.2 (2025-05-26)
-------------------
+4.27.0 (2025-06-23)
+-------------------
 
-5.0.1 (2025-05-24)
-------------------
+4.26.0 (2025-06-06)
+-------------------
 
-5.0.0 (2025-05-17)
-------------------
-* Remove deprecated gripper_controller (`#1652 <https://github.com/ros-controls/ros2_controllers/issues/1652>`_)
-* Contributors: Christoph Fröhlich
+4.25.0 (2025-05-17)
+-------------------
 
 4.24.0 (2025-04-27)
 -------------------
