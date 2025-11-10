@@ -2,52 +2,61 @@
 Changelog for package steering_controllers_library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.33.1 (2025-10-17)
--------------------
+6.0.0 (2025-11-10)
+------------------
+* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
+* Contributors: Anand Vardhan
 
-4.33.0 (2025-10-03)
--------------------
-* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
-* Update realtime containers (backport `#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_) (`#1935 <https://github.com/ros-controls/ros2_controllers/issues/1935>`_)
-* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
-* Contributors: mergify[bot]
+5.8.0 (2025-10-02)
+------------------
+* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
+* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
+* Contributors: Christoph Fröhlich
 
-4.32.0 (2025-09-12)
--------------------
+5.7.0 (2025-09-12)
+------------------
 
-4.31.0 (2025-08-27)
--------------------
+5.6.1 (2025-08-30)
+------------------
 
-4.30.1 (2025-08-03)
--------------------
+5.6.0 (2025-08-29)
+------------------
 
-4.30.0 (2025-07-31)
--------------------
+5.5.0 (2025-07-31)
+------------------
 
-4.29.0 (2025-07-23)
--------------------
+5.4.0 (2025-07-23)
+------------------
+* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
+* Contributors: Sanjeev Kumar
 
-4.28.0 (2025-07-14)
--------------------
+5.3.0 (2025-07-14)
+------------------
+* Fix SteeringOdometry calculation error (`#1777 <https://github.com/ros-controls/ros2_controllers/issues/1777>`_)
+* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
+* Contributors: Christoph Fröhlich, Narukara
 
-4.27.1 (2025-07-02)
--------------------
-* Fix SteeringOdometry calculation error (backport `#1777 <https://github.com/ros-controls/ros2_controllers/issues/1777>`_) (`#1779 <https://github.com/ros-controls/ros2_controllers/issues/1779>`_)
-* Contributors: mergify[bot]
+5.2.0 (2025-06-23)
+------------------
 
-4.27.0 (2025-06-23)
--------------------
+5.1.0 (2025-06-11)
+------------------
+* Remove deprecated parameters from steering_controllers_library (`#1684 <https://github.com/ros-controls/ros2_controllers/issues/1684>`_)
+* Fix steering_controllers_library docs and msg field (`#1733 <https://github.com/ros-controls/ros2_controllers/issues/1733>`_)
+* Contributors: Christoph Fröhlich
 
-4.26.0 (2025-06-06)
--------------------
-* Fix steering_controllers_library docs (`#1734 <https://github.com/ros-controls/ros2_controllers/issues/1734>`_)
-* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
-* Contributors: Christoph Fröhlich, mergify[bot]
+5.0.2 (2025-05-26)
+------------------
 
-4.25.0 (2025-05-17)
--------------------
-* Simplify `on_set_chained_mode` avoiding cpplint warnings (backport `#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_) (`#1688 <https://github.com/ros-controls/ros2_controllers/issues/1688>`_)
-* Contributors: mergify[bot], Bhagyesh Agresar
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
+
+5.0.0 (2025-05-17)
+------------------
+* Simplify `on_set_chained_mode` implementations avoiding cpplint warnings (`#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_)
+* Contributors: Bhagyesh Agresar
 
 4.24.0 (2025-04-27)
 -------------------

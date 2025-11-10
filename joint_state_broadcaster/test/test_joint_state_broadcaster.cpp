@@ -70,9 +70,13 @@ void JointStateBroadcasterTest::init_broadcaster_and_set_parameters(
   const std::string & robot_description, const std::vector<std::string> & joint_names,
   const std::vector<std::string> & interfaces)
 {
-  const auto result = state_broadcaster_->init(
-    "joint_state_broadcaster", robot_description, 0, "",
-    state_broadcaster_->define_custom_node_options());
+  controller_interface::ControllerInterfaceParams params;
+  params.controller_name = "joint_state_broadcaster";
+  params.robot_description = robot_description;
+  params.update_rate = 0;
+  params.node_namespace = "";
+  params.node_options = state_broadcaster_->define_custom_node_options();
+  const auto result = state_broadcaster_->init(params);
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   state_broadcaster_->get_node()->set_parameter({"joints", joint_names});
@@ -952,8 +956,13 @@ TEST_F(JointStateBroadcasterTest, UpdateTest)
 
 TEST_F(JointStateBroadcasterTest, UpdatePerformanceTest)
 {
-  const auto result = state_broadcaster_->init(
-    "joint_state_broadcaster", "", 0, "", state_broadcaster_->define_custom_node_options());
+  controller_interface::ControllerInterfaceParams params;
+  params.controller_name = "joint_state_broadcaster";
+  params.robot_description = "";
+  params.update_rate = 0;
+  params.node_namespace = "";
+  params.node_options = state_broadcaster_->define_custom_node_options();
+  const auto result = state_broadcaster_->init(params);
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   custom_joint_value_ = 12.34;
@@ -965,60 +974,80 @@ TEST_F(JointStateBroadcasterTest, UpdatePerformanceTest)
 
     // standard
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "position", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "velocity", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "effort", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "effort", &custom_joint_value_));
 
     // non standard
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "mode", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "mode", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "absolute_position", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "absolute_position", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "acceleration", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "acceleration", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "current", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "torque", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "torque", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "force", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "force", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "temperature_board", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "temperature_board", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "temperature_motor", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "temperature_motor", &custom_joint_value_));
 
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "position.kd", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position.kd", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "position.ki", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position.ki", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "position.kp", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position.kp", &custom_joint_value_));
 
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "velocity.kd", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity.kd", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "velocity.ki", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity.ki", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "velocity.kp", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity.kp", &custom_joint_value_));
 
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "current.kd", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current.kd", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "current.ki", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current.ki", &custom_joint_value_));
     test_interfaces_.emplace_back(
-      hardware_interface::StateInterface{joint_name, "current.kp", &custom_joint_value_});
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current.kp", &custom_joint_value_));
   }
 
   RCLCPP_INFO(
-    state_broadcaster_->get_node()->get_logger(), "Number of test interfaces: %lu",
+    state_broadcaster_->get_node()->get_logger(), "Number of test interfaces: %zu",
     test_interfaces_.size());
 
   std::vector<LoanedStateInterface> state_interfaces;
   for (const auto & tif : test_interfaces_)
   {
-    state_interfaces.emplace_back(tif);
+    state_interfaces.emplace_back(tif, nullptr);
   }
 
   state_broadcaster_->assign_interfaces({}, std::move(state_interfaces));
