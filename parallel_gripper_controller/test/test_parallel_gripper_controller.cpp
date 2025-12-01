@@ -50,15 +50,21 @@ void GripperControllerTest::SetUpController(
   const std::string & controller_name = "test_gripper_action_position_controller",
   controller_interface::return_type expected_result = controller_interface::return_type::OK)
 {
-  const auto result =
-    controller_->init(controller_name, "", 0, "", controller_->define_custom_node_options());
+  controller_interface::ControllerInterfaceParams params;
+  params.controller_name = controller_name;
+  params.robot_description = "";
+  params.update_rate = 0;
+  params.node_namespace = "";
+  params.node_options = controller_->define_custom_node_options();
+
+  const auto result = controller_->init(params);
   ASSERT_EQ(result, expected_result);
 
   std::vector<LoanedCommandInterface> command_ifs;
-  command_ifs.emplace_back(this->joint_1_cmd_);
+  command_ifs.emplace_back(this->joint_1_cmd_, nullptr);
   std::vector<LoanedStateInterface> state_ifs;
-  state_ifs.emplace_back(this->joint_1_pos_state_);
-  state_ifs.emplace_back(this->joint_1_vel_state_);
+  state_ifs.emplace_back(this->joint_1_pos_state_, nullptr);
+  state_ifs.emplace_back(this->joint_1_vel_state_, nullptr);
   controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
 }
 
@@ -138,10 +144,10 @@ TEST_F(GripperControllerTest, ActivateDeactivateActivateSuccess)
 
   // re-assign interfaces
   std::vector<LoanedCommandInterface> command_ifs;
-  command_ifs.emplace_back(this->joint_1_cmd_);
+  command_ifs.emplace_back(this->joint_1_cmd_, nullptr);
   std::vector<LoanedStateInterface> state_ifs;
-  state_ifs.emplace_back(this->joint_1_pos_state_);
-  state_ifs.emplace_back(this->joint_1_vel_state_);
+  state_ifs.emplace_back(this->joint_1_pos_state_, nullptr);
+  state_ifs.emplace_back(this->joint_1_vel_state_, nullptr);
   this->controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
 
   ASSERT_EQ(

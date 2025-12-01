@@ -1,4 +1,4 @@
-// Copyright 2020 PAL Robotics SL.
+// Copyright (c) 2025, b»robotized
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include "rclcpp/utilities.hpp"
 #include "ros2_control_test_assets/descriptions.hpp"
 
-TEST(TestLoadGripperActionControllers, load_controller)
+TEST(TestLoadMotionPrimitivesForwardController, load_controller)
 {
   rclcpp::init(0, nullptr);
 
@@ -32,14 +32,9 @@ TEST(TestLoadGripperActionControllers, load_controller)
   controller_manager::ControllerManager cm(
     executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
 
-  ASSERT_NE(
-    cm.load_controller(
-      "test_gripper_action_position_controller", "position_controllers/GripperActionController"),
-    nullptr);
-  ASSERT_NE(
-    cm.load_controller(
-      "test_gripper_action_effort_controller", "effort_controllers/GripperActionController"),
-    nullptr);
+  ASSERT_NO_THROW(cm.load_controller(
+    "test_motion_primitives_forward_controller",
+    "motion_primitives_controllers/MotionPrimitivesForwardController"));
 
   rclcpp::shutdown();
 }
