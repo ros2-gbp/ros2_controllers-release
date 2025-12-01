@@ -30,17 +30,14 @@ TEST(TestLoadJointGroupVelocityController, load_controller)
     std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
   controller_manager::ControllerManager cm(
-    executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
+    std::make_unique<hardware_interface::ResourceManager>(
+      ros2_control_test_assets::minimal_robot_urdf),
+    executor, "test_controller_manager");
 
-  const std::string test_file_path =
-    std::string(TEST_FILES_DIRECTORY) + "/config/test_joint_group_velocity_controller.yaml";
-
-  cm.set_parameter({"test_joint_group_velocity_controller.params_file", test_file_path});
-  cm.set_parameter(
-    {"test_joint_group_velocity_controller.type",
-     "velocity_controllers/JointGroupVelocityController"});
-
-  ASSERT_NE(cm.load_controller("test_joint_group_velocity_controller"), nullptr);
+  ASSERT_NE(
+    cm.load_controller(
+      "test_joint_group_velocity_controller", "velocity_controllers/JointGroupVelocityController"),
+    nullptr);
 
   rclcpp::shutdown();
 }

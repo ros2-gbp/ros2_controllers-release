@@ -17,6 +17,7 @@
 #include "controller_interface/controller_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "position_controllers/joint_group_position_controller.hpp"
+#include "rclcpp/logging.hpp"
 #include "rclcpp/parameter.hpp"
 
 namespace position_controllers
@@ -29,11 +30,18 @@ JointGroupPositionController::JointGroupPositionController()
 
 controller_interface::CallbackReturn JointGroupPositionController::on_init()
 {
+  auto ret = forward_command_controller::ForwardCommandController::on_init();
+  if (ret != CallbackReturn::SUCCESS)
+  {
+    return ret;
+  }
+
   try
   {
     // Explicitly set the interface parameter declared by the forward_command_controller
     // to match the value set in the JointGroupPositionController constructor.
-    auto_declare<std::string>("interface_name", interface_name_);
+    get_node()->set_parameter(
+      rclcpp::Parameter("interface_name", hardware_interface::HW_IF_POSITION));
   }
   catch (const std::exception & e)
   {
@@ -41,7 +49,7 @@ controller_interface::CallbackReturn JointGroupPositionController::on_init()
     return CallbackReturn::ERROR;
   }
 
-  return forward_command_controller::ForwardCommandController::on_init();
+  return CallbackReturn::SUCCESS;
 }
 }  // namespace position_controllers
 

@@ -32,17 +32,15 @@ TEST(TestLoadForceTorqueSensorBroadcaster, load_controller)
     std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
   controller_manager::ControllerManager cm(
-    executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
+    std::make_unique<hardware_interface::ResourceManager>(
+      ros2_control_test_assets::minimal_robot_urdf),
+    executor, "test_controller_manager");
 
-  const std::string test_file_path =
-    std::string(TEST_FILES_DIRECTORY) + "/force_torque_sensor_broadcaster_params.yaml";
-
-  cm.set_parameter({"test_force_torque_sensor_broadcaster.params_file", test_file_path});
-  cm.set_parameter(
-    {"test_force_torque_sensor_broadcaster.type",
-     "force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster"});
-
-  ASSERT_NE(cm.load_controller("test_force_torque_sensor_broadcaster"), nullptr);
+  ASSERT_NE(
+    cm.load_controller(
+      "test_force_torque_sensor_broadcaster",
+      "force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster"),
+    nullptr);
 }
 
 int main(int argc, char ** argv)
