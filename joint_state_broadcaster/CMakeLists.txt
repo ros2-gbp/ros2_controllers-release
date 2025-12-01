@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(joint_state_broadcaster LANGUAGES CXX)
+project(joint_state_broadcaster)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra -Wconversion)
-endif()
+find_package(ros2_control_cmake REQUIRED)
+set_compiler_options()
+export_windows_symbols()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   builtin_interfaces
@@ -12,9 +12,9 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   generate_parameter_library
   pluginlib
   rclcpp_lifecycle
-  rcutils
   realtime_tools
   sensor_msgs
+  urdf
 )
 
 find_package(ament_cmake REQUIRED)
@@ -36,12 +36,16 @@ target_include_directories(joint_state_broadcaster PUBLIC
   $<INSTALL_INTERFACE:include/joint_state_broadcaster>
 )
 target_link_libraries(joint_state_broadcaster PUBLIC
-  joint_state_broadcaster_parameters
-)
-ament_target_dependencies(joint_state_broadcaster PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
-target_compile_definitions(joint_state_broadcaster PRIVATE "JOINT_STATE_BROADCASTER_BUILDING_DLL")
+                      joint_state_broadcaster_parameters
+                      controller_interface::controller_interface
+                      pluginlib::pluginlib
+                      rclcpp::rclcpp
+                      rclcpp_lifecycle::rclcpp_lifecycle
+                      realtime_tools::realtime_tools
+                      urdf::urdf
+                      ${sensor_msgs_TARGETS}
+                      ${control_msgs_TARGETS}
+                      ${builtin_interfaces_TARGETS})
 pluginlib_export_plugin_description_file(controller_interface joint_state_plugin.xml)
 
 if(BUILD_TESTING)
@@ -56,22 +60,17 @@ if(BUILD_TESTING)
   )
   target_link_libraries(test_load_joint_state_broadcaster
     joint_state_broadcaster
-  )
-  ament_target_dependencies(test_load_joint_state_broadcaster
-    controller_manager
-    hardware_interface
-    ros2_control_test_assets
-  )
+    controller_manager::controller_manager
+    hardware_interface::hardware_interface
+    rclcpp::rclcpp
+    ros2_control_test_assets::ros2_control_test_assets)
 
   ament_add_gmock(test_joint_state_broadcaster
     test/test_joint_state_broadcaster.cpp
   )
   target_link_libraries(test_joint_state_broadcaster
     joint_state_broadcaster
-  )
-  ament_target_dependencies(test_joint_state_broadcaster
-    hardware_interface
-  )
+    ros2_control_test_assets::ros2_control_test_assets)
 endif()
 
 install(
