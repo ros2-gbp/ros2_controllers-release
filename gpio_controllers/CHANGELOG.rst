@@ -2,10 +2,13 @@
 Changelog for package gpio_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.1.0 (2025-12-01)
-------------------
+5.11.0 (2025-12-09)
+-------------------
 
-6.0.0 (2025-11-10)
+5.10.0 (2025-12-01)
+-------------------
+
+5.9.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Fix integer literal for size_t (`#1986 <https://github.com/ros-controls/ros2_controllers/issues/1986>`_)

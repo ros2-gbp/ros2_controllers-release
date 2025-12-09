@@ -9,7 +9,7 @@ forward_command_controller:
   }
   interface_name: {
     type: string,
-    description: "Name of the interface of the joint",
+    description: "Name of the interface to command",
     validation: {
       not_empty<>: []
     },
