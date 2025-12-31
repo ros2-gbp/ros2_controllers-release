@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>force_torque_sensor_broadcaster</name>
-  <version>4.36.0</version>
+  <version>2.52.0</version>
   <description>Controller to publish state of force-torque sensors.</description>
 
   <maintainer email="bence.magyar.robotics@gmail.com">Bence Magyar</maintainer>
@@ -21,11 +21,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>ros2_control_cmake</build_depend>
-
   <depend>backward_ros</depend>
   <depend>controller_interface</depend>
-  <depend>filters</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>

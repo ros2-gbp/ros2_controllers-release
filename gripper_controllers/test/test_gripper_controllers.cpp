@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -22,6 +23,9 @@
 #include "test_gripper_controllers.hpp"
 
 #include "hardware_interface/loaned_command_interface.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
+#include "lifecycle_msgs/msg/state.hpp"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 
 using hardware_interface::LoanedCommandInterface;
 using hardware_interface::LoanedStateInterface;
@@ -58,8 +62,7 @@ void GripperControllerTest<T>::TearDown()
 template <typename T>
 void GripperControllerTest<T>::SetUpController()
 {
-  const auto result =
-    controller_->init("gripper_controller", "", 0, "", controller_->define_custom_node_options());
+  const auto result = controller_->init("gripper_controller");
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
   std::vector<LoanedCommandInterface> command_ifs;
