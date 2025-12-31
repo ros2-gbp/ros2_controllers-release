@@ -81,6 +81,81 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
 {
   params_ = param_listener_->get_params();
 
+  // TODO(anyone): Remove deprecated parameters
+  // START OF DEPRECATED
+  if (!params_.front_steering)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "DEPRECATED parameter 'front_steering'. Instead, set 'traction_joints_names' or "
+      "'steering_joints_names'");
+  }
+
+  if (params_.front_wheels_names.size() > 0)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "DEPRECATED parameter 'front_wheels_names', set 'traction_joints_names' or "
+      "'steering_joints_names' instead");
+    if (params_.front_steering)
+    {
+      params_.steering_joints_names = params_.front_wheels_names;
+    }
+    else
+    {
+      params_.traction_joints_names = params_.front_wheels_names;
+    }
+  }
+
+  if (params_.rear_wheels_names.size() > 0)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "DEPRECATED parameter 'rear_wheels_names', set 'traction_joints_names' or "
+      "'steering_joints_names' instead");
+    if (params_.front_steering)
+    {
+      params_.traction_joints_names = params_.rear_wheels_names;
+    }
+    else
+    {
+      params_.steering_joints_names = params_.rear_wheels_names;
+    }
+  }
+
+  if (params_.front_wheels_state_names.size() > 0)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "DEPRECATED parameter 'front_wheels_state_names', set 'traction_joints_state_names' or "
+      "'steering_joints_state_names' instead");
+    if (params_.front_steering)
+    {
+      params_.steering_joints_state_names = params_.front_wheels_state_names;
+    }
+    else
+    {
+      params_.traction_joints_state_names = params_.front_wheels_state_names;
+    }
+  }
+
+  if (params_.rear_wheels_state_names.size() > 0)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "DEPRECATED parameter 'rear_wheels_state_names', set 'traction_joints_state_names' or "
+      "'steering_joints_state_names' instead");
+    if (params_.front_steering)
+    {
+      params_.traction_joints_state_names = params_.rear_wheels_state_names;
+    }
+    else
+    {
+      params_.steering_joints_state_names = params_.rear_wheels_state_names;
+    }
+  }
+  // END OF DEPRECATED
+
   // call method from implementations, sets odometry type
   configure_odometry();
 
@@ -527,11 +602,11 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
 
     for (size_t i = 0; i < params_.traction_joints_names.size(); i++)
     {
-      const auto & value = traction_commands[i];
-
-      if (!command_interfaces_[i].set_value(value))
+      if (!command_interfaces_[i].set_value(traction_commands[i]))
       {
-        RCLCPP_WARN(logger, "Unable to set traction command at index %zu: value = %f", i, value);
+        RCLCPP_WARN(
+          logger, "Unable to set traction command at index %zu: value = %f", i,
+          traction_commands[i]);
         return controller_interface::return_type::OK;
       }
     }
@@ -550,11 +625,7 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
   {
     for (size_t i = 0; i < params_.traction_joints_names.size(); i++)
     {
-      if (!command_interfaces_[i].set_value(0.0))
-      {
-        RCLCPP_WARN(logger, "Unable to set command interface to value 0.0");
-        return controller_interface::return_type::OK;
-      }
+      command_interfaces_[i].set_value(0.0);
     }
   }
 
@@ -590,7 +661,7 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
     controller_state_msg_.header.stamp = time;
     controller_state_msg_.traction_wheels_position.clear();
     controller_state_msg_.traction_wheels_velocity.clear();
-    controller_state_msg_.traction_command.clear();
+    controller_state_msg_.linear_velocity_command.clear();
     controller_state_msg_.steer_positions.clear();
     controller_state_msg_.steering_angle_command.clear();
 
@@ -635,7 +706,8 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
       }
       else
       {
-        controller_state_msg_.traction_command.push_back(velocity_command_interface_op.value());
+        controller_state_msg_.linear_velocity_command.push_back(
+          velocity_command_interface_op.value());
       }
     }
 

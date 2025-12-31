@@ -2,66 +2,61 @@
 Changelog for package range_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.12.0 (2025-12-31)
+4.36.0 (2025-12-31)
+-------------------
+* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
+* Contributors: mergify[bot]
+
+4.35.0 (2025-12-01)
 -------------------
 
-5.11.0 (2025-12-09)
+4.34.0 (2025-11-10)
 -------------------
 
-5.10.0 (2025-12-01)
+4.33.1 (2025-10-17)
 -------------------
 
-5.9.0 (2025-11-10)
-------------------
-* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
-* Contributors: Anand Vardhan
+4.33.0 (2025-10-03)
+-------------------
+* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
+* Contributors: mergify[bot]
 
-5.8.0 (2025-10-02)
-------------------
-* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
-* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
-* Contributors: Christoph Fröhlich
+4.32.0 (2025-09-12)
+-------------------
+* Fix temporary copies of other semantic components (backport `#1905 <https://github.com/ros-controls/ros2_controllers/issues/1905>`_) (`#1908 <https://github.com/ros-controls/ros2_controllers/issues/1908>`_)
+* Contributors: mergify[bot]
 
-5.7.0 (2025-09-12)
-------------------
-* Fix temporary copies of other semantic components (`#1905 <https://github.com/ros-controls/ros2_controllers/issues/1905>`_)
-* Contributors: Christoph Fröhlich
+4.31.0 (2025-08-27)
+-------------------
 
-5.6.1 (2025-08-30)
-------------------
+4.30.1 (2025-08-03)
+-------------------
 
-5.6.0 (2025-08-29)
-------------------
+4.30.0 (2025-07-31)
+-------------------
 
-5.5.0 (2025-07-31)
-------------------
+4.29.0 (2025-07-23)
+-------------------
 
-5.4.0 (2025-07-23)
-------------------
+4.28.0 (2025-07-14)
+-------------------
 
-5.3.0 (2025-07-14)
-------------------
-* Fix cmake deprecation (`#1780 <https://github.com/ros-controls/ros2_controllers/issues/1780>`_)
-* Contributors: mosfet80
+4.27.1 (2025-07-02)
+-------------------
+* Fix cmake deprecation (backport `#1780 <https://github.com/ros-controls/ros2_controllers/issues/1780>`_) (`#1782 <https://github.com/ros-controls/ros2_controllers/issues/1782>`_)
+* Contributors: mergify[bot]
 
-5.2.0 (2025-06-23)
-------------------
+4.27.0 (2025-06-23)
+-------------------
 
-5.1.0 (2025-06-11)
-------------------
+4.26.0 (2025-06-06)
+-------------------
+* Remove CMAKE_CXX_STANDARD (backport `#1704 <https://github.com/ros-controls/ros2_controllers/issues/1704>`_) (`#1706 <https://github.com/ros-controls/ros2_controllers/issues/1706>`_)
+* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
+* Contributors: mergify[bot]
 
-5.0.2 (2025-05-26)
-------------------
-* Remove CMAKE_CXX_STANDARD (`#1704 <https://github.com/ros-controls/ros2_controllers/issues/1704>`_)
-* Contributors: Christoph Fröhlich
-
-5.0.1 (2025-05-24)
-------------------
-* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
-* Contributors: Sai Kishor Kothakota
-
-5.0.0 (2025-05-17)
-------------------
+4.25.0 (2025-05-17)
+-------------------
 
 4.24.0 (2025-04-27)
 -------------------

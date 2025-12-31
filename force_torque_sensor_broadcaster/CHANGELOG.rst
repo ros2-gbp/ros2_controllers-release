@@ -2,78 +2,70 @@
 Changelog for package force_torque_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.12.0 (2025-12-31)
+4.36.0 (2025-12-31)
 -------------------
-* Remove export of wrench_transformer_node (backport `#2069 <https://github.com/ros-controls/ros2_controllers/issues/2069>`_) (`#2072 <https://github.com/ros-controls/ros2_controllers/issues/2072>`_)
+* Remove export of wrench_transformer_node (backport `#2069 <https://github.com/ros-controls/ros2_controllers/issues/2069>`_) (`#2071 <https://github.com/ros-controls/ros2_controllers/issues/2071>`_)
+* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
+* Add support for positional target frame arguments for transform wrench node (backport `#2040 <https://github.com/ros-controls/ros2_controllers/issues/2040>`_) (`#2046 <https://github.com/ros-controls/ros2_controllers/issues/2046>`_)
 * Contributors: mergify[bot]
 
-5.11.0 (2025-12-09)
+4.35.0 (2025-12-01)
 -------------------
-* Add support for positional target frame arguments for transform wrench node (backport `#2040 <https://github.com/ros-controls/ros2_controllers/issues/2040>`_) (`#2047 <https://github.com/ros-controls/ros2_controllers/issues/2047>`_)
+* Add utility node for transform wrench messages for a list of frames (backport `#2021 <https://github.com/ros-controls/ros2_controllers/issues/2021>`_) (`#2031 <https://github.com/ros-controls/ros2_controllers/issues/2031>`_)
 * Contributors: mergify[bot]
 
-5.10.0 (2025-12-01)
+4.34.0 (2025-11-10)
 -------------------
-* Add utility node for transform wrench messages for a list of frames (backport `#2021 <https://github.com/ros-controls/ros2_controllers/issues/2021>`_) (`#2032 <https://github.com/ros-controls/ros2_controllers/issues/2032>`_)
+
+4.33.1 (2025-10-17)
+-------------------
+* Don't use `msg\_` field of realtime publisher (backport `#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_) (`#1948 <https://github.com/ros-controls/ros2_controllers/issues/1948>`_)
 * Contributors: mergify[bot]
 
-5.9.0 (2025-11-10)
-------------------
-* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
-* Don't use `msg\_` field of realtime publisher (`#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_)
-* Contributors: Anand Vardhan, Christoph Fröhlich
+4.33.0 (2025-10-03)
+-------------------
+* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
+* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
+* Add filtering capability to ft_broadcaster (backport `#1814 <https://github.com/ros-controls/ros2_controllers/issues/1814>`_) (`#1927 <https://github.com/ros-controls/ros2_controllers/issues/1927>`_)
+* Contributors: mergify[bot]
 
-5.8.0 (2025-10-02)
-------------------
-* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
-* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
-* Contributors: Christoph Fröhlich
+4.32.0 (2025-09-12)
+-------------------
+* FTS: Don't make a temporary copy of semantic component (backport `#1902 <https://github.com/ros-controls/ros2_controllers/issues/1902>`_) (`#1904 <https://github.com/ros-controls/ros2_controllers/issues/1904>`_)
+* Contributors: mergify[bot]
 
-5.7.0 (2025-09-12)
-------------------
-* FTS: Don't make a temporary copy of semantic component (`#1902 <https://github.com/ros-controls/ros2_controllers/issues/1902>`_)
-* Add filtering capability to ft_broadcaster (`#1814 <https://github.com/ros-controls/ros2_controllers/issues/1814>`_)
-* Contributors: Christoph Fröhlich, Óscar Martínez Martínez
+4.31.0 (2025-08-27)
+-------------------
 
-5.6.1 (2025-08-30)
-------------------
+4.30.1 (2025-08-03)
+-------------------
 
-5.6.0 (2025-08-29)
-------------------
+4.30.0 (2025-07-31)
+-------------------
 
-5.5.0 (2025-07-31)
-------------------
+4.29.0 (2025-07-23)
+-------------------
 
-5.4.0 (2025-07-23)
-------------------
-* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
-* Contributors: Sanjeev Kumar
+4.28.0 (2025-07-14)
+-------------------
 
-5.3.0 (2025-07-14)
-------------------
-* Use ParamListener::try_get_params to Avoid Blocking in Real-Time Contexts (`#1198 <https://github.com/ros-controls/ros2_controllers/issues/1198>`_)
-* Contributors: Kenta Kato
+4.27.1 (2025-07-02)
+-------------------
 
-5.2.0 (2025-06-23)
-------------------
-
-5.1.0 (2025-06-11)
-------------------
-* Revert temporary logging changes added for CI timeout investigation (`#1741 <https://github.com/ros-controls/ros2_controllers/issues/1741>`_)
+4.27.0 (2025-06-23)
+-------------------
+* Revert temporary logging changes added for CI timeout investigation (backport `#1741 <https://github.com/ros-controls/ros2_controllers/issues/1741>`_) (`#1747 <https://github.com/ros-controls/ros2_controllers/issues/1747>`_)
 * Contributors: Julia Jia
 
-5.0.2 (2025-05-26)
-------------------
+4.26.0 (2025-06-06)
+-------------------
+* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
+* Contributors: mergify[bot]
 
-5.0.1 (2025-05-24)
-------------------
-* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
-* Contributors: Sai Kishor Kothakota
-
-5.0.0 (2025-05-17)
-------------------
-* Add multiplier support to ForceTorqueSensorBroadcaster (`#1647 <https://github.com/ros-controls/ros2_controllers/issues/1647>`_)
-* Contributors: edward.ix
+4.25.0 (2025-05-17)
+-------------------
+* Add multiplier support to ForceTorqueSensorBroadcaster (backport `#1647 <https://github.com/ros-controls/ros2_controllers/issues/1647>`_) (`#1686 <https://github.com/ros-controls/ros2_controllers/issues/1686>`_)
+* Contributors: mergify[bot], edward.ix
 
 4.24.0 (2025-04-27)
 -------------------

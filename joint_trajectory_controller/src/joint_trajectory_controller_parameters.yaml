@@ -46,36 +46,16 @@ joint_trajectory_controller:
       "joint_trajectory_controller::state_interface_type_combinations": null,
     }
   }
-  speed_scaling: {
-
-    initial_scaling_factor: {
-      type: double,
-      default_value: 1.0,
-      read_only: true,
-      description: "The initial value of the scaling factor if no exchange with hardware takes place.",
-      validation: {
-        gt_eq<>: 0.0,
-      }
-    },
-
-    state_interface: {
-      type: string,
-      default_value: "",
-      read_only: true,
-      description: "Fully qualified name of the speed scaling state interface name"
-    },
-
-    command_interface: {
-      type: string,
-      default_value: "",
-      read_only: true,
-      description: "Command interface name used for setting the speed scaling factor on the hardware."
-    }
-  }
   allow_partial_joints_goal: {
     type: bool,
     default_value: false,
     description: "Allow joint goals defining trajectory for only some joints.",
+  }
+  open_loop_control: {
+    type: bool,
+    default_value: false,
+    description: "deprecated: use ``interpolate_from_desired_state`` and set feedback gains to zero instead",
+    read_only: true,
   }
   interpolate_from_desired_state: {
     type: bool,
@@ -150,6 +130,21 @@ joint_trajectory_controller:
         default_value: 0.0,
         description: "Derivative gain :math:`k_d` for PID"
       }
+      i_clamp: {
+        type: double,
+        default_value: .inf,
+        description: "[Deprecated, use i_clamp_max/i_clamp_min] Integral clamp. Symmetrical in both positive and negative direction."
+      }
+      i_clamp_max: {
+        type: double,
+        default_value: .inf,
+        description: "Upper integral clamp."
+      }
+      i_clamp_min: {
+        type: double,
+        default_value: -.inf,
+        description: "Lower integral clamp."
+      }
       ff_velocity_scale: {
         type: double,
         default_value: 0.0,
@@ -165,26 +160,18 @@ joint_trajectory_controller:
         default_value: -.inf,
         description: "Lower output clamp."
       }
-      i_clamp_max: {
-        type: double,
-        default_value: .inf,
-        description: "Upper integral clamp."
-      }
-      i_clamp_min: {
-        type: double,
-        default_value: -.inf,
-        description: "Lower integral clamp."
-      }
       antiwindup_strategy: {
         type: string,
-        default_value: "none",
+        default_value: "legacy",
+        read_only: true,
         description: "Specifies the anti-windup strategy. Options: 'back_calculation',
-        'conditional_integration' or 'none'. Note that the 'back_calculation' strategy use the
+        'conditional_integration', 'legacy' or 'none'. Note that the 'back_calculation' strategy use the
         tracking_time_constant parameter to tune the anti-windup behavior.",
         validation: {
           one_of<>: [[
             "back_calculation",
             "conditional_integration",
+            "legacy",
             "none"
           ]]
         }

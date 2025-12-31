@@ -2,80 +2,71 @@
 Changelog for package pid_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.12.0 (2025-12-31)
+4.36.0 (2025-12-31)
 -------------------
-
-5.11.0 (2025-12-09)
--------------------
-
-5.10.0 (2025-12-01)
--------------------
-* Remove parameter_traits dependency (backport `#2022 <https://github.com/ros-controls/ros2_controllers/issues/2022>`_) (`#2025 <https://github.com/ros-controls/ros2_controllers/issues/2025>`_)
+* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
 * Contributors: mergify[bot]
 
-5.9.0 (2025-11-10)
-------------------
-* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
-* Contributors: Anand Vardhan
+4.35.0 (2025-12-01)
+-------------------
+* Remove parameter_traits dependency (backport `#2022 <https://github.com/ros-controls/ros2_controllers/issues/2022>`_) (`#2024 <https://github.com/ros-controls/ros2_controllers/issues/2024>`_)
+* Contributors: mergify[bot]
 
-5.8.0 (2025-10-02)
-------------------
-* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
-* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
+4.34.0 (2025-11-10)
+-------------------
+
+4.33.1 (2025-10-17)
+-------------------
+* Fix upstream Pid class deprecation warnings (`#1959 <https://github.com/ros-controls/ros2_controllers/issues/1959>`_)
 * Contributors: Christoph Fröhlich
 
-5.7.0 (2025-09-12)
-------------------
-* Remove legacy and deprecated PID parameters (`#1845 <https://github.com/ros-controls/ros2_controllers/issues/1845>`_)
-* Contributors: Victor Coutinho Vieira Santos
+4.33.0 (2025-10-03)
+-------------------
+* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
+* Update realtime containers (backport `#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_) (`#1935 <https://github.com/ros-controls/ros2_controllers/issues/1935>`_)
+* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
+* Contributors: mergify[bot]
 
-5.6.1 (2025-08-30)
-------------------
+4.32.0 (2025-09-12)
+-------------------
 
-5.6.0 (2025-08-29)
-------------------
+4.31.0 (2025-08-27)
+-------------------
 
-5.5.0 (2025-07-31)
-------------------
+4.30.1 (2025-08-03)
+-------------------
 
-5.4.0 (2025-07-23)
-------------------
-* Apply API change of PidROS (`#1823 <https://github.com/ros-controls/ros2_controllers/issues/1823>`_)
-* Change the tests to work without deprecated PID settings (`#1824 <https://github.com/ros-controls/ros2_controllers/issues/1824>`_)
-* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
-* Contributors: Sanjeev Kumar
+4.30.0 (2025-07-31)
+-------------------
 
-5.3.0 (2025-07-14)
-------------------
-* Use ParamListener::try_get_params to Avoid Blocking in Real-Time Contexts (`#1198 <https://github.com/ros-controls/ros2_controllers/issues/1198>`_)
-* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
-* Contributors: Christoph Fröhlich, Kenta Kato
+4.29.0 (2025-07-23)
+-------------------
+* Apply API change of PidROS (backport `#1823 <https://github.com/ros-controls/ros2_controllers/issues/1823>`_) (`#1826 <https://github.com/ros-controls/ros2_controllers/issues/1826>`_)
+* Change the tests to work without deprecated PID settings (backport `#1824 <https://github.com/ros-controls/ros2_controllers/issues/1824>`_) (`#1825 <https://github.com/ros-controls/ros2_controllers/issues/1825>`_)
+* Contributors: mergify[bot]
 
-5.2.0 (2025-06-23)
-------------------
-* Add new members for PID controller parameters (`#1585 <https://github.com/ros-controls/ros2_controllers/issues/1585>`_)
-* Contributors: Victor Coutinho Vieira Santos
+4.28.0 (2025-07-14)
+-------------------
 
-5.1.0 (2025-06-11)
-------------------
-* Remove deprecated feedforward parameter+service (`#1753 <https://github.com/ros-controls/ros2_controllers/issues/1753>`_)
-  Co-authored-by: pascalau <pascalau>
-* Set enable_feedforward parameter in the respective tests (`#1743 <https://github.com/ros-controls/ros2_controllers/issues/1743>`_)
-* Contributors: Pascal Auf der Maur, Sai Kishor Kothakota
+4.27.1 (2025-07-02)
+-------------------
 
-5.0.2 (2025-05-26)
-------------------
+4.27.0 (2025-06-23)
+-------------------
+* Add new members for PID controller parameters (backport `#1585 <https://github.com/ros-controls/ros2_controllers/issues/1585>`_) (`#1769 <https://github.com/ros-controls/ros2_controllers/issues/1769>`_)
+* Set enable_feedforward parameter in the respective tests (backport `#1743 <https://github.com/ros-controls/ros2_controllers/issues/1743>`_) (`#1744 <https://github.com/ros-controls/ros2_controllers/issues/1744>`_)
+* Contributors: Victor Coutinho Vieira Santos, Sai Kishor Kothakota, Christoph Fröhlich
 
-5.0.1 (2025-05-24)
-------------------
-* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
-* Contributors: Sai Kishor Kothakota
+4.26.0 (2025-06-06)
+-------------------
+* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
+* Contributors: mergify[bot]
 
-5.0.0 (2025-05-17)
-------------------
-* [Pid] Add enable_feedforward parameter (`#1553 <https://github.com/ros-controls/ros2_controllers/issues/1553>`_)
-* Simplify `on_set_chained_mode` implementations avoiding cpplint warnings (`#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_)
-* Contributors: Bhagyesh Agresar, Pascal Auf der Maur
+4.25.0 (2025-05-17)
+-------------------
+* [Pid] Add enable_feedforward parameter (backport `#1553 <https://github.com/ros-controls/ros2_controllers/issues/1553>`_) (`#1689 <https://github.com/ros-controls/ros2_controllers/issues/1689>`_)
+* Simplify `on_set_chained_mode` avoiding cpplint warnings (backport `#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_) (`#1688 <https://github.com/ros-controls/ros2_controllers/issues/1688>`_)
+* Contributors: mergify[bot], Pascal Auf der Maur, hagyesh Agresar
 
 4.24.0 (2025-04-27)
 -------------------

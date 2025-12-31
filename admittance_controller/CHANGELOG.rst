@@ -2,75 +2,64 @@
 Changelog for package admittance_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.12.0 (2025-12-31)
+4.36.0 (2025-12-31)
+-------------------
+* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
+* Contributors: mergify[bot]
+
+4.35.0 (2025-12-01)
 -------------------
 
-5.11.0 (2025-12-09)
+4.34.0 (2025-11-10)
 -------------------
 
-5.10.0 (2025-12-01)
+4.33.1 (2025-10-17)
 -------------------
 
-5.9.0 (2025-11-10)
-------------------
-* Use NodeInterfaces for TransformBroadcaster construction (backport `#1981 <https://github.com/ros-controls/ros2_controllers/issues/1981>`_) (`#1998 <https://github.com/ros-controls/ros2_controllers/issues/1998>`_)
-* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
-* Contributors: Anand Vardhan, mergify[bot]
+4.33.0 (2025-10-03)
+-------------------
+* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
+* Update realtime containers (backport `#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_) (`#1935 <https://github.com/ros-controls/ros2_controllers/issues/1935>`_)
+* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
+* Contributors: mergify[bot]
 
-5.8.0 (2025-10-02)
-------------------
-* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
-* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
-* Contributors: Christoph Fröhlich
+4.32.0 (2025-09-12)
+-------------------
+* Fix temporary copies of other semantic components (backport `#1905 <https://github.com/ros-controls/ros2_controllers/issues/1905>`_) (`#1908 <https://github.com/ros-controls/ros2_controllers/issues/1908>`_)
+* Contributors: mergify[bot]
 
-5.7.0 (2025-09-12)
-------------------
-* Fix temporary copies of other semantic components (`#1905 <https://github.com/ros-controls/ros2_controllers/issues/1905>`_)
-* Contributors: Christoph Fröhlich
+4.31.0 (2025-08-27)
+-------------------
+* chore: tf2_ros to hpp headers (backport `#1866 <https://github.com/ros-controls/ros2_controllers/issues/1866>`_) (`#1869 <https://github.com/ros-controls/ros2_controllers/issues/1869>`_)
+* Contributors: mergify[bot]
 
-5.6.1 (2025-08-30)
-------------------
+4.30.1 (2025-08-03)
+-------------------
 
-5.6.0 (2025-08-29)
-------------------
-* tf2_ros to hpp headers (`#1866 <https://github.com/ros-controls/ros2_controllers/issues/1866>`_)
-* Remove usage of `get_ordered_interfaces` but update parameter validation instead (`#1816 <https://github.com/ros-controls/ros2_controllers/issues/1816>`_)
-* Contributors: Christoph Fröhlich, Tim Clephas
+4.30.0 (2025-07-31)
+-------------------
+* Fix `child_frame_id` in controller_state_msg (backport `#1601 <https://github.com/ros-controls/ros2_controllers/issues/1601>`_) (`#1835 <https://github.com/ros-controls/ros2_controllers/issues/1835>`_)
+* Contributors: mergify[bot]
 
-5.5.0 (2025-07-31)
-------------------
-* Fix `child_frame_id` in controller_state_msg (`#1601 <https://github.com/ros-controls/ros2_controllers/issues/1601>`_)
-* Contributors: Rehan Shah
+4.29.0 (2025-07-23)
+-------------------
 
-5.4.0 (2025-07-23)
-------------------
-* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
-* Contributors: Sanjeev Kumar
+4.28.0 (2025-07-14)
+-------------------
 
-5.3.0 (2025-07-14)
-------------------
-* Use ParamListener::try_get_params to Avoid Blocking in Real-Time Contexts (`#1198 <https://github.com/ros-controls/ros2_controllers/issues/1198>`_)
-* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
-* Contributors: Christoph Fröhlich, Kenta Kato
+4.27.1 (2025-07-02)
+-------------------
 
-5.2.0 (2025-06-23)
-------------------
+4.27.0 (2025-06-23)
+-------------------
 
-5.1.0 (2025-06-11)
-------------------
+4.26.0 (2025-06-06)
+-------------------
+* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
+* Contributors: mergify[bot]
 
-5.0.2 (2025-05-26)
-------------------
-
-5.0.1 (2025-05-24)
-------------------
-* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
-* Contributors: Sai Kishor Kothakota
-
-5.0.0 (2025-05-17)
-------------------
-* [AdmittanceController] Remove superfluous `admittance_tranforms\_` structure (`#1668 <https://github.com/ros-controls/ros2_controllers/issues/1668>`_)
-* Contributors: Geethik Mylapur
+4.25.0 (2025-05-17)
+-------------------
 
 4.24.0 (2025-04-27)
 -------------------

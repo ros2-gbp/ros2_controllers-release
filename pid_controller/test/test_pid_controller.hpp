@@ -53,14 +53,17 @@ class TestablePidController : public pid_controller::PidController
   FRIEND_TEST(PidControllerTest, all_parameters_set_configure_success);
   FRIEND_TEST(PidControllerTest, activate_success);
   FRIEND_TEST(PidControllerTest, reactivate_success);
-  FRIEND_TEST(PidControllerTest, test_update_logic_zero_feedforward_gain);
-  FRIEND_TEST(PidControllerTest, test_update_chained_non_zero_feedforward_gain);
-  FRIEND_TEST(PidControllerTest, test_update_chained_changing_feedforward_gain);
+  FRIEND_TEST(PidControllerTest, test_feedforward_mode_service);
+  FRIEND_TEST(PidControllerTest, test_feedforward_mode_parameter);
+  FRIEND_TEST(PidControllerTest, test_update_logic_feedforward_off);
+  FRIEND_TEST(PidControllerTest, test_update_logic_feedforward_on_with_zero_feedforward_gain);
   FRIEND_TEST(PidControllerTest, test_update_logic_chainable_not_use_subscriber_update);
   FRIEND_TEST(PidControllerTest, test_update_logic_angle_wraparound_off);
   FRIEND_TEST(PidControllerTest, test_update_logic_angle_wraparound_on);
   FRIEND_TEST(PidControllerTest, subscribe_and_get_messages_success);
   FRIEND_TEST(PidControllerTest, receive_message_and_publish_updated_status);
+  FRIEND_TEST(PidControllerTest, test_update_chained_feedforward_with_gain);
+  FRIEND_TEST(PidControllerTest, test_update_chained_feedforward_off_with_gain);
   FRIEND_TEST(PidControllerDualInterfaceTest, test_chained_feedforward_with_gain_dual_interface);
   FRIEND_TEST(PidControllerTest, test_save_i_term_on);
   FRIEND_TEST(PidControllerTest, test_save_i_term_off);
@@ -137,8 +140,13 @@ public:
     // initialize controller
     controller_ = std::make_unique<CtrlType>();
 
-    // create a publisher node, publisher will be created in SetUpController
     command_publisher_node_ = std::make_shared<rclcpp::Node>("command_publisher");
+
+    service_caller_node_ = std::make_shared<rclcpp::Node>("service_caller");
+    feedforward_service_client_ = service_caller_node_->create_client<ControllerModeSrvType>(
+      "/test_pid_controller/set_feedforward_control");
+    command_publisher_ = command_publisher_node_->create_publisher<ControllerCommandMsg>(
+      "/test_pid_controller/reference", rclcpp::SystemDefaultsQoS());
   }
 
   static void TearDownTestCase() { rclcpp::shutdown(); }
@@ -159,20 +167,20 @@ protected:
     params.node_options = controller_->define_custom_node_options();
     ASSERT_EQ(controller_->init(params), controller_interface::return_type::OK);
 
-    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
+    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
     command_itfs_.reserve(dof_names_.size());
-    loaned_command_ifs.reserve(dof_names_.size());
+    command_ifs.reserve(dof_names_.size());
 
     for (size_t i = 0; i < dof_names_.size(); ++i)
     {
       command_itfs_.emplace_back(
-        std::make_shared<hardware_interface::CommandInterface>(
+        hardware_interface::CommandInterface(
           dof_names_[i], command_interface_, &dof_command_values_[i]));
-      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
+      command_ifs.emplace_back(command_itfs_.back());
     }
 
-    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
-    loaned_state_ifs.reserve(dof_names_.size() * state_interfaces_.size());
+    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
+    state_ifs.reserve(dof_names_.size() * state_interfaces_.size());
     state_itfs_.reserve(dof_names_.size() * state_interfaces_.size());
     size_t index = 0;
     for (const auto & interface : state_interfaces_)
@@ -180,14 +188,13 @@ protected:
       for (const auto & dof_name : dof_names_)
       {
         state_itfs_.emplace_back(
-          std::make_shared<hardware_interface::StateInterface>(
-            dof_name, interface, &dof_state_values_[index]));
-        loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
+          hardware_interface::StateInterface(dof_name, interface, &dof_state_values_[index]));
+        state_ifs.emplace_back(state_itfs_.back());
         ++index;
       }
     }
 
-    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
+    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
   }
 
   void subscribe_and_get_messages(ControllerStateMsg & msg)
@@ -261,6 +268,25 @@ protected:
     command_publisher_->publish(msg);
   }
 
+  std::shared_ptr<ControllerModeSrvType::Response> call_service(
+    const bool feedforward, rclcpp::Executor & executor)
+  {
+    auto request = std::make_shared<ControllerModeSrvType::Request>();
+    request->data = feedforward;
+
+    bool wait_for_service_ret =
+      feedforward_service_client_->wait_for_service(std::chrono::milliseconds(500));
+    EXPECT_TRUE(wait_for_service_ret);
+    if (!wait_for_service_ret)
+    {
+      throw std::runtime_error("Service is not available!");
+    }
+    auto result = feedforward_service_client_->async_send_request(request);
+    EXPECT_EQ(executor.spin_until_future_complete(result), rclcpp::FutureReturnCode::SUCCESS);
+
+    return result.get();
+  }
+
 protected:
   // TODO(anyone): adjust the members as needed
 
@@ -272,13 +298,15 @@ protected:
   std::vector<double> dof_command_values_;
   std::vector<std::string> reference_and_state_dof_names_;
 
-  std::vector<hardware_interface::StateInterface::SharedPtr> state_itfs_;
-  std::vector<hardware_interface::CommandInterface::SharedPtr> command_itfs_;
+  std::vector<hardware_interface::StateInterface> state_itfs_;
+  std::vector<hardware_interface::CommandInterface> command_itfs_;
 
   // Test related parameters
   std::unique_ptr<TestablePidController> controller_;
   rclcpp::Node::SharedPtr command_publisher_node_;
   rclcpp::Publisher<ControllerCommandMsg>::SharedPtr command_publisher_;
+  rclcpp::Node::SharedPtr service_caller_node_;
+  rclcpp::Client<ControllerModeSrvType>::SharedPtr feedforward_service_client_;
 };
 
 #endif  // TEST_PID_CONTROLLER_HPP_

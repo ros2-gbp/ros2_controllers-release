@@ -2,63 +2,59 @@
 Changelog for package omni_wheel_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.12.0 (2025-12-31)
+4.36.0 (2025-12-31)
+-------------------
+* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
+* Contributors: mergify[bot]
+
+4.35.0 (2025-12-01)
 -------------------
 
-5.11.0 (2025-12-09)
+4.34.0 (2025-11-10)
 -------------------
 
-5.10.0 (2025-12-01)
+4.33.1 (2025-10-17)
 -------------------
 
-5.9.0 (2025-11-10)
-------------------
-* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
-* Contributors: Anand Vardhan
+4.33.0 (2025-10-03)
+-------------------
+* Fix: Remove deprecated `rclcpp::spin_some(node)` (backport `#1928 <https://github.com/ros-controls/ros2_controllers/issues/1928>`_) (`#1932 <https://github.com/ros-controls/ros2_controllers/issues/1932>`_)
+* Contributors: mergify[bot]
 
-5.8.0 (2025-10-02)
-------------------
-* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
-* Fix: Remove deprecated `rclcpp::spin_some(node)` (`#1928 <https://github.com/ros-controls/ros2_controllers/issues/1928>`_)
-* Contributors: Christoph Fröhlich, Kostubh Khandelwal
+4.32.0 (2025-09-12)
+-------------------
+* Fix use of M_PI in omni_wheel_driver_controller on MSVC (backport `#1886 <https://github.com/ros-controls/ros2_controllers/issues/1886>`_) (`#1887 <https://github.com/ros-controls/ros2_controllers/issues/1887>`_)
+* [omni_wheel_drive_controller] Fix the broken links (backport `#1882 <https://github.com/ros-controls/ros2_controllers/issues/1882>`_) (`#1883 <https://github.com/ros-controls/ros2_controllers/issues/1883>`_)
+* Contributors: mergify[bot]
 
-5.7.0 (2025-09-12)
-------------------
-* Fix use of M_PI in omni_wheel_driver_controller on MSVC (`#1886 <https://github.com/ros-controls/ros2_controllers/issues/1886>`_)
-* [omni_wheel_drive_controller] Fix the broken links (`#1882 <https://github.com/ros-controls/ros2_controllers/issues/1882>`_)
-* Contributors: Sai Kishor Kothakota, Silvio Traversaro
+4.31.0 (2025-08-27)
+-------------------
 
-5.6.1 (2025-08-30)
-------------------
+4.30.1 (2025-08-03)
+-------------------
 
-5.6.0 (2025-08-29)
-------------------
+4.30.0 (2025-07-31)
+-------------------
+* Add omni_wheel_drive_controller (backport `#1535 <https://github.com/ros-controls/ros2_controllers/issues/1535>`_) (`#1836 <https://github.com/ros-controls/ros2_controllers/issues/1836>`_)
+* Contributors: mergify[bot]
 
-5.5.0 (2025-07-31)
-------------------
-* Add omni_wheel_drive_controller (`#1535 <https://github.com/ros-controls/ros2_controllers/issues/1535>`_)
-* Contributors: Aarav Gupta
+4.29.0 (2025-07-23)
+-------------------
 
-5.4.0 (2025-07-23)
-------------------
+4.28.0 (2025-07-14)
+-------------------
 
-5.3.0 (2025-07-14)
-------------------
+4.27.1 (2025-07-02)
+-------------------
 
-5.2.0 (2025-06-23)
-------------------
+4.27.0 (2025-06-23)
+-------------------
 
-5.1.0 (2025-06-11)
-------------------
+4.26.0 (2025-06-06)
+-------------------
 
-5.0.2 (2025-05-26)
-------------------
-
-5.0.1 (2025-05-24)
-------------------
-
-5.0.0 (2025-05-17)
-------------------
+4.25.0 (2025-05-17)
+-------------------
 
 4.24.0 (2025-04-27)
 -------------------
