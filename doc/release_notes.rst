@@ -9,6 +9,10 @@ admittance_controller
 * Remove ``robot_description`` parameter from parameter YAML, because it is not used at all (`#963 <https://github.com/ros-controls/ros2_controllers/pull/963>`_).
 * Added ``~/wrench_reference`` input topic which allows to provide a force-torque offset as WrenchStamped (`#1249 <https://github.com/ros-controls/ros2_controllers/pull/1249>`_).
 
+state_interfaces_broadcaster
+*********************************
+* 🚀 The state_interfaces_broadcaster was added 🎉 (`#2006 <https://github.com/ros-controls/ros2_controllers/pull/2006>`_).
+
 diff_drive_controller
 *****************************
 * The twist message on ``~/cmd_vel`` is now required to be of stamped type (`#812 <https://github.com/ros-controls/ros2_controllers/pull/812>`_).
@@ -23,6 +27,11 @@ The ``effort_controllers/GripperActionController`` and ``position_controllers/Gr
 chained_filter_controller
 *******************************
 * The chained_filter_controller was added to use generic filter plugins (`#1634 <https://github.com/ros-controls/ros2_controllers/pull/1634>`__).
+
+joint_state_broadcaster
+************************
+* Make all parameters read-only (the never got re-evaluated after initialization anyways). (`#2064 <https://github.com/ros-controls/ros2_controllers/pull/2064>`_)
+* Added parameter ``publish_dynamic_joint_states`` to enable/disable publishing of dynamic joint states. (`#2064 <https://github.com/ros-controls/ros2_controllers/pull/2064>`_)
 
 joint_trajectory_controller
 *****************************
@@ -63,6 +72,10 @@ joint_trajectory_controller
 * Feed-forward effort trajectories are supported now (`#1200 <https://github.com/ros-controls/ros2_controllers/pull/1200>`_).
 * Parameter ``open_loop_control`` is replaced by ``interpolate_from_desired_state`` and setting the feedback gains to zero (`#1525 <https://github.com/ros-controls/ros2_controllers/pull/1525>`_).
 * The controller now supports the new anti-windup strategy of the PID class, which allows for more flexible control of the anti-windup behavior. (`#1759 <https://github.com/ros-controls/ros2_controllers/pull/1759>`__).
+* Fill in 0 velocities and accelerations into point before trajectories if the state interfaces
+  don't contain velocity / acceleration information, but the trajectory does. This way, the segment
+  up to the first waypoint will use the same interpolation as the rest of the trajectory. (`#2043
+  <https://github.com/ros-controls/ros2_controllers/pull/2043>`_)
 
 mecanum_drive_controller
 ************************
