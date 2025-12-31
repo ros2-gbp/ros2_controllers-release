@@ -2,13 +2,15 @@
 Changelog for package omni_wheel_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.11.0 (2025-12-09)
--------------------
+6.2.0 (2025-12-31)
+------------------
+* Tf prefix helper for omniwheel drive (`#2073 <https://github.com/ros-controls/ros2_controllers/issues/2073>`_)
+* Contributors: Ege Kural
 
-5.10.0 (2025-12-01)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan
