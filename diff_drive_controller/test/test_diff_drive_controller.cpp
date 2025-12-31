@@ -74,10 +74,12 @@ public:
     return realtime_odometry_publisher_;
   }
   // Declare these tests as friends so we can access odometry_message_
-  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_prefix_no_namespace);
-  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_blank_prefix_no_namespace);
-  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_prefix_set_namespace);
-  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_tilde_prefix_set_namespace);
+  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_test_prefix_false_no_namespace);
+  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_test_prefix_true_no_namespace);
+  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_blank_prefix_true_no_namespace);
+  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_test_prefix_false_set_namespace);
+  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_test_prefix_true_set_namespace);
+  FRIEND_TEST(TestDiffDriveController, configure_succeeds_tf_blank_prefix_true_set_namespace);
   // Declare these tests as friends so we can access controller_->reference_interfaces_
   FRIEND_TEST(TestDiffDriveController, chainable_controller_unchained_mode);
   FRIEND_TEST(TestDiffDriveController, chainable_controller_chained_mode);
@@ -308,7 +310,29 @@ TEST_F(
   EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
 }
 
-TEST_F(TestDiffDriveController, configure_succeeds_tf_prefix_no_namespace)
+TEST_F(TestDiffDriveController, configure_succeeds_tf_test_prefix_false_no_namespace)
+{
+  std::string odom_id = "odom";
+  std::string base_link_id = "base_link";
+  std::string frame_prefix = "test_prefix";
+
+  ASSERT_EQ(
+    InitController(
+      left_wheel_names, right_wheel_names,
+      {rclcpp::Parameter("tf_frame_prefix_enable", rclcpp::ParameterValue(false)),
+       rclcpp::Parameter("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix)),
+       rclcpp::Parameter("odom_frame_id", rclcpp::ParameterValue(odom_id)),
+       rclcpp::Parameter("base_frame_id", rclcpp::ParameterValue(base_link_id))}),
+    controller_interface::return_type::OK);
+
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  /* tf_frame_prefix_enable is false so no modifications to the frame id's */
+  ASSERT_EQ(controller_->odometry_message_.header.frame_id, odom_id);
+  ASSERT_EQ(controller_->odometry_message_.child_frame_id, base_link_id);
+}
+
+TEST_F(TestDiffDriveController, configure_succeeds_tf_test_prefix_true_no_namespace)
 {
   std::string odom_id = "odom";
   std::string base_link_id = "base_link";
@@ -325,12 +349,13 @@ TEST_F(TestDiffDriveController, configure_succeeds_tf_prefix_no_namespace)
 
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
-  // frame_prefix is not blank so should be prepended to the frame id's
+  /* tf_frame_prefix_enable is true and frame_prefix is not blank so should be appended to the frame
+   * id's */
   ASSERT_EQ(controller_->odometry_message_.header.frame_id, frame_prefix + "/" + odom_id);
   ASSERT_EQ(controller_->odometry_message_.child_frame_id, frame_prefix + "/" + base_link_id);
 }
 
-TEST_F(TestDiffDriveController, configure_succeeds_tf_blank_prefix_no_namespace)
+TEST_F(TestDiffDriveController, configure_succeeds_tf_blank_prefix_true_no_namespace)
 {
   std::string odom_id = "odom";
   std::string base_link_id = "base_link";
@@ -347,12 +372,38 @@ TEST_F(TestDiffDriveController, configure_succeeds_tf_blank_prefix_no_namespace)
 
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
-  // frame_prefix is blank so nothing added to the frame id's
+  /* tf_frame_prefix_enable is true but frame_prefix is blank so should not be appended to the frame
+   * id's */
   ASSERT_EQ(controller_->odometry_message_.header.frame_id, odom_id);
   ASSERT_EQ(controller_->odometry_message_.child_frame_id, base_link_id);
 }
 
-TEST_F(TestDiffDriveController, configure_succeeds_tf_prefix_set_namespace)
+TEST_F(TestDiffDriveController, configure_succeeds_tf_test_prefix_false_set_namespace)
+{
+  std::string test_namespace = "/test_namespace";
+
+  std::string odom_id = "odom";
+  std::string base_link_id = "base_link";
+  std::string frame_prefix = "test_prefix";
+
+  ASSERT_EQ(
+    InitController(
+      left_wheel_names, right_wheel_names,
+      {rclcpp::Parameter("tf_frame_prefix_enable", rclcpp::ParameterValue(false)),
+       rclcpp::Parameter("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix)),
+       rclcpp::Parameter("odom_frame_id", rclcpp::ParameterValue(odom_id)),
+       rclcpp::Parameter("base_frame_id", rclcpp::ParameterValue(base_link_id))},
+      test_namespace),
+    controller_interface::return_type::OK);
+
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  /* tf_frame_prefix_enable is false so no modifications to the frame id's */
+  ASSERT_EQ(controller_->odometry_message_.header.frame_id, odom_id);
+  ASSERT_EQ(controller_->odometry_message_.child_frame_id, base_link_id);
+}
+
+TEST_F(TestDiffDriveController, configure_succeeds_tf_test_prefix_true_set_namespace)
 {
   std::string test_namespace = "/test_namespace";
 
@@ -372,17 +423,18 @@ TEST_F(TestDiffDriveController, configure_succeeds_tf_prefix_set_namespace)
 
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
-  // frame_prefix is not blank so should be prepended to the frame id's instead of the namespace
+  /* tf_frame_prefix_enable is true and frame_prefix is not blank so should be appended to the frame
+   * id's instead of the namespace*/
   ASSERT_EQ(controller_->odometry_message_.header.frame_id, frame_prefix + "/" + odom_id);
   ASSERT_EQ(controller_->odometry_message_.child_frame_id, frame_prefix + "/" + base_link_id);
 }
 
-TEST_F(TestDiffDriveController, configure_succeeds_tf_tilde_prefix_set_namespace)
+TEST_F(TestDiffDriveController, configure_succeeds_tf_blank_prefix_true_set_namespace)
 {
   std::string test_namespace = "/test_namespace";
   std::string odom_id = "odom";
   std::string base_link_id = "base_link";
-  std::string frame_prefix = "~";
+  std::string frame_prefix = "";
 
   ASSERT_EQ(
     InitController(
@@ -396,8 +448,9 @@ TEST_F(TestDiffDriveController, configure_succeeds_tf_tilde_prefix_set_namespace
 
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
 
-  // frame_prefix has tilde (~) character so node namespace should be prepended to the frame id's
   std::string ns_prefix = test_namespace.erase(0, 1) + "/";
+  /* tf_frame_prefix_enable is true but frame_prefix is blank so namespace should be appended to the
+   * frame id's */
   ASSERT_EQ(controller_->odometry_message_.header.frame_id, ns_prefix + odom_id);
   ASSERT_EQ(controller_->odometry_message_.child_frame_id, ns_prefix + base_link_id);
 }
