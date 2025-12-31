@@ -8,6 +8,10 @@ chained_filter_controller
 *******************************
 * The chained_filter_controller was added to use generic filter plugins (`#1634 <https://github.com/ros-controls/ros2_controllers/pull/1634>`__).
 
+state_interfaces_broadcaster
+*********************************
+* 🚀 The state_interfaces_broadcaster was added 🎉 (`#2006 <https://github.com/ros-controls/ros2_controllers/pull/2006>`_).
+
 force_torque_sensor_broadcaster
 *******************************
 * Multiplier support was added. Users can now specify per–axis scaling factors for both force and torque readings, applied after the existing offset logic. (`#1647 <https://github.com/ros-controls/ros2_controllers/pull/1647/files>`__).
@@ -17,6 +21,11 @@ force_torque_sensor_broadcaster
 imu_sensor_broadcaster
 *******************************
 * IMU sensor broadcaster is now a chainable controller. It supports a calibration by means of a rotation, defined as euler angles, to its target frame. (`#1833 <https://github.com/ros-controls/ros2_controllers/pull/1833/files>`__).
+
+joint_state_broadcaster
+************************
+* Make all parameters read-only (the never got re-evaluated after initialization anyways). (`#2064 <https://github.com/ros-controls/ros2_controllers/pull/2064>`_)
+* Added parameter ``publish_dynamic_joint_states`` to enable/disable publishing of dynamic joint states. (`#2064 <https://github.com/ros-controls/ros2_controllers/pull/2064>`_)
 
 joint_trajectory_controller
 *******************************
