@@ -1,0 +1,8 @@
+ros-kilted-state-interfaces-broadcaster (5.12.0-1bookworm) bookworm; urgency=high
+
+  * Add state_interfaces_broadcaster (backport #2006 <https://github.com/ros-controls/ros2_controllers/issues/2006>) (#2077 <https://github.com/ros-controls/ros2_controllers/issues/2077>)
+  * Contributors: mergify[bot]
+
+ -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Dec 2025 00:00:00 -0000
+
+
