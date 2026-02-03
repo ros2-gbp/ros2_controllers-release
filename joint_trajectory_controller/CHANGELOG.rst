@@ -2,27 +2,24 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.3.0 (2026-02-03)
-------------------
-* dynamically link JTC parameter validation instead of header only (`#2127 <https://github.com/ros-controls/ros2_controllers/issues/2127>`_)
-* Cleanup deprecated InterpolationMethodMap (`#2041 <https://github.com/ros-controls/ros2_controllers/issues/2041>`_)
-* Contributors: Surya, Suryansh Singh
+5.13.0 (2026-02-03)
+-------------------
 
-6.2.0 (2025-12-31)
-------------------
-* Fix BSD license (`#2054 <https://github.com/ros-controls/ros2_controllers/issues/2054>`_)
-* Use get_lifecycle_id instead of get_lifecycle_state (`#2053 <https://github.com/ros-controls/ros2_controllers/issues/2053>`_)
-* Fill point_before_trajectory with same information as trajectory (`#2043 <https://github.com/ros-controls/ros2_controllers/issues/2043>`_)
-* Contributors: Christoph Fröhlich, Felix Exner (fexner), Sai Kishor Kothakota
+5.12.0 (2025-12-31)
+-------------------
 
-6.1.0 (2025-12-01)
-------------------
-* Refactor interpolation_method class (`#2019 <https://github.com/ros-controls/ros2_controllers/issues/2019>`_)
-* Contributors: Surya!
+5.11.0 (2025-12-09)
+-------------------
+* Use get_lifecycle_id instead of get_lifecycle_state (backport `#2053 <https://github.com/ros-controls/ros2_controllers/issues/2053>`_) (`#2056 <https://github.com/ros-controls/ros2_controllers/issues/2056>`_)
+* Fill point_before_trajectory with same information as trajectory (backport `#2043 <https://github.com/ros-controls/ros2_controllers/issues/2043>`_) (`#2051 <https://github.com/ros-controls/ros2_controllers/issues/2051>`_)
+* Contributors: mergify[bot]
 
-6.0.0 (2025-11-10)
+5.10.0 (2025-12-01)
+-------------------
+
+5.9.0 (2025-11-10)
 ------------------
-* Add missing dependency rclcpp_action (`#1992 <https://github.com/ros-controls/ros2_controllers/issues/1992>`_)
+* Add missing dependency rclcpp_action (backport `#1992 <https://github.com/ros-controls/ros2_controllers/issues/1992>`_) (`#1995 <https://github.com/ros-controls/ros2_controllers/issues/1995>`_)
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Add time_from_start to action feedback and state message (cherry-pick `#1755 <https://github.com/ros-controls/ros2_controllers/issues/1755>`_) (`#1820 <https://github.com/ros-controls/ros2_controllers/issues/1820>`_)
 * Fix integer literal for size_t (`#1986 <https://github.com/ros-controls/ros2_controllers/issues/1986>`_)
@@ -30,7 +27,7 @@ Changelog for package joint_trajectory_controller
 * Fix JTC crashing when shutdown while executing (`#1960 <https://github.com/ros-controls/ros2_controllers/issues/1960>`_)
 * Remove unused `get_state_msg` method (`#1949 <https://github.com/ros-controls/ros2_controllers/issues/1949>`_)
 * Don't use `msg\_` field of realtime publisher (`#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_)
-* Contributors: Anand Vardhan, Bence Magyar, Christoph Fröhlich, Marq Rasmussen, Noel Jiménez García
+* Contributors: Anand Vardhan, Bence Magyar, Christoph Fröhlich, Marq Rasmussen, mergify[bot]
 
 5.8.0 (2025-10-02)
 ------------------

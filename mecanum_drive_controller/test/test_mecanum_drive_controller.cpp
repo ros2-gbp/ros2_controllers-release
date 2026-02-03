@@ -125,7 +125,7 @@ TEST_F(MecanumDriveControllerTest, when_controller_configured_expect_properly_ex
   }
 }
 
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_false_covariance_test)
+TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_test_prefix_false_no_namespace)
 {
   std::string odom_id = "odom";
   std::string base_link_id = "base_link";
@@ -160,7 +160,7 @@ TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_false_covariance
   ASSERT_EQ(odometry_message.twist.covariance, twist_covariance);
 }
 
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_no_namespace)
+TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_test_prefix_true_no_namespace)
 {
   std::string odom_id = "odom";
   std::string base_link_id = "base_link";
@@ -180,12 +180,14 @@ TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_no_namespace)
   std::string test_odom_frame_id = odometry_message.header.frame_id;
   std::string test_base_frame_id = odometry_message.child_frame_id;
 
-  // frame_prefix is not blank so should be prepended to the frame id's
+  /* tf_frame_prefix_enable is true and frame_prefix is not blank so should be appended to the
+  frame
+   * id's */
   ASSERT_EQ(test_odom_frame_id, frame_prefix + "/" + odom_id);
   ASSERT_EQ(test_base_frame_id, frame_prefix + "/" + base_link_id);
 }
 
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_blank_prefix_no_namespace)
+TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_blank_prefix_true_no_namespace)
 {
   std::string odom_id = "odom";
   std::string base_link_id = "base_link";
@@ -204,13 +206,40 @@ TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_blank_prefix_no_namespa
   auto odometry_message = controller_->odom_state_msg_;
   std::string test_odom_frame_id = odometry_message.header.frame_id;
   std::string test_base_frame_id = odometry_message.child_frame_id;
-
-  // frame_prefix is blank so nothing added to the frame id's
+  /* tf_frame_prefix_enable is true but frame_prefix is blank so should not be appended to the
+  frame
+   * id's */
   ASSERT_EQ(test_odom_frame_id, odom_id);
   ASSERT_EQ(test_base_frame_id, base_link_id);
 }
 
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_set_namespace)
+TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_test_prefix_false_set_namespace)
+{
+  std::string test_namespace = "/test_namespace";
+
+  std::string odom_id = "odom";
+  std::string base_link_id = "base_link";
+  std::string frame_prefix = "test_prefix";
+
+  auto node_options = controller_->define_custom_node_options();
+  node_options.append_parameter_override("tf_frame_prefix_enable", rclcpp::ParameterValue(false));
+  node_options.append_parameter_override("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix));
+  node_options.append_parameter_override("odom_frame_id", rclcpp::ParameterValue(odom_id));
+  node_options.append_parameter_override("base_frame_id", rclcpp::ParameterValue(base_link_id));
+
+  SetUpController("test_mecanum_drive_controller", node_options, test_namespace);
+
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+
+  auto odometry_message = controller_->odom_state_msg_;
+  std::string test_odom_frame_id = odometry_message.header.frame_id;
+  std::string test_base_frame_id = odometry_message.child_frame_id;
+  /* tf_frame_prefix_enable is false so no modifications to the frame id's */
+  ASSERT_EQ(test_odom_frame_id, odom_id);
+  ASSERT_EQ(test_base_frame_id, base_link_id);
+}
+
+TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_test_prefix_true_set_namespace)
 {
   std::string test_namespace = "/test_namespace";
 
@@ -232,17 +261,19 @@ TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_set_namespace)
   std::string test_odom_frame_id = odometry_message.header.frame_id;
   std::string test_base_frame_id = odometry_message.child_frame_id;
 
-  // frame_prefix is not blank so should be prepended to the frame id's instead of the namespace
+  /* tf_frame_prefix_enable is true and frame_prefix is not blank so should be appended to the
+  frame
+   * id's instead of the namespace*/
   ASSERT_EQ(test_odom_frame_id, frame_prefix + "/" + odom_id);
   ASSERT_EQ(test_base_frame_id, frame_prefix + "/" + base_link_id);
 }
 
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_tilde_prefix_set_namespace)
+TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_blank_prefix_true_set_namespace)
 {
   std::string test_namespace = "/test_namespace";
   std::string odom_id = "odom";
   std::string base_link_id = "base_link";
-  std::string frame_prefix = "~";
+  std::string frame_prefix = "";
 
   auto node_options = controller_->define_custom_node_options();
   node_options.append_parameter_override("tf_frame_prefix_enable", rclcpp::ParameterValue(true));
@@ -258,8 +289,9 @@ TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_tilde_prefix_set_namesp
   std::string test_odom_frame_id = odometry_message.header.frame_id;
   std::string test_base_frame_id = odometry_message.child_frame_id;
   std::string ns_prefix = test_namespace.erase(0, 1) + "/";
-
-  // frame_prefix has tilde (~) character so node namespace should be prepended to the frame id's
+  /* tf_frame_prefix_enable is true but frame_prefix is blank so namespace should be appended to
+  the
+   * frame id's */
   ASSERT_EQ(test_odom_frame_id, ns_prefix + odom_id);
   ASSERT_EQ(test_base_frame_id, ns_prefix + base_link_id);
 }

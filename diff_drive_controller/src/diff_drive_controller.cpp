@@ -22,7 +22,6 @@
 #include <utility>
 #include <vector>
 
-#include "controller_interface/tf_prefix.hpp"
 #include "diff_drive_controller/diff_drive_controller.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
@@ -161,12 +160,9 @@ controller_interface::return_type DiffDriveController::update_and_write_commands
   const double left_wheel_radius = params_.left_wheel_radius_multiplier * params_.wheel_radius;
   const double right_wheel_radius = params_.right_wheel_radius_multiplier * params_.wheel_radius;
 
-  // Update odometry
-  bool odometry_updated = false;
   if (params_.open_loop)
   {
-    odometry_updated =
-      odometry_.try_update_open_loop(linear_command, angular_command, period.seconds());
+    odometry_.updateOpenLoop(linear_command, angular_command, time);
   }
   else
   {
@@ -204,65 +200,62 @@ controller_interface::return_type DiffDriveController::update_and_write_commands
 
     if (params_.position_feedback)
     {
-      odometry_updated =
-        odometry_.update_from_pos(left_feedback_mean, right_feedback_mean, period.seconds());
+      odometry_.update(left_feedback_mean, right_feedback_mean, time);
     }
     else
     {
-      odometry_updated =
-        odometry_.update_from_vel(left_feedback_mean, right_feedback_mean, period.seconds());
+      odometry_.updateFromVelocity(
+        left_feedback_mean * left_wheel_radius * period.seconds(),
+        right_feedback_mean * right_wheel_radius * period.seconds(), time);
     }
   }
 
-  if (odometry_updated)
-  {
-    tf2::Quaternion orientation;
-    orientation.setRPY(0.0, 0.0, odometry_.getHeading());
+  tf2::Quaternion orientation;
+  orientation.setRPY(0.0, 0.0, odometry_.getHeading());
 
-    bool should_publish = false;
-    try
+  bool should_publish = false;
+  try
+  {
+    if (previous_publish_timestamp_ + publish_period_ < time)
     {
-      if (previous_publish_timestamp_ + publish_period_ <= time)
-      {
-        previous_publish_timestamp_ += publish_period_;
-        should_publish = true;
-      }
-    }
-    catch (const std::runtime_error &)
-    {
-      // Handle exceptions when the time source changes and initialize publish timestamp
-      previous_publish_timestamp_ = time;
+      previous_publish_timestamp_ += publish_period_;
       should_publish = true;
     }
+  }
+  catch (const std::runtime_error &)
+  {
+    // Handle exceptions when the time source changes and initialize publish timestamp
+    previous_publish_timestamp_ = time;
+    should_publish = true;
+  }
 
-    if (should_publish)
+  if (should_publish)
+  {
+    if (realtime_odometry_publisher_)
     {
-      if (realtime_odometry_publisher_)
-      {
-        odometry_message_.header.stamp = time;
-        odometry_message_.pose.pose.position.x = odometry_.getX();
-        odometry_message_.pose.pose.position.y = odometry_.getY();
-        odometry_message_.pose.pose.orientation.x = orientation.x();
-        odometry_message_.pose.pose.orientation.y = orientation.y();
-        odometry_message_.pose.pose.orientation.z = orientation.z();
-        odometry_message_.pose.pose.orientation.w = orientation.w();
-        odometry_message_.twist.twist.linear.x = odometry_.getLinear();
-        odometry_message_.twist.twist.angular.z = odometry_.getAngular();
-        realtime_odometry_publisher_->try_publish(odometry_message_);
-      }
+      odometry_message_.header.stamp = time;
+      odometry_message_.pose.pose.position.x = odometry_.getX();
+      odometry_message_.pose.pose.position.y = odometry_.getY();
+      odometry_message_.pose.pose.orientation.x = orientation.x();
+      odometry_message_.pose.pose.orientation.y = orientation.y();
+      odometry_message_.pose.pose.orientation.z = orientation.z();
+      odometry_message_.pose.pose.orientation.w = orientation.w();
+      odometry_message_.twist.twist.linear.x = odometry_.getLinear();
+      odometry_message_.twist.twist.angular.z = odometry_.getAngular();
+      realtime_odometry_publisher_->try_publish(odometry_message_);
+    }
 
-      if (params_.enable_odom_tf && realtime_odometry_transform_publisher_)
-      {
-        auto & transform = odometry_transform_message_.transforms.front();
-        transform.header.stamp = time;
-        transform.transform.translation.x = odometry_.getX();
-        transform.transform.translation.y = odometry_.getY();
-        transform.transform.rotation.x = orientation.x();
-        transform.transform.rotation.y = orientation.y();
-        transform.transform.rotation.z = orientation.z();
-        transform.transform.rotation.w = orientation.w();
-        realtime_odometry_transform_publisher_->try_publish(odometry_transform_message_);
-      }
+    if (params_.enable_odom_tf && realtime_odometry_transform_publisher_)
+    {
+      auto & transform = odometry_transform_message_.transforms.front();
+      transform.header.stamp = time;
+      transform.transform.translation.x = odometry_.getX();
+      transform.transform.translation.y = odometry_.getY();
+      transform.transform.rotation.x = orientation.x();
+      transform.transform.rotation.y = orientation.y();
+      transform.transform.rotation.z = orientation.z();
+      transform.transform.rotation.w = orientation.w();
+      realtime_odometry_transform_publisher_->try_publish(odometry_transform_message_);
     }
   }
 
@@ -411,17 +404,6 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
       }
     });
 
-  // deprecation warning if tf_frame_prefix_enable set to non-default value
-  const bool default_tf_frame_prefix_enable = true;
-  if (params_.tf_frame_prefix_enable != default_tf_frame_prefix_enable)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "Parameter 'tf_frame_prefix_enable' is DEPRECATED and set to a non-default value (%s). "
-      "Please migrate to 'tf_frame_prefix'.",
-      params_.tf_frame_prefix_enable ? "true" : "false");
-  }
-
   // initialize odometry publisher and message
   odometry_publisher_ = get_node()->create_publisher<nav_msgs::msg::Odometry>(
     DEFAULT_ODOMETRY_TOPIC, rclcpp::SystemDefaultsQoS());
@@ -429,34 +411,30 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
     std::make_shared<realtime_tools::RealtimePublisher<nav_msgs::msg::Odometry>>(
       odometry_publisher_);
 
-  // resolve prefix: substitute tilde (~) with the namespace if contains and normalize slashes (/)
+  // Append the tf prefix if there is one
   std::string tf_prefix = "";
   if (params_.tf_frame_prefix_enable)
   {
     if (params_.tf_frame_prefix != "")
     {
-      tf_prefix = controller_interface::resolve_tf_prefix(
-        params_.tf_frame_prefix, get_node()->get_namespace());
+      tf_prefix = params_.tf_frame_prefix;
     }
     else
     {
-      RCLCPP_WARN(
-        get_node()->get_logger(),
-        "Please use tilde ('~') character in 'tf_frame_prefix' as it replaced with node namespace");
-
       tf_prefix = std::string(get_node()->get_namespace());
-      if (tf_prefix.back() != '/')
-      {
-        tf_prefix = tf_prefix + "/";
-      }
-      if (tf_prefix.front() == '/')
-      {
-        tf_prefix.erase(0, 1);
-      }
+    }
+
+    // Make sure prefix does not start with '/' and always ends with '/'
+    if (tf_prefix.back() != '/')
+    {
+      tf_prefix = tf_prefix + "/";
+    }
+    if (tf_prefix.front() == '/')
+    {
+      tf_prefix.erase(0, 1);
     }
   }
 
-  // prepend resolved TF prefix to frame ids
   const auto odom_frame_id = tf_prefix + params_.odom_frame_id;
   const auto base_frame_id = tf_prefix + params_.base_frame_id;
 

@@ -2,24 +2,26 @@
 Changelog for package steering_controllers_library
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.3.0 (2026-02-03)
-------------------
-* Populate pose covariance correctly in steering controllers (`#2109 <https://github.com/ros-controls/ros2_controllers/issues/2109>`_)
-* Contributors: Vedh
+5.13.0 (2026-02-03)
+-------------------
+* Populate pose covariance correctly in steering controllers (backport `#2109 <https://github.com/ros-controls/ros2_controllers/issues/2109>`_) (`#2138 <https://github.com/ros-controls/ros2_controllers/issues/2138>`_)
+* Contributors: mergify[bot]
 
-6.2.0 (2025-12-31)
-------------------
-* Fix open_loop odometry of steering controllers (`#2087 <https://github.com/ros-controls/ros2_controllers/issues/2087>`_)
-* tf prefix helper used in steering controllers library (`#2080 <https://github.com/ros-controls/ros2_controllers/issues/2080>`_)
-* Contributors: Christoph Fröhlich, Ege Kural
+5.12.0 (2025-12-31)
+-------------------
+* Fix open_loop odometry of steering controllers (backport `#2087 <https://github.com/ros-controls/ros2_controllers/issues/2087>`_) (`#2089 <https://github.com/ros-controls/ros2_controllers/issues/2089>`_)
+* Contributors: mergify[bot]
 
-6.1.0 (2025-12-01)
-------------------
-* Rename Odometry Class to SteeringKinematics (`#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_)
-* Rename joint_reference_interfaces to reference_interface_names (`#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_)
-* Contributors: Sanjeev, Surya!
+5.11.0 (2025-12-09)
+-------------------
 
-6.0.0 (2025-11-10)
+5.10.0 (2025-12-01)
+-------------------
+* Rename Odometry Class to SteeringKinematics (backport `#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_) (`#2014 <https://github.com/ros-controls/ros2_controllers/issues/2014>`_)
+* Rename joint_reference_interfaces\_ to reference_interface_names (backport `#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_) (`#2012 <https://github.com/ros-controls/ros2_controllers/issues/2012>`_)
+* Contributors: mergify[bot]
+
+5.9.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan

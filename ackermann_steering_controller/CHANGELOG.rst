@@ -2,19 +2,22 @@
 Changelog for package ackermann_steering_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.3.0 (2026-02-03)
-------------------
+5.13.0 (2026-02-03)
+-------------------
 
-6.2.0 (2025-12-31)
-------------------
+5.12.0 (2025-12-31)
+-------------------
 
-6.1.0 (2025-12-01)
-------------------
-* Rename Odometry Class to SteeringKinematics (`#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_)
-* Rename joint_reference_interfaces to reference_interface_names (`#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_)
-* Contributors: Sanjeev, Surya!
+5.11.0 (2025-12-09)
+-------------------
 
-6.0.0 (2025-11-10)
+5.10.0 (2025-12-01)
+-------------------
+* Rename Odometry Class to SteeringKinematics (backport `#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_) (`#2014 <https://github.com/ros-controls/ros2_controllers/issues/2014>`_)
+* Rename joint_reference_interfaces\_ to reference_interface_names (backport `#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_) (`#2012 <https://github.com/ros-controls/ros2_controllers/issues/2012>`_)
+* Contributors: mergify[bot]
+
+5.9.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan
