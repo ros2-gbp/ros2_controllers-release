@@ -1,8 +1,0 @@
-ros-rolling-state-interfaces-broadcaster (6.2.0-1noble) noble; urgency=high
-
-  * Add state_interfaces_broadcaster (#2006 <https://github.com/ros-controls/ros2_controllers/issues/2006>)
-  * Contributors: Sai Kishor Kothakota
-
- -- Bence Magyar <bence.magyar.robotics@gmail.com>  Wed, 31 Dec 2025 00:00:00 -0000
-
-
