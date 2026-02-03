@@ -1,0 +1,12 @@
+Source: ros-rolling-gpio-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ament-cmake-gmock <!nocheck>, ros-rolling-control-msgs, ros-rolling-controller-interface, ros-rolling-controller-manager <!nocheck>, ros-rolling-generate-parameter-library, ros-rolling-hardware-interface, ros-rolling-hardware-interface-testing <!nocheck>, ros-rolling-pluginlib, ros-rolling-rclcpp, ros-rolling-rclcpp-lifecycle, ros-rolling-realtime-tools, ros-rolling-ros2-control-cmake, ros-rolling-ros2-control-test-assets <!nocheck>, ros-rolling-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-rolling-gpio-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-control-msgs, ros-rolling-controller-interface, ros-rolling-generate-parameter-library, ros-rolling-hardware-interface, ros-rolling-rclcpp, ros-rolling-rclcpp-lifecycle, ros-rolling-realtime-tools, ros-rolling-ros-workspace
+Description: Controllers to interact with gpios.
