@@ -20,9 +20,10 @@
 #include <vector>
 
 #include "controller_interface/helpers.hpp"
+#include "controller_interface/tf_prefix.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
-#include "tf2/transform_datatypes.h"
+#include "tf2/transform_datatypes.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace
@@ -30,21 +31,18 @@ namespace
 
 using ControllerReferenceMsg =
   mecanum_drive_controller::MecanumDriveController::ControllerReferenceMsg;
-using ControllerReferenceMsgUnstamped =
-  mecanum_drive_controller::MecanumDriveController::ControllerReferenceMsgUnstamped;
 
 // called from RT control loop
 void reset_controller_reference_msg(
-  const std::shared_ptr<ControllerReferenceMsg> & msg,
-  const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node)
+  ControllerReferenceMsg & msg, const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node)
 {
-  msg->header.stamp = node->now();
-  msg->twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+  msg.header.stamp = node->now();
+  msg.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
 }
 
 }  // namespace
@@ -127,24 +125,23 @@ controller_interface::CallbackReturn MecanumDriveController::on_configure(
 
   // Reference Subscriber
   ref_timeout_ = rclcpp::Duration::from_seconds(params_.reference_timeout);
-  use_stamped_vel_ = params_.use_stamped_vel;
-  if (use_stamped_vel_)
-  {
-    ref_subscriber_ = get_node()->create_subscription<ControllerReferenceMsg>(
-      "~/reference", subscribers_qos,
-      std::bind(&MecanumDriveController::reference_callback, this, std::placeholders::_1));
-  }
-  else
-  {
-    ref_unstamped_subscriber_ = get_node()->create_subscription<ControllerReferenceMsgUnstamped>(
-      "~/reference_unstamped", subscribers_qos,
-      std::bind(
-        &MecanumDriveController::reference_unstamped_callback, this, std::placeholders::_1));
-  }
+  ref_subscriber_ = get_node()->create_subscription<ControllerReferenceMsg>(
+    "~/reference", subscribers_qos,
+    std::bind(&MecanumDriveController::reference_callback, this, std::placeholders::_1));
 
-  std::shared_ptr<ControllerReferenceMsg> msg = std::make_shared<ControllerReferenceMsg>();
-  reset_controller_reference_msg(msg, get_node());
-  input_ref_.writeFromNonRT(msg);
+  reset_controller_reference_msg(current_ref_, get_node());
+  input_ref_.set(current_ref_);
+
+  // deprecation warning if tf_frame_prefix_enable set to non-default value
+  const bool default_tf_frame_prefix_enable = true;
+  if (params_.tf_frame_prefix_enable != default_tf_frame_prefix_enable)
+  {
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "Parameter 'tf_frame_prefix_enable' is DEPRECATED and set to a non-default value (%s). "
+      "Please migrate to 'tf_frame_prefix'.",
+      params_.tf_frame_prefix_enable ? "true" : "false");
+  }
 
   try
   {
@@ -161,14 +158,44 @@ controller_interface::CallbackReturn MecanumDriveController::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  rt_odom_state_publisher_->lock();
-  rt_odom_state_publisher_->msg_.header.stamp = get_node()->now();
-  rt_odom_state_publisher_->msg_.header.frame_id = params_.odom_frame_id;
-  rt_odom_state_publisher_->msg_.child_frame_id = params_.base_frame_id;
-  rt_odom_state_publisher_->msg_.pose.pose.position.z = 0;
+  // resolve prefix: substitute tilde (~) with the namespace if contains and normalize slashes (/)
+  std::string tf_prefix = "";
+  if (params_.tf_frame_prefix_enable)
+  {
+    if (params_.tf_frame_prefix != "")
+    {
+      tf_prefix = controller_interface::resolve_tf_prefix(
+        params_.tf_frame_prefix, get_node()->get_namespace());
+    }
+    else
+    {
+      RCLCPP_WARN(
+        get_node()->get_logger(),
+        "Please use tilde ('~') character in 'tf_frame_prefix' as it replaced with node namespace");
 
-  auto & pose_covariance = rt_odom_state_publisher_->msg_.pose.covariance;
-  auto & twist_covariance = rt_odom_state_publisher_->msg_.twist.covariance;
+      tf_prefix = std::string(get_node()->get_namespace());
+      if (tf_prefix.back() != '/')
+      {
+        tf_prefix = tf_prefix + "/";
+      }
+      if (tf_prefix.front() == '/')
+      {
+        tf_prefix.erase(0, 1);
+      }
+    }
+  }
+
+  // prepend resolved TF prefix to frame ids
+  const auto odom_frame_id = tf_prefix + params_.odom_frame_id;
+  const auto base_frame_id = tf_prefix + params_.base_frame_id;
+
+  odom_state_msg_.header.stamp = get_node()->now();
+  odom_state_msg_.header.frame_id = odom_frame_id;
+  odom_state_msg_.child_frame_id = base_frame_id;
+  odom_state_msg_.pose.pose.position.z = 0;
+
+  auto & pose_covariance = odom_state_msg_.pose.covariance;
+  auto & twist_covariance = odom_state_msg_.twist.covariance;
   constexpr size_t NUM_DIMENSIONS = 6;
   for (size_t index = 0; index < 6; ++index)
   {
@@ -176,7 +203,6 @@ controller_interface::CallbackReturn MecanumDriveController::on_configure(
     pose_covariance[diagonal_index] = params_.pose_covariance_diagonal[index];
     twist_covariance[diagonal_index] = params_.twist_covariance_diagonal[index];
   }
-  rt_odom_state_publisher_->unlock();
 
   try
   {
@@ -193,13 +219,11 @@ controller_interface::CallbackReturn MecanumDriveController::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  rt_tf_odom_state_publisher_->lock();
-  rt_tf_odom_state_publisher_->msg_.transforms.resize(1);
-  rt_tf_odom_state_publisher_->msg_.transforms[0].header.stamp = get_node()->now();
-  rt_tf_odom_state_publisher_->msg_.transforms[0].header.frame_id = params_.odom_frame_id;
-  rt_tf_odom_state_publisher_->msg_.transforms[0].child_frame_id = params_.base_frame_id;
-  rt_tf_odom_state_publisher_->msg_.transforms[0].transform.translation.z = 0.0;
-  rt_tf_odom_state_publisher_->unlock();
+  tf_odom_state_msg_.transforms.resize(1);
+  tf_odom_state_msg_.transforms[0].header.stamp = get_node()->now();
+  tf_odom_state_msg_.transforms[0].header.frame_id = odom_frame_id;
+  tf_odom_state_msg_.transforms[0].child_frame_id = base_frame_id;
+  tf_odom_state_msg_.transforms[0].transform.translation.z = 0.0;
 
   try
   {
@@ -219,10 +243,8 @@ controller_interface::CallbackReturn MecanumDriveController::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  controller_state_publisher_->lock();
-  controller_state_publisher_->msg_.header.stamp = get_node()->now();
-  controller_state_publisher_->msg_.header.frame_id = params_.odom_frame_id;
-  controller_state_publisher_->unlock();
+  controller_state_msg_.header.stamp = get_node()->now();
+  controller_state_msg_.header.frame_id = odom_frame_id;
 
   RCLCPP_INFO(get_node()->get_logger(), "MecanumDriveController configured successfully");
 
@@ -245,7 +267,7 @@ void MecanumDriveController::reference_callback(const std::shared_ptr<Controller
   // Check the timeout condition
   if (ref_timeout_ == rclcpp::Duration::from_seconds(0) || age_of_last_command <= ref_timeout_)
   {
-    input_ref_.writeFromNonRT(msg);
+    input_ref_.set(*msg);
   }
   else
   {
@@ -255,18 +277,10 @@ void MecanumDriveController::reference_callback(const std::shared_ptr<Controller
       rclcpp::Time(msg->header.stamp).seconds(), age_of_last_command.seconds(),
       ref_timeout_.seconds());
 
-    reset_controller_reference_msg(msg, get_node());
+    ControllerReferenceMsg emtpy_msg;
+    reset_controller_reference_msg(emtpy_msg, get_node());
+    input_ref_.set(emtpy_msg);
   }
-}
-
-void MecanumDriveController::reference_unstamped_callback(
-  const std::shared_ptr<ControllerReferenceMsgUnstamped> msg)
-{
-  // Write fake header in the stored stamped command
-  auto twist_stamped = *(input_ref_.readFromNonRT());
-  twist_stamped->twist = *msg;
-  twist_stamped->header.stamp = get_node()->get_clock()->now();
-  input_ref_.writeFromNonRT(twist_stamped);
 }
 
 controller_interface::InterfaceConfiguration
@@ -309,14 +323,14 @@ MecanumDriveController::on_export_reference_interfaces()
 
   reference_interfaces.reserve(reference_interfaces_.size());
 
-  std::vector<std::string> reference_interface_names = {
-    "linear/x/velocity", "linear/y/velocity", "angular/z/velocity"};
+  std::vector<std::string> reference_interface_names = {"/linear/x", "/linear/y", "/angular/z"};
 
   for (size_t i = 0; i < reference_interfaces_.size(); ++i)
   {
     reference_interfaces.push_back(
       hardware_interface::CommandInterface(
-        get_node()->get_name(), reference_interface_names[i], &reference_interfaces_[i]));
+        get_node()->get_name() + reference_interface_names[i], hardware_interface::HW_IF_VELOCITY,
+        &reference_interfaces_[i]));
   }
 
   return reference_interfaces;
@@ -327,8 +341,11 @@ bool MecanumDriveController::on_set_chained_mode(bool /*chained_mode*/) { return
 controller_interface::CallbackReturn MecanumDriveController::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // Set default value in command
-  reset_controller_reference_msg(*(input_ref_.readFromRT()), get_node());
+  // Try to set default value in command.
+  // If this fails, then another command will be received soon anyways.
+  ControllerReferenceMsg emtpy_msg;
+  reset_controller_reference_msg(emtpy_msg, get_node());
+  input_ref_.try_set(emtpy_msg);
 
   return controller_interface::CallbackReturn::SUCCESS;
 }
@@ -336,17 +353,74 @@ controller_interface::CallbackReturn MecanumDriveController::on_activate(
 controller_interface::CallbackReturn MecanumDriveController::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  bool value_set_no_error = true;
   for (size_t i = 0; i < NR_CMD_ITFS; ++i)
   {
-    command_interfaces_[i].set_value(std::numeric_limits<double>::quiet_NaN());
+    value_set_no_error &=
+      command_interfaces_[i].set_value(std::numeric_limits<double>::quiet_NaN());
   }
+  if (!value_set_no_error)
+  {
+    RCLCPP_ERROR(
+      get_node()->get_logger(),
+      "Setting values to command interfaces has failed! "
+      "This means that you are maybe blocking the interface in your hardware for too long.");
+    return controller_interface::CallbackReturn::FAILURE;
+  }
+
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type MecanumDriveController::update_reference_from_subscribers()
+controller_interface::return_type MecanumDriveController::update_reference_from_subscribers(
+  const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
-  // Move functionality to the `update_and_write_commands` because of the missing arguments in
-  // humble - otherwise issues with multiple time-sources might happen when working with simulators
+  auto current_ref_op = input_ref_.try_get();
+  if (current_ref_op.has_value())
+  {
+    current_ref_ = current_ref_op.value();
+  }
+
+  const auto age_of_last_command = time - current_ref_.header.stamp;
+
+  // accept message only if there is no timeout
+  if (age_of_last_command <= ref_timeout_ || ref_timeout_ == rclcpp::Duration::from_seconds(0))
+  {
+    if (
+      !std::isnan(current_ref_.twist.linear.x) && !std::isnan(current_ref_.twist.linear.y) &&
+      !std::isnan(current_ref_.twist.angular.z))
+    {
+      reference_interfaces_[0] = current_ref_.twist.linear.x;
+      reference_interfaces_[1] = current_ref_.twist.linear.y;
+      reference_interfaces_[2] = current_ref_.twist.angular.z;
+
+      if (ref_timeout_ == rclcpp::Duration::from_seconds(0))
+      {
+        current_ref_.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+        current_ref_.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+        current_ref_.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+
+        input_ref_.try_set(current_ref_);
+      }
+    }
+  }
+  else
+  {
+    if (
+      !std::isnan(current_ref_.twist.linear.x) && !std::isnan(current_ref_.twist.linear.y) &&
+      !std::isnan(current_ref_.twist.angular.z))
+    {
+      reference_interfaces_[0] = 0.0;
+      reference_interfaces_[1] = 0.0;
+      reference_interfaces_[2] = 0.0;
+
+      current_ref_.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+      current_ref_.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+      current_ref_.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+
+      input_ref_.try_set(current_ref_);
+    }
+  }
+
   return controller_interface::return_type::OK;
 }
 
@@ -354,10 +428,26 @@ controller_interface::return_type MecanumDriveController::update_and_write_comma
   const rclcpp::Time & time, const rclcpp::Duration & period)
 {
   // FORWARD KINEMATICS (odometry).
-  const double wheel_front_left_state_vel = state_interfaces_[FRONT_LEFT].get_value();
-  const double wheel_front_right_state_vel = state_interfaces_[FRONT_RIGHT].get_value();
-  const double wheel_rear_right_state_vel = state_interfaces_[REAR_RIGHT].get_value();
-  const double wheel_rear_left_state_vel = state_interfaces_[REAR_LEFT].get_value();
+  const auto wheel_front_left_state_vel_op = state_interfaces_[FRONT_LEFT].get_optional();
+  const auto wheel_front_right_state_vel_op = state_interfaces_[FRONT_RIGHT].get_optional();
+  const auto wheel_rear_right_state_vel_op = state_interfaces_[REAR_RIGHT].get_optional();
+  const auto wheel_rear_left_state_vel_op = state_interfaces_[REAR_LEFT].get_optional();
+
+  if (
+    !wheel_front_left_state_vel_op.has_value() || !wheel_front_right_state_vel_op.has_value() ||
+    !wheel_rear_right_state_vel_op.has_value() || !wheel_rear_left_state_vel_op.has_value())
+  {
+    RCLCPP_DEBUG(
+      get_node()->get_logger(),
+      "Unable to retrieve data from front left wheel or front right wheel or rear left wheel or "
+      "rear right wheel");
+    return controller_interface::return_type::OK;
+  }
+
+  const double wheel_front_left_state_vel = wheel_front_left_state_vel_op.value();
+  const double wheel_front_right_state_vel = wheel_front_right_state_vel_op.value();
+  const double wheel_rear_right_state_vel = wheel_rear_right_state_vel_op.value();
+  const double wheel_rear_left_state_vel = wheel_rear_left_state_vel_op.value();
 
   if (
     !std::isnan(wheel_front_left_state_vel) && !std::isnan(wheel_rear_left_state_vel) &&
@@ -367,44 +457,6 @@ controller_interface::return_type MecanumDriveController::update_and_write_comma
     odometry_.update(
       wheel_front_left_state_vel, wheel_rear_left_state_vel, wheel_rear_right_state_vel,
       wheel_front_right_state_vel, period.seconds());
-  }
-
-  auto current_ref = *(input_ref_.readFromRT());
-  const auto age_of_last_command = time - (current_ref)->header.stamp;
-
-  // send message only if there is no timeout
-  if (age_of_last_command <= ref_timeout_ || ref_timeout_ == rclcpp::Duration::from_seconds(0))
-  {
-    if (
-      !std::isnan(current_ref->twist.linear.x) && !std::isnan(current_ref->twist.linear.y) &&
-      !std::isnan(current_ref->twist.angular.z))
-    {
-      reference_interfaces_[0] = current_ref->twist.linear.x;
-      reference_interfaces_[1] = current_ref->twist.linear.y;
-      reference_interfaces_[2] = current_ref->twist.angular.z;
-
-      if (ref_timeout_ == rclcpp::Duration::from_seconds(0))
-      {
-        current_ref->twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-        current_ref->twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-        current_ref->twist.angular.z = std::numeric_limits<double>::quiet_NaN();
-      }
-    }
-  }
-  else
-  {
-    if (
-      !std::isnan(current_ref->twist.linear.x) && !std::isnan(current_ref->twist.linear.y) &&
-      !std::isnan(current_ref->twist.angular.z))
-    {
-      reference_interfaces_[0] = 0.0;
-      reference_interfaces_[1] = 0.0;
-      reference_interfaces_[2] = 0.0;
-
-      current_ref->twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-      current_ref->twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-      current_ref->twist.angular.z = std::numeric_limits<double>::quiet_NaN();
-    }
   }
 
   // INVERSE KINEMATICS (move robot).
@@ -460,17 +512,26 @@ controller_interface::return_type MecanumDriveController::update_and_write_comma
 
     // Set wheels velocities - The joint names are sorted according to the order documented in the
     // header file!
-    command_interfaces_[FRONT_LEFT].set_value(wheel_front_left_vel);
-    command_interfaces_[FRONT_RIGHT].set_value(wheel_front_right_vel);
-    command_interfaces_[REAR_RIGHT].set_value(wheel_rear_right_vel);
-    command_interfaces_[REAR_LEFT].set_value(wheel_rear_left_vel);
+    const bool value_set_error =
+      command_interfaces_[FRONT_LEFT].set_value(wheel_front_left_vel) &&
+      command_interfaces_[FRONT_RIGHT].set_value(wheel_front_right_vel) &&
+      command_interfaces_[REAR_RIGHT].set_value(wheel_rear_right_vel) &&
+      command_interfaces_[REAR_LEFT].set_value(wheel_rear_left_vel);
+    RCLCPP_ERROR_EXPRESSION(
+      get_node()->get_logger(), !value_set_error,
+      "Setting values to command interfaces has failed! "
+      "This means that you are maybe blocking the interface in your hardware for too long.");
   }
   else
   {
-    command_interfaces_[FRONT_LEFT].set_value(0.0);
-    command_interfaces_[FRONT_RIGHT].set_value(0.0);
-    command_interfaces_[REAR_RIGHT].set_value(0.0);
-    command_interfaces_[REAR_LEFT].set_value(0.0);
+    const bool value_set_error = command_interfaces_[FRONT_LEFT].set_value(0.0) &&
+                                 command_interfaces_[FRONT_RIGHT].set_value(0.0) &&
+                                 command_interfaces_[REAR_RIGHT].set_value(0.0) &&
+                                 command_interfaces_[REAR_LEFT].set_value(0.0);
+    RCLCPP_ERROR_EXPRESSION(
+      get_node()->get_logger(), !value_set_error,
+      "Setting values to command interfaces has failed! "
+      "This means that you are maybe blocking the interface in your hardware for too long.");
   }
 
   // Publish odometry message
@@ -479,44 +540,41 @@ controller_interface::return_type MecanumDriveController::update_and_write_comma
   orientation.setRPY(0.0, 0.0, odometry_.getRz());
 
   // Populate odom message and publish
-  if (rt_odom_state_publisher_->trylock())
+  if (rt_odom_state_publisher_)
   {
-    rt_odom_state_publisher_->msg_.header.stamp = time;
-    rt_odom_state_publisher_->msg_.pose.pose.position.x = odometry_.getX();
-    rt_odom_state_publisher_->msg_.pose.pose.position.y = odometry_.getY();
-    rt_odom_state_publisher_->msg_.pose.pose.orientation = tf2::toMsg(orientation);
-    rt_odom_state_publisher_->msg_.twist.twist.linear.x = odometry_.getVx();
-    rt_odom_state_publisher_->msg_.twist.twist.linear.y = odometry_.getVy();
-    rt_odom_state_publisher_->msg_.twist.twist.angular.z = odometry_.getWz();
-    rt_odom_state_publisher_->unlockAndPublish();
+    odom_state_msg_.header.stamp = time;
+    odom_state_msg_.pose.pose.position.x = odometry_.getX();
+    odom_state_msg_.pose.pose.position.y = odometry_.getY();
+    odom_state_msg_.pose.pose.orientation = tf2::toMsg(orientation);
+    odom_state_msg_.twist.twist.linear.x = odometry_.getVx();
+    odom_state_msg_.twist.twist.linear.y = odometry_.getVy();
+    odom_state_msg_.twist.twist.angular.z = odometry_.getWz();
+    rt_odom_state_publisher_->try_publish(odom_state_msg_);
   }
 
   // Publish tf /odom frame
-  if (params_.enable_odom_tf && rt_tf_odom_state_publisher_->trylock())
+  if (params_.enable_odom_tf && rt_tf_odom_state_publisher_)
   {
-    rt_tf_odom_state_publisher_->msg_.transforms.front().header.stamp = time;
-    rt_tf_odom_state_publisher_->msg_.transforms.front().transform.translation.x = odometry_.getX();
-    rt_tf_odom_state_publisher_->msg_.transforms.front().transform.translation.y = odometry_.getY();
-    rt_tf_odom_state_publisher_->msg_.transforms.front().transform.rotation =
-      tf2::toMsg(orientation);
-    rt_tf_odom_state_publisher_->unlockAndPublish();
+    tf_odom_state_msg_.transforms.front().header.stamp = time;
+    tf_odom_state_msg_.transforms.front().transform.translation.x = odometry_.getX();
+    tf_odom_state_msg_.transforms.front().transform.translation.y = odometry_.getY();
+    tf_odom_state_msg_.transforms.front().transform.rotation = tf2::toMsg(orientation);
+    rt_tf_odom_state_publisher_->try_publish(tf_odom_state_msg_);
   }
 
-  if (controller_state_publisher_->trylock())
+  if (controller_state_publisher_)
   {
-    controller_state_publisher_->msg_.header.stamp = get_node()->now();
-    controller_state_publisher_->msg_.front_left_wheel_velocity =
-      state_interfaces_[FRONT_LEFT].get_value();
-    controller_state_publisher_->msg_.front_right_wheel_velocity =
-      state_interfaces_[FRONT_RIGHT].get_value();
-    controller_state_publisher_->msg_.back_right_wheel_velocity =
-      state_interfaces_[REAR_RIGHT].get_value();
-    controller_state_publisher_->msg_.back_left_wheel_velocity =
-      state_interfaces_[REAR_LEFT].get_value();
-    controller_state_publisher_->msg_.reference_velocity.linear.x = reference_interfaces_[0];
-    controller_state_publisher_->msg_.reference_velocity.linear.y = reference_interfaces_[1];
-    controller_state_publisher_->msg_.reference_velocity.angular.z = reference_interfaces_[2];
-    controller_state_publisher_->unlockAndPublish();
+    controller_state_msg_.header.stamp = get_node()->now();
+
+    controller_state_msg_.front_left_wheel_velocity = wheel_front_left_state_vel;
+    controller_state_msg_.front_right_wheel_velocity = wheel_front_right_state_vel;
+    controller_state_msg_.back_right_wheel_velocity = wheel_rear_right_state_vel;
+    controller_state_msg_.back_left_wheel_velocity = wheel_rear_left_state_vel;
+
+    controller_state_msg_.reference_velocity.linear.x = reference_interfaces_[0];
+    controller_state_msg_.reference_velocity.linear.y = reference_interfaces_[1];
+    controller_state_msg_.reference_velocity.angular.z = reference_interfaces_[2];
+    controller_state_publisher_->try_publish(controller_state_msg_);
   }
 
   reference_interfaces_[0] = std::numeric_limits<double>::quiet_NaN();

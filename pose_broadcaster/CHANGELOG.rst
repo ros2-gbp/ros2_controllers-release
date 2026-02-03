@@ -2,159 +2,213 @@
 Changelog for package pose_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.52.0 (2025-12-31)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-2.51.0 (2025-12-01)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-2.50.2 (2025-10-17)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-2.50.1 (2025-10-02)
--------------------
+6.0.0 (2025-11-10)
+------------------
+* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
+* Contributors: Anand Vardhan
 
-2.50.0 (2025-09-12)
--------------------
-
-2.49.1 (2025-07-31)
--------------------
-
-2.49.0 (2025-07-21)
--------------------
-
-2.48.0 (2025-07-02)
--------------------
-
-2.47.0 (2025-06-07)
--------------------
-
-2.46.0 (2025-05-17)
--------------------
-
-2.45.0 (2025-04-27)
--------------------
-
-2.44.0 (2025-04-10)
--------------------
-
-2.43.0 (2025-03-17)
--------------------
-
-2.42.1 (2025-02-24)
--------------------
-
-2.42.0 (2025-02-17)
--------------------
-* Update paths of GPL includes (backport `#1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>`_) (`#1493 <https://github.com/ros-controls/ros2_controllers/issues/1493>`_)
+5.8.0 (2025-10-02)
+------------------
+* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
+* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
 * Contributors: Christoph Fröhlich
 
-2.41.0 (2025-01-13)
--------------------
-* [pose_broadcaster] Check for valid pose before attempting to publish a tf for it (backport `#1479 <https://github.com/ros-controls/ros2_controllers/issues/1479>`_) (`#1483 <https://github.com/ros-controls/ros2_controllers/issues/1483>`_)
-* Contributors: mergify[bot]
+5.7.0 (2025-09-12)
+------------------
 
-2.40.0 (2025-01-01)
--------------------
-* Use the .hpp headers from `realtime_tools` package (backport `#1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>`_) (`#1427 <https://github.com/ros-controls/ros2_controllers/issues/1427>`_)
-* Contributors: mergify[bot]
+5.6.1 (2025-08-30)
+------------------
 
-2.39.0 (2024-12-03)
--------------------
-* Update maintainers and add url tags (`#1363 <https://github.com/ros-controls/ros2_controllers/issues/1363>`_) (`#1364 <https://github.com/ros-controls/ros2_controllers/issues/1364>`_)
-* Contributors: mergify[bot]
+5.6.0 (2025-08-29)
+------------------
 
-2.38.0 (2024-11-09)
--------------------
-* Implement new PoseBroadcaster controller (backport `#1311 <https://github.com/ros-controls/ros2_controllers/issues/1311>`_) (`#1326 <https://github.com/ros-controls/ros2_controllers/issues/1326>`_)
-* Contributors: mergify[bot]
+5.5.0 (2025-07-31)
+------------------
 
-2.37.3 (2024-09-11)
--------------------
+5.4.0 (2025-07-23)
+------------------
 
-2.37.2 (2024-08-22)
--------------------
+5.3.0 (2025-07-14)
+------------------
 
-2.37.1 (2024-08-14)
--------------------
+5.2.0 (2025-06-23)
+------------------
 
-2.37.0 (2024-07-24)
--------------------
+5.1.0 (2025-06-11)
+------------------
+* Remove deprecated parameter from pose_broadcaster (`#1685 <https://github.com/ros-controls/ros2_controllers/issues/1685>`_)
+* Contributors: Christoph Fröhlich
 
-2.36.0 (2024-07-09)
--------------------
+5.0.2 (2025-05-26)
+------------------
 
-2.35.0 (2024-05-22)
--------------------
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
 
-2.34.0 (2024-04-01)
--------------------
+5.0.0 (2025-05-17)
+------------------
 
-2.33.0 (2024-02-12)
+4.24.0 (2025-04-27)
 -------------------
+* Deprecate tf.publish_rate parameter for pose_broadcaster (`#1614 <https://github.com/ros-controls/ros2_controllers/issues/1614>`_)
+* Contributors: Aarav Gupta
 
-2.32.0 (2024-01-20)
+4.23.0 (2025-04-10)
 -------------------
+* Use global cmake macros and fix gcc-10 build (`#1527 <https://github.com/ros-controls/ros2_controllers/issues/1527>`_)
+* Contributors: Christoph Fröhlich
 
-2.31.0 (2024-01-11)
--------------------
-
-2.30.0 (2023-12-20)
+4.22.0 (2025-03-17)
 -------------------
 
-2.29.0 (2023-12-05)
+4.21.0 (2025-03-01)
 -------------------
 
-2.28.0 (2023-11-30)
+4.20.0 (2025-01-29)
+-------------------
+* Update paths of GPL includes (`#1487 <https://github.com/ros-controls/ros2_controllers/issues/1487>`_)
+* Contributors: Christoph Fröhlich
+
+4.19.0 (2025-01-13)
+-------------------
+* [pose_broadcaster] Check for valid pose before attempting to publish a tf for it (`#1479 <https://github.com/ros-controls/ros2_controllers/issues/1479>`_)
+* Remove visibility macros (`#1451 <https://github.com/ros-controls/ros2_controllers/issues/1451>`_)
+* Contributors: Bence Magyar, Felix Exner
+
+4.18.0 (2024-12-19)
 -------------------
 
-2.27.0 (2023-11-14)
+4.17.0 (2024-12-07)
+-------------------
+* Use the .hpp headers from `realtime_tools` package (`#1406 <https://github.com/ros-controls/ros2_controllers/issues/1406>`_)
+* Add few warning flags to error in all ros2_controllers packages and fix tests (`#1370 <https://github.com/ros-controls/ros2_controllers/issues/1370>`_)
+* Update maintainers and add url tags (`#1363 <https://github.com/ros-controls/ros2_controllers/issues/1363>`_)
+* Contributors: Christoph Fröhlich, Sai Kishor Kothakota
+
+4.16.0 (2024-11-08)
+-------------------
+* Add hardware_interface_testing dependency (`#1335 <https://github.com/ros-controls/ros2_controllers/issues/1335>`_)
+* Implement new PoseBroadcaster controller (`#1311 <https://github.com/ros-controls/ros2_controllers/issues/1311>`_)
+* Contributors: Christoph Fröhlich, RobertWilbrandt
+
+4.15.0 (2024-10-07)
 -------------------
 
-2.26.0 (2023-10-03)
+4.14.0 (2024-09-11)
 -------------------
 
-2.25.0 (2023-09-15)
+4.13.0 (2024-08-22)
 -------------------
 
-2.24.0 (2023-08-07)
+4.12.1 (2024-08-14)
 -------------------
 
-2.23.0 (2023-06-23)
+4.12.0 (2024-07-23)
 -------------------
 
-2.22.0 (2023-06-14)
+4.11.0 (2024-07-09)
 -------------------
 
-2.21.0 (2023-05-28)
+4.10.0 (2024-07-01)
 -------------------
 
-2.20.0 (2023-05-14)
+4.9.0 (2024-06-05)
+------------------
+
+4.8.0 (2024-05-14)
+------------------
+
+4.7.0 (2024-03-22)
+------------------
+
+4.6.0 (2024-02-12)
+------------------
+
+4.5.0 (2024-01-31)
+------------------
+
+4.4.0 (2024-01-11)
+------------------
+
+4.3.0 (2024-01-08)
+------------------
+
+4.2.0 (2023-12-12)
+------------------
+
+4.1.0 (2023-12-01)
+------------------
+
+4.0.0 (2023-11-21)
+------------------
+
+3.17.0 (2023-10-31)
 -------------------
 
-2.19.0 (2023-05-02)
+3.16.0 (2023-09-20)
 -------------------
 
-2.18.0 (2023-04-29)
+3.15.0 (2023-09-11)
 -------------------
 
-2.17.3 (2023-04-14)
+3.14.0 (2023-08-16)
 -------------------
 
-2.17.2 (2023-03-07)
+3.13.0 (2023-08-04)
 -------------------
 
-2.17.1 (2023-02-20)
+3.12.0 (2023-07-18)
 -------------------
 
-2.17.0 (2023-02-13)
+3.11.0 (2023-06-24)
 -------------------
 
-2.16.1 (2023-01-31)
+3.10.1 (2023-06-06)
 -------------------
 
-2.16.0 (2023-01-19)
+3.10.0 (2023-06-04)
 -------------------
+
+3.9.0 (2023-05-28)
+------------------
+
+3.8.0 (2023-05-14)
+------------------
+
+3.7.0 (2023-05-02)
+------------------
+
+3.6.0 (2023-04-29)
+------------------
+
+3.5.0 (2023-04-14)
+------------------
+
+3.4.0 (2023-04-02)
+------------------
+
+3.3.0 (2023-03-07)
+------------------
+
+3.2.0 (2023-02-10)
+------------------
+
+3.1.0 (2023-01-26)
+------------------
+
+3.0.0 (2023-01-19)
+------------------
 
 2.15.0 (2022-12-06)
 -------------------

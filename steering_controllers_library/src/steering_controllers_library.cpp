@@ -16,15 +16,12 @@
 
 #include <limits>
 #include <memory>
-#include <queue>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "controller_interface/helpers.hpp"
+#include "controller_interface/tf_prefix.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
-#include "lifecycle_msgs/msg/state.hpp"
-#include "tf2/transform_datatypes.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 namespace
@@ -35,16 +32,15 @@ using ControllerTwistReferenceMsg =
 
 // called from RT control loop
 void reset_controller_reference_msg(
-  const std::shared_ptr<ControllerTwistReferenceMsg> & msg,
-  const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node)
+  ControllerTwistReferenceMsg & msg, const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node)
 {
-  msg->header.stamp = node->now();
-  msg->twist.linear.x = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.linear.y = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-  msg->twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+  msg.header.stamp = node->now();
+  msg.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.linear.y = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+  msg.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
 }
 
 }  // namespace
@@ -85,27 +81,170 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   params_ = param_listener_->get_params();
+
+  // call method from implementations, sets odometry type
+  configure_odometry();
+
+  // Check if the number of traction joints is correct
+  if (odometry_.get_odometry_type() == steering_kinematics::BICYCLE_CONFIG)
+  {
+    if (params_.traction_joints_names.size() != 1)
+    {
+      RCLCPP_ERROR(
+        get_node()->get_logger(),
+        "Bicycle configuration requires exactly one traction joint, but %zu were provided",
+        params_.traction_joints_names.size());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+  }
+  else if (odometry_.get_odometry_type() == steering_kinematics::TRICYCLE_CONFIG)
+  {
+    if (params_.traction_joints_names.size() != 2)
+    {
+      RCLCPP_ERROR(
+        get_node()->get_logger(),
+        "Tricycle configuration requires exactly two traction joints, but %zu were provided",
+        params_.traction_joints_names.size());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+  }
+  else if (odometry_.get_odometry_type() == steering_kinematics::ACKERMANN_CONFIG)
+  {
+    if (params_.traction_joints_names.size() != 2)
+    {
+      RCLCPP_ERROR(
+        get_node()->get_logger(),
+        "Ackermann configuration requires exactly two traction joints, but %zu were provided",
+        params_.traction_joints_names.size());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+  }
+  // Check if the number of steering joints is correct
+  if (odometry_.get_odometry_type() == steering_kinematics::BICYCLE_CONFIG)
+  {
+    if (params_.steering_joints_names.size() != 1)
+    {
+      RCLCPP_ERROR(
+        get_node()->get_logger(),
+        "Bicycle configuration requires exactly one steering joint, but %zu were provided",
+        params_.steering_joints_names.size());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+  }
+  else if (odometry_.get_odometry_type() == steering_kinematics::TRICYCLE_CONFIG)
+  {
+    if (params_.steering_joints_names.size() != 1)
+    {
+      RCLCPP_ERROR(
+        get_node()->get_logger(),
+        "Tricycle configuration requires exactly one steering joint, but %zu were provided",
+        params_.steering_joints_names.size());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+  }
+  else if (odometry_.get_odometry_type() == steering_kinematics::ACKERMANN_CONFIG)
+  {
+    if (params_.steering_joints_names.size() != 2)
+    {
+      RCLCPP_ERROR(
+        get_node()->get_logger(),
+        "Ackermann configuration requires exactly two steering joints, but %zu were provided",
+        params_.steering_joints_names.size());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+  }
+
   odometry_.set_velocity_rolling_window_size(
     static_cast<size_t>(params_.velocity_rolling_window_size));
 
-  configure_odometry();
-
-  if (!params_.rear_wheels_state_names.empty())
+  if (!params_.traction_joints_state_names.empty())
   {
-    rear_wheels_state_names_ = params_.rear_wheels_state_names;
+    if (odometry_.get_odometry_type() == steering_kinematics::BICYCLE_CONFIG)
+    {
+      if (params_.traction_joints_state_names.size() != 1)
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Bicycle configuration requires exactly one traction joint, but %zu state interface "
+          "names were provided",
+          params_.traction_joints_state_names.size());
+        return controller_interface::CallbackReturn::ERROR;
+      }
+    }
+    else if (odometry_.get_odometry_type() == steering_kinematics::TRICYCLE_CONFIG)
+    {
+      if (params_.traction_joints_state_names.size() != 2)
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Tricycle configuration requires exactly two traction joints, but %zu state interface "
+          "names were provided",
+          params_.traction_joints_state_names.size());
+        return controller_interface::CallbackReturn::ERROR;
+      }
+    }
+    else if (odometry_.get_odometry_type() == steering_kinematics::ACKERMANN_CONFIG)
+    {
+      if (params_.traction_joints_state_names.size() != 2)
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Ackermann configuration requires exactly two traction joints, but %zu state interface "
+          "names were provided",
+          params_.traction_joints_state_names.size());
+        return controller_interface::CallbackReturn::ERROR;
+      }
+    }
+    traction_joints_state_names_ = params_.traction_joints_state_names;
   }
   else
   {
-    rear_wheels_state_names_ = params_.rear_wheels_names;
+    traction_joints_state_names_ = params_.traction_joints_names;
   }
 
-  if (!params_.front_wheels_state_names.empty())
+  if (!params_.steering_joints_state_names.empty())
   {
-    front_wheels_state_names_ = params_.front_wheels_state_names;
+    if (odometry_.get_odometry_type() == steering_kinematics::BICYCLE_CONFIG)
+    {
+      if (params_.steering_joints_state_names.size() != 1)
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Bicycle configuration requires exactly one steering joint, but %zu state interface "
+          "names were provided",
+          params_.steering_joints_state_names.size());
+        return controller_interface::CallbackReturn::ERROR;
+      }
+    }
+    else if (odometry_.get_odometry_type() == steering_kinematics::TRICYCLE_CONFIG)
+    {
+      if (params_.steering_joints_state_names.size() != 1)
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Tricycle configuration requires exactly one steering joint, but %zu state interface "
+          "names were provided",
+          params_.steering_joints_state_names.size());
+        return controller_interface::CallbackReturn::ERROR;
+      }
+    }
+    else if (odometry_.get_odometry_type() == steering_kinematics::ACKERMANN_CONFIG)
+    {
+      if (params_.steering_joints_state_names.size() != 2)
+      {
+        RCLCPP_ERROR(
+          get_node()->get_logger(),
+          "Ackermann configuration requires exactly two steering joints, but %zu state interface "
+          "names were provided",
+          params_.steering_joints_state_names.size());
+        return controller_interface::CallbackReturn::ERROR;
+      }
+    }
+    steering_joints_state_names_ = params_.steering_joints_state_names;
   }
   else
   {
-    front_wheels_state_names_ = params_.front_wheels_names;
+    steering_joints_state_names_ = params_.steering_joints_names;
   }
 
   // topics QoS
@@ -115,24 +254,12 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
 
   // Reference Subscriber
   ref_timeout_ = rclcpp::Duration::from_seconds(params_.reference_timeout);
-  if (params_.use_stamped_vel)
-  {
-    ref_subscriber_twist_ = get_node()->create_subscription<ControllerTwistReferenceMsg>(
-      "~/reference", subscribers_qos,
-      std::bind(&SteeringControllersLibrary::reference_callback, this, std::placeholders::_1));
-  }
-  else
-  {
-    ref_subscriber_unstamped_ = get_node()->create_subscription<geometry_msgs::msg::Twist>(
-      "~/reference_unstamped", subscribers_qos,
-      std::bind(
-        &SteeringControllersLibrary::reference_callback_unstamped, this, std::placeholders::_1));
-  }
+  ref_subscriber_twist_ = get_node()->create_subscription<ControllerTwistReferenceMsg>(
+    "~/reference", subscribers_qos,
+    std::bind(&SteeringControllersLibrary::reference_callback, this, std::placeholders::_1));
 
-  std::shared_ptr<ControllerTwistReferenceMsg> msg =
-    std::make_shared<ControllerTwistReferenceMsg>();
-  reset_controller_reference_msg(msg, get_node());
-  input_ref_.writeFromNonRT(msg);
+  reset_controller_reference_msg(current_ref_, get_node());
+  input_ref_.set(current_ref_);
 
   try
   {
@@ -149,22 +276,30 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  rt_odom_state_publisher_->lock();
-  rt_odom_state_publisher_->msg_.header.stamp = get_node()->now();
-  rt_odom_state_publisher_->msg_.header.frame_id = params_.odom_frame_id;
-  rt_odom_state_publisher_->msg_.child_frame_id = params_.base_frame_id;
-  rt_odom_state_publisher_->msg_.pose.pose.position.z = 0;
+  // resolve prefix: substitute tilde (~) with the namespace if contains and normalize slashes (/)
+  // Note: resolve_tf_prefix handles empty tf_frame_prefix by returning an empty string
+  const std::string tf_prefix =
+    controller_interface::resolve_tf_prefix(params_.tf_frame_prefix, get_node()->get_namespace());
 
-  auto & covariance = rt_odom_state_publisher_->msg_.twist.covariance;
-  constexpr size_t NUM_DIMENSIONS = 6;
-  for (size_t index = 0; index < 6; ++index)
+  // prepend resolved TF prefix to frame ids
+  const std::string odom_frame_id = tf_prefix + params_.odom_frame_id;
+  const std::string base_frame_id = tf_prefix + params_.base_frame_id;
+
+  odom_state_msg_.header.stamp = get_node()->now();
+  odom_state_msg_.header.frame_id = odom_frame_id;
+  odom_state_msg_.child_frame_id = base_frame_id;
+  odom_state_msg_.pose.pose.position.z = 0;
+
+  const size_t NUM_DIMENSIONS = 6;
+  auto & pose_cov = odom_state_msg_.pose.covariance;
+  auto & twist_cov = odom_state_msg_.twist.covariance;
+  for (size_t i = 0; i < NUM_DIMENSIONS; ++i)
   {
-    // 0, 7, 14, 21, 28, 35
-    const size_t diagonal_index = NUM_DIMENSIONS * index + index;
-    covariance[diagonal_index] = params_.pose_covariance_diagonal[index];
-    covariance[diagonal_index] = params_.twist_covariance_diagonal[index];
+    // indices of the diagonal: 0, 7, 14, 21, 28, 35
+    const size_t index = (NUM_DIMENSIONS + 1) * i;
+    pose_cov[index] = params_.pose_covariance_diagonal[i];
+    twist_cov[index] = params_.twist_covariance_diagonal[i];
   }
-  rt_odom_state_publisher_->unlock();
 
   try
   {
@@ -182,13 +317,11 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  rt_tf_odom_state_publisher_->lock();
-  rt_tf_odom_state_publisher_->msg_.transforms.resize(1);
-  rt_tf_odom_state_publisher_->msg_.transforms[0].header.stamp = get_node()->now();
-  rt_tf_odom_state_publisher_->msg_.transforms[0].header.frame_id = params_.odom_frame_id;
-  rt_tf_odom_state_publisher_->msg_.transforms[0].child_frame_id = params_.base_frame_id;
-  rt_tf_odom_state_publisher_->msg_.transforms[0].transform.translation.z = 0.0;
-  rt_tf_odom_state_publisher_->unlock();
+  tf_odom_state_msg_.transforms.resize(1);
+  tf_odom_state_msg_.transforms[0].header.stamp = get_node()->now();
+  tf_odom_state_msg_.transforms[0].header.frame_id = params_.odom_frame_id;
+  tf_odom_state_msg_.transforms[0].child_frame_id = params_.base_frame_id;
+  tf_odom_state_msg_.transforms[0].transform.translation.z = 0.0;
 
   try
   {
@@ -206,10 +339,8 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  controller_state_publisher_->lock();
-  controller_state_publisher_->msg_.header.stamp = get_node()->now();
-  controller_state_publisher_->msg_.header.frame_id = params_.odom_frame_id;
-  controller_state_publisher_->unlock();
+  controller_state_msg_.header.stamp = get_node()->now();
+  controller_state_msg_.header.frame_id = params_.odom_frame_id;
   RCLCPP_INFO(get_node()->get_logger(), "configure successful");
   return controller_interface::CallbackReturn::SUCCESS;
 }
@@ -229,7 +360,7 @@ void SteeringControllersLibrary::reference_callback(
 
   if (ref_timeout_ == rclcpp::Duration::from_seconds(0) || age_of_last_command <= ref_timeout_)
   {
-    input_ref_.writeFromNonRT(msg);
+    input_ref_.set(*msg);
   }
   else
   {
@@ -242,76 +373,22 @@ void SteeringControllersLibrary::reference_callback(
   }
 }
 
-void SteeringControllersLibrary::reference_callback_unstamped(
-  const std::shared_ptr<geometry_msgs::msg::Twist> msg)
-{
-  RCLCPP_WARN(
-    get_node()->get_logger(),
-    "Use of Twist message without stamped is deprecated and it will be removed in ROS 2 J-Turtle "
-    "version. Use '~/reference' topic with 'geometry_msgs::msg::TwistStamped' message type in the "
-    "future.");
-  auto twist_stamped = *(input_ref_.readFromNonRT());
-  twist_stamped->header.stamp = get_node()->now();
-  // if no timestamp provided use current time for command timestamp
-  if (twist_stamped->header.stamp.sec == 0 && twist_stamped->header.stamp.nanosec == 0u)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "Timestamp in header is missing, using current time as command timestamp.");
-    twist_stamped->header.stamp = get_node()->now();
-  }
-
-  const auto age_of_last_command = get_node()->now() - twist_stamped->header.stamp;
-
-  if (ref_timeout_ == rclcpp::Duration::from_seconds(0) || age_of_last_command <= ref_timeout_)
-  {
-    twist_stamped->twist = *msg;
-  }
-  else
-  {
-    RCLCPP_ERROR(
-      get_node()->get_logger(),
-      "Received message has timestamp %.10f older for %.10f which is more then allowed timeout "
-      "(%.4f).",
-      rclcpp::Time(twist_stamped->header.stamp).seconds(), age_of_last_command.seconds(),
-      ref_timeout_.seconds());
-  }
-}
-
 controller_interface::InterfaceConfiguration
 SteeringControllersLibrary::command_interface_configuration() const
 {
   controller_interface::InterfaceConfiguration command_interfaces_config;
   command_interfaces_config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
   command_interfaces_config.names.reserve(nr_cmd_itfs_);
-
-  if (params_.front_steering)
+  for (size_t i = 0; i < params_.traction_joints_names.size(); i++)
   {
-    for (size_t i = 0; i < params_.rear_wheels_names.size(); i++)
-    {
-      command_interfaces_config.names.push_back(
-        params_.rear_wheels_names[i] + "/" + hardware_interface::HW_IF_VELOCITY);
-    }
-
-    for (size_t i = 0; i < params_.front_wheels_names.size(); i++)
-    {
-      command_interfaces_config.names.push_back(
-        params_.front_wheels_names[i] + "/" + hardware_interface::HW_IF_POSITION);
-    }
+    command_interfaces_config.names.push_back(
+      params_.traction_joints_names[i] + "/" + hardware_interface::HW_IF_VELOCITY);
   }
-  else
-  {
-    for (size_t i = 0; i < params_.front_wheels_names.size(); i++)
-    {
-      command_interfaces_config.names.push_back(
-        params_.front_wheels_names[i] + "/" + hardware_interface::HW_IF_VELOCITY);
-    }
 
-    for (size_t i = 0; i < params_.rear_wheels_names.size(); i++)
-    {
-      command_interfaces_config.names.push_back(
-        params_.rear_wheels_names[i] + "/" + hardware_interface::HW_IF_POSITION);
-    }
+  for (size_t i = 0; i < params_.steering_joints_names.size(); i++)
+  {
+    command_interfaces_config.names.push_back(
+      params_.steering_joints_names[i] + "/" + hardware_interface::HW_IF_POSITION);
   }
   return command_interfaces_config;
 }
@@ -326,33 +403,17 @@ SteeringControllersLibrary::state_interface_configuration() const
   const auto traction_wheels_feedback = params_.position_feedback
                                           ? hardware_interface::HW_IF_POSITION
                                           : hardware_interface::HW_IF_VELOCITY;
-  if (params_.front_steering)
-  {
-    for (size_t i = 0; i < rear_wheels_state_names_.size(); i++)
-    {
-      state_interfaces_config.names.push_back(
-        rear_wheels_state_names_[i] + "/" + traction_wheels_feedback);
-    }
 
-    for (size_t i = 0; i < front_wheels_state_names_.size(); i++)
-    {
-      state_interfaces_config.names.push_back(
-        front_wheels_state_names_[i] + "/" + hardware_interface::HW_IF_POSITION);
-    }
+  for (size_t i = 0; i < traction_joints_state_names_.size(); i++)
+  {
+    state_interfaces_config.names.push_back(
+      traction_joints_state_names_[i] + "/" + traction_wheels_feedback);
   }
-  else
-  {
-    for (size_t i = 0; i < front_wheels_state_names_.size(); i++)
-    {
-      state_interfaces_config.names.push_back(
-        front_wheels_state_names_[i] + "/" + traction_wheels_feedback);
-    }
 
-    for (size_t i = 0; i < rear_wheels_state_names_.size(); i++)
-    {
-      state_interfaces_config.names.push_back(
-        rear_wheels_state_names_[i] + "/" + hardware_interface::HW_IF_POSITION);
-    }
+  for (size_t i = 0; i < steering_joints_state_names_.size(); i++)
+  {
+    state_interfaces_config.names.push_back(
+      steering_joints_state_names_[i] + "/" + hardware_interface::HW_IF_POSITION);
   }
 
   return state_interfaces_config;
@@ -368,12 +429,12 @@ SteeringControllersLibrary::on_export_reference_interfaces()
 
   reference_interfaces.push_back(
     hardware_interface::CommandInterface(
-      get_node()->get_name(), std::string("linear/") + hardware_interface::HW_IF_VELOCITY,
+      get_node()->get_name() + std::string("/linear"), hardware_interface::HW_IF_VELOCITY,
       &reference_interfaces_[0]));
 
   reference_interfaces.push_back(
     hardware_interface::CommandInterface(
-      get_node()->get_name(), std::string("angular/") + hardware_interface::HW_IF_VELOCITY,
+      get_node()->get_name() + std::string("/angular"), hardware_interface::HW_IF_VELOCITY,
       &reference_interfaces_[1]));
 
   return reference_interfaces;
@@ -384,8 +445,10 @@ bool SteeringControllersLibrary::on_set_chained_mode(bool /*chained_mode*/) { re
 controller_interface::CallbackReturn SteeringControllersLibrary::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // Set default value in command
-  reset_controller_reference_msg(*(input_ref_.readFromRT()), get_node());
+  // Try to set default value in command.
+  // If this fails, then another command will be received soon anyways.
+  reset_controller_reference_msg(current_ref_, get_node());
+  input_ref_.try_set(current_ref_);
 
   return controller_interface::CallbackReturn::SUCCESS;
 }
@@ -395,15 +458,59 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_deactivate(
 {
   for (size_t i = 0; i < nr_cmd_itfs_; ++i)
   {
-    command_interfaces_[i].set_value(std::numeric_limits<double>::quiet_NaN());
+    if (!command_interfaces_[i].set_value(std::numeric_limits<double>::quiet_NaN()))
+    {
+      RCLCPP_WARN(
+        get_node()->get_logger(),
+        "Failed to set NaN value for command interface '%s' (index %zu) during deactivation.",
+        command_interfaces_[i].get_name().c_str(), i);
+      return controller_interface::CallbackReturn::SUCCESS;
+    }
   }
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type SteeringControllersLibrary::update_reference_from_subscribers()
+controller_interface::return_type SteeringControllersLibrary::update_reference_from_subscribers(
+  const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
-  // Move functionality to the `update_and_write_commands` because of the missing arguments in
-  // humble - otherwise issues with multiple time-sources might happen when working with simulators
+  auto current_ref_op = input_ref_.try_get();
+  if (current_ref_op.has_value())
+  {
+    current_ref_ = current_ref_op.value();
+  }
+
+  const auto age_of_last_command = time - current_ref_.header.stamp;
+
+  // accept message only if there is no timeout
+  if (age_of_last_command <= ref_timeout_ || ref_timeout_ == rclcpp::Duration::from_seconds(0))
+  {
+    if (!std::isnan(current_ref_.twist.linear.x) && !std::isnan(current_ref_.twist.linear.y))
+    {
+      reference_interfaces_[0] = current_ref_.twist.linear.x;
+      reference_interfaces_[1] = current_ref_.twist.angular.z;
+
+      if (ref_timeout_ == rclcpp::Duration::from_seconds(0))
+      {
+        current_ref_.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+        current_ref_.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+
+        input_ref_.try_set(current_ref_);
+      }
+    }
+  }
+  else
+  {
+    if (!std::isnan(current_ref_.twist.linear.x) && !std::isnan(current_ref_.twist.angular.z))
+    {
+      reference_interfaces_[0] = std::numeric_limits<double>::quiet_NaN();
+      reference_interfaces_[1] = std::numeric_limits<double>::quiet_NaN();
+
+      current_ref_.twist.linear.x = std::numeric_limits<double>::quiet_NaN();
+      current_ref_.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
+
+      input_ref_.try_set(current_ref_);
+    }
+  }
 
   return controller_interface::return_type::OK;
 }
@@ -411,16 +518,11 @@ controller_interface::return_type SteeringControllersLibrary::update_reference_f
 controller_interface::return_type SteeringControllersLibrary::update_and_write_commands(
   const rclcpp::Time & time, const rclcpp::Duration & period)
 {
-  if (!is_in_chained_mode())
-  {
-    auto current_ref = *(input_ref_.readFromRT());
-    if (!std::isnan(current_ref->twist.linear.x) && !std::isnan(current_ref->twist.angular.z))
-    {
-      reference_interfaces_[0] = current_ref->twist.linear.x;
-      reference_interfaces_[1] = current_ref->twist.angular.z;
-    }
-  }
+  auto logger = get_node()->get_logger();
 
+  // store current ref (for open loop odometry) and update odometry
+  last_linear_velocity_ = reference_interfaces_[0];
+  last_angular_velocity_ = reference_interfaces_[1];
   update_odometry(period);
 
   // MOVE ROBOT
@@ -430,40 +532,39 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
 
   if (!std::isnan(reference_interfaces_[0]) && !std::isnan(reference_interfaces_[1]))
   {
-    const auto age_of_last_command = time - (*(input_ref_.readFromRT()))->header.stamp;
-    const auto timeout =
-      age_of_last_command > ref_timeout_ && ref_timeout_ != rclcpp::Duration::from_seconds(0);
-
-    // store (for open loop odometry) and set commands
-    last_linear_velocity_ = timeout ? 0.0 : reference_interfaces_[0];
-    last_angular_velocity_ = timeout ? 0.0 : reference_interfaces_[1];
-
     auto [traction_commands, steering_commands] = odometry_.get_commands(
       reference_interfaces_[0], reference_interfaces_[1], params_.open_loop,
       params_.reduce_wheel_speed_until_steering_reached);
-    if (params_.front_steering)
+
+    for (size_t i = 0; i < params_.traction_joints_names.size(); i++)
     {
-      for (size_t i = 0; i < params_.rear_wheels_names.size(); i++)
+      const auto & value = traction_commands[i];
+
+      if (!command_interfaces_[i].set_value(value))
       {
-        command_interfaces_[i].set_value(timeout ? 0.0 : traction_commands[i]);
-      }
-      for (size_t i = 0; i < params_.front_wheels_names.size(); i++)
-      {
-        command_interfaces_[i + params_.rear_wheels_names.size()].set_value(steering_commands[i]);
+        RCLCPP_WARN(logger, "Unable to set traction command at index %zu: value = %f", i, value);
+        return controller_interface::return_type::OK;
       }
     }
-    else
+    for (size_t i = 0; i < params_.steering_joints_names.size(); i++)
     {
+      const auto & value = steering_commands[i];
+
+      if (!command_interfaces_[i + params_.traction_joints_names.size()].set_value(value))
       {
-        for (size_t i = 0; i < params_.front_wheels_names.size(); i++)
-        {
-          command_interfaces_[i].set_value(timeout ? 0.0 : traction_commands[i]);
-        }
-        for (size_t i = 0; i < params_.rear_wheels_names.size(); i++)
-        {
-          command_interfaces_[i + params_.front_wheels_names.size()].set_value(
-            steering_commands[i]);
-        }
+        RCLCPP_WARN(logger, "Unable to set steering command at index %zu: value = %f", i, value);
+        return controller_interface::return_type::OK;
+      }
+    }
+  }
+  else
+  {
+    for (size_t i = 0; i < params_.traction_joints_names.size(); i++)
+    {
+      if (!command_interfaces_[i].set_value(0.0))
+      {
+        RCLCPP_WARN(logger, "Unable to set command interface to value 0.0");
+        return controller_interface::return_type::OK;
       }
     }
   }
@@ -474,73 +575,103 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
   orientation.setRPY(0.0, 0.0, odometry_.get_heading());
 
   // Populate odom message and publish
-  if (rt_odom_state_publisher_->trylock())
+  if (rt_odom_state_publisher_)
   {
-    rt_odom_state_publisher_->msg_.header.stamp = time;
-    rt_odom_state_publisher_->msg_.pose.pose.position.x = odometry_.get_x();
-    rt_odom_state_publisher_->msg_.pose.pose.position.y = odometry_.get_y();
-    rt_odom_state_publisher_->msg_.pose.pose.orientation = tf2::toMsg(orientation);
-    rt_odom_state_publisher_->msg_.twist.twist.linear.x = odometry_.get_linear();
-    rt_odom_state_publisher_->msg_.twist.twist.angular.z = odometry_.get_angular();
-    rt_odom_state_publisher_->unlockAndPublish();
+    odom_state_msg_.header.stamp = time;
+    odom_state_msg_.pose.pose.position.x = odometry_.get_x();
+    odom_state_msg_.pose.pose.position.y = odometry_.get_y();
+    odom_state_msg_.pose.pose.orientation = tf2::toMsg(orientation);
+    odom_state_msg_.twist.twist.linear.x = odometry_.get_linear();
+    odom_state_msg_.twist.twist.angular.z = odometry_.get_angular();
+    rt_odom_state_publisher_->try_publish(odom_state_msg_);
   }
 
   // Publish tf /odom frame
-  if (params_.enable_odom_tf && rt_tf_odom_state_publisher_->trylock())
+  if (params_.enable_odom_tf && rt_tf_odom_state_publisher_)
   {
-    rt_tf_odom_state_publisher_->msg_.transforms.front().header.stamp = time;
-    rt_tf_odom_state_publisher_->msg_.transforms.front().transform.translation.x =
-      odometry_.get_x();
-    rt_tf_odom_state_publisher_->msg_.transforms.front().transform.translation.y =
-      odometry_.get_y();
-    rt_tf_odom_state_publisher_->msg_.transforms.front().transform.rotation =
-      tf2::toMsg(orientation);
-    rt_tf_odom_state_publisher_->unlockAndPublish();
+    tf_odom_state_msg_.transforms.front().header.stamp = time;
+    tf_odom_state_msg_.transforms.front().transform.translation.x = odometry_.get_x();
+    tf_odom_state_msg_.transforms.front().transform.translation.y = odometry_.get_y();
+    tf_odom_state_msg_.transforms.front().transform.rotation = tf2::toMsg(orientation);
+    rt_tf_odom_state_publisher_->try_publish(tf_odom_state_msg_);
   }
 
-  if (controller_state_publisher_->trylock())
+  if (controller_state_publisher_)
   {
-    controller_state_publisher_->msg_.header.stamp = time;
-    controller_state_publisher_->msg_.traction_wheels_position.clear();
-    controller_state_publisher_->msg_.traction_wheels_velocity.clear();
-    controller_state_publisher_->msg_.linear_velocity_command.clear();
-    controller_state_publisher_->msg_.steer_positions.clear();
-    controller_state_publisher_->msg_.steering_angle_command.clear();
+    controller_state_msg_.header.stamp = time;
+    controller_state_msg_.traction_wheels_position.clear();
+    controller_state_msg_.traction_wheels_velocity.clear();
+    controller_state_msg_.traction_command.clear();
+    controller_state_msg_.steer_positions.clear();
+    controller_state_msg_.steering_angle_command.clear();
 
-    auto number_of_traction_wheels = params_.rear_wheels_names.size();
-    auto number_of_steering_wheels = params_.front_wheels_names.size();
-
-    if (!params_.front_steering)
-    {
-      number_of_traction_wheels = params_.front_wheels_names.size();
-      number_of_steering_wheels = params_.rear_wheels_names.size();
-    }
+    auto number_of_traction_wheels = params_.traction_joints_names.size();
+    auto number_of_steering_wheels = params_.steering_joints_names.size();
 
     for (size_t i = 0; i < number_of_traction_wheels; ++i)
     {
       if (params_.position_feedback)
       {
-        controller_state_publisher_->msg_.traction_wheels_position.push_back(
-          state_interfaces_[i].get_value());
+        auto position_state_interface_op = state_interfaces_[i].get_optional();
+        if (!position_state_interface_op.has_value())
+        {
+          RCLCPP_DEBUG(
+            logger, "Unable to retrieve position feedback data for traction wheel %zu", i);
+        }
+        else
+        {
+          controller_state_msg_.traction_wheels_position.push_back(
+            position_state_interface_op.value());
+        }
       }
       else
       {
-        controller_state_publisher_->msg_.traction_wheels_velocity.push_back(
-          state_interfaces_[i].get_value());
+        auto velocity_state_interface_op = state_interfaces_[i].get_optional();
+        if (!velocity_state_interface_op.has_value())
+        {
+          RCLCPP_DEBUG(
+            logger, "Unable to retrieve velocity feedback data for traction wheel %zu", i);
+        }
+        else
+        {
+          controller_state_msg_.traction_wheels_velocity.push_back(
+            velocity_state_interface_op.value());
+        }
       }
-      controller_state_publisher_->msg_.linear_velocity_command.push_back(
-        command_interfaces_[i].get_value());
+
+      auto velocity_command_interface_op = command_interfaces_[i].get_optional();
+      if (!velocity_command_interface_op.has_value())
+      {
+        RCLCPP_DEBUG(logger, "Unable to retrieve velocity command for traction wheel %zu", i);
+      }
+      else
+      {
+        controller_state_msg_.traction_command.push_back(velocity_command_interface_op.value());
+      }
     }
 
     for (size_t i = 0; i < number_of_steering_wheels; ++i)
     {
-      controller_state_publisher_->msg_.steer_positions.push_back(
-        state_interfaces_[number_of_traction_wheels + i].get_value());
-      controller_state_publisher_->msg_.steering_angle_command.push_back(
-        command_interfaces_[number_of_traction_wheels + i].get_value());
+      const auto state_interface_value_op =
+        state_interfaces_[number_of_traction_wheels + i].get_optional();
+      const auto command_interface_value_op =
+        command_interfaces_[number_of_traction_wheels + i].get_optional();
+      if (!state_interface_value_op.has_value() || !command_interface_value_op.has_value())
+      {
+        RCLCPP_DEBUG(
+          logger, "Unable to retrieve %s for steering wheel %zu",
+          !state_interface_value_op.has_value() ? "state interface value"
+                                                : "command interface value",
+          i);
+      }
+      else
+      {
+        controller_state_msg_.steer_positions.push_back(state_interface_value_op.value());
+        controller_state_msg_.steering_angle_command.push_back(command_interface_value_op.value());
+      }
     }
 
-    controller_state_publisher_->unlockAndPublish();
+    controller_state_publisher_->try_publish(controller_state_msg_);
   }
 
   reference_interfaces_[0] = std::numeric_limits<double>::quiet_NaN();

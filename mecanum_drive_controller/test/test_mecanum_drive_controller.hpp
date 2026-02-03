@@ -84,6 +84,12 @@ class TestableMecanumDriveController : public mecanum_drive_controller::MecanumD
     when_ref_timeout_zero_for_reference_callback_expect_reference_msg_being_used_only_once);
   FRIEND_TEST(MecanumDriveControllerTest, SideToSideAndRotationOdometryTest);
 
+  FRIEND_TEST(MecanumDriveControllerTest, configure_succeeds_tf_prefix_false_covariance_test);
+  FRIEND_TEST(MecanumDriveControllerTest, configure_succeeds_tf_prefix_no_namespace);
+  FRIEND_TEST(MecanumDriveControllerTest, configure_succeeds_tf_blank_prefix_no_namespace);
+  FRIEND_TEST(MecanumDriveControllerTest, configure_succeeds_tf_prefix_set_namespace);
+  FRIEND_TEST(MecanumDriveControllerTest, configure_succeeds_tf_tilde_prefix_set_namespace);
+
 public:
   controller_interface::CallbackReturn on_configure(
     const rclcpp_lifecycle::State & previous_state) override
@@ -161,35 +167,44 @@ public:
   void TearDown() { controller_.reset(nullptr); }
 
 protected:
-  void SetUpController(const std::string controller_name = "test_mecanum_drive_controller")
+  void SetUpController(
+    const std::string controller_name = "test_mecanum_drive_controller",
+    const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions(), const std::string ns = "")
   {
-    ASSERT_EQ(controller_->init(controller_name), controller_interface::return_type::OK);
+    const auto urdf = "";
+    controller_interface::ControllerInterfaceParams params;
+    params.controller_name = controller_name;
+    params.robot_description = urdf;
+    params.update_rate = 0;
+    params.node_namespace = ns;
+    params.node_options = node_options;
+    ASSERT_EQ(controller_->init(params), controller_interface::return_type::OK);
 
-    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
+    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
     command_itfs_.reserve(joint_command_values_.size());
-    command_ifs.reserve(joint_command_values_.size());
+    loaned_command_ifs.reserve(joint_command_values_.size());
 
     for (size_t i = 0; i < joint_command_values_.size(); ++i)
     {
       command_itfs_.emplace_back(
-        hardware_interface::CommandInterface(
+        std::make_shared<hardware_interface::CommandInterface>(
           command_joint_names_[i], interface_name_, &joint_command_values_[i]));
-      command_ifs.emplace_back(command_itfs_.back());
+      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
     }
 
-    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
+    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
     state_itfs_.reserve(joint_state_values_.size());
-    state_ifs.reserve(joint_state_values_.size());
+    loaned_state_ifs.reserve(joint_state_values_.size());
 
     for (size_t i = 0; i < joint_state_values_.size(); ++i)
     {
       state_itfs_.emplace_back(
-        hardware_interface::StateInterface(
+        std::make_shared<hardware_interface::StateInterface>(
           command_joint_names_[i], interface_name_, &joint_state_values_[i]));
-      state_ifs.emplace_back(state_itfs_.back());
+      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
     }
 
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
+    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
   }
 
   void subscribe_to_controller_status_execute_update_and_get_messages(ControllerStateMsg & msg)
@@ -268,8 +283,7 @@ protected:
   }
 
 protected:
-  std::vector<std::string> reference_interface_names = {
-    "linear/x/velocity", "linear/y/velocity", "angular/z/velocity"};
+  std::vector<std::string> reference_interface_names = {"linear/x", "linear/y", "angular/z"};
 
   static constexpr char TEST_FRONT_LEFT_CMD_JOINT_NAME[] = "front_left_wheel_joint";
   static constexpr char TEST_FRONT_RIGHT_CMD_JOINT_NAME[] = "front_right_wheel_joint";
@@ -298,8 +312,8 @@ protected:
   static constexpr double TEST_ANGULAR_VELOCITY_Z = 0.0;
   double command_lin_x = 111;
 
-  std::vector<hardware_interface::StateInterface> state_itfs_;
-  std::vector<hardware_interface::CommandInterface> command_itfs_;
+  std::vector<hardware_interface::StateInterface::SharedPtr> state_itfs_;
+  std::vector<hardware_interface::CommandInterface::SharedPtr> command_itfs_;
 
   double ref_timeout_ = 0.1;
 
