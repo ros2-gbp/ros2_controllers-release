@@ -29,11 +29,18 @@ JointGroupVelocityController::JointGroupVelocityController()
 
 controller_interface::CallbackReturn JointGroupVelocityController::on_init()
 {
+  auto ret = ForwardCommandController::on_init();
+  if (ret != CallbackReturn::SUCCESS)
+  {
+    return ret;
+  }
+
   try
   {
     // Explicitly set the interface parameter declared by the forward_command_controller
     // to match the value set in the JointGroupVelocityController constructor.
-    auto_declare<std::string>("interface_name", interface_name_);
+    get_node()->set_parameter(
+      rclcpp::Parameter("interface_name", hardware_interface::HW_IF_VELOCITY));
   }
   catch (const std::exception & e)
   {
@@ -41,7 +48,7 @@ controller_interface::CallbackReturn JointGroupVelocityController::on_init()
     return CallbackReturn::ERROR;
   }
 
-  return forward_command_controller::ForwardCommandController::on_init();
+  return CallbackReturn::SUCCESS;
 }
 
 controller_interface::CallbackReturn JointGroupVelocityController::on_deactivate(
