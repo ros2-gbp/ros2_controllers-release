@@ -15,22 +15,27 @@
 #ifndef _MSC_VER
 #include <cxxabi.h>
 #endif
+#include <algorithm>
 #include <chrono>
 #include <functional>
 #include <future>
 #include <memory>
+#include <ratio>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <thread>
 #include <vector>
 
 #include "control_msgs/action/detail/follow_joint_trajectory__struct.hpp"
 #include "controller_interface/controller_interface.hpp"
+#include "gtest/gtest.h"
 #include "hardware_interface/resource_manager.hpp"
 #include "rclcpp/clock.hpp"
 #include "rclcpp/duration.hpp"
 #include "rclcpp/executors/multi_threaded_executor.hpp"
 #include "rclcpp/logging.hpp"
+#include "rclcpp/node.hpp"
 #include "rclcpp/parameter.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/utilities.hpp"
@@ -86,15 +91,12 @@ protected:
       {
         // controller hardware cycle update loop
         auto clock = rclcpp::Clock(RCL_STEADY_TIME);
-        auto now_time = clock.now();
-        auto last_time = now_time;
+        auto start_time = clock.now();
         rclcpp::Duration wait = rclcpp::Duration::from_seconds(2.0);
-        auto end_time = last_time + wait;
+        auto end_time = start_time + wait;
         while (clock.now() < end_time)
         {
-          now_time = clock.now();
-          traj_controller_->update(now_time, now_time - last_time);
-          last_time = now_time;
+          traj_controller_->update(clock.now(), clock.now() - start_time);
         }
       });
 
@@ -1023,6 +1025,9 @@ TEST_P(TestTrajectoryActionsTestParameterized, deactivate_controller_aborts_acti
 
   auto state_ref = traj_controller_->get_state_reference();
   auto state = traj_controller_->get_state_feedback();
+
+  // run an update
+  updateControllerAsync(rclcpp::Duration::from_seconds(0.01));
 
   // There will be no active trajectory upon deactivation, so we can't use the expectCommandPoint
   // method.

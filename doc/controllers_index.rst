@@ -29,7 +29,6 @@ Controllers for Wheeled Mobile Robots
 
    Differential Drive Controller <../diff_drive_controller/doc/userdoc.rst>
    Mecanum Drive Controllers <../mecanum_drive_controller/doc/userdoc.rst>
-   Omni Wheel Drive Controller <../omni_wheel_drive_controller/doc/userdoc.rst>
    Steering Controllers Library <../steering_controllers_library/doc/userdoc.rst>
    Tricycle Controller <../tricycle_controller/doc/userdoc.rst>
 
@@ -54,7 +53,6 @@ The controllers are using `common hardware interface definitions`_, and may use 
    Forward Command Controller <../forward_command_controller/doc/userdoc.rst>
    Gripper Controller <../gripper_controllers/doc/userdoc.rst>
    Joint Trajectory Controller <../joint_trajectory_controller/doc/userdoc.rst>
-   Parallel Gripper Controller <../parallel_gripper_controller/doc/userdoc.rst>
    PID Controller <../pid_controller/doc/userdoc.rst>
    Position Controllers <../position_controllers/doc/userdoc.rst>
    Velocity Controllers <../velocity_controllers/doc/userdoc.rst>
@@ -75,23 +73,3 @@ In the sense of ros2_control, broadcasters are still controllers using the same 
    Joint State Broadcaster <../joint_state_broadcaster/doc/userdoc.rst>
    Range Sensor Broadcaster <../range_sensor_broadcaster/doc/userdoc.rst>
    Pose Broadcaster <../pose_broadcaster/doc/userdoc.rst>
-   GPS Sensor Broadcaster <../gps_sensor_broadcaster/doc/userdoc.rst>
-   State Interfaces Broadcaster <../state_interfaces_broadcaster/doc/userdoc.rst>
-
-Filters
-**********************
-
-Chainable controllers for filtering of state interfaces. They export the filtered values as state interfaces, which can be used by other controllers or broadcasters, and don't publish to ROS topics.
-
-.. toctree::
-   :titlesonly:
-
-   Chained Filter Controller <../chained_filter_controller/doc/userdoc.rst>
-
-Common Controller Parameters
-****************************
-
-Every controller and broadcaster has a few common parameters. They are optional, but if needed they have to be set before ``onConfigure`` transition to ``inactive`` state, see `lifecycle documents <https://design.ros2.org/articles/node_lifecycle.html>`__. Once the controllers are already loaded, this transition is done using the service ``configure_controller`` of the controller_manager.
-
-* ``update_rate``: An unsigned integer parameter representing the rate at which every controller/broadcaster runs its update cycle. When unspecified, they run at the same frequency as the controller_manager.
-* ``is_async``: A boolean parameter that is needed to specify if the controller update needs to run asynchronously.

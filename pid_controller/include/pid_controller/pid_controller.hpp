@@ -18,7 +18,6 @@
 #ifndef PID_CONTROLLER__PID_CONTROLLER_HPP_
 #define PID_CONTROLLER__PID_CONTROLLER_HPP_
 
-#include <atomic>
 #include <memory>
 #include <string>
 #include <vector>
@@ -27,39 +26,60 @@
 #include "control_msgs/msg/multi_dof_state_stamped.hpp"
 #include "control_toolbox/pid_ros.hpp"
 #include "controller_interface/chainable_controller_interface.hpp"
+#include "pid_controller/pid_controller_parameters.hpp"
+#include "pid_controller/visibility_control.h"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+#include "realtime_tools/realtime_buffer.hpp"
 #include "realtime_tools/realtime_publisher.hpp"
-#include "realtime_tools/realtime_thread_safe_box.hpp"
 #include "std_srvs/srv/set_bool.hpp"
 
-#include "pid_controller/pid_controller_parameters.hpp"
+#include "control_msgs/msg/joint_controller_state.hpp"
+
+#include "control_msgs/msg/pid_state.hpp"
+#include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
 namespace pid_controller
 {
 
+enum class feedforward_mode_type : std::uint8_t
+{
+  OFF = 0,
+  ON = 1,
+};
+
 class PidController : public controller_interface::ChainableControllerInterface
 {
 public:
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   PidController();
 
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::CallbackReturn on_init() override;
 
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::CallbackReturn on_cleanup(
     const rclcpp_lifecycle::State & previous_state) override;
 
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::CallbackReturn on_configure(
     const rclcpp_lifecycle::State & previous_state) override;
 
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & previous_state) override;
 
-  controller_interface::return_type update_reference_from_subscribers(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  PID_CONTROLLER__VISIBILITY_PUBLIC
+  controller_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
+  PID_CONTROLLER__VISIBILITY_PUBLIC
   controller_interface::return_type update_and_write_commands(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
@@ -69,6 +89,8 @@ public:
   using ControllerStateMsg = control_msgs::msg::MultiDOFStateStamped;
 
 protected:
+  controller_interface::return_type update_reference_from_subscribers() override;
+
   std::shared_ptr<pid_controller::ParamListener> param_listener_;
   pid_controller::Params params_;
 
@@ -83,26 +105,21 @@ protected:
 
   // Command subscribers and Controller State publisher
   rclcpp::Subscription<ControllerReferenceMsg>::SharedPtr ref_subscriber_ = nullptr;
-  realtime_tools::RealtimeThreadSafeBox<ControllerReferenceMsg> input_ref_;
-  ControllerReferenceMsg current_ref_;
+  realtime_tools::RealtimeBuffer<std::shared_ptr<ControllerReferenceMsg>> input_ref_;
 
   rclcpp::Subscription<ControllerMeasuredStateMsg>::SharedPtr measured_state_subscriber_ = nullptr;
-  realtime_tools::RealtimeThreadSafeBox<ControllerMeasuredStateMsg> measured_state_;
-  ControllerMeasuredStateMsg current_state_;
+  realtime_tools::RealtimeBuffer<std::shared_ptr<ControllerMeasuredStateMsg>> measured_state_;
 
   rclcpp::Service<ControllerModeSrvType>::SharedPtr set_feedforward_control_service_;
-  realtime_tools::RealtimeBuffer<bool> feedforward_mode_enabled_;
+  realtime_tools::RealtimeBuffer<feedforward_mode_type> control_mode_;
 
   using ControllerStatePublisher = realtime_tools::RealtimePublisher<ControllerStateMsg>;
 
   rclcpp::Publisher<ControllerStateMsg>::SharedPtr s_publisher_;
   std::unique_ptr<ControllerStatePublisher> state_publisher_;
-  ControllerStateMsg state_msg_;
 
   // override methods from ChainableControllerInterface
   std::vector<hardware_interface::CommandInterface> on_export_reference_interfaces() override;
-
-  std::vector<hardware_interface::StateInterface> on_export_state_interfaces() override;
 
   bool on_set_chained_mode(bool chained_mode) override;
 
@@ -112,6 +129,7 @@ protected:
 
 private:
   // callback for topic interface
+  PID_CONTROLLER__VISIBILITY_LOCAL
   void reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg);
 };
 

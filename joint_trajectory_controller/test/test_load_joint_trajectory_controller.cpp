@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gmock/gmock.h>
-
 #include <memory>
+
+#include "gmock/gmock.h"
 
 #include "controller_manager/controller_manager.hpp"
 #include "hardware_interface/resource_manager.hpp"
@@ -31,15 +31,9 @@ TEST(TestLoadJointStateController, load_controller)
     std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
   controller_manager::ControllerManager cm(
-    executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
-
-  const std::string test_file_path =
-    std::string(TEST_FILES_DIRECTORY) + "/test_joint_trajectory_controller_params.yaml";
-
-  cm.set_parameter({"test_joint_trajectory_controller.params_file", test_file_path});
-  cm.set_parameter(
-    {"test_joint_trajectory_controller.type",
-     "joint_trajectory_controller/JointTrajectoryController"});
+    std::make_unique<hardware_interface::ResourceManager>(
+      ros2_control_test_assets::minimal_robot_urdf),
+    executor, "test_controller_manager");
 
   ASSERT_NE(
     cm.load_controller(

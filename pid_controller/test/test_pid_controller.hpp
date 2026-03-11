@@ -18,20 +18,20 @@
 #ifndef TEST_PID_CONTROLLER_HPP_
 #define TEST_PID_CONTROLLER_HPP_
 
-#include <gmock/gmock.h>
-
 #include <chrono>
 #include <limits>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
+#include "gmock/gmock.h"
 #include "hardware_interface/loaned_command_interface.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "pid_controller/pid_controller.hpp"
-#include "rclcpp/executor.hpp"
-#include "rclcpp/executors.hpp"
+#include "rclcpp/parameter_value.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/utilities.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
@@ -54,7 +54,6 @@ class TestablePidController : public pid_controller::PidController
   FRIEND_TEST(PidControllerTest, activate_success);
   FRIEND_TEST(PidControllerTest, reactivate_success);
   FRIEND_TEST(PidControllerTest, test_feedforward_mode_service);
-  FRIEND_TEST(PidControllerTest, test_feedforward_mode_parameter);
   FRIEND_TEST(PidControllerTest, test_update_logic_feedforward_off);
   FRIEND_TEST(PidControllerTest, test_update_logic_feedforward_on_with_zero_feedforward_gain);
   FRIEND_TEST(PidControllerTest, test_update_logic_chainable_not_use_subscriber_update);
@@ -65,8 +64,6 @@ class TestablePidController : public pid_controller::PidController
   FRIEND_TEST(PidControllerTest, test_update_chained_feedforward_with_gain);
   FRIEND_TEST(PidControllerTest, test_update_chained_feedforward_off_with_gain);
   FRIEND_TEST(PidControllerDualInterfaceTest, test_chained_feedforward_with_gain_dual_interface);
-  FRIEND_TEST(PidControllerTest, test_save_i_term_on);
-  FRIEND_TEST(PidControllerTest, test_save_i_term_off);
 
 public:
   controller_interface::CallbackReturn on_configure(
@@ -79,7 +76,6 @@ public:
     const rclcpp_lifecycle::State & previous_state) override
   {
     auto ref_itfs = on_export_reference_interfaces();
-    auto state_itfs = on_export_state_interfaces();
     return pid_controller::PidController::on_activate(previous_state);
   }
 
@@ -109,15 +105,15 @@ public:
 
   void set_reference(const std::vector<double> & target_value)
   {
-    ControllerCommandMsg msg;
-    msg.dof_names = params_.dof_names;
-    msg.values.resize(msg.dof_names.size(), 0.0);
-    for (size_t i = 0; i < msg.dof_names.size(); ++i)
+    std::shared_ptr<ControllerCommandMsg> msg = std::make_shared<ControllerCommandMsg>();
+    msg->dof_names = params_.dof_names;
+    msg->values.resize(msg->dof_names.size(), 0.0);
+    for (size_t i = 0; i < msg->dof_names.size(); ++i)
     {
-      msg.values[i] = target_value[i];
+      msg->values[i] = target_value[i];
     }
-    msg.values_dot.resize(msg.dof_names.size(), std::numeric_limits<double>::quiet_NaN());
-    input_ref_.set(msg);
+    msg->values_dot.resize(msg->dof_names.size(), std::numeric_limits<double>::quiet_NaN());
+    input_ref_.writeFromNonRT(msg);
   }
 };
 
@@ -141,12 +137,12 @@ public:
     controller_ = std::make_unique<CtrlType>();
 
     command_publisher_node_ = std::make_shared<rclcpp::Node>("command_publisher");
+    command_publisher_ = command_publisher_node_->create_publisher<ControllerCommandMsg>(
+      "/test_pid_controller/reference", rclcpp::SystemDefaultsQoS());
 
     service_caller_node_ = std::make_shared<rclcpp::Node>("service_caller");
     feedforward_service_client_ = service_caller_node_->create_client<ControllerModeSrvType>(
       "/test_pid_controller/set_feedforward_control");
-    command_publisher_ = command_publisher_node_->create_publisher<ControllerCommandMsg>(
-      "/test_pid_controller/reference", rclcpp::SystemDefaultsQoS());
   }
 
   static void TearDownTestCase() { rclcpp::shutdown(); }
@@ -156,16 +152,9 @@ public:
 protected:
   void SetUpController(const std::string controller_name = "test_pid_controller")
   {
-    command_publisher_ = command_publisher_node_->create_publisher<ControllerCommandMsg>(
-      "/" + controller_name + "/reference", rclcpp::SystemDefaultsQoS());
-
-    controller_interface::ControllerInterfaceParams params;
-    params.controller_name = controller_name;
-    params.robot_description = "";
-    params.update_rate = 0;
-    params.node_namespace = "";
-    params.node_options = controller_->define_custom_node_options();
-    ASSERT_EQ(controller_->init(params), controller_interface::return_type::OK);
+    ASSERT_EQ(
+      controller_->init(controller_name, "", rclcpp::NodeOptions()),
+      controller_interface::return_type::OK);
 
     std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
     command_itfs_.reserve(dof_names_.size());
@@ -218,7 +207,7 @@ protected:
     while (max_sub_check_loop_count--)
     {
       controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01));
-      const auto timeout = std::chrono::milliseconds{5};
+      const auto timeout = std::chrono::milliseconds{1};
       const auto until = test_subscription_node.get_clock()->now() + timeout;
       while (!received_msg && test_subscription_node.get_clock()->now() < until)
       {

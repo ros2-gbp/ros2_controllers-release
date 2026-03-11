@@ -22,6 +22,7 @@
 #include <cassert>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "control_toolbox/pid.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
@@ -83,7 +84,7 @@ public:
     double /* error_velocity */, double max_allowed_effort)
   {
     // Forward desired position to command
-    std::ignore = joint_handle_->get().set_value(desired_position);
+    joint_handle_->get().set_value(desired_position);
     return max_allowed_effort;
   }
 
@@ -148,7 +149,7 @@ public:
     }
     // Reset PIDs, zero effort commands
     pid_->reset();
-    std::ignore = joint_handle_->get().set_value(0.0);
+    joint_handle_->get().set_value(0.0);
   }
 
   void stopping(const rclcpp::Time & /* time */) {}
@@ -165,10 +166,11 @@ public:
     // Time since the last call to update
     const auto period = std::chrono::steady_clock::now() - last_update_time_;
     // Update PIDs
-    double command = pid_->compute_command(error_position, error_velocity, period);
+    double command =
+      pid_->computeCommand(error_position, error_velocity, static_cast<uint64_t>(period.count()));
     command = std::min<double>(
       fabs(max_allowed_effort), std::max<double>(-fabs(max_allowed_effort), command));
-    std::ignore = joint_handle_->get().set_value(command);
+    joint_handle_->get().set_value(command);
     last_update_time_ = std::chrono::steady_clock::now();
     return command;
   }
