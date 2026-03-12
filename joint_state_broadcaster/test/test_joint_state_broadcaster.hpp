@@ -15,11 +15,11 @@
 #ifndef TEST_JOINT_STATE_BROADCASTER_HPP_
 #define TEST_JOINT_STATE_BROADCASTER_HPP_
 
+#include <gmock/gmock.h>
+
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "gmock/gmock.h"
 
 #include "joint_state_broadcaster/joint_state_broadcaster.hpp"
 
@@ -37,6 +37,10 @@ class FriendJointStateBroadcaster : public joint_state_broadcaster::JointStateBr
   FRIEND_TEST(JointStateBroadcasterTest, ActivateEmptyWithoutDynamicJointStatesPublisherTest);
   FRIEND_TEST(JointStateBroadcasterTest, ReactivateTheControllerWithDifferentInterfacesTest);
   FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithoutJointsParameter);
+  FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithoutJointsParameterInvalidURDF);
+  FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithoutJointsParameterWithRobotDescription);
+  FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithJointsAndNoInterfaces);
+  FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithJointsAndInterfaces);
   FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithoutInterfacesParameter);
   FRIEND_TEST(JointStateBroadcasterTest, ActivateDeactivateTestTwoJointsOneInterface);
   FRIEND_TEST(JointStateBroadcasterTest, ActivateTestOneJointTwoInterfaces);
@@ -46,6 +50,8 @@ class FriendJointStateBroadcaster : public joint_state_broadcaster::JointStateBr
   FRIEND_TEST(JointStateBroadcasterTest, TestCustomInterfaceMapping);
   FRIEND_TEST(JointStateBroadcasterTest, TestCustomInterfaceMappingUpdate);
   FRIEND_TEST(JointStateBroadcasterTest, ExtraJointStatePublishTest);
+  FRIEND_TEST(JointStateBroadcasterTest, NoThrowWithBooleanInterfaceTest);
+  FRIEND_TEST(JointStateBroadcasterTest, NoThrowWithBooleanAndDoubleInterfaceTest);
 };
 
 class JointStateBroadcasterTest : public ::testing::Test
@@ -63,7 +69,8 @@ public:
     const std::vector<rclcpp::Parameter> & parameter_overrides = {});
 
   void init_broadcaster_and_set_parameters(
-    const std::vector<std::string> & joint_names, const std::vector<std::string> & interfaces,
+    const std::string & robot_description, const std::vector<std::string> & joint_names,
+    const std::vector<std::string> & interfaces,
     const std::vector<rclcpp::Parameter> & parameter_overrides = {});
 
   void assign_state_interfaces(
@@ -106,6 +113,11 @@ protected:
 
   hardware_interface::StateInterface joint_X_custom_state{
     joint_names_[0], custom_interface_name_, &custom_joint_value_};
+
+  hardware_interface::StateInterface joint_1_moving_state_{
+    joint_names_[0], "is_moving", "bool", "false"};
+
+  std::vector<hardware_interface::StateInterface> test_interfaces_;
 
   std::unique_ptr<FriendJointStateBroadcaster> state_broadcaster_;
   std::string frame_id_ = "base_link";

@@ -20,11 +20,13 @@
 #include "admittance_controller/admittance_rule.hpp"
 
 #include <memory>
+#include <string>
 #include <vector>
 
+#include <control_toolbox/filters.hpp>
+#include <tf2_eigen/tf2_eigen.hpp>
+
 #include "rclcpp/duration.hpp"
-#include "rclcpp/utilities.hpp"
-#include "tf2_ros/transform_listener.h"
 
 namespace admittance_controller
 {
@@ -33,7 +35,8 @@ constexpr auto NUM_CARTESIAN_DOF = 6;  // (3 translation + 3 rotation)
 
 /// Configure admittance rule memory for num joints and load kinematics interface
 controller_interface::return_type AdmittanceRule::configure(
-  const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node, const size_t num_joints)
+  const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node, const size_t num_joints,
+  const std::string & robot_description)
 {
   num_joints_ = num_joints;
 
@@ -57,7 +60,7 @@ controller_interface::return_type AdmittanceRule::configure(
         kinematics_loader_->createUnmanagedInstance(parameters_.kinematics.plugin_name));
 
       if (!kinematics_->initialize(
-            node->get_node_parameters_interface(), parameters_.kinematics.tip))
+            robot_description, node->get_node_parameters_interface(), "kinematics"))
       {
         return controller_interface::return_type::ERROR;
       }
@@ -77,6 +80,9 @@ controller_interface::return_type AdmittanceRule::configure(
       "A differential IK plugin name was not specified in the config file.");
     return controller_interface::return_type::ERROR;
   }
+
+  // configure force torque sensor frame in state message
+  state_message_.ft_sensor_frame.data = parameters_.ft_sensor.frame.id;
 
   return controller_interface::return_type::OK;
 }
@@ -399,9 +405,6 @@ const control_msgs::msg::AdmittanceControllerState & AdmittanceRule::get_control
   state_message_.rot_base_control.x = quat.x();
   state_message_.rot_base_control.y = quat.y();
   state_message_.rot_base_control.z = quat.z();
-
-  state_message_.ft_sensor_frame.data =
-    admittance_state_.ft_sensor_frame;  // TODO(anyone) remove dynamic allocation here
 
   return state_message_;
 }
