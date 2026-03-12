@@ -1,3 +1,0 @@
-test_state_interfaces_broadcaster:
-  ros__parameters:
-    interfaces: ["joint1/position", "joint2/velocity"]
