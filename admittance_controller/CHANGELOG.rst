@@ -2,30 +2,29 @@
 Changelog for package admittance_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.13.1 (2026-03-12)
--------------------
-* Fix dynamic allocation in admittance_rule (backport `#2150 <https://github.com/ros-controls/ros2_controllers/issues/2150>`_) (`#2155 <https://github.com/ros-controls/ros2_controllers/issues/2155>`_)
-* Contributors: mergify[bot]
-
-5.13.0 (2026-02-03)
--------------------
-* Check robot description validity in AdmittanceController (backport `#2009 <https://github.com/ros-controls/ros2_controllers/issues/2009>`_) (`#2114 <https://github.com/ros-controls/ros2_controllers/issues/2114>`_)
-* Contributors: mergify[bot]
-
-5.12.0 (2025-12-31)
--------------------
-
-5.11.0 (2025-12-09)
--------------------
-
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.4.0 (2026-03-12)
 ------------------
-* Use NodeInterfaces for TransformBroadcaster construction (backport `#1981 <https://github.com/ros-controls/ros2_controllers/issues/1981>`_) (`#1998 <https://github.com/ros-controls/ros2_controllers/issues/1998>`_)
+* Consistently add <cmath> include with define for windows (`#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_)
+* [Admittance] applies control frame transform to mass matrix (`#1139 <https://github.com/ros-controls/ros2_controllers/issues/1139>`_)
+* Fix dynamic allocation in admittance_rule (`#2150 <https://github.com/ros-controls/ros2_controllers/issues/2150>`_)
+* Contributors: Christoph Fröhlich, Marco Magri, Surya!
+
+6.3.0 (2026-02-03)
+------------------
+* Check robot description validity in AdmittanceController (`#2009 <https://github.com/ros-controls/ros2_controllers/issues/2009>`_)
+* Contributors: Caio Freitas
+
+6.2.0 (2025-12-31)
+------------------
+
+6.1.0 (2025-12-01)
+------------------
+
+6.0.0 (2025-11-10)
+------------------
+* Use NodeInterfaces for TransformBroadcaster construction (`#1981 <https://github.com/ros-controls/ros2_controllers/issues/1981>`_)
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
-* Contributors: Anand Vardhan, mergify[bot]
+* Contributors: Anand Vardhan, Christoph Fröhlich
 
 5.8.0 (2025-10-02)
 ------------------

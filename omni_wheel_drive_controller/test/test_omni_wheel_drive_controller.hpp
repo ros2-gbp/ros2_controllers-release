@@ -49,12 +49,10 @@ std::vector<std::string> wheel_names_ = {
 class TestableOmniWheelDriveController
 : public omni_wheel_drive_controller::OmniWheelDriveController
 {
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_false_no_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_true_no_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_blank_prefix_true_no_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_false_set_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_true_set_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_blank_prefix_true_set_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_prefix_no_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_blank_prefix_no_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_prefix_set_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_tilde_prefix_set_namespace);
   FRIEND_TEST(OmniWheelDriveControllerTest, cleanup);
   FRIEND_TEST(OmniWheelDriveControllerTest, chainable_controller_unchained_mode);
   FRIEND_TEST(OmniWheelDriveControllerTest, chainable_controller_chained_mode);
@@ -64,6 +62,7 @@ class TestableOmniWheelDriveController
   FRIEND_TEST(OmniWheelDriveControllerTest, 3_wheel_rot_test);
   FRIEND_TEST(OmniWheelDriveControllerTest, 4_wheel_rot_test);
   FRIEND_TEST(OmniWheelDriveControllerTest, 5_wheel_test);
+  FRIEND_TEST(OmniWheelDriveControllerTest, odometry_set_service);
 
   /**
    * @brief wait_for_twist block until a new twist is received.

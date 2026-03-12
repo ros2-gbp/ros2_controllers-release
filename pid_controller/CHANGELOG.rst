@@ -2,24 +2,23 @@
 Changelog for package pid_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
+* [PID Controllers] Set first set point to current measurement (`#2205 <https://github.com/ros-controls/ros2_controllers/issues/2205>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
+* Remove parameter_traits dependency (`#2022 <https://github.com/ros-controls/ros2_controllers/issues/2022>`_)
+* Contributors: Christoph Fröhlich
 
-5.10.0 (2025-12-01)
--------------------
-* Remove parameter_traits dependency (backport `#2022 <https://github.com/ros-controls/ros2_controllers/issues/2022>`_) (`#2025 <https://github.com/ros-controls/ros2_controllers/issues/2025>`_)
-* Contributors: mergify[bot]
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan
