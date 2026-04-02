@@ -1,0 +1,12 @@
+Source: ros-rolling-joint-state-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-rolling-ament-cmake, ros-rolling-ament-cmake-gmock <!nocheck>, ros-rolling-controller-manager <!nocheck>, ros-rolling-hardware-interface <!nocheck>, ros-rolling-joint-state-broadcaster, ros-rolling-pluginlib, ros-rolling-rclcpp <!nocheck>, ros-rolling-ros2-control-test-assets <!nocheck>, ros-rolling-ros-workspace
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-rolling-joint-state-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-rolling-joint-state-broadcaster, ros-rolling-ros-workspace
+Description: Controller to publish joint state
