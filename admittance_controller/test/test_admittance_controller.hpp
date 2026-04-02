@@ -17,8 +17,6 @@
 #ifndef TEST_ADMITTANCE_CONTROLLER_HPP_
 #define TEST_ADMITTANCE_CONTROLLER_HPP_
 
-#include <gmock/gmock.h>
-
 #include <chrono>
 #include <map>
 #include <memory>
@@ -27,22 +25,21 @@
 #include <utility>
 #include <vector>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "gmock/gmock.h"
 
 #include "admittance_controller/admittance_controller.hpp"
 #include "control_msgs/msg/admittance_controller_state.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "hardware_interface/loaned_command_interface.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "rclcpp/parameter_value.hpp"
-#include "rclcpp/version.h"
-#if RCLCPP_VERSION_GTE(18, 0, 0)
-#include "rclcpp/node_interfaces/node_interfaces.hpp"
-#endif
+#include "rclcpp/utilities.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "semantic_components/force_torque_sensor.hpp"
 #include "test_asset_6d_robot_description.hpp"
-#include "tf2_ros/transform_broadcaster.hpp"
+#include "tf2_ros/transform_broadcaster.h"
+#include "trajectory_msgs/msg/joint_trajectory.hpp"
 
 // TODO(anyone): replace the state and command message types
 using ControllerCommandWrenchMsg = geometry_msgs::msg::WrenchStamped;
@@ -76,8 +73,11 @@ class TestableAdmittanceController : public admittance_controller::AdmittanceCon
 public:
   CallbackReturn on_init() override
   {
-    get_node()->declare_parameter("robot_description", rclcpp::ParameterType::PARAMETER_STRING);
-    get_node()->set_parameter({"robot_description", robot_description_});
+    if (!get_node()->has_parameter("robot_description"))
+    {
+      get_node()->declare_parameter("robot_description", rclcpp::ParameterType::PARAMETER_STRING);
+      get_node()->set_parameter({"robot_description", robot_description_});
+    }
 
     return admittance_controller::AdmittanceController::on_init();
   }
@@ -104,13 +104,17 @@ public:
     }
   }
 
+private:
   std::string robot_description_ = ros2_control_test_assets::valid_6d_robot_urdf;
 };
 
 class AdmittanceControllerTest : public ::testing::Test
 {
 public:
-  static void SetUpTestCase() {}
+  static void SetUpTestCase()
+  {
+    //    rclcpp::init(0, nullptr);
+  }
 
   void SetUp()
   {
@@ -144,7 +148,7 @@ protected:
     auto options = rclcpp::NodeOptions()
                      .allow_undeclared_parameters(false)
                      .parameter_overrides(parameter_overrides)
-                     .automatically_declare_parameters_from_overrides(false);
+                     .automatically_declare_parameters_from_overrides(true);
     return SetUpControllerCommon(controller_name, options);
   }
 
@@ -153,29 +157,14 @@ protected:
   {
     auto options = rclcpp::NodeOptions()
                      .allow_undeclared_parameters(false)
-                     .automatically_declare_parameters_from_overrides(false);
+                     .automatically_declare_parameters_from_overrides(true);
     return SetUpControllerCommon(controller_name, options);
   }
 
   controller_interface::return_type SetUpControllerCommon(
     const std::string & controller_name, const rclcpp::NodeOptions & options)
   {
-    controller_interface::ControllerInterfaceParams params;
-    params.controller_name = controller_name;
-    // Extract robot_description from parameter overrides
-    auto it = std::find_if(
-      options.parameter_overrides().begin(), options.parameter_overrides().end(),
-      [](const rclcpp::Parameter & p) { return p.get_name() == "robot_description"; });
-
-    if (it != options.parameter_overrides().end())
-    {
-      controller_->robot_description_ = it->as_string();
-    }
-    params.robot_description = controller_->robot_description_;
-    params.update_rate = 0;
-    params.node_namespace = "";
-    params.node_options = options;
-    auto result = controller_->init(params);
+    auto result = controller_->init(controller_name, "", options);
 
     controller_->export_reference_interfaces();
     assign_interfaces();
@@ -185,32 +174,32 @@ protected:
 
   void assign_interfaces()
   {
-    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
+    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
     command_itfs_.reserve(joint_command_values_.size());
-    loaned_command_ifs.reserve(joint_command_values_.size());
+    command_ifs.reserve(joint_command_values_.size());
 
     for (auto i = 0u; i < joint_command_values_.size(); ++i)
     {
       command_itfs_.emplace_back(
-        std::make_shared<hardware_interface::CommandInterface>(
+        hardware_interface::CommandInterface(
           joint_names_[i], command_interface_types_[0], &joint_command_values_[i]));
-      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
+      command_ifs.emplace_back(command_itfs_.back());
     }
 
     auto sc_fts = semantic_components::ForceTorqueSensor(ft_sensor_name_);
     fts_state_names_ = sc_fts.get_state_interface_names();
-    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
+    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
 
     const size_t num_state_ifs = joint_state_values_.size() + fts_state_names_.size();
     state_itfs_.reserve(num_state_ifs);
-    loaned_state_ifs.reserve(num_state_ifs);
+    state_ifs.reserve(num_state_ifs);
 
     for (auto i = 0u; i < joint_state_values_.size(); ++i)
     {
       state_itfs_.emplace_back(
-        std::make_shared<hardware_interface::StateInterface>(
+        hardware_interface::StateInterface(
           joint_names_[i], state_interface_types_[0], &joint_state_values_[i]));
-      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      state_ifs.emplace_back(state_itfs_.back());
     }
 
     std::vector<std::string> fts_itf_names = {"force.x",  "force.y",  "force.z",
@@ -219,25 +208,17 @@ protected:
     for (auto i = 0u; i < fts_state_names_.size(); ++i)
     {
       state_itfs_.emplace_back(
-        std::make_shared<hardware_interface::StateInterface>(
+        hardware_interface::StateInterface(
           ft_sensor_name_, fts_itf_names[i], &fts_state_values_[i]));
-      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      state_ifs.emplace_back(state_itfs_.back());
     }
 
-    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
+    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
   }
 
   void broadcast_tfs()
   {
-#if RCLCPP_VERSION_GTE(18, 0, 0)
-    static tf2_ros::TransformBroadcaster br(
-      rclcpp::node_interfaces::NodeInterfaces(
-        test_broadcaster_node_->get_node_parameters_interface(),
-        test_broadcaster_node_->get_node_topics_interface()));
-#else
     static tf2_ros::TransformBroadcaster br(test_broadcaster_node_);
-#endif
-
     geometry_msgs::msg::TransformStamped transform_stamped;
 
     transform_stamped.header.stamp = test_broadcaster_node_->now();
@@ -293,7 +274,7 @@ protected:
       controller_interface::return_type::OK);
 
     // wait for message to be passed
-    const auto timeout = std::chrono::milliseconds{5};
+    const auto timeout = std::chrono::milliseconds{1};
     const auto until = test_subscription_node_->get_clock()->now() + timeout;
     while (!received_msg && test_subscription_node_->get_clock()->now() < until)
     {
@@ -395,19 +376,19 @@ protected:
   const std::string fixed_world_frame_ = "fixed_world_frame";
   const std::string sensor_frame_ = "link_6";
 
-  std::array<bool, 6> admittance_selected_axes_ = {{true, true, true, true, true, true}};
-  std::array<double, 6> admittance_mass_ = {{5.5, 6.6, 7.7, 8.8, 9.9, 10.10}};
-  std::array<double, 6> admittance_damping_ratio_ = {
-    {2.828427, 2.828427, 2.828427, 2.828427, 2.828427, 2.828427}};
-  std::array<double, 6> admittance_stiffness_ = {{214.1, 214.2, 214.3, 214.4, 214.5, 214.6}};
+  std::array<bool, 6> admittance_selected_axes_ = {true, true, true, true, true, true};
+  std::array<double, 6> admittance_mass_ = {5.5, 6.6, 7.7, 8.8, 9.9, 10.10};
+  std::array<double, 6> admittance_damping_ratio_ = {2.828427, 2.828427, 2.828427,
+                                                     2.828427, 2.828427, 2.828427};
+  std::array<double, 6> admittance_stiffness_ = {214.1, 214.2, 214.3, 214.4, 214.5, 214.6};
 
-  std::array<double, 6> joint_command_values_ = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
-  std::array<double, 6> joint_state_values_ = {{1.1, 2.2, 3.3, 4.4, 5.5, 6.6}};
-  std::array<double, 6> fts_state_values_ = {{0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
+  std::array<double, 6> joint_command_values_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> joint_state_values_ = {1.1, 2.2, 3.3, 4.4, 5.5, 6.6};
+  std::array<double, 6> fts_state_values_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   std::vector<std::string> fts_state_names_;
 
-  std::vector<hardware_interface::StateInterface::SharedPtr> state_itfs_;
-  std::vector<hardware_interface::CommandInterface::SharedPtr> command_itfs_;
+  std::vector<hardware_interface::StateInterface> state_itfs_;
+  std::vector<hardware_interface::CommandInterface> command_itfs_;
 
   // Test related parameters
   std::unique_ptr<TestableAdmittanceController> controller_;
