@@ -18,48 +18,20 @@
 #define ADMITTANCE_CONTROLLER__ADMITTANCE_RULE_HPP_
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <map>
+
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "admittance_controller/admittance_controller_parameters.hpp"
 #include "control_msgs/msg/admittance_controller_state.hpp"
-#include "control_toolbox/filters.hpp"
-#include "controller_interface/controller_interface.hpp"
-#include "geometry_msgs/msg/wrench_stamped.hpp"
+#include "controller_interface/controller_interface_base.hpp"
 #include "kinematics_interface/kinematics_interface.hpp"
 #include "pluginlib/class_loader.hpp"
-#include "tf2_eigen/tf2_eigen.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
-#include "tf2_kdl/tf2_kdl.hpp"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
 #include "trajectory_msgs/msg/joint_trajectory_point.hpp"
 
 namespace admittance_controller
 {
-struct AdmittanceTransforms
-{
-  // transformation from force torque sensor frame to base link frame at reference joint angles
-  Eigen::Isometry3d ref_base_ft_;
-  // transformation from force torque sensor frame to base link frame at reference + admittance
-  // offset joint angles
-  Eigen::Isometry3d base_ft_;
-  // transformation from control frame to base link frame at reference + admittance offset joint
-  // angles
-  Eigen::Isometry3d base_control_;
-  // transformation from end effector frame to base link frame at reference + admittance offset
-  // joint angles
-  Eigen::Isometry3d base_tip_;
-  // transformation from center of gravity frame to base link frame at reference + admittance offset
-  // joint angles
-  Eigen::Isometry3d base_cog_;
-  // transformation from world frame to base link frame
-  Eigen::Isometry3d world_base_;
-};
-
 struct AdmittanceState
 {
   explicit AdmittanceState(size_t num_joints)
@@ -111,21 +83,11 @@ public:
 
   /// Configure admittance rule memory using number of joints.
   controller_interface::return_type configure(
-    const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node, const size_t num_joint);
+    const std::shared_ptr<rclcpp_lifecycle::LifecycleNode> & node, const size_t num_joint,
+    const std::string & robot_description);
 
   /// Reset all values back to default
   controller_interface::return_type reset(const size_t num_joints);
-
-  /**
-   * Calculate all transforms needed for admittance control using the loader kinematics plugin. If
-   * the transform does not exist in the kinematics model, then TF will be used for lookup. The
-   * return value is true if all transformation are calculated without an error \param[in]
-   * current_joint_state current joint state of the robot \param[in] reference_joint_state input
-   * joint state reference \param[out] success true if no calls to the kinematics interface fail
-   */
-  bool get_all_transforms(
-    const trajectory_msgs::msg::JointTrajectoryPoint & current_joint_state,
-    const trajectory_msgs::msg::JointTrajectoryPoint & reference_joint_state);
 
   /**
    * Updates parameter_ struct if any parameters have changed since last update. Parameter dependent
@@ -137,6 +99,10 @@ public:
   /**
    * Calculate 'desired joint states' based on the 'measured force', 'reference joint state', and
    * 'current_joint_state'.
+   *
+   * All transforms (e.g., world to base, sensor to base, CoG to base) are now computed
+   * directly in this function and stored in `admittance_state_`, removing the
+   * need for an intermediate transform struct.
    *
    * \param[in] current_joint_state current joint state of the robot
    * \param[in] measured_wrench most recent measured wrench from force torque sensor
@@ -204,9 +170,6 @@ protected:
 
   // admittance controllers internal state
   AdmittanceState admittance_state_{0};
-
-  // transforms needed for admittance update
-  AdmittanceTransforms admittance_transforms_;
 
   // position of center of gravity in cog_frame
   Eigen::Vector3d cog_pos_;

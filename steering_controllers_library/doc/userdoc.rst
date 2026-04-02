@@ -9,6 +9,7 @@ steering_controllers_library
 .. _odometry_msg: https://github.com/ros2/common_interfaces/blob/{DISTRO}/nav_msgs/msg/Odometry.msg
 .. _twist_msg: https://github.com/ros2/common_interfaces/blob/{DISTRO}/geometry_msgs/msg/TwistStamped.msg
 .. _tf_msg: https://github.com/ros2/geometry2/blob/{DISTRO}/tf2_msgs/msg/TFMessage.msg
+.. _set_odometry_srv: https://github.com/ros-controls/control_msgs/blob/master/control_msgs/srv/SetOdometry.srv
 
 Library with shared functionalities for mobile robot controllers with steering drives (2 degrees of freedom), with so-called non-holonomic constraints.
 
@@ -21,7 +22,7 @@ For an introduction to mobile robot kinematics and the nomenclature used here, s
 Execution logic of the controller
 ----------------------------------
 
-The controller uses velocity input, i.e., stamped or unstamped `twist messages <twist_msg_>`_ where linear ``x`` and angular ``z`` components are used.
+The controller uses velocity input, i.e., stamped `twist messages <twist_msg_>`_ where linear ``x`` and angular ``z`` components are used.
 Values in other components are ignored.
 
 In the chain mode the controller provides two reference interfaces, one for linear velocity and one for steering angle position.
@@ -36,15 +37,15 @@ The command for the wheels are calculated using ``odometry`` library where based
 Currently implemented kinematics
 --------------------------------------------------------------
 
-* :ref:`Bicycle <bicycle_steering_controller_userdoc>` - with one steering and one drive joints;
-* :ref:`Tricylce <tricycle_steering_controller_userdoc>` - with one steering and two drive joints;
-* :ref:`Ackermann <ackermann_steering_controller_userdoc>` - with two steering and two drive joints.
+* Bicycle - with one steering and one drive joints;
+* Tricycle - with one steering and two drive joints;
+* Ackermann - with two steering and two drive joints.
 
 .. toctree::
-  :hidden:
+   :titlesonly:
 
    Bicycle <../../bicycle_steering_controller/doc/userdoc.rst>
-   Tricylce <../../tricycle_steering_controller/doc/userdoc.rst>
+   Tricycle <../../tricycle_steering_controller/doc/userdoc.rst>
    Ackermann <../../ackermann_steering_controller/doc/userdoc.rst>
 
 Description of controller's interfaces
@@ -63,15 +64,8 @@ representing the body twist.
 Command interfaces
 ,,,,,,,,,,,,,,,,,,,
 
-If parameter ``front_steering == true``
-
-- ``<front_wheels_names[i]>/position``     double, in rad
-- ``<rear_wheels_names[i]>/velocity``      double, in rad/s
-
-If parameter ``front_steering == false``
-
-- ``<front_wheels_names[i]>/velocity``     double, in rad/s
-- ``<rear_wheels_names[i]>/position``      double, in rad
+- ``<steering_joints_names[i]>/position``     double, in rad
+- ``<traction_joints_names[i]>/velocity``      double, in rad/s
 
 State interfaces
 ,,,,,,,,,,,,,,,,,
@@ -81,15 +75,10 @@ Depending on the ``position_feedback``, different feedback types are expected
 * ``position_feedback == true`` --> ``TRACTION_FEEDBACK_TYPE = position``
 * ``position_feedback == false`` --> ``TRACTION_FEEDBACK_TYPE = velocity``
 
-If parameter ``front_steering == true``
+With the following state interfaces:
 
-- ``<front_wheels_names[i]>/position``                  double, in rad
-- ``<rear_wheels_names[i]>/<TRACTION_FEEDBACK_TYPE>``   double, in rad or rad/s
-
-If parameter ``front_steering == false``
-
-- ``<front_wheels_names[i]>/<TRACTION_FEEDBACK_TYPE>``  double, in rad or rad/s
-- ``<rear_wheels_names[i]>/position``                   double, in rad
+- ``<steering_joints_names[i]>/position``                  double, in rad
+- ``<traction_joints_names[i]>/<TRACTION_FEEDBACK_TYPE>``   double, in rad or rad/s
 
 Subscribers
 ,,,,,,,,,,,,
@@ -97,9 +86,6 @@ Subscribers
 Used when controller is not in chained mode (``in_chained_mode == false``).
 
 - ``<controller_name>/reference``  [`geometry_msgs/msg/TwistStamped <twist_msg_>`_]
-  If parameter ``use_stamped_vel`` is ``true``.
-- ``<controller_name>/reference_unstamped``   [geometry_msgs/msg/Twist]
-  If parameter ``use_stamped_vel`` is ``false``.
 
 Publishers
 ,,,,,,,,,,,
@@ -107,6 +93,10 @@ Publishers
 - ``<controller_name>/odometry``          [`nav_msgs/msg/Odometry <odometry_msg_>`_]
 - ``<controller_name>/tf_odometry``       [`tf2_msgs/msg/TFMessage <tf_msg_>`_]
 - ``<controller_name>/controller_state``  [`control_msgs/msg/SteeringControllerStatus <steering_controller_status_msg_>`_]
+
+Services
+,,,,,,,,,,,
+- ``~/set_odometry`` [`control_msgs/srv/SetOdometry <set_odometry_srv_>`_]
 
 Parameters
 ,,,,,,,,,,,
