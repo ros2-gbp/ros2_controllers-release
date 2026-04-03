@@ -2,26 +2,29 @@
 Changelog for package imu_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.5.0 (2026-04-02)
-------------------
-* Remove ament linters (`#2267 <https://github.com/ros-controls/ros2_controllers/issues/2267>`_)
-* Contributors: Ivane Kotanov
+5.14.0 (2026-04-03)
+-------------------
+* Remove ament linters (backport `#2267 <https://github.com/ros-controls/ros2_controllers/issues/2267>`_) (`#2271 <https://github.com/ros-controls/ros2_controllers/issues/2271>`_)
+* Contributors: mergify[bot]
 
-6.4.0 (2026-03-12)
-------------------
-* Consistently add <cmath> include with define for windows (`#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_)
-* Contributors: Christoph Fröhlich
+5.13.1 (2026-03-12)
+-------------------
+* Consistently add <cmath> include with define for windows (backport `#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_) (`#2196 <https://github.com/ros-controls/ros2_controllers/issues/2196>`_)
+* Contributors: mergify[bot]
 
-6.3.0 (2026-02-03)
-------------------
+5.13.0 (2026-02-03)
+-------------------
 
-6.2.0 (2025-12-31)
-------------------
+5.12.0 (2025-12-31)
+-------------------
 
-6.1.0 (2025-12-01)
-------------------
+5.11.0 (2025-12-09)
+-------------------
 
-6.0.0 (2025-11-10)
+5.10.0 (2025-12-01)
+-------------------
+
+5.9.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan

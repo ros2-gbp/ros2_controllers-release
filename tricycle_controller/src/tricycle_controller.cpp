@@ -139,13 +139,6 @@ controller_interface::return_type TricycleController::update(
     odometry_.update(Ws_read, alpha_read, period);
   }
 
-  // check if odom reset was requested by non-RT thread
-  if (reset_odom_.load())
-  {
-    odometry_.resetOdometry();
-    reset_odom_.store(false);
-  }
-
   tf2::Quaternion orientation;
   orientation.setRPY(0.0, 0.0, odometry_.getHeading());
 
@@ -433,9 +426,8 @@ void TricycleController::reset_odometry(
   const std::shared_ptr<std_srvs::srv::Empty::Request> /*req*/,
   std::shared_ptr<std_srvs::srv::Empty::Response> /*res*/)
 {
-  // set the reset flag for thread-safe odometry reset
-  reset_odom_.store(true);
-  RCLCPP_INFO(get_node()->get_logger(), "Odometry reset requested");
+  odometry_.resetOdometry();
+  RCLCPP_INFO(get_node()->get_logger(), "Odometry successfully reset");
 }
 
 bool TricycleController::reset()

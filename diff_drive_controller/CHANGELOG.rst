@@ -2,39 +2,32 @@
 Changelog for package diff_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-6.5.0 (2026-04-02)
-------------------
-* Fix open-loop odometry by applying SpeedLimiter first (`#2260 <https://github.com/ros-controls/ros2_controllers/issues/2260>`_)
-* Remove unnecessary publish_limited_velocity member (`#2266 <https://github.com/ros-controls/ros2_controllers/issues/2266>`_)
-* Deprecate publish_rate and resolve initialization anti-pattern in diff_drive_controller (`#2245 <https://github.com/ros-controls/ros2_controllers/issues/2245>`_)
-* Contributors: Bhavin Umatiya, Sai Teja Bojja, Zack Lain
+5.14.0 (2026-04-03)
+-------------------
+* Fix open-loop odometry by applying SpeedLimiter first (backport `#2260 <https://github.com/ros-controls/ros2_controllers/issues/2260>`_) (`#2278 <https://github.com/ros-controls/ros2_controllers/issues/2278>`_)
+* Remove unnecessary publish_limited_velocity\_ member (backport `#2266 <https://github.com/ros-controls/ros2_controllers/issues/2266>`_) (`#2269 <https://github.com/ros-controls/ros2_controllers/issues/2269>`_)
+* Contributors: mergify[bot]
 
-6.4.0 (2026-03-12)
-------------------
-* Fix deprecation warning in diff_drive_controller (`#2174 <https://github.com/ros-controls/ros2_controllers/issues/2174>`_)
-* Fix the teardown of the controller tests (`#2183 <https://github.com/ros-controls/ros2_controllers/issues/2183>`_)
-* Unit tests for the new odometry implementation in diff_drive_controller (`#2099 <https://github.com/ros-controls/ros2_controllers/issues/2099>`_)
-* Silence -Wdeprecated-declarations in diff_drive_controller (`#2139 <https://github.com/ros-controls/ros2_controllers/issues/2139>`_)
-* Add set_odometry service to diff drive controller (`#2096 <https://github.com/ros-controls/ros2_controllers/issues/2096>`_)
-* Contributors: Christoph Fröhlich, Ege Kural, Jiayi Cai, Sai Kishor Kothakota, Vedh
+5.13.1 (2026-03-12)
+-------------------
+* Fix the teardown of the controller tests (backport `#2183 <https://github.com/ros-controls/ros2_controllers/issues/2183>`_) (`#2186 <https://github.com/ros-controls/ros2_controllers/issues/2186>`_)
+* Contributors: mergify[bot]
 
-6.3.0 (2026-02-03)
-------------------
-* Fixup whitespace (`#2122 <https://github.com/ros-controls/ros2_controllers/issues/2122>`_)
-* docs: diff_drive_controller - complete wheel_separation_multiplier description and fix then→than typo (`#2108 <https://github.com/ros-controls/ros2_controllers/issues/2108>`_)
-* Contributors: Bence Magyar, 杨晟军(Shengjun Yang)
+5.13.0 (2026-02-03)
+-------------------
+* docs: diff_drive_controller - complete wheel_separation_multiplier description and fix then→than typo (backport `#2108 <https://github.com/ros-controls/ros2_controllers/issues/2108>`_) (`#2121 <https://github.com/ros-controls/ros2_controllers/issues/2121>`_)
+* Contributors: mergify[bot]
 
-6.2.0 (2025-12-31)
-------------------
-* Use TF prefix helper for diff drive controller (`#1997 <https://github.com/ros-controls/ros2_controllers/issues/1997>`_)
-* Contributors: Ege Kural
+5.12.0 (2025-12-31)
+-------------------
 
-6.1.0 (2025-12-01)
-------------------
-* Update odometry implementation in diff_drive (`#1854 <https://github.com/ros-controls/ros2_controllers/issues/1854>`_)
-* Contributors: Aarav Gupta
+5.11.0 (2025-12-09)
+-------------------
 
-6.0.0 (2025-11-10)
+5.10.0 (2025-12-01)
+-------------------
+
+5.9.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Don't use `msg\_` field of realtime publisher (`#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_)
