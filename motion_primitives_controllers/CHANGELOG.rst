@@ -2,6 +2,9 @@
 Changelog for package motion_primitives_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.39.0 (2026-04-04)
+-------------------
+
 4.38.0 (2026-03-12)
 -------------------
 * Add `motion_primitives_forward_controller` for interfacing motion primitive messages with hardware interfaces (backport `#1636 <https://github.com/ros-controls/ros2_controllers/issues/1636>`_) (`#2175 <https://github.com/ros-controls/ros2_controllers/issues/2175>`_)
