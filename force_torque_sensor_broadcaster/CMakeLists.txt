@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
-project(force_torque_sensor_broadcaster)
+project(force_torque_sensor_broadcaster LANGUAGES CXX)
 
-find_package(ros2_control_cmake REQUIRED)
-set_compiler_options()
-export_windows_symbols()
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
+endif()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
-  filters
   generate_parameter_library
   geometry_msgs
   hardware_interface
@@ -43,15 +42,13 @@ target_include_directories(force_torque_sensor_broadcaster PUBLIC
   $<INSTALL_INTERFACE:include/force_torque_sensor_broadcaster>
 )
 target_link_libraries(force_torque_sensor_broadcaster PUBLIC
-                      force_torque_sensor_broadcaster_parameters
-                      controller_interface::controller_interface
-                      filters::filter_chain
-                      hardware_interface::hardware_interface
-                      pluginlib::pluginlib
-                      rclcpp::rclcpp
-                      rclcpp_lifecycle::rclcpp_lifecycle
-                      realtime_tools::realtime_tools
-                      ${geometry_msgs_TARGETS})
+  force_torque_sensor_broadcaster_parameters
+)
+ament_target_dependencies(force_torque_sensor_broadcaster PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
+
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(force_torque_sensor_broadcaster PRIVATE "FORCE_TORQUE_SENSOR_BROADCASTER_BUILDING_DLL")
 
 pluginlib_export_plugin_description_file(
   controller_interface force_torque_sensor_broadcaster.xml)
@@ -93,14 +90,17 @@ if(BUILD_TESTING)
   find_package(hardware_interface REQUIRED)
   find_package(ros2_control_test_assets REQUIRED)
 
-  add_definitions(-DTEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
-  ament_add_gmock(test_load_force_torque_sensor_broadcaster test/test_load_force_torque_sensor_broadcaster.cpp)
+  add_rostest_with_parameters_gmock(test_load_force_torque_sensor_broadcaster
+    test/test_load_force_torque_sensor_broadcaster.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/force_torque_sensor_broadcaster_params.yaml)
   target_include_directories(test_load_force_torque_sensor_broadcaster PRIVATE include)
   target_link_libraries(test_load_force_torque_sensor_broadcaster
     force_torque_sensor_broadcaster
-    controller_manager::controller_manager
-    hardware_interface::hardware_interface
-    ros2_control_test_assets::ros2_control_test_assets
+  )
+  ament_target_dependencies(test_load_force_torque_sensor_broadcaster
+    controller_manager
+    hardware_interface
+    ros2_control_test_assets
   )
 
   add_rostest_with_parameters_gmock(test_force_torque_sensor_broadcaster
@@ -109,6 +109,9 @@ if(BUILD_TESTING)
   target_include_directories(test_force_torque_sensor_broadcaster PRIVATE include)
   target_link_libraries(test_force_torque_sensor_broadcaster
     force_torque_sensor_broadcaster
+  )
+  ament_target_dependencies(test_force_torque_sensor_broadcaster
+    hardware_interface
   )
 
   ament_add_gmock(test_wrench_transformer test/test_wrench_transformer.cpp)
@@ -120,31 +123,6 @@ if(BUILD_TESTING)
     wrench_transformer
     tf2_ros::tf2_ros
   )
-
-  add_library(dummy_filter SHARED
-    test/dummy_filter.cpp
-  )
-  target_compile_features(dummy_filter PUBLIC cxx_std_17)
-  target_include_directories(dummy_filter PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-      $<INSTALL_INTERFACE:include/force_torque_sensor_broadcaster>
-  )
-  target_link_libraries(dummy_filter PUBLIC
-    filters::increment
-    ${geometry_msgs_TARGETS}
-    pluginlib::pluginlib
-    rclcpp::rclcpp
-  )
-  install(
-    TARGETS
-      dummy_filter
-    EXPORT export_force_torque_sensor_broadcaster
-    RUNTIME DESTINATION bin
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-  )
-
-  pluginlib_export_plugin_description_file(filters "test/dummy_filter_plugin.xml")
 endif()
 
 install(

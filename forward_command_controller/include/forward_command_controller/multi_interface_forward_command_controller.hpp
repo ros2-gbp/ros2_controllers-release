@@ -16,9 +16,12 @@
 #define FORWARD_COMMAND_CONTROLLER__MULTI_INTERFACE_FORWARD_COMMAND_CONTROLLER_HPP_
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "forward_command_controller/forward_controllers_base.hpp"
 #include "forward_command_controller/multi_interface_forward_command_controller_parameters.hpp"
+#include "forward_command_controller/visibility_control.h"
 
 namespace forward_command_controller
 {
@@ -37,6 +40,7 @@ class MultiInterfaceForwardCommandController
 : public forward_command_controller::ForwardControllersBase
 {
 public:
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   MultiInterfaceForwardCommandController();
 
 protected:

@@ -16,6 +16,7 @@
 
 #include "controller_interface/controller_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
+#include "rclcpp/logging.hpp"
 #include "rclcpp/parameter.hpp"
 #include "velocity_controllers/joint_group_velocity_controller.hpp"
 
@@ -59,11 +60,7 @@ controller_interface::CallbackReturn JointGroupVelocityController::on_deactivate
   // stop all joints
   for (auto & command_interface : command_interfaces_)
   {
-    if (!command_interface.set_value(0.0))
-    {
-      RCLCPP_WARN(get_node()->get_logger(), "Unable to set the command interface to value 0.0");
-      return controller_interface::CallbackReturn::SUCCESS;
-    }
+    command_interface.set_value(0.0);
   }
 
   return ret;
