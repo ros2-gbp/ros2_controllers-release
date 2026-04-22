@@ -36,23 +36,12 @@ Controllers for Wheeled Mobile Robots
 Controllers for Manipulators and Other Robots
 *********************************************
 
-The controllers are using `common hardware interface definitions`_, and may use namespaces depending on the following command interface types:
-
-  - ``position_controllers``: ``hardware_interface::HW_IF_POSITION``
-  - ``velocity_controller``: ``hardware_interface::HW_IF_VELOCITY``
-  - ``effort_controllers``: ``hardware_interface::HW_IF_ACCELERATION``
-  - ``effort_controllers``: ``hardware_interface::HW_IF_EFFORT``
-
-.. _common hardware interface definitions: https://github.com/ros-controls/ros2_control/blob/{REPOS_FILE_BRANCH}/hardware_interface/include/hardware_interface/types/hardware_interface_type_values.hpp
-
-
 .. toctree::
    :titlesonly:
 
    Admittance Controller <../admittance_controller/doc/userdoc.rst>
    Effort Controllers <../effort_controllers/doc/userdoc.rst>
    Forward Command Controller <../forward_command_controller/doc/userdoc.rst>
-   Gripper Controller <../gripper_controllers/doc/userdoc.rst>
    Joint Trajectory Controller <../joint_trajectory_controller/doc/userdoc.rst>
    Parallel Gripper Controller <../parallel_gripper_controller/doc/userdoc.rst>
    PID Controller <../pid_controller/doc/userdoc.rst>

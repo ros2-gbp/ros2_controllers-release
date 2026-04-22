@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "control_msgs/msg/dynamic_interface_group_values.hpp"
+#include "controller_interface/test_utils.hpp"
 #include "gmock/gmock.h"
 #include "gpio_controllers/gpio_command_controller.hpp"
 #include "hardware_interface/handle.hpp"
@@ -51,8 +52,11 @@ using hardware_interface::LoanedCommandInterface;
 using hardware_interface::LoanedStateInterface;
 using CmdType = control_msgs::msg::DynamicInterfaceGroupValues;
 using StateType = control_msgs::msg::DynamicInterfaceGroupValues;
+using controller_interface::activate_succeeds;
+using controller_interface::configure_succeeds;
 using hardware_interface::CommandInterface;
 using hardware_interface::StateInterface;
+using lifecycle_msgs::msg::State;
 
 namespace
 {
@@ -105,14 +109,14 @@ public:
   void setup_command_and_state_interfaces()
   {
     std::vector<LoanedCommandInterface> command_interfaces;
-    command_interfaces.emplace_back(gpio_1_1_dig_cmd);
-    command_interfaces.emplace_back(gpio_1_2_dig_cmd);
-    command_interfaces.emplace_back(gpio_2_ana_cmd);
+    command_interfaces.emplace_back(gpio_1_1_dig_cmd, nullptr);
+    command_interfaces.emplace_back(gpio_1_2_dig_cmd, nullptr);
+    command_interfaces.emplace_back(gpio_2_ana_cmd, nullptr);
 
     std::vector<LoanedStateInterface> state_interfaces;
-    state_interfaces.emplace_back(gpio_1_1_dig_state);
-    state_interfaces.emplace_back(gpio_1_2_dig_state);
-    state_interfaces.emplace_back(gpio_2_ana_state);
+    state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+    state_interfaces.emplace_back(gpio_1_2_dig_state, nullptr);
+    state_interfaces.emplace_back(gpio_2_ana_state, nullptr);
 
     controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
   }
@@ -120,9 +124,12 @@ public:
   void move_to_activate_state(controller_interface::return_type result_of_initialization)
   {
     ASSERT_EQ(result_of_initialization, controller_interface::return_type::OK);
-    ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+    ASSERT_TRUE(configure_succeeds(controller_));
+
     setup_command_and_state_interfaces();
-    ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+    ASSERT_TRUE(activate_succeeds(controller_));
   }
 
   void stop_test_when_message_cannot_be_published(int max_sub_check_loop_count)
@@ -133,12 +140,12 @@ public:
 
   void assert_default_command_and_state_values()
   {
-    ASSERT_EQ(gpio_1_1_dig_cmd.get_optional().value(), gpio_commands.at(0));
-    ASSERT_EQ(gpio_1_2_dig_cmd.get_optional().value(), gpio_commands.at(1));
-    ASSERT_EQ(gpio_2_ana_cmd.get_optional().value(), gpio_commands.at(2));
-    ASSERT_EQ(gpio_1_1_dig_state.get_optional().value(), gpio_states.at(0));
-    ASSERT_EQ(gpio_1_2_dig_state.get_optional().value(), gpio_states.at(1));
-    ASSERT_EQ(gpio_2_ana_state.get_optional().value(), gpio_states.at(2));
+    ASSERT_EQ(gpio_1_1_dig_cmd->get_optional().value(), gpio_commands.at(0));
+    ASSERT_EQ(gpio_1_2_dig_cmd->get_optional().value(), gpio_commands.at(1));
+    ASSERT_EQ(gpio_2_ana_cmd->get_optional().value(), gpio_commands.at(2));
+    ASSERT_EQ(gpio_1_1_dig_state->get_optional().value(), gpio_states.at(0));
+    ASSERT_EQ(gpio_1_2_dig_state->get_optional().value(), gpio_states.at(1));
+    ASSERT_EQ(gpio_2_ana_state->get_optional().value(), gpio_states.at(2));
   }
 
   void update_controller_loop()
@@ -214,13 +221,19 @@ public:
   std::vector<double> gpio_commands{1.0, 0.0, 3.1};
   std::vector<double> gpio_states{1.0, 0.0, 3.1};
 
-  CommandInterface gpio_1_1_dig_cmd{gpio_names.at(0), "dig.1", &gpio_commands.at(0)};
-  CommandInterface gpio_1_2_dig_cmd{gpio_names.at(0), "dig.2", &gpio_commands.at(1)};
-  CommandInterface gpio_2_ana_cmd{gpio_names.at(1), "ana.1", &gpio_commands.at(2)};
+  CommandInterface::SharedPtr gpio_1_1_dig_cmd =
+    std::make_shared<CommandInterface>(gpio_names.at(0), "dig.1", &gpio_commands.at(0));
+  CommandInterface::SharedPtr gpio_1_2_dig_cmd =
+    std::make_shared<CommandInterface>(gpio_names.at(0), "dig.2", &gpio_commands.at(1));
+  CommandInterface::SharedPtr gpio_2_ana_cmd =
+    std::make_shared<CommandInterface>(gpio_names.at(1), "ana.1", &gpio_commands.at(2));
 
-  StateInterface gpio_1_1_dig_state{gpio_names.at(0), "dig.1", &gpio_states.at(0)};
-  StateInterface gpio_1_2_dig_state{gpio_names.at(0), "dig.2", &gpio_states.at(1)};
-  StateInterface gpio_2_ana_state{gpio_names.at(1), "ana.1", &gpio_states.at(2)};
+  StateInterface::SharedPtr gpio_1_1_dig_state =
+    std::make_shared<StateInterface>(gpio_names.at(0), "dig.1", &gpio_states.at(0));
+  StateInterface::SharedPtr gpio_1_2_dig_state =
+    std::make_shared<StateInterface>(gpio_names.at(0), "dig.2", &gpio_states.at(1));
+  StateInterface::SharedPtr gpio_2_ana_state =
+    std::make_shared<StateInterface>(gpio_names.at(1), "ana.1", &gpio_states.at(2));
   std::unique_ptr<rclcpp::Node> node;
 };
 
@@ -286,7 +299,8 @@ TEST_F(
   const auto result = controller_->init(
     create_ctrl_params(node_options, ros2_control_test_assets::minimal_robot_urdf));
   ASSERT_EQ(result, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
+
+  ASSERT_FALSE(configure_succeeds(controller_));
 }
 
 TEST_F(
@@ -301,7 +315,8 @@ TEST_F(
     controller_->init(create_ctrl_params(node_options, minimal_robot_urdf_with_gpio));
 
   ASSERT_EQ(result, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  ASSERT_TRUE(configure_succeeds(controller_));
 }
 
 TEST_F(
@@ -315,7 +330,8 @@ TEST_F(
   const auto result = controller_->init(create_ctrl_params(node_options));
 
   ASSERT_EQ(result, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
+
+  ASSERT_FALSE(configure_succeeds(controller_));
 }
 
 TEST_F(GpioCommandControllerTestSuite, ConfigureAndActivateParamsSuccess)
@@ -326,12 +342,8 @@ TEST_F(GpioCommandControllerTestSuite, ConfigureAndActivateParamsSuccess)
      {"command_interfaces.gpio2.interfaces", std::vector<std::string>{"ana.1"}},
      {"state_interfaces.gpio1.interfaces", std::vector<std::string>{"dig.1", "dig.2"}},
      {"state_interfaces.gpio2.interfaces", std::vector<std::string>{"ana.1"}}});
-  const auto result = controller_->init(create_ctrl_params(node_options));
 
-  ASSERT_EQ(result, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-  setup_command_and_state_interfaces();
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+  move_to_activate_state(controller_->init(create_ctrl_params(node_options)));
 }
 
 TEST_F(
@@ -345,21 +357,22 @@ TEST_F(
      {"state_interfaces.gpio1.interfaces", std::vector<std::string>{"dig.1", "dig.2"}},
      {"state_interfaces.gpio2.interfaces", std::vector<std::string>{"ana.1"}}});
   const auto result = controller_->init(create_ctrl_params(node_options));
-
   ASSERT_EQ(result, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  ASSERT_TRUE(configure_succeeds(controller_));
 
   std::vector<LoanedCommandInterface> command_interfaces;
-  command_interfaces.emplace_back(gpio_1_1_dig_cmd);
-  command_interfaces.emplace_back(gpio_1_2_dig_cmd);
+  command_interfaces.emplace_back(gpio_1_1_dig_cmd, nullptr);
+  command_interfaces.emplace_back(gpio_1_2_dig_cmd, nullptr);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(gpio_1_1_dig_state);
-  state_interfaces.emplace_back(gpio_1_2_dig_state);
-  state_interfaces.emplace_back(gpio_2_ana_state);
+  state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_1_2_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_2_ana_state, nullptr);
 
   controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
+
+  ASSERT_THROW(activate_succeeds(controller_), std::runtime_error);
 }
 
 TEST_F(
@@ -375,20 +388,21 @@ TEST_F(
   const auto result = controller_->init(create_ctrl_params(node_options));
 
   ASSERT_EQ(result, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  ASSERT_TRUE(configure_succeeds(controller_));
 
   std::vector<LoanedCommandInterface> command_interfaces;
-  command_interfaces.emplace_back(gpio_1_1_dig_cmd);
-  command_interfaces.emplace_back(gpio_1_2_dig_cmd);
-  command_interfaces.emplace_back(gpio_2_ana_cmd);
+  command_interfaces.emplace_back(gpio_1_1_dig_cmd, nullptr);
+  command_interfaces.emplace_back(gpio_1_2_dig_cmd, nullptr);
+  command_interfaces.emplace_back(gpio_2_ana_cmd, nullptr);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(gpio_1_1_dig_state);
-  state_interfaces.emplace_back(gpio_1_2_dig_state);
+  state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_1_2_dig_state, nullptr);
 
   controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
 
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::ERROR);
+  ASSERT_THROW(activate_succeeds(controller_), std::runtime_error);
 }
 
 TEST_F(
@@ -401,23 +415,8 @@ TEST_F(
      {"command_interfaces.gpio2.interfaces", std::vector<std::string>{"ana.1"}},
      {"state_interfaces.gpio1.interfaces", std::vector<std::string>{"dig.1"}},
      {"state_interfaces.gpio2.interfaces", std::vector<std::string>{"ana.1"}}});
-  const auto result = controller_->init(create_ctrl_params(node_options));
 
-  ASSERT_EQ(result, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
-
-  std::vector<LoanedCommandInterface> command_interfaces;
-  command_interfaces.emplace_back(gpio_1_1_dig_cmd);
-  command_interfaces.emplace_back(gpio_1_2_dig_cmd);
-  command_interfaces.emplace_back(gpio_2_ana_cmd);
-
-  std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(gpio_1_1_dig_state);
-  state_interfaces.emplace_back(gpio_2_ana_state);
-
-  controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
-
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+  move_to_activate_state(controller_->init(create_ctrl_params(node_options)));
 }
 
 TEST_F(
@@ -497,9 +496,9 @@ TEST_F(
   controller_->rt_command_.set(command);
   update_controller_loop();
 
-  ASSERT_EQ(gpio_1_1_dig_cmd.get_optional().value(), 0.0);
-  ASSERT_EQ(gpio_1_2_dig_cmd.get_optional().value(), 1.0);
-  ASSERT_EQ(gpio_2_ana_cmd.get_optional().value(), 30.0);
+  ASSERT_EQ(gpio_1_1_dig_cmd->get_optional().value(), 0.0);
+  ASSERT_EQ(gpio_1_2_dig_cmd->get_optional().value(), 1.0);
+  ASSERT_EQ(gpio_2_ana_cmd->get_optional().value(), 30.0);
 }
 
 TEST_F(
@@ -520,9 +519,9 @@ TEST_F(
   controller_->rt_command_.set(command);
   update_controller_loop();
 
-  ASSERT_EQ(gpio_1_1_dig_cmd.get_optional().value(), 0.0);
-  ASSERT_EQ(gpio_1_2_dig_cmd.get_optional().value(), 1.0);
-  ASSERT_EQ(gpio_2_ana_cmd.get_optional().value(), 30.0);
+  ASSERT_EQ(gpio_1_1_dig_cmd->get_optional().value(), 0.0);
+  ASSERT_EQ(gpio_1_2_dig_cmd->get_optional().value(), 1.0);
+  ASSERT_EQ(gpio_2_ana_cmd->get_optional().value(), 30.0);
 }
 
 TEST_F(
@@ -542,9 +541,9 @@ TEST_F(
   controller_->rt_command_.set(command);
   update_controller_loop();
 
-  ASSERT_EQ(gpio_1_1_dig_cmd.get_optional().value(), 0.0);
-  ASSERT_EQ(gpio_1_2_dig_cmd.get_optional().value(), 1.0);
-  ASSERT_EQ(gpio_2_ana_cmd.get_optional().value(), gpio_commands[2]);
+  ASSERT_EQ(gpio_1_1_dig_cmd->get_optional().value(), 0.0);
+  ASSERT_EQ(gpio_1_2_dig_cmd->get_optional().value(), 1.0);
+  ASSERT_EQ(gpio_2_ana_cmd->get_optional().value(), gpio_commands[2]);
 }
 
 TEST_F(
@@ -565,9 +564,9 @@ TEST_F(
   controller_->rt_command_.set(command);
   update_controller_loop();
 
-  ASSERT_EQ(gpio_1_1_dig_cmd.get_optional().value(), gpio_commands.at(0));
-  ASSERT_EQ(gpio_1_2_dig_cmd.get_optional().value(), gpio_commands.at(1));
-  ASSERT_EQ(gpio_2_ana_cmd.get_optional().value(), gpio_commands.at(2));
+  ASSERT_EQ(gpio_1_1_dig_cmd->get_optional().value(), gpio_commands.at(0));
+  ASSERT_EQ(gpio_1_2_dig_cmd->get_optional().value(), gpio_commands.at(1));
+  ASSERT_EQ(gpio_2_ana_cmd->get_optional().value(), gpio_commands.at(2));
 }
 
 TEST_F(
@@ -591,9 +590,9 @@ TEST_F(
   wait_one_miliseconds_for_timeout();
   update_controller_loop();
 
-  ASSERT_EQ(gpio_1_1_dig_cmd.get_optional().value(), 0.0);
-  ASSERT_EQ(gpio_1_2_dig_cmd.get_optional().value(), 1.0);
-  ASSERT_EQ(gpio_2_ana_cmd.get_optional().value(), 30.0);
+  ASSERT_EQ(gpio_1_1_dig_cmd->get_optional().value(), 0.0);
+  ASSERT_EQ(gpio_1_2_dig_cmd->get_optional().value(), 1.0);
+  ASSERT_EQ(gpio_2_ana_cmd->get_optional().value(), 30.0);
 }
 
 TEST_F(GpioCommandControllerTestSuite, ControllerShouldPublishGpioStatesWithCurrentValues)
@@ -637,18 +636,21 @@ TEST_F(
      {"command_interfaces.gpio1.interfaces", std::vector<std::string>{"dig.1"}}});
 
   std::vector<LoanedCommandInterface> command_interfaces;
-  command_interfaces.emplace_back(gpio_1_1_dig_cmd);
+  command_interfaces.emplace_back(gpio_1_1_dig_cmd, nullptr);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(gpio_1_1_dig_state);
-  state_interfaces.emplace_back(gpio_2_ana_state);
+  state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_2_ana_state, nullptr);
 
   const auto result_of_initialization =
     controller_->init(create_ctrl_params(node_options, minimal_robot_urdf_with_gpio));
   ASSERT_EQ(result_of_initialization, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  ASSERT_TRUE(configure_succeeds(controller_));
+
   controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  ASSERT_TRUE(activate_succeeds(controller_));
 
   auto subscription = node->create_subscription<StateType>(
     std::string(controller_->get_node()->get_name()) + "/gpio_states", 10,
@@ -680,9 +682,12 @@ TEST_F(
   state_interfaces.emplace_back(gpio_2_ana_state, nullptr);
   const auto result_of_initialization = controller_->init(create_ctrl_params(node_options));
   ASSERT_EQ(result_of_initialization, controller_interface::return_type::OK);
-  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  ASSERT_TRUE(configure_succeeds(controller_));
+
   controller_->assign_interfaces({}, std::move(state_interfaces));
-  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), CallbackReturn::SUCCESS);
+
+  ASSERT_TRUE(activate_succeeds(controller_));
 
   auto subscription = node->create_subscription<StateType>(
     std::string(controller_->get_node()->get_name()) + "/gpio_states", 10,

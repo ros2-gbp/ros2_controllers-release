@@ -2,84 +2,105 @@
 Changelog for package diff_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.39.0 (2026-04-04)
--------------------
-* Fix open-loop odometry by applying SpeedLimiter first (backport `#2260 <https://github.com/ros-controls/ros2_controllers/issues/2260>`_) (`#2277 <https://github.com/ros-controls/ros2_controllers/issues/2277>`_)
-* Remove unnecessary publish_limited_velocity\_ member (backport `#2266 <https://github.com/ros-controls/ros2_controllers/issues/2266>`_) (`#2268 <https://github.com/ros-controls/ros2_controllers/issues/2268>`_)
+6.6.0 (2026-04-22)
+------------------
+* Update controller tests to use configure/activate instead of on_configure/on_activate  (`#1682 <https://github.com/ros-controls/ros2_controllers/issues/1682>`_)
+* RateLimiter: Don't update parameters before input checks (`#2074 <https://github.com/ros-controls/ros2_controllers/issues/2074>`_)
+* Added test for open-loop odometry with clamped input (`#2280 <https://github.com/ros-controls/ros2_controllers/issues/2280>`_)
+* Contributors: Devdoot Chatterjee, JiaHui Huang, Junius Santoso
+
+6.5.0 (2026-04-02)
+------------------
+* Fix open-loop odometry by applying SpeedLimiter first (`#2260 <https://github.com/ros-controls/ros2_controllers/issues/2260>`_)
+* Remove unnecessary publish_limited_velocity member (`#2266 <https://github.com/ros-controls/ros2_controllers/issues/2266>`_)
+* Deprecate publish_rate and resolve initialization anti-pattern in diff_drive_controller (`#2245 <https://github.com/ros-controls/ros2_controllers/issues/2245>`_)
+* Contributors: Bhavin Umatiya, Sai Teja Bojja, Zack Lain
+
+6.4.0 (2026-03-12)
+------------------
+* Fix deprecation warning in diff_drive_controller (`#2174 <https://github.com/ros-controls/ros2_controllers/issues/2174>`_)
+* Fix the teardown of the controller tests (`#2183 <https://github.com/ros-controls/ros2_controllers/issues/2183>`_)
+* Unit tests for the new odometry implementation in diff_drive_controller (`#2099 <https://github.com/ros-controls/ros2_controllers/issues/2099>`_)
+* Silence -Wdeprecated-declarations in diff_drive_controller (`#2139 <https://github.com/ros-controls/ros2_controllers/issues/2139>`_)
+* Add set_odometry service to diff drive controller (`#2096 <https://github.com/ros-controls/ros2_controllers/issues/2096>`_)
+* Contributors: Christoph Fröhlich, Ege Kural, Jiayi Cai, Sai Kishor Kothakota, Vedh
+
+6.3.0 (2026-02-03)
+------------------
+* Fixup whitespace (`#2122 <https://github.com/ros-controls/ros2_controllers/issues/2122>`_)
+* docs: diff_drive_controller - complete wheel_separation_multiplier description and fix then→than typo (`#2108 <https://github.com/ros-controls/ros2_controllers/issues/2108>`_)
+* Contributors: Bence Magyar, 杨晟军(Shengjun Yang)
+
+6.2.0 (2025-12-31)
+------------------
+* Use TF prefix helper for diff drive controller (`#1997 <https://github.com/ros-controls/ros2_controllers/issues/1997>`_)
+* Contributors: Ege Kural
+
+6.1.0 (2025-12-01)
+------------------
+* Update odometry implementation in diff_drive (`#1854 <https://github.com/ros-controls/ros2_controllers/issues/1854>`_)
+* Contributors: Aarav Gupta
+
+6.0.0 (2025-11-10)
+------------------
+* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
+* Don't use `msg\_` field of realtime publisher (`#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_)
+* Contributors: Anand Vardhan, Christoph Fröhlich
+
+5.8.0 (2025-10-02)
+------------------
+* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
+* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
+* Fix: Remove deprecated `rclcpp::spin_some(node)` (`#1928 <https://github.com/ros-controls/ros2_controllers/issues/1928>`_)
+* Contributors: Christoph Fröhlich, Kostubh Khandelwal
+
+5.7.0 (2025-09-12)
+------------------
+
+5.6.1 (2025-08-30)
+------------------
+
+5.6.0 (2025-08-29)
+------------------
+
+5.5.0 (2025-07-31)
+------------------
+
+5.4.0 (2025-07-23)
+------------------
+* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
+* Contributors: Sanjeev Kumar
+
+5.3.0 (2025-07-14)
+------------------
+* Explicit cast `rcutils_duration_value_t` (`#1808 <https://github.com/ros-controls/ros2_controllers/issues/1808>`_)
+* Update description of limit() function in speed_limiter (`#1793 <https://github.com/ros-controls/ros2_controllers/issues/1793>`_)
+* Use ParamListener::try_get_params to Avoid Blocking in Real-Time Contexts (`#1198 <https://github.com/ros-controls/ros2_controllers/issues/1198>`_)
+* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
+* Contributors: Aarav Gupta, Christoph Fröhlich, Kenta Kato
+
+5.2.0 (2025-06-23)
+------------------
+
+5.1.0 (2025-06-11)
+------------------
+* Fix DiffDrive claiming state when open_loop is set (`#1731 <https://github.com/ros-controls/ros2_controllers/issues/1731>`_)
 * Contributors: mergify[bot]
 
-4.38.0 (2026-03-12)
--------------------
-* Fix the teardown of the controller tests (backport `#2183 <https://github.com/ros-controls/ros2_controllers/issues/2183>`_) (`#2185 <https://github.com/ros-controls/ros2_controllers/issues/2185>`_)
-* Contributors: mergify[bot]
+5.0.2 (2025-05-26)
+------------------
 
-4.37.0 (2026-02-03)
--------------------
-* docs: diff_drive_controller - complete wheel_separation_multiplier description and fix then→than typo (backport `#2108 <https://github.com/ros-controls/ros2_controllers/issues/2108>`_) (`#2120 <https://github.com/ros-controls/ros2_controllers/issues/2120>`_)
-* Contributors: mergify[bot]
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
 
-4.36.0 (2025-12-31)
--------------------
-* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
-* Contributors: mergify[bot]
-
-4.35.0 (2025-12-01)
--------------------
-
-4.34.0 (2025-11-10)
--------------------
-
-4.33.1 (2025-10-17)
--------------------
-* Don't use `msg\_` field of realtime publisher (backport `#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_) (`#1948 <https://github.com/ros-controls/ros2_controllers/issues/1948>`_)
-* Contributors: mergify[bot]
-
-4.33.0 (2025-10-03)
--------------------
-* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
-* Update realtime containers (backport `#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_) (`#1935 <https://github.com/ros-controls/ros2_controllers/issues/1935>`_)
-* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
-* Fix: Remove deprecated `rclcpp::spin_some(node)` (backport `#1928 <https://github.com/ros-controls/ros2_controllers/issues/1928>`_) (`#1932 <https://github.com/ros-controls/ros2_controllers/issues/1932>`_)
-* Contributors: mergify[bot]
-
-4.32.0 (2025-09-12)
--------------------
-
-4.31.0 (2025-08-27)
--------------------
-
-4.30.1 (2025-08-03)
--------------------
-
-4.30.0 (2025-07-31)
--------------------
-
-4.29.0 (2025-07-23)
--------------------
-
-4.28.0 (2025-07-14)
--------------------
-* Explicit cast rcutils_duration_value_t (backport `#1808 <https://github.com/ros-controls/ros2_controllers/issues/1808>`_) (`#1812 <https://github.com/ros-controls/ros2_controllers/issues/1812>`_)
-* Update description of limit() function in speed_limiter (backport `#1793 <https://github.com/ros-controls/ros2_controllers/issues/1793>`_) (`#1795 <https://github.com/ros-controls/ros2_controllers/issues/1795>`_)
-* Contributors: Christoph Fröhlich, mergify[bot]
-
-4.27.1 (2025-07-02)
--------------------
-
-4.27.0 (2025-06-23)
--------------------
-
-4.26.0 (2025-06-06)
--------------------
-* Fix DiffDrive claiming state when open_loop is set (`#1730 <https://github.com/ros-controls/ros2_controllers/issues/1730>`_)
-* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
-* Contributors: Jasper van Brakel, mergify[bot]
-
-4.25.0 (2025-05-17)
--------------------
-* Simplify `on_set_chained_mode` avoiding cpplint warnings (backport `#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_) (`#1688 <https://github.com/ros-controls/ros2_controllers/issues/1688>`_)
+5.0.0 (2025-05-17)
+------------------
+* Simplify `on_set_chained_mode` implementations avoiding cpplint warnings (`#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_)
+* Cleanup deprecations in diff_drive_controller (`#1653 <https://github.com/ros-controls/ros2_controllers/issues/1653>`_)
 * Deprecating tf2 C Headers (`#1325 <https://github.com/ros-controls/ros2_controllers/issues/1325>`_)
-* Contributors: Lucas Wendland, mergify[bot], Bhagyesh Agresar
+* Contributors: Bhagyesh Agresar, Christoph Fröhlich, Lucas Wendland
 
 4.24.0 (2025-04-27)
 -------------------

@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 
+#include "controller_interface/tf_prefix.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
@@ -41,7 +42,7 @@ void reset_controller_reference_msg(
   msg.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
   msg.twist.angular.z = std::numeric_limits<double>::quiet_NaN();
 }
-
+constexpr auto DEFAULT_SET_ODOM_SERVICE = "~/set_odometry";
 }  // namespace
 
 namespace steering_controllers_library
@@ -80,81 +81,6 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   params_ = param_listener_->get_params();
-
-  // TODO(anyone): Remove deprecated parameters
-  // START OF DEPRECATED
-  if (!params_.front_steering)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "DEPRECATED parameter 'front_steering'. Instead, set 'traction_joints_names' or "
-      "'steering_joints_names'");
-  }
-
-  if (params_.front_wheels_names.size() > 0)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "DEPRECATED parameter 'front_wheels_names', set 'traction_joints_names' or "
-      "'steering_joints_names' instead");
-    if (params_.front_steering)
-    {
-      params_.steering_joints_names = params_.front_wheels_names;
-    }
-    else
-    {
-      params_.traction_joints_names = params_.front_wheels_names;
-    }
-  }
-
-  if (params_.rear_wheels_names.size() > 0)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "DEPRECATED parameter 'rear_wheels_names', set 'traction_joints_names' or "
-      "'steering_joints_names' instead");
-    if (params_.front_steering)
-    {
-      params_.traction_joints_names = params_.rear_wheels_names;
-    }
-    else
-    {
-      params_.steering_joints_names = params_.rear_wheels_names;
-    }
-  }
-
-  if (params_.front_wheels_state_names.size() > 0)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "DEPRECATED parameter 'front_wheels_state_names', set 'traction_joints_state_names' or "
-      "'steering_joints_state_names' instead");
-    if (params_.front_steering)
-    {
-      params_.steering_joints_state_names = params_.front_wheels_state_names;
-    }
-    else
-    {
-      params_.traction_joints_state_names = params_.front_wheels_state_names;
-    }
-  }
-
-  if (params_.rear_wheels_state_names.size() > 0)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "DEPRECATED parameter 'rear_wheels_state_names', set 'traction_joints_state_names' or "
-      "'steering_joints_state_names' instead");
-    if (params_.front_steering)
-    {
-      params_.traction_joints_state_names = params_.rear_wheels_state_names;
-    }
-    else
-    {
-      params_.steering_joints_state_names = params_.rear_wheels_state_names;
-    }
-  }
-  // END OF DEPRECATED
 
   // call method from implementations, sets odometry type
   configure_odometry();
@@ -326,6 +252,11 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
   subscribers_qos.keep_last(1);
   subscribers_qos.best_effort();
 
+  if (!reset())
+  {
+    return controller_interface::CallbackReturn::ERROR;
+  }
+
   // Reference Subscriber
   ref_timeout_ = rclcpp::Duration::from_seconds(params_.reference_timeout);
   ref_subscriber_twist_ = get_node()->create_subscription<ControllerTwistReferenceMsg>(
@@ -350,9 +281,18 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
+  // resolve prefix: substitute tilde (~) with the namespace if contains and normalize slashes (/)
+  // Note: resolve_tf_prefix handles empty tf_frame_prefix by returning an empty string
+  const std::string tf_prefix =
+    controller_interface::resolve_tf_prefix(params_.tf_frame_prefix, get_node()->get_namespace());
+
+  // prepend resolved TF prefix to frame ids
+  const std::string odom_frame_id = tf_prefix + params_.odom_frame_id;
+  const std::string base_frame_id = tf_prefix + params_.base_frame_id;
+
   odom_state_msg_.header.stamp = get_node()->now();
-  odom_state_msg_.header.frame_id = params_.odom_frame_id;
-  odom_state_msg_.child_frame_id = params_.base_frame_id;
+  odom_state_msg_.header.frame_id = odom_frame_id;
+  odom_state_msg_.child_frame_id = base_frame_id;
   odom_state_msg_.pose.pose.position.z = 0;
 
   const size_t NUM_DIMENSIONS = 6;
@@ -400,6 +340,24 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_configure(
   {
     fprintf(
       stderr, "Exception thrown during publisher creation at configure stage with message : %s \n",
+      e.what());
+    return controller_interface::CallbackReturn::ERROR;
+  }
+
+  try
+  {
+    set_odom_service_ = get_node()->create_service<control_msgs::srv::SetOdometry>(
+      DEFAULT_SET_ODOM_SERVICE,
+      std::bind(
+        &SteeringControllersLibrary::set_odometry, this, std::placeholders::_1,
+        std::placeholders::_2, std::placeholders::_3));
+  }
+  catch (const std::exception & e)
+  {
+    fprintf(
+      stderr,
+      "Exception thrown during service creation at configure stage "
+      "with message : %s \n",
       e.what());
     return controller_interface::CallbackReturn::ERROR;
   }
@@ -535,6 +493,26 @@ controller_interface::CallbackReturn SteeringControllersLibrary::on_deactivate(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
+controller_interface::CallbackReturn SteeringControllersLibrary::on_cleanup(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (!reset())
+  {
+    return controller_interface::CallbackReturn::ERROR;
+  }
+  return controller_interface::CallbackReturn::SUCCESS;
+}
+
+controller_interface::CallbackReturn SteeringControllersLibrary::on_error(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (!reset())
+  {
+    return controller_interface::CallbackReturn::ERROR;
+  }
+  return controller_interface::CallbackReturn::SUCCESS;
+}
+
 controller_interface::return_type SteeringControllersLibrary::update_reference_from_subscribers(
   const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
@@ -585,10 +563,24 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
 {
   auto logger = get_node()->get_logger();
 
-  // store current ref (for open loop odometry) and update odometry
-  last_linear_velocity_ = reference_interfaces_[0];
-  last_angular_velocity_ = reference_interfaces_[1];
-  update_odometry(period);
+  // check if odometry set was requested by non-RT thread
+  if (set_odom_requested_.load())
+  {
+    auto param_op = requested_odom_params_.try_get();
+    if (param_op.has_value())
+    {
+      auto params = param_op.value();
+      odometry_.set_odometry(params.x, params.y, params.yaw);
+      set_odom_requested_.store(false);
+    }
+  }
+  else
+  {
+    // store current ref (for open loop odometry) and update odometry
+    last_linear_velocity_ = reference_interfaces_[0];
+    last_angular_velocity_ = reference_interfaces_[1];
+    update_odometry(period);
+  }
 
   // MOVE ROBOT
 
@@ -603,11 +595,11 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
 
     for (size_t i = 0; i < params_.traction_joints_names.size(); i++)
     {
-      if (!command_interfaces_[i].set_value(traction_commands[i]))
+      const auto & value = traction_commands[i];
+
+      if (!command_interfaces_[i].set_value(value))
       {
-        RCLCPP_WARN(
-          logger, "Unable to set traction command at index %zu: value = %f", i,
-          traction_commands[i]);
+        RCLCPP_WARN(logger, "Unable to set traction command at index %zu: value = %f", i, value);
         return controller_interface::return_type::OK;
       }
     }
@@ -626,7 +618,11 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
   {
     for (size_t i = 0; i < params_.traction_joints_names.size(); i++)
     {
-      command_interfaces_[i].set_value(0.0);
+      if (!command_interfaces_[i].set_value(0.0))
+      {
+        RCLCPP_WARN(logger, "Unable to set command interface to value 0.0");
+        return controller_interface::return_type::OK;
+      }
     }
   }
 
@@ -662,7 +658,7 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
     controller_state_msg_.header.stamp = time;
     controller_state_msg_.traction_wheels_position.clear();
     controller_state_msg_.traction_wheels_velocity.clear();
-    controller_state_msg_.linear_velocity_command.clear();
+    controller_state_msg_.traction_command.clear();
     controller_state_msg_.steer_positions.clear();
     controller_state_msg_.steering_angle_command.clear();
 
@@ -707,8 +703,7 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
       }
       else
       {
-        controller_state_msg_.linear_velocity_command.push_back(
-          velocity_command_interface_op.value());
+        controller_state_msg_.traction_command.push_back(velocity_command_interface_op.value());
       }
     }
 
@@ -740,6 +735,48 @@ controller_interface::return_type SteeringControllersLibrary::update_and_write_c
   reference_interfaces_[1] = std::numeric_limits<double>::quiet_NaN();
 
   return controller_interface::return_type::OK;
+}
+
+void SteeringControllersLibrary::set_odometry(
+  const std::shared_ptr<rmw_request_id_t> /*request_header*/,
+  const std::shared_ptr<control_msgs::srv::SetOdometry::Request> req,
+  std::shared_ptr<control_msgs::srv::SetOdometry::Response> res)
+{
+  if (get_node()->get_current_state().id() != lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE)
+  {
+    res->success = false;
+    res->message = "Controller is not active";
+    return;
+  }
+
+  // put requested odom params into RealtimeThreadSafeBox
+  requested_odom_params_.set(*req);
+
+  // flip the flag for thread-safe odom set in the control loop
+  set_odom_requested_.store(true);
+
+  res->success = true;
+  res->message = "Odometry set request accepted";
+}
+
+bool SteeringControllersLibrary::reset()
+{
+  odometry_.set_odometry(0.0, 0.0, 0.0);
+
+  reset_controller_reference_msg(current_ref_, get_node());
+  input_ref_.set(current_ref_);
+
+  last_linear_velocity_ = std::numeric_limits<double>::quiet_NaN();
+  last_angular_velocity_ = std::numeric_limits<double>::quiet_NaN();
+  for (auto & interface : reference_interfaces_)
+  {
+    interface = std::numeric_limits<double>::quiet_NaN();
+  }
+
+  ref_subscriber_twist_.reset();
+  set_odom_service_.reset();
+
+  return true;
 }
 
 }  // namespace steering_controllers_library

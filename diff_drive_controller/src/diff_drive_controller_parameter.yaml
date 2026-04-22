@@ -49,7 +49,7 @@ diff_drive_controller:
   tf_frame_prefix_enable: {
     type: bool,
     default_value: true,
-    description:  "Enables or disables appending tf_prefix to tf frame id's.",
+    description:  "Deprecated: this parameter will be removed in a future release. Use 'tf_frame_prefix' instead.",
   }
   tf_frame_prefix: {
     type: string,
@@ -106,28 +106,14 @@ diff_drive_controller:
     default_value: 10,
     description: "Size of the rolling window for calculation of mean velocity use in odometry.",
   }
+  # TODO(bhavin-umatiya): Remove this parameter as it is deprecated
   publish_rate: {
     type: double,
     default_value: 50.0, # Hz
-    description: "Publishing rate (Hz) of the odometry and TF messages.",
+    description: "Publishing rate (Hz) of the odometry and TF messages. This parameter is deprecated and will be removed in a future release.",
   }
   linear:
     x:
-      has_velocity_limits: {
-        type: bool,
-        default_value: true,
-        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
-      }
-      has_acceleration_limits: {
-        type: bool,
-        default_value: true,
-        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
-      }
-      has_jerk_limits: {
-        type: bool,
-        default_value: true,
-        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
-      }
       max_velocity: {
         type: double,
         default_value: .NAN,
@@ -157,11 +143,6 @@ diff_drive_controller:
         validation: {
           "control_filters::lt_eq_or_nan<>": [0.0]
         }
-      }
-      min_acceleration: {
-        type: double,
-        default_value: .NAN,
-        description: "deprecated, use max_deceleration"
       }
       max_acceleration_reverse: {
         type: double,
@@ -195,21 +176,6 @@ diff_drive_controller:
       }
   angular:
     z:
-      has_velocity_limits: {
-        type: bool,
-        default_value: true,
-        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
-      }
-      has_acceleration_limits: {
-        type: bool,
-        default_value: true,
-        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
-      }
-      has_jerk_limits: {
-        type: bool,
-        default_value: true,
-        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
-      }
       max_velocity: {
         type: double,
         default_value: .NAN,
@@ -239,11 +205,6 @@ diff_drive_controller:
         validation: {
           "control_filters::lt_eq_or_nan<>": [0.0]
         }
-      }
-      min_acceleration: {
-        type: double,
-        default_value: .NAN,
-        description: "deprecated, use max_deceleration"
       }
       max_acceleration_reverse: {
         type: double,

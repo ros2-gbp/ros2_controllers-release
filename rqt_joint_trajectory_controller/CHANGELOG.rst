@@ -2,66 +2,70 @@
 Changelog for package rqt_joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.39.0 (2026-04-04)
--------------------
-* rqt_jtc: Check for interface type when adding joint names (backport `#2231 <https://github.com/ros-controls/ros2_controllers/issues/2231>`_) (`#2241 <https://github.com/ros-controls/ros2_controllers/issues/2241>`_)
-* Contributors: mergify[bot]
+6.6.0 (2026-04-22)
+------------------
+* [RQT_JTC] add unit tests for parse_joint_limits (`#2281 <https://github.com/ros-controls/ros2_controllers/issues/2281>`_)
+* Contributors: Sahil Lakhmani
 
-4.38.0 (2026-03-12)
--------------------
+6.5.0 (2026-04-02)
+------------------
+* rqt_jtc: Check for interface type when adding joint names (`#2231 <https://github.com/ros-controls/ros2_controllers/issues/2231>`_)
+* Contributors: Felix Exner
 
-4.37.0 (2026-02-03)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-4.36.0 (2025-12-31)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-4.35.0 (2025-12-01)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-4.34.0 (2025-11-10)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-4.33.1 (2025-10-17)
--------------------
-* fix issue of not listing new JTCs (backport `#1891 <https://github.com/ros-controls/ros2_controllers/issues/1891>`_) (`#1969 <https://github.com/ros-controls/ros2_controllers/issues/1969>`_)
-* Contributors: mergify[bot]
+6.0.0 (2025-11-10)
+------------------
+* fix issue of not listing new JTCs (`#1891 <https://github.com/ros-controls/ros2_controllers/issues/1891>`_)
+* Contributors: Peter Mitrano (AR)
 
-4.33.0 (2025-10-03)
--------------------
+5.8.0 (2025-10-02)
+------------------
 
-4.32.0 (2025-09-12)
--------------------
+5.7.0 (2025-09-12)
+------------------
 
-4.31.0 (2025-08-27)
--------------------
+5.6.1 (2025-08-30)
+------------------
 
-4.30.1 (2025-08-03)
--------------------
+5.6.0 (2025-08-29)
+------------------
 
-4.30.0 (2025-07-31)
--------------------
+5.5.0 (2025-07-31)
+------------------
 
-4.29.0 (2025-07-23)
--------------------
+5.4.0 (2025-07-23)
+------------------
 
-4.28.0 (2025-07-14)
--------------------
-* fix rqt_joint_trajectory_controller for robots with namespace (backport `#1792 <https://github.com/ros-controls/ros2_controllers/issues/1792>`_) (`#1803 <https://github.com/ros-controls/ros2_controllers/issues/1803>`_)
-  Co-authored-by: Oscar Lima <olima_84@yahoo.com>
-* Contributors: mergify[bot]
+5.3.0 (2025-07-14)
+------------------
+* fix rqt_joint_trajectory_controller for robots with namespace (`#1792 <https://github.com/ros-controls/ros2_controllers/issues/1792>`_)
+* Contributors: Oscar Lima
 
-4.27.1 (2025-07-02)
--------------------
+5.2.0 (2025-06-23)
+------------------
 
-4.27.0 (2025-06-23)
--------------------
+5.1.0 (2025-06-11)
+------------------
 
-4.26.0 (2025-06-06)
--------------------
+5.0.2 (2025-05-26)
+------------------
 
-4.25.0 (2025-05-17)
--------------------
+5.0.1 (2025-05-24)
+------------------
+
+5.0.0 (2025-05-17)
+------------------
 
 4.24.0 (2025-04-27)
 -------------------
