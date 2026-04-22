@@ -2,6 +2,9 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.53.1 (2026-04-22)
+-------------------
+
 2.53.0 (2026-04-02)
 -------------------
 * GPL custom validator: Use tl_expected from libexpected-dev instead (backport `#2212 <https://github.com/ros-controls/ros2_controllers/issues/2212>`_) (`#2238 <https://github.com/ros-controls/ros2_controllers/issues/2238>`_)
