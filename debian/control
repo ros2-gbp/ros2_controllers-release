@@ -1,0 +1,13 @@
+Source: ros-humble-bicycle-steering-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-humble-ament-cmake, ros-humble-ament-cmake-gmock <!nocheck>, ros-humble-backward-ros, ros-humble-control-msgs, ros-humble-controller-interface, ros-humble-controller-manager <!nocheck>, ros-humble-generate-parameter-library, ros-humble-hardware-interface, ros-humble-hardware-interface <!nocheck>, ros-humble-hardware-interface-testing <!nocheck>, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-rclcpp-lifecycle, ros-humble-ros2-control-test-assets <!nocheck>, ros-humble-std-srvs, ros-humble-steering-controllers-library, ros-humble-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-humble-bicycle-steering-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-humble-backward-ros, ros-humble-control-msgs, ros-humble-controller-interface, ros-humble-hardware-interface, ros-humble-pluginlib, ros-humble-rclcpp, ros-humble-rclcpp-lifecycle, ros-humble-std-srvs, ros-humble-steering-controllers-library, ros-humble-ros-workspace
+Description: Steering controller with bicycle kinematics.
+ Rear fixed wheel is powering the vehicle and front wheel is steering.
