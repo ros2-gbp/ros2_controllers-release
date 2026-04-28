@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <memory>
 
 #include "controller_manager/controller_manager.hpp"
@@ -30,14 +30,17 @@ TEST(TestLoadJointGroupPositionController, load_controller)
     std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
 
   controller_manager::ControllerManager cm(
-    std::make_unique<hardware_interface::ResourceManager>(
-      ros2_control_test_assets::minimal_robot_urdf),
-    executor, "test_controller_manager");
+    executor, ros2_control_test_assets::minimal_robot_urdf, true, "test_controller_manager");
 
-  ASSERT_NE(
-    cm.load_controller(
-      "test_joint_group_position_controller", "position_controllers/JointGroupPositionController"),
-    nullptr);
+  const std::string test_file_path =
+    std::string(TEST_FILES_DIRECTORY) + "/config/test_joint_group_position_controller.yaml";
+
+  cm.set_parameter({"test_joint_group_position_controller.params_file", test_file_path});
+  cm.set_parameter(
+    {"test_joint_group_position_controller.type",
+     "position_controllers/JointGroupPositionController"});
+
+  ASSERT_NE(cm.load_controller("test_joint_group_position_controller"), nullptr);
 
   rclcpp::shutdown();
 }
