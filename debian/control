@@ -1,0 +1,12 @@
+Source: ros-lyrical-ros2-controllers-test-nodes
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-pytest <!nocheck>, ros-lyrical-launch-ros <!nocheck>, ros-lyrical-launch-testing-ros <!nocheck>, ros-lyrical-rclpy, ros-lyrical-sensor-msgs, ros-lyrical-std-msgs, ros-lyrical-trajectory-msgs, ros-lyrical-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-ros2-controllers-test-nodes
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, ros-lyrical-rclpy, ros-lyrical-sensor-msgs, ros-lyrical-std-msgs, ros-lyrical-trajectory-msgs, ros-lyrical-ros-workspace
+Description: Demo nodes for showing and testing functionalities of the ros2_control framework.
