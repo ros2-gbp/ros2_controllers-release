@@ -1,0 +1,12 @@
+Source: ros-lyrical-pose-broadcaster
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-lyrical-ament-cmake, ros-lyrical-ament-cmake-gmock <!nocheck>, ros-lyrical-backward-ros, ros-lyrical-controller-interface, ros-lyrical-controller-manager <!nocheck>, ros-lyrical-generate-parameter-library, ros-lyrical-geometry-msgs, ros-lyrical-hardware-interface-testing <!nocheck>, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-rclcpp-lifecycle, ros-lyrical-realtime-tools, ros-lyrical-ros2-control-cmake, ros-lyrical-ros2-control-test-assets <!nocheck>, ros-lyrical-tf2-msgs, ros-lyrical-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-pose-broadcaster
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-lyrical-backward-ros, ros-lyrical-controller-interface, ros-lyrical-generate-parameter-library, ros-lyrical-geometry-msgs, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-rclcpp-lifecycle, ros-lyrical-realtime-tools, ros-lyrical-tf2-msgs, ros-lyrical-ros-workspace
+Description: Broadcaster to publish cartesian states.
