@@ -1,0 +1,12 @@
+Source: ros-lyrical-rqt-joint-trajectory-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-pytest <!nocheck>, ros-lyrical-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-rqt-joint-trajectory-controller
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, python3-rospkg, ros-lyrical-control-msgs, ros-lyrical-controller-manager-msgs, ros-lyrical-python-qt-binding, ros-lyrical-qt-gui, ros-lyrical-rclpy, ros-lyrical-rqt-gui, ros-lyrical-rqt-gui-py, ros-lyrical-trajectory-msgs, ros-lyrical-ros-workspace
+Description: Graphical frontend for interacting with joint_trajectory_controller instances.
