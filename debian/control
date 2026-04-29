@@ -1,0 +1,12 @@
+Source: ros-lyrical-velocity-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-lyrical-ament-cmake, ros-lyrical-ament-cmake-gmock <!nocheck>, ros-lyrical-backward-ros, ros-lyrical-controller-manager <!nocheck>, ros-lyrical-forward-command-controller, ros-lyrical-hardware-interface <!nocheck>, ros-lyrical-hardware-interface-testing <!nocheck>, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-ros2-control-cmake, ros-lyrical-ros2-control-test-assets <!nocheck>, ros-lyrical-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-velocity-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-lyrical-backward-ros, ros-lyrical-forward-command-controller, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-ros-workspace
+Description: Generic controller for forwarding commands.
