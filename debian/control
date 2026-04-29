@@ -1,0 +1,12 @@
+Source: ros-lyrical-admittance-controller
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), libtinyxml2-dev, ros-lyrical-ament-cmake, ros-lyrical-ament-cmake-gmock <!nocheck>, ros-lyrical-angles, ros-lyrical-backward-ros, ros-lyrical-control-msgs, ros-lyrical-control-toolbox, ros-lyrical-controller-interface, ros-lyrical-controller-manager <!nocheck>, ros-lyrical-generate-parameter-library, ros-lyrical-geometry-msgs, ros-lyrical-hardware-interface, ros-lyrical-hardware-interface-testing <!nocheck>, ros-lyrical-kinematics-interface, ros-lyrical-kinematics-interface-kdl <!nocheck>, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-rclcpp-lifecycle, ros-lyrical-realtime-tools, ros-lyrical-ros2-control-cmake, ros-lyrical-ros2-control-test-assets <!nocheck>, ros-lyrical-tf2, ros-lyrical-tf2-eigen, ros-lyrical-tf2-geometry-msgs, ros-lyrical-tf2-kdl, ros-lyrical-tf2-ros, ros-lyrical-trajectory-msgs, ros-lyrical-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-admittance-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libtinyxml2-dev, ros-lyrical-angles, ros-lyrical-backward-ros, ros-lyrical-control-msgs, ros-lyrical-control-toolbox, ros-lyrical-controller-interface, ros-lyrical-generate-parameter-library, ros-lyrical-geometry-msgs, ros-lyrical-hardware-interface, ros-lyrical-kinematics-interface, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-rclcpp-lifecycle, ros-lyrical-realtime-tools, ros-lyrical-tf2, ros-lyrical-tf2-eigen, ros-lyrical-tf2-geometry-msgs, ros-lyrical-tf2-kdl, ros-lyrical-tf2-ros, ros-lyrical-trajectory-msgs, ros-lyrical-ros-workspace
+Description: Implementation of admittance controllers for different input and output interface.
