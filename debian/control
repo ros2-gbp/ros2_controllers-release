@@ -1,0 +1,12 @@
+Source: ros-lyrical-omni-wheel-drive-controller
+Section: misc
+Priority: optional
+Maintainer: Aarav Gupta <aarav@spikonado.com>
+Build-Depends: debhelper (>= 9.0.0), libeigen3-dev, ros-lyrical-ament-cmake, ros-lyrical-ament-cmake-gmock <!nocheck>, ros-lyrical-control-msgs, ros-lyrical-controller-interface, ros-lyrical-controller-manager <!nocheck>, ros-lyrical-generate-parameter-library, ros-lyrical-geometry-msgs, ros-lyrical-hardware-interface, ros-lyrical-hardware-interface <!nocheck>, ros-lyrical-nav-msgs, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-rclcpp-lifecycle, ros-lyrical-realtime-tools, ros-lyrical-ros2-control-cmake, ros-lyrical-ros2-control-test-assets <!nocheck>, ros-lyrical-tf2, ros-lyrical-tf2-msgs, ros-lyrical-ros-workspace
+Homepage: https://index.ros.org/p/omni_wheel_drive_controller/#lyrical
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-omni-wheel-drive-controller
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libeigen3-dev, ros-lyrical-control-msgs, ros-lyrical-controller-interface, ros-lyrical-generate-parameter-library, ros-lyrical-geometry-msgs, ros-lyrical-hardware-interface, ros-lyrical-nav-msgs, ros-lyrical-pluginlib, ros-lyrical-rclcpp, ros-lyrical-rclcpp-lifecycle, ros-lyrical-realtime-tools, ros-lyrical-tf2, ros-lyrical-tf2-msgs, ros-lyrical-ros-workspace
+Description: A chainable controller for mobile robots with omnidirectional drive with three or more omni wheels.
