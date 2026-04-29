@@ -1,0 +1,12 @@
+Source: ros-lyrical-ros2-controllers
+Section: misc
+Priority: optional
+Maintainer: Bence Magyar <bence.magyar.robotics@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), ros-lyrical-ament-cmake, ros-lyrical-ros-workspace
+Homepage: https://control.ros.org
+Standards-Version: 3.9.2
+
+Package: ros-lyrical-ros2-controllers
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ros-lyrical-ackermann-steering-controller, ros-lyrical-admittance-controller, ros-lyrical-bicycle-steering-controller, ros-lyrical-chained-filter-controller, ros-lyrical-diff-drive-controller, ros-lyrical-effort-controllers, ros-lyrical-force-torque-sensor-broadcaster, ros-lyrical-forward-command-controller, ros-lyrical-gpio-controllers, ros-lyrical-gps-sensor-broadcaster, ros-lyrical-imu-sensor-broadcaster, ros-lyrical-joint-state-broadcaster, ros-lyrical-joint-trajectory-controller, ros-lyrical-mecanum-drive-controller, ros-lyrical-motion-primitives-controllers, ros-lyrical-omni-wheel-drive-controller, ros-lyrical-parallel-gripper-controller, ros-lyrical-pid-controller, ros-lyrical-pose-broadcaster, ros-lyrical-position-controllers, ros-lyrical-range-sensor-broadcaster, ros-lyrical-state-interfaces-broadcaster, ros-lyrical-steering-controllers-library, ros-lyrical-tricycle-controller, ros-lyrical-tricycle-steering-controller, ros-lyrical-velocity-controllers, ros-lyrical-ros-workspace
+Description: Metapackage for ros2_controllers related packages
