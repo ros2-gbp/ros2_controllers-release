@@ -1,1 +1,1 @@
-{"base": "dfef4250ac9c", "parent": "debian/rolling/parallel_gripper_controller", "previous": "a086c58691a8", "trim": "", "trimbase": ""}
+{"base": "65da25dc3d8b", "parent": "debian/lyrical/parallel_gripper_controller", "previous": "445d1399e7fc", "trim": "", "trimbase": ""}
