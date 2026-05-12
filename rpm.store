@@ -1,1 +1,1 @@
-{"base": "7f14ef5e63ab", "parent": "release/rolling/force_torque_sensor_broadcaster/6.6.0-2", "previous": "dce32bdeee95", "trim": "", "trimbase": ""}
+{"base": "5121c7fc4d", "parent": "release/rolling/force_torque_sensor_broadcaster", "previous": "d17601bff8", "trim": "", "trimbase": ""}
