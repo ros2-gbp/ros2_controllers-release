@@ -1,1 +1,1 @@
-{"base": "91d60b53b67f", "parent": "release/rolling/rqt_joint_trajectory_controller/6.6.0-2", "previous": "f46d82b524f5", "trim": "", "trimbase": ""}
+{"base": "a092d4ca04", "parent": "release/rolling/rqt_joint_trajectory_controller", "previous": "901d552e24", "trim": "", "trimbase": ""}
