@@ -92,14 +92,6 @@ controller_interface::CallbackReturn JointStateBroadcaster::on_configure(
 {
   params_ = param_listener_->get_params();
 
-  if (params_.publish_dynamic_joint_states)
-  {
-    RCLCPP_WARN(
-      get_node()->get_logger(),
-      "[Deprecated] The 'publish_dynamic_joint_states' parameter is deprecated and will be removed "
-      "in future releases. Please update your configuration.");
-  }
-
   if (use_all_available_interfaces())
   {
     RCLCPP_INFO(
@@ -124,8 +116,9 @@ controller_interface::CallbackReturn JointStateBroadcaster::on_configure(
       params_.interfaces.end())
     {
       map_interface_to_joint_state_[interface] = interface;
-      RCLCPP_WARN(
-        get_node()->get_logger(),
+      // Warn if custom mapping is being ignored
+      RCLCPP_WARN_EXPRESSION(
+        get_node()->get_logger(), interface != interface_to_map,
         "Mapping from '%s' to interface '%s' will not be done, because '%s' is defined "
         "in 'interface' parameter.",
         interface_to_map.c_str(), interface.c_str(), interface.c_str());

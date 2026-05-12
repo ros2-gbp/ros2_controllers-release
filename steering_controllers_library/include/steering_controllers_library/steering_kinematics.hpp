@@ -216,15 +216,7 @@ public:
   /**
    *  \brief Reset poses, heading, and accumulators
    */
-  [[deprecated("Use set_odometry(0.0, 0.0, 0.0) instead")]] void reset_odometry();
-
-  /**
-   *  \brief Set poses and heading with the given values and reset accumulators
-   * \param x x position [m]
-   * \param y y position [m]
-   * \param heading heading [rad]
-   */
-  void set_odometry(const double & x, const double & y, const double & heading);
+  void reset_odometry();
 
 private:
   /**

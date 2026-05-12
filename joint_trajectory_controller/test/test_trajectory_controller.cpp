@@ -195,6 +195,7 @@ TEST_P(TrajectoryControllerTestParameterized, correct_initialization_using_param
 {
   rclcpp::executors::MultiThreadedExecutor executor;
   SetUpTrajectoryController(executor);
+  SetPidParameters(0.0, 1.0);
   traj_controller_->get_node()->set_parameter(
     rclcpp::Parameter("allow_nonzero_velocity_at_trajectory_end", true));
   traj_controller_->get_node()->set_parameter(rclcpp::Parameter("update_rate", 10));
@@ -2679,10 +2680,8 @@ TEST_F(TrajectoryControllerTest, setting_scaling_factor_works_correctly)
   rclcpp::executors::MultiThreadedExecutor executor;
   std::vector<rclcpp::Parameter> params = {};
   SetUpAndActivateTrajectoryController(executor, params);
-  // Create a QoS profile that matches the controller's speed_scaling subscriber
-  auto qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local();
   auto speed_scaling_pub = node_->create_publisher<control_msgs::msg::SpeedScalingFactor>(
-    controller_name_ + "/speed_scaling_input", qos);
+    controller_name_ + "/speed_scaling_input", rclcpp::SystemDefaultsQoS().transient_local());
   subscribeToState(executor);
 
   control_msgs::msg::SpeedScalingFactor msg;
@@ -2781,10 +2780,8 @@ TEST_F(TrajectoryControllerTest, scaling_state_interface_sets_value)
   };
   SetUpAndActivateTrajectoryController(executor, params);
 
-  // Create a QoS profile that matches the controller's speed_scaling subscriber
-  auto qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local();
   auto speed_scaling_pub = node_->create_publisher<control_msgs::msg::SpeedScalingFactor>(
-    controller_name_ + "/speed_scaling_input", qos);
+    controller_name_ + "/speed_scaling_input", rclcpp::SystemDefaultsQoS().transient_local());
   subscribeToState(executor);
   updateController();
   // Spin to receive latest state
@@ -2818,10 +2815,8 @@ TEST_F(TrajectoryControllerTest, scaling_command_interface_sets_value)
   };
   SetUpAndActivateTrajectoryController(executor, params);
 
-  // Create a QoS profile that matches the controller's speed_scaling subscriber
-  auto qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local();
   auto speed_scaling_pub = node_->create_publisher<control_msgs::msg::SpeedScalingFactor>(
-    controller_name_ + "/speed_scaling_input", qos);
+    controller_name_ + "/speed_scaling_input", rclcpp::SystemDefaultsQoS().transient_local());
   subscribeToState(executor);
   updateController();
   // Spin to receive latest state

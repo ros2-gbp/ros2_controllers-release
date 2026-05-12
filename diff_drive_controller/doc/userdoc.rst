@@ -70,10 +70,6 @@ Publishers
 ~/cmd_vel_out [geometry_msgs/msg/TwistStamped]
   Velocity command for the controller, where limits were applied. Published only if ``publish_limited_velocity=true``
 
-Services
-,,,,,,,,,,,
-~/set_odometry [control_msgs::srv::SetOdometry]
-  This service can be used to set the current odometry of the robot to desired values.
 
 Parameters
 ,,,,,,,,,,,,

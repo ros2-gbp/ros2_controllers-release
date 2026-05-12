@@ -35,6 +35,7 @@ public:
     dof_state_values_ = {
       get_joint1_state_position(), get_joint2_state_position(), get_joint1_state_velocity(),
       get_joint2_state_velocity()};
+    dof_command_values_ = {0.0, 0.0};
   }
 
   double get_joint1_state_position() const { return 10.0; }
@@ -56,6 +57,7 @@ public:
 TEST_F(PidControllerDualInterfaceTest, test_chained_feedforward_with_gain_dual_interface)
 {
   SetUpController("test_pid_controller_with_feedforward_gain_dual_interface");
+  controller_->get_node()->set_parameter(rclcpp::Parameter("enable_feedforward", true));
   ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   // check on interfaces & pid gain parameters
@@ -76,6 +78,10 @@ TEST_F(PidControllerDualInterfaceTest, test_chained_feedforward_with_gain_dual_i
   // activate controller
   ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
   ASSERT_TRUE(controller_->is_in_chained_mode());
+
+  // turn on feedforward
+  controller_->feedforward_mode_enabled_.writeFromNonRT(true);
+  ASSERT_EQ(*(controller_->feedforward_mode_enabled_.readFromRT()), true);
 
   // set up the reference interface,
   controller_->reference_interfaces_ = {
