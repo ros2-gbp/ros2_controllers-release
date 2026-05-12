@@ -2,40 +2,36 @@
 Changelog for package force_torque_sensor_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.15.1 (2026-05-12)
--------------------
-* Suppress cppcheck errors from macros from version.h (backport `#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_) (`#2348 <https://github.com/ros-controls/ros2_controllers/issues/2348>`_)
-  Co-authored-by: Christoph Fröhlich <christophfroehlich@users.noreply.github.com>
-* Contributors: mergify[bot]
+6.7.0 (2026-05-12)
+------------------
+* Suppress cppcheck errors from macros from version.h (`#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_)
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
-* Remove export of wrench_transformer_node (backport `#2069 <https://github.com/ros-controls/ros2_controllers/issues/2069>`_) (`#2072 <https://github.com/ros-controls/ros2_controllers/issues/2072>`_)
-* Contributors: mergify[bot]
+6.2.0 (2025-12-31)
+------------------
+* Remove export of wrench_transformer_node (`#2069 <https://github.com/ros-controls/ros2_controllers/issues/2069>`_)
+* Add support for positional target frame arguments for transform wrench node (`#2040 <https://github.com/ros-controls/ros2_controllers/issues/2040>`_)
+* Contributors: Sai Kishor Kothakota, Vedh
 
-5.11.0 (2025-12-09)
--------------------
-* Add support for positional target frame arguments for transform wrench node (backport `#2040 <https://github.com/ros-controls/ros2_controllers/issues/2040>`_) (`#2047 <https://github.com/ros-controls/ros2_controllers/issues/2047>`_)
-* Contributors: mergify[bot]
+6.1.0 (2025-12-01)
+------------------
+* Add utility node to transform wrench messages for a list of frames (`#2021 <https://github.com/ros-controls/ros2_controllers/issues/2021>`_)
+* Contributors: Julia Jia
 
-5.10.0 (2025-12-01)
--------------------
-* Add utility node for transform wrench messages for a list of frames (backport `#2021 <https://github.com/ros-controls/ros2_controllers/issues/2021>`_) (`#2032 <https://github.com/ros-controls/ros2_controllers/issues/2032>`_)
-* Contributors: mergify[bot]
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Don't use `msg\_` field of realtime publisher (`#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_)

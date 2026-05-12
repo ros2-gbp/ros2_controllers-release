@@ -2,37 +2,35 @@
 Changelog for package pid_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.15.1 (2026-05-12)
--------------------
-* Add lyrical workflows, update README, and fix gcc-15 issues (backport `#2344 <https://github.com/ros-controls/ros2_controllers/issues/2344>`_) (`#2353 <https://github.com/ros-controls/ros2_controllers/issues/2353>`_)
-* Contributors: mergify[bot]
+6.7.0 (2026-05-12)
+------------------
+* Add lyrical workflows, update README, and fix gcc-15 issues (`#2344 <https://github.com/ros-controls/ros2_controllers/issues/2344>`_)
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
-* [PID Controllers] Set first set point to current measurement (backport `#2205 <https://github.com/ros-controls/ros2_controllers/issues/2205>`_) (`#2211 <https://github.com/ros-controls/ros2_controllers/issues/2211>`_)
-* Contributors: mergify[bot]
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
+* [PID Controllers] Set first set point to current measurement (`#2205 <https://github.com/ros-controls/ros2_controllers/issues/2205>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
+* Remove parameter_traits dependency (`#2022 <https://github.com/ros-controls/ros2_controllers/issues/2022>`_)
+* Contributors: Christoph Fröhlich
 
-5.10.0 (2025-12-01)
--------------------
-* Remove parameter_traits dependency (backport `#2022 <https://github.com/ros-controls/ros2_controllers/issues/2022>`_) (`#2025 <https://github.com/ros-controls/ros2_controllers/issues/2025>`_)
-* Contributors: mergify[bot]
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan

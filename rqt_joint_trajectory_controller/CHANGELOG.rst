@@ -2,37 +2,35 @@
 Changelog for package rqt_joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.15.1 (2026-05-12)
--------------------
-* Add lyrical workflows, update README, and fix gcc-15 issues (backport `#2344 <https://github.com/ros-controls/ros2_controllers/issues/2344>`_) (`#2353 <https://github.com/ros-controls/ros2_controllers/issues/2353>`_)
-* Contributors: mergify[bot]
+6.7.0 (2026-05-12)
+------------------
+* Add lyrical workflows, update README, and fix gcc-15 issues (`#2344 <https://github.com/ros-controls/ros2_controllers/issues/2344>`_)
+* [rqt_jtc] Use urdf_parser_py (`#2254 <https://github.com/ros-controls/ros2_controllers/issues/2254>`_)
+* Contributors: Christoph Fröhlich, Sahil Lakhmani
 
-5.15.0 (2026-04-22)
--------------------
-* [RQT_JTC] add unit tests for parse_joint_limits (backport `#2281 <https://github.com/ros-controls/ros2_controllers/issues/2281>`_) (`#2289 <https://github.com/ros-controls/ros2_controllers/issues/2289>`_)
-* Contributors: mergify[bot]
+6.6.0 (2026-04-22)
+------------------
+* [RQT_JTC] add unit tests for parse_joint_limits (`#2281 <https://github.com/ros-controls/ros2_controllers/issues/2281>`_)
+* Contributors: Sahil Lakhmani
 
-5.14.0 (2026-04-03)
--------------------
-* rqt_jtc: Check for interface type when adding joint names (backport `#2231 <https://github.com/ros-controls/ros2_controllers/issues/2231>`_) (`#2242 <https://github.com/ros-controls/ros2_controllers/issues/2242>`_)
-* Contributors: mergify[bot]
+6.5.0 (2026-04-02)
+------------------
+* rqt_jtc: Check for interface type when adding joint names (`#2231 <https://github.com/ros-controls/ros2_controllers/issues/2231>`_)
+* Contributors: Felix Exner
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * fix issue of not listing new JTCs (`#1891 <https://github.com/ros-controls/ros2_controllers/issues/1891>`_)
 * Contributors: Peter Mitrano (AR)

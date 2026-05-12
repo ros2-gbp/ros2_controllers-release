@@ -2,35 +2,38 @@
 Changelog for package omni_wheel_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.15.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
+* Remove deprecated odometry reset methods (`#2252 <https://github.com/ros-controls/ros2_controllers/issues/2252>`_)
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich, Ege Kural
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
-* Remove ament linters (backport `#2267 <https://github.com/ros-controls/ros2_controllers/issues/2267>`_) (`#2271 <https://github.com/ros-controls/ros2_controllers/issues/2271>`_)
-* Contributors: mergify[bot]
+6.5.0 (2026-04-02)
+------------------
+* Remove ament linters (`#2267 <https://github.com/ros-controls/ros2_controllers/issues/2267>`_)
+* Contributors: Ivane Kotanov
 
-5.13.1 (2026-03-12)
--------------------
-* Fix the teardown of the controller tests (backport `#2183 <https://github.com/ros-controls/ros2_controllers/issues/2183>`_) (`#2186 <https://github.com/ros-controls/ros2_controllers/issues/2186>`_)
-* Contributors: mergify[bot]
+6.4.0 (2026-03-12)
+------------------
+* Fix the teardown of the controller tests (`#2183 <https://github.com/ros-controls/ros2_controllers/issues/2183>`_)
+* Add set_odometry service - omni wheel drive controller (`#2148 <https://github.com/ros-controls/ros2_controllers/issues/2148>`_)
+* Contributors: Ege Kural, Sai Kishor Kothakota
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
+* Tf prefix helper for omniwheel drive (`#2073 <https://github.com/ros-controls/ros2_controllers/issues/2073>`_)
+* Contributors: Ege Kural
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan
