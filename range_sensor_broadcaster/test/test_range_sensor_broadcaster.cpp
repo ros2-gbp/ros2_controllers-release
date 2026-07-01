@@ -51,7 +51,7 @@ controller_interface::return_type RangeSensorBroadcasterTest::init_broadcaster(
   if (controller_interface::return_type::OK == result)
   {
     std::vector<hardware_interface::LoanedStateInterface> state_interfaces;
-    state_interfaces.emplace_back(range_, nullptr);
+    state_interfaces.emplace_back(range_);
 
     range_broadcaster_->assign_interfaces({}, std::move(state_interfaces));
   }
