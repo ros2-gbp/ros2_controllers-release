@@ -53,13 +53,13 @@ The controllers are using `common hardware interface definitions`_, and may use 
    Effort Controllers <../effort_controllers/doc/userdoc.rst>
    Forward Command Controller <../forward_command_controller/doc/userdoc.rst>
    Gripper Controller <../gripper_controllers/doc/userdoc.rst>
+   Gpio Command Controller <../gpio_controllers/doc/userdoc.rst>
    Joint Trajectory Controller <../joint_trajectory_controller/doc/userdoc.rst>
+   Motion Primitive Controller <../motion_primitives_controllers/doc/userdoc.rst>
    Parallel Gripper Controller <../parallel_gripper_controller/doc/userdoc.rst>
    PID Controller <../pid_controller/doc/userdoc.rst>
    Position Controllers <../position_controllers/doc/userdoc.rst>
    Velocity Controllers <../velocity_controllers/doc/userdoc.rst>
-   Gpio Command Controller <../gpio_controllers/doc/userdoc.rst>
-   Motion Primitive Controller <../motion_primitives_controllers/userdoc.rst>
 
 Broadcasters
 **********************
@@ -77,6 +77,7 @@ In the sense of ros2_control, broadcasters are still controllers using the same 
    Pose Broadcaster <../pose_broadcaster/doc/userdoc.rst>
    GPS Sensor Broadcaster <../gps_sensor_broadcaster/doc/userdoc.rst>
    State Interfaces Broadcaster <../state_interfaces_broadcaster/doc/userdoc.rst>
+   Magnetometer Broadcaster <../magnetometer_broadcaster/doc/userdoc.rst>
 
 Filters
 **********************
