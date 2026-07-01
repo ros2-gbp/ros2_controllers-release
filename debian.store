@@ -1,1 +1,1 @@
-{"base": "db27a0d592", "parent": "debian/rolling/force_torque_sensor_broadcaster", "previous": "58dc4098d1", "trim": "", "trimbase": ""}
+{"base": "0264db99ab", "parent": "debian/rolling/force_torque_sensor_broadcaster", "previous": "fd99ac279d", "trim": "", "trimbase": ""}
