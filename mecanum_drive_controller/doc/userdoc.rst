@@ -53,17 +53,16 @@ Subscribers
 Used when the controller is not in chained mode (``in_chained_mode == false``).
 
 - ``<controller_name>/reference``  [``geometry_msgs/msg/TwistStamped``]
+  Velocity command for the controller, if ``use_stamped_vel == true``.
+
+- ``<controller_name>/reference_unstamped``  [``geometry_msgs/msg/Twist``]
+  Velocity command for the controller, if ``use_stamped_vel == false``.
 
 Publishers
 ,,,,,,,,,,,
 - ``<controller_name>/odometry``          [``nav_msgs/msg/Odometry``]
 - ``<controller_name>/tf_odometry``       [``tf2_msgs/msg/TFMessage``]
 - ``<controller_name>/controller_state``  [``control_msgs/msg/MecanumDriveControllerState``]
-
-Services
-,,,,,,,,,,,
-~/set_odometry [control_msgs::srv::SetOdometry]
-  This service can be used to set the current odometry of the robot to desired values.
 
 Parameters
 ,,,,,,,,,,,

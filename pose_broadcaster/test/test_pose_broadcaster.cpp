@@ -26,23 +26,17 @@ void PoseBroadcasterTest::TearDown() { pose_broadcaster_.reset(nullptr); }
 
 void PoseBroadcasterTest::SetUpPoseBroadcaster()
 {
-  controller_interface::ControllerInterfaceParams params;
-  params.controller_name = "test_pose_broadcaster";
-  params.robot_description = "";
-  params.update_rate = 0;
-  params.node_namespace = "";
-  params.node_options = pose_broadcaster_->define_custom_node_options();
-
-  ASSERT_EQ(pose_broadcaster_->init(params), controller_interface::return_type::OK);
+  ASSERT_EQ(
+    pose_broadcaster_->init("test_pose_broadcaster"), controller_interface::return_type::OK);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(pose_position_x_, nullptr);
-  state_interfaces.emplace_back(pose_position_y_, nullptr);
-  state_interfaces.emplace_back(pose_position_z_, nullptr);
-  state_interfaces.emplace_back(pose_orientation_x_, nullptr);
-  state_interfaces.emplace_back(pose_orientation_y_, nullptr);
-  state_interfaces.emplace_back(pose_orientation_z_, nullptr);
-  state_interfaces.emplace_back(pose_orientation_w_, nullptr);
+  state_interfaces.emplace_back(pose_position_x_);
+  state_interfaces.emplace_back(pose_position_y_);
+  state_interfaces.emplace_back(pose_position_z_);
+  state_interfaces.emplace_back(pose_orientation_x_);
+  state_interfaces.emplace_back(pose_orientation_y_);
+  state_interfaces.emplace_back(pose_orientation_z_);
+  state_interfaces.emplace_back(pose_orientation_w_);
 
   pose_broadcaster_->assign_interfaces({}, std::move(state_interfaces));
 }
@@ -56,7 +50,9 @@ TEST_F(PoseBroadcasterTest, Configure_Success)
   pose_broadcaster_->get_node()->set_parameter({"frame_id", frame_id_});
 
   // Configure controller
-  ASSERT_TRUE(configure_succeeds(pose_broadcaster_));
+  ASSERT_EQ(
+    pose_broadcaster_->on_configure(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
 
   // Verify command interface configuration
   const auto command_interface_conf = pose_broadcaster_->command_interface_configuration();
@@ -79,8 +75,12 @@ TEST_F(PoseBroadcasterTest, Activate_Success)
   pose_broadcaster_->get_node()->set_parameter({"frame_id", frame_id_});
 
   // Configure and activate controller
-  ASSERT_TRUE(configure_succeeds(pose_broadcaster_));
-  ASSERT_TRUE(activate_succeeds(pose_broadcaster_));
+  ASSERT_EQ(
+    pose_broadcaster_->on_configure(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_EQ(
+    pose_broadcaster_->on_activate(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
 
   // Verify command and state interface configuration
   {
@@ -96,7 +96,9 @@ TEST_F(PoseBroadcasterTest, Activate_Success)
   }
 
   // Deactivate controller
-  ASSERT_TRUE(deactivate_succeeds(pose_broadcaster_));
+  ASSERT_EQ(
+    pose_broadcaster_->on_deactivate(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
 
   // Verify command and state interface configuration
   {
@@ -121,8 +123,12 @@ TEST_F(PoseBroadcasterTest, Update_Success)
   pose_broadcaster_->get_node()->set_parameter({"frame_id", frame_id_});
 
   // Configure and activate controller
-  ASSERT_TRUE(configure_succeeds(pose_broadcaster_));
-  ASSERT_TRUE(activate_succeeds(pose_broadcaster_));
+  ASSERT_EQ(
+    pose_broadcaster_->on_configure(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_EQ(
+    pose_broadcaster_->on_activate(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
 
   ASSERT_EQ(
     pose_broadcaster_->update(rclcpp::Time{0}, rclcpp::Duration::from_seconds(0.01)),
@@ -142,8 +148,12 @@ TEST_F(PoseBroadcasterTest, PublishSuccess)
   pose_broadcaster_->get_node()->set_parameter({"tf.child_frame_id", tf_child_frame_id_});
 
   // Configure and activate controller
-  ASSERT_TRUE(configure_succeeds(pose_broadcaster_));
-  ASSERT_TRUE(activate_succeeds(pose_broadcaster_));
+  ASSERT_EQ(
+    pose_broadcaster_->on_configure(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_EQ(
+    pose_broadcaster_->on_activate(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
 
   // Subscribe to pose topic
   geometry_msgs::msg::PoseStamped pose_msg;
@@ -189,10 +199,14 @@ TEST_F(PoseBroadcasterTest, invalid_pose_no_tf_published)
   pose_broadcaster_->get_node()->set_parameter({"tf.child_frame_id", tf_child_frame_id_});
 
   // Configure and activate controller
-  ASSERT_TRUE(configure_succeeds(pose_broadcaster_));
-  ASSERT_TRUE(activate_succeeds(pose_broadcaster_));
+  ASSERT_EQ(
+    pose_broadcaster_->on_configure(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_EQ(
+    pose_broadcaster_->on_activate(rclcpp_lifecycle::State{}),
+    controller_interface::CallbackReturn::SUCCESS);
 
-  ASSERT_TRUE(pose_position_x_->set_value(std::numeric_limits<double>::quiet_NaN()));
+  pose_values_[0] = std::numeric_limits<double>::quiet_NaN();
 
   // Subscribe to pose topic
   geometry_msgs::msg::PoseStamped pose_msg;
@@ -214,12 +228,13 @@ TEST_F(PoseBroadcasterTest, invalid_pose_no_tf_published)
   // Verify that no tf message was sent
   ASSERT_EQ(tf_msg.transforms.size(), 0lu);
 
-  // Set valid position but invalid quaternion
-  ASSERT_TRUE(pose_position_x_->set_value(0.0));
-  ASSERT_TRUE(pose_orientation_x_->set_value(0.0));
-  ASSERT_TRUE(pose_orientation_y_->set_value(0.0));
-  ASSERT_TRUE(pose_orientation_z_->set_value(0.0));
-  ASSERT_TRUE(pose_orientation_w_->set_value(0.0));
+  // Set valid position
+  pose_values_[0] = 0.0;
+  // but invalid quaternion
+  pose_values_[3] = 0.0;
+  pose_values_[4] = 0.0;
+  pose_values_[5] = 0.0;
+  pose_values_[6] = 0.0;
 
   EXPECT_THROW(subscribe_and_get_message("/tf", tf_msg), std::runtime_error);
   // Verify that no tf message was sent

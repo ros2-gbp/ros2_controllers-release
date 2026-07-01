@@ -19,7 +19,6 @@
 #include <cmath>
 #include <limits>
 #include <memory>
-#include <queue>
 #include <string>
 #include <utility>
 #include <vector>
@@ -56,7 +55,7 @@ TEST_F(MecanumDriveControllerTest, when_controller_is_configured_expect_all_para
   ASSERT_TRUE(controller_->params_.rear_right_wheel_state_joint_name.empty());
   ASSERT_TRUE(controller_->params_.rear_left_wheel_state_joint_name.empty());
 
-  ASSERT_TRUE(configure_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   ASSERT_EQ(controller_->params_.reference_timeout, 0.9);
   ASSERT_EQ(controller_->params_.kinematics.wheels_radius, 0.5);
@@ -94,7 +93,7 @@ TEST_F(MecanumDriveControllerTest, when_controller_configured_expect_properly_ex
 {
   SetUpController();
 
-  ASSERT_TRUE(configure_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   // check command itfs configuration
   auto command_intefaces = controller_->command_interface_configuration();
@@ -119,174 +118,34 @@ TEST_F(MecanumDriveControllerTest, when_controller_configured_expect_properly_ex
 
   for (size_t i = 0; i < reference_interface_names.size(); ++i)
   {
-    const std::string ref_itf_prefix_name =
-      std::string(controller_->get_node()->get_name()) + "/" + reference_interface_names[i];
-    EXPECT_EQ(reference_interfaces[i]->get_prefix_name(), ref_itf_prefix_name);
-    EXPECT_EQ(
-      reference_interfaces[i]->get_name(),
-      ref_itf_prefix_name + "/" + hardware_interface::HW_IF_VELOCITY);
-    EXPECT_EQ(reference_interfaces[i]->get_interface_name(), hardware_interface::HW_IF_VELOCITY);
+    const std::string ref_itf_name = std::string(controller_->get_node()->get_name()) +
+                                     std::string("/") + reference_interface_names[i];
+    EXPECT_EQ(reference_interfaces[i].get_name(), ref_itf_name);
+    EXPECT_EQ(reference_interfaces[i].get_prefix_name(), controller_->get_node()->get_name());
+    EXPECT_EQ(reference_interfaces[i].get_interface_name(), reference_interface_names[i]);
   }
-}
-
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_false_covariance_test)
-{
-  std::string odom_id = "odom";
-  std::string base_link_id = "base_link";
-  std::string frame_prefix = "test_prefix";
-
-  auto node_options = controller_->define_custom_node_options();
-  node_options.append_parameter_override("tf_frame_prefix_enable", rclcpp::ParameterValue(false));
-  node_options.append_parameter_override("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix));
-  node_options.append_parameter_override("odom_frame_id", rclcpp::ParameterValue(odom_id));
-  node_options.append_parameter_override("base_frame_id", rclcpp::ParameterValue(base_link_id));
-
-  SetUpController("test_mecanum_drive_controller", node_options);
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-
-  auto odometry_message = controller_->odom_state_msg_;
-  std::string test_odom_frame_id = odometry_message.header.frame_id;
-  std::string test_base_frame_id = odometry_message.child_frame_id;
-  /* tf_frame_prefix_enable is false so no modifications to the frame id's */
-  ASSERT_EQ(test_odom_frame_id, odom_id);
-  ASSERT_EQ(test_base_frame_id, base_link_id);
-
-  std::array<double, 36> pose_covariance = {
-    {0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 6.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 12.0, 0.0, 0.0, 0.0,
-     0.0, 0.0, 0.0, 18.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 24.0, 0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 30.0}};
-
-  std::array<double, 36> twist_covariance = {
-    {0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 7.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 14.0, 0.0, 0.0, 0.0,
-     0.0, 0.0, 0.0, 21.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 28.0, 0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 35.0}};
-
-  ASSERT_EQ(odometry_message.pose.covariance, pose_covariance);
-  ASSERT_EQ(odometry_message.twist.covariance, twist_covariance);
-}
-
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_no_namespace)
-{
-  std::string odom_id = "odom";
-  std::string base_link_id = "base_link";
-  std::string frame_prefix = "test_prefix";
-
-  auto node_options = controller_->define_custom_node_options();
-  node_options.append_parameter_override("tf_frame_prefix_enable", rclcpp::ParameterValue(true));
-  node_options.append_parameter_override("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix));
-  node_options.append_parameter_override("odom_frame_id", rclcpp::ParameterValue(odom_id));
-  node_options.append_parameter_override("base_frame_id", rclcpp::ParameterValue(base_link_id));
-
-  SetUpController("test_mecanum_drive_controller", node_options);
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-
-  auto odometry_message = controller_->odom_state_msg_;
-  std::string test_odom_frame_id = odometry_message.header.frame_id;
-  std::string test_base_frame_id = odometry_message.child_frame_id;
-
-  // frame_prefix is not blank so should be prepended to the frame id's
-  ASSERT_EQ(test_odom_frame_id, frame_prefix + "/" + odom_id);
-  ASSERT_EQ(test_base_frame_id, frame_prefix + "/" + base_link_id);
-}
-
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_blank_prefix_no_namespace)
-{
-  std::string odom_id = "odom";
-  std::string base_link_id = "base_link";
-  std::string frame_prefix = "";
-
-  auto node_options = controller_->define_custom_node_options();
-  node_options.append_parameter_override("tf_frame_prefix_enable", rclcpp::ParameterValue(true));
-  node_options.append_parameter_override("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix));
-  node_options.append_parameter_override("odom_frame_id", rclcpp::ParameterValue(odom_id));
-  node_options.append_parameter_override("base_frame_id", rclcpp::ParameterValue(base_link_id));
-
-  SetUpController("test_mecanum_drive_controller", node_options);
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-
-  auto odometry_message = controller_->odom_state_msg_;
-  std::string test_odom_frame_id = odometry_message.header.frame_id;
-  std::string test_base_frame_id = odometry_message.child_frame_id;
-
-  // frame_prefix is blank so nothing added to the frame id's
-  ASSERT_EQ(test_odom_frame_id, odom_id);
-  ASSERT_EQ(test_base_frame_id, base_link_id);
-}
-
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_prefix_set_namespace)
-{
-  std::string test_namespace = "/test_namespace";
-
-  std::string odom_id = "odom";
-  std::string base_link_id = "base_link";
-  std::string frame_prefix = "test_prefix";
-
-  auto node_options = controller_->define_custom_node_options();
-  node_options.append_parameter_override("tf_frame_prefix_enable", rclcpp::ParameterValue(true));
-  node_options.append_parameter_override("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix));
-  node_options.append_parameter_override("odom_frame_id", rclcpp::ParameterValue(odom_id));
-  node_options.append_parameter_override("base_frame_id", rclcpp::ParameterValue(base_link_id));
-
-  SetUpController("test_mecanum_drive_controller", node_options, test_namespace);
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-
-  auto odometry_message = controller_->odom_state_msg_;
-  std::string test_odom_frame_id = odometry_message.header.frame_id;
-  std::string test_base_frame_id = odometry_message.child_frame_id;
-
-  // frame_prefix is not blank so should be prepended to the frame id's instead of the namespace
-  ASSERT_EQ(test_odom_frame_id, frame_prefix + "/" + odom_id);
-  ASSERT_EQ(test_base_frame_id, frame_prefix + "/" + base_link_id);
-}
-
-TEST_F(MecanumDriveControllerTest, configure_succeeds_tf_tilde_prefix_set_namespace)
-{
-  std::string test_namespace = "/test_namespace";
-  std::string odom_id = "odom";
-  std::string base_link_id = "base_link";
-  std::string frame_prefix = "~";
-
-  auto node_options = controller_->define_custom_node_options();
-  node_options.append_parameter_override("tf_frame_prefix_enable", rclcpp::ParameterValue(true));
-  node_options.append_parameter_override("tf_frame_prefix", rclcpp::ParameterValue(frame_prefix));
-  node_options.append_parameter_override("odom_frame_id", rclcpp::ParameterValue(odom_id));
-  node_options.append_parameter_override("base_frame_id", rclcpp::ParameterValue(base_link_id));
-
-  SetUpController("test_mecanum_drive_controller", node_options, test_namespace);
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-
-  auto odometry_message = controller_->odom_state_msg_;
-  std::string test_odom_frame_id = odometry_message.header.frame_id;
-  std::string test_base_frame_id = odometry_message.child_frame_id;
-  std::string ns_prefix = test_namespace.erase(0, 1) + "/";
-
-  // frame_prefix has tilde (~) character so node namespace should be prepended to the frame id's
-  ASSERT_EQ(test_odom_frame_id, ns_prefix + odom_id);
-  ASSERT_EQ(test_base_frame_id, ns_prefix + base_link_id);
 }
 
 TEST_F(MecanumDriveControllerTest, when_controller_is_activated_expect_reference_reset)
 {
   SetUpController();
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   // check that the message is reset
-  auto msg = controller_->input_ref_.get();
-  EXPECT_TRUE(std::isnan(msg.twist.linear.x));
-  ASSERT_TRUE(std::isnan(msg.twist.angular.z));
+  auto msg = controller_->input_ref_.readFromNonRT();
+  EXPECT_TRUE(std::isnan((*msg)->twist.linear.x));
+
+  ASSERT_TRUE(std::isnan((*msg)->twist.angular.z));
 }
 
 TEST_F(MecanumDriveControllerTest, when_controller_active_and_update_called_expect_success)
 {
   SetUpController();
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   ASSERT_EQ(
     controller_->update(controller_->get_node()->now(), rclcpp::Duration::from_seconds(0.01)),
@@ -297,9 +156,9 @@ TEST_F(MecanumDriveControllerTest, when_active_controller_is_deactivated_expect_
 {
   SetUpController();
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_TRUE(deactivate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_deactivate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 }
 
 TEST_F(
@@ -308,13 +167,13 @@ TEST_F(
 {
   SetUpController();
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_EQ(controller_->command_interfaces_[NR_CMD_ITFS - 4].get_optional().value(), 101.101);
-  ASSERT_TRUE(deactivate_succeeds(controller_));
-  ASSERT_TRUE(std::isnan(controller_->command_interfaces_[NR_CMD_ITFS - 4].get_optional().value()));
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_TRUE(std::isnan(controller_->command_interfaces_[NR_CMD_ITFS - 4].get_optional().value()));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->command_interfaces_[NR_CMD_ITFS - 4].get_value(), 101.101);
+  ASSERT_EQ(controller_->on_deactivate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(std::isnan(controller_->command_interfaces_[NR_CMD_ITFS - 4].get_value()));
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(std::isnan(controller_->command_interfaces_[NR_CMD_ITFS - 4].get_value()));
 
   ASSERT_EQ(
     controller_->update(controller_->get_node()->now(), rclcpp::Duration::from_seconds(0.01)),
@@ -327,8 +186,8 @@ TEST_F(MecanumDriveControllerTest, when_update_is_called_expect_status_message)
 {
   SetUpController();
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   controller_->reference_interfaces_[0] = 1.5;
 
@@ -349,8 +208,8 @@ TEST_F(
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
   // no reference_msg sent
   ASSERT_EQ(
     controller_->update(controller_->get_node()->now(), rclcpp::Duration::from_seconds(0.01)),
@@ -393,14 +252,14 @@ TEST_F(MecanumDriveControllerTest, when_reference_msg_is_too_old_expect_unset_re
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
-  auto reference = controller_->input_ref_.get();
-  auto old_timestamp = reference.header.stamp;
-  EXPECT_TRUE(std::isnan(reference.twist.linear.x));
-  EXPECT_TRUE(std::isnan(reference.twist.linear.y));
-  EXPECT_TRUE(std::isnan(reference.twist.angular.z));
+  auto reference = *(controller_->input_ref_.readFromNonRT());
+  auto old_timestamp = reference->header.stamp;
+  EXPECT_TRUE(std::isnan(reference->twist.linear.x));
+  EXPECT_TRUE(std::isnan(reference->twist.linear.y));
+  EXPECT_TRUE(std::isnan(reference->twist.angular.z));
 
   // reference_callback() is implicitly called when publish_commands() is called
   // reference_msg is published with provided time stamp when publish_commands( time_stamp)
@@ -409,10 +268,10 @@ TEST_F(MecanumDriveControllerTest, when_reference_msg_is_too_old_expect_unset_re
     controller_->get_node()->now() - controller_->ref_timeout_ -
     rclcpp::Duration::from_seconds(0.1));
   controller_->wait_for_commands(executor);
-  ASSERT_EQ(old_timestamp, reference.header.stamp);
-  EXPECT_TRUE(std::isnan(reference.twist.linear.x));
-  EXPECT_TRUE(std::isnan(reference.twist.linear.y));
-  EXPECT_TRUE(std::isnan(reference.twist.angular.z));
+  ASSERT_EQ(old_timestamp, (*(controller_->input_ref_.readFromNonRT()))->header.stamp);
+  EXPECT_TRUE(std::isnan((reference)->twist.linear.x));
+  EXPECT_TRUE(std::isnan((reference)->twist.linear.y));
+  EXPECT_TRUE(std::isnan((reference)->twist.angular.z));
 }
 
 // when time stamp is zero expect that time stamp is set to current time stamp
@@ -424,14 +283,14 @@ TEST_F(
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
-  auto reference = controller_->input_ref_.get();
-  auto old_timestamp = reference.header.stamp;
-  EXPECT_TRUE(std::isnan(reference.twist.linear.x));
-  EXPECT_TRUE(std::isnan(reference.twist.linear.y));
-  EXPECT_TRUE(std::isnan(reference.twist.angular.z));
+  auto reference = controller_->input_ref_.readFromNonRT();
+  auto old_timestamp = (*reference)->header.stamp;
+  EXPECT_TRUE(std::isnan((*reference)->twist.linear.x));
+  EXPECT_TRUE(std::isnan((*reference)->twist.linear.y));
+  EXPECT_TRUE(std::isnan((*reference)->twist.angular.z));
 
   // reference_callback() is implicitly called when publish_commands() is called
   // reference_msg is published with provided time stamp when publish_commands( time_stamp)
@@ -439,15 +298,13 @@ TEST_F(
   publish_commands(rclcpp::Time(0));
 
   controller_->wait_for_commands(executor);
-  reference = controller_->input_ref_.get();
-
-  ASSERT_EQ(old_timestamp.sec, reference.header.stamp.sec);
-  EXPECT_FALSE(std::isnan(reference.twist.linear.x));
-  EXPECT_FALSE(std::isnan(reference.twist.angular.z));
-  EXPECT_EQ(reference.twist.linear.x, 1.5);
-  EXPECT_EQ(reference.twist.linear.y, 0.0);
-  EXPECT_EQ(reference.twist.angular.z, 0.0);
-  EXPECT_NE(reference.header.stamp.sec, 0.0);
+  ASSERT_EQ(old_timestamp.sec, (*(controller_->input_ref_.readFromNonRT()))->header.stamp.sec);
+  EXPECT_FALSE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.linear.x));
+  EXPECT_FALSE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.angular.z));
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.linear.x, 1.5);
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.linear.y, 0.0);
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.angular.z, 0.0);
+  EXPECT_NE((*(controller_->input_ref_.readFromNonRT()))->header.stamp.sec, 0.0);
 }
 
 // when the reference_msg has valid timestamp then the timeout check in reference_callback()
@@ -459,12 +316,12 @@ TEST_F(MecanumDriveControllerTest, when_message_has_valid_timestamp_expect_refer
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
 
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
-  auto reference = controller_->input_ref_.get();
-  EXPECT_TRUE(std::isnan(reference.twist.linear.x));
-  EXPECT_TRUE(std::isnan(reference.twist.angular.z));
+  auto reference = controller_->input_ref_.readFromNonRT();
+  EXPECT_TRUE(std::isnan((*reference)->twist.linear.x));
+  EXPECT_TRUE(std::isnan((*reference)->twist.angular.z));
 
   // reference_callback() is implicitly called when publish_commands() is called
   // reference_msg is published with provided time stamp when publish_commands( time_stamp)
@@ -472,12 +329,11 @@ TEST_F(MecanumDriveControllerTest, when_message_has_valid_timestamp_expect_refer
   publish_commands(controller_->get_node()->now());
 
   controller_->wait_for_commands(executor);
-  reference = controller_->input_ref_.get();
-  EXPECT_FALSE(std::isnan(reference.twist.linear.x));
-  EXPECT_FALSE(std::isnan(reference.twist.angular.z));
-  EXPECT_EQ(reference.twist.linear.x, 1.5);
-  EXPECT_EQ(reference.twist.linear.y, 0.0);
-  EXPECT_EQ(reference.twist.angular.z, 0.0);
+  EXPECT_FALSE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.linear.x));
+  EXPECT_FALSE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.angular.z));
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.linear.x, 1.5);
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.linear.y, 0.0);
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.angular.z, 0.0);
 }
 
 // when not in chainable mode and ref_msg_timedout expect
@@ -493,9 +349,9 @@ TEST_F(
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
 
-  ASSERT_TRUE(configure_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
   controller_->set_chained_mode(false);
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
   ASSERT_FALSE(controller_->is_in_chained_mode());
 
   for (const auto & interface : controller_->reference_interfaces_)
@@ -506,24 +362,23 @@ TEST_F(
   // set command statically
   joint_command_values_[controller_->get_rear_left_wheel_index()] = command_lin_x;
 
-  ControllerReferenceMsg msg, msg_2;
+  std::shared_ptr<ControllerReferenceMsg> msg = std::make_shared<ControllerReferenceMsg>();
 
-  msg.header.stamp = controller_->get_node()->now() - controller_->ref_timeout_ -
-                     rclcpp::Duration::from_seconds(0.1);
-  msg.twist.linear.x = TEST_LINEAR_VELOCITY_X;
-  msg.twist.linear.y = TEST_LINEAR_VELOCITY_y;
-  msg.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-  msg.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-  msg.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-  msg.twist.angular.z = TEST_ANGULAR_VELOCITY_Z;
-  controller_->input_ref_.set(msg);
-
-  auto reference = controller_->input_ref_.get();
-  const auto age_of_last_command = controller_->get_node()->now() - reference.header.stamp;
+  msg->header.stamp = controller_->get_node()->now() - controller_->ref_timeout_ -
+                      rclcpp::Duration::from_seconds(0.1);
+  msg->twist.linear.x = TEST_LINEAR_VELOCITY_X;
+  msg->twist.linear.y = TEST_LINEAR_VELOCITY_y;
+  msg->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+  msg->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+  msg->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+  msg->twist.angular.z = TEST_ANGULAR_VELOCITY_Z;
+  controller_->input_ref_.writeFromNonRT(msg);
+  const auto age_of_last_command =
+    controller_->get_node()->now() - (*(controller_->input_ref_.readFromNonRT()))->header.stamp;
 
   // age_of_last_command > ref_timeout_
   ASSERT_FALSE(age_of_last_command <= controller_->ref_timeout_);
-  ASSERT_EQ(reference.twist.linear.x, TEST_LINEAR_VELOCITY_X);
+  ASSERT_EQ((*(controller_->input_ref_.readFromRT()))->twist.linear.x, TEST_LINEAR_VELOCITY_X);
   ASSERT_EQ(
     controller_->update(controller_->get_node()->now(), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
@@ -536,24 +391,24 @@ TEST_F(
   }
   for (size_t i = 0; i < controller_->command_interfaces_.size(); ++i)
   {
-    EXPECT_EQ(controller_->command_interfaces_[i].get_optional().value(), 0.0);
+    EXPECT_EQ(controller_->command_interfaces_[i].get_value(), 0.0);
   }
 
-  msg_2.header.stamp = controller_->get_node()->now() - rclcpp::Duration::from_seconds(0.01);
-  msg_2.twist.linear.x = TEST_LINEAR_VELOCITY_X;
-  msg_2.twist.linear.y = TEST_LINEAR_VELOCITY_y;
-  msg_2.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-  msg_2.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-  msg_2.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-  msg_2.twist.angular.z = TEST_ANGULAR_VELOCITY_Z;
-  controller_->input_ref_.set(msg_2);
-
-  reference = controller_->input_ref_.get();
-  const auto age_of_last_command_2 = controller_->get_node()->now() - reference.header.stamp;
+  std::shared_ptr<ControllerReferenceMsg> msg_2 = std::make_shared<ControllerReferenceMsg>();
+  msg_2->header.stamp = controller_->get_node()->now() - rclcpp::Duration::from_seconds(0.01);
+  msg_2->twist.linear.x = TEST_LINEAR_VELOCITY_X;
+  msg_2->twist.linear.y = TEST_LINEAR_VELOCITY_y;
+  msg_2->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+  msg_2->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+  msg_2->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+  msg_2->twist.angular.z = TEST_ANGULAR_VELOCITY_Z;
+  controller_->input_ref_.writeFromNonRT(msg_2);
+  const auto age_of_last_command_2 =
+    controller_->get_node()->now() - (*(controller_->input_ref_.readFromNonRT()))->header.stamp;
 
   // age_of_last_command_2 < ref_timeout_
   ASSERT_TRUE(age_of_last_command_2 <= controller_->ref_timeout_);
-  ASSERT_EQ(reference.twist.linear.x, TEST_LINEAR_VELOCITY_X);
+  ASSERT_EQ((*(controller_->input_ref_.readFromRT()))->twist.linear.x, TEST_LINEAR_VELOCITY_X);
   ASSERT_EQ(
     controller_->update(controller_->get_node()->now(), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
@@ -567,7 +422,7 @@ TEST_F(
   //  joint_command_values_[controller_->get_rear_left_wheel_index()] = 1.0 / 0.5 * (1.5 - 0.0 - 1 *
   //  0.0)
   EXPECT_EQ(joint_command_values_[controller_->get_rear_left_wheel_index()], 3.0);
-  ASSERT_EQ(reference.twist.linear.x, TEST_LINEAR_VELOCITY_X);
+  ASSERT_EQ((*(controller_->input_ref_.readFromRT()))->twist.linear.x, TEST_LINEAR_VELOCITY_X);
   for (const auto & interface : controller_->reference_interfaces_)
   {
     EXPECT_TRUE(std::isnan(interface));
@@ -575,7 +430,7 @@ TEST_F(
 
   for (size_t i = 0; i < controller_->command_interfaces_.size(); ++i)
   {
-    EXPECT_EQ(controller_->command_interfaces_[i].get_optional().value(), 3.0);
+    EXPECT_EQ(controller_->command_interfaces_[i].get_value(), 3.0);
   }
 }
 
@@ -591,9 +446,9 @@ TEST_F(
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
 
-  ASSERT_TRUE(configure_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
   controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
   ASSERT_TRUE(controller_->is_in_chained_mode());
 
   for (const auto & interface : controller_->reference_interfaces_)
@@ -634,7 +489,7 @@ TEST_F(
   }
   for (size_t i = 0; i < controller_->command_interfaces_.size(); ++i)
   {
-    EXPECT_EQ(controller_->command_interfaces_[i].get_optional().value(), 6.0);
+    EXPECT_EQ(controller_->command_interfaces_[i].get_value(), 6.0);
   }
 }
 
@@ -647,29 +502,28 @@ TEST_F(
   SetUpController();
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   // set command statically
   joint_command_values_[controller_->get_rear_left_wheel_index()] = command_lin_x;
 
   controller_->ref_timeout_ = rclcpp::Duration::from_seconds(0.0);
-  ControllerReferenceMsg msg;
+  std::shared_ptr<ControllerReferenceMsg> msg = std::make_shared<ControllerReferenceMsg>();
 
-  msg.header.stamp = controller_->get_node()->now() - rclcpp::Duration::from_seconds(0.0);
-  msg.twist.linear.x = TEST_LINEAR_VELOCITY_X;
-  msg.twist.linear.y = TEST_LINEAR_VELOCITY_y;
-  msg.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-  msg.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-  msg.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-  msg.twist.angular.z = TEST_ANGULAR_VELOCITY_Z;
-  controller_->input_ref_.set(msg);
-  auto reference = controller_->input_ref_.get();
-
-  const auto age_of_last_command = controller_->get_node()->now() - reference.header.stamp;
+  msg->header.stamp = controller_->get_node()->now() - rclcpp::Duration::from_seconds(0.0);
+  msg->twist.linear.x = TEST_LINEAR_VELOCITY_X;
+  msg->twist.linear.y = TEST_LINEAR_VELOCITY_y;
+  msg->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+  msg->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+  msg->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+  msg->twist.angular.z = TEST_ANGULAR_VELOCITY_Z;
+  controller_->input_ref_.writeFromNonRT(msg);
+  const auto age_of_last_command =
+    controller_->get_node()->now() - (*(controller_->input_ref_.readFromNonRT()))->header.stamp;
 
   ASSERT_FALSE(age_of_last_command <= controller_->ref_timeout_);
-  ASSERT_EQ(reference.twist.linear.x, TEST_LINEAR_VELOCITY_X);
+  ASSERT_EQ((*(controller_->input_ref_.readFromRT()))->twist.linear.x, TEST_LINEAR_VELOCITY_X);
   ASSERT_EQ(
     controller_->update(controller_->get_node()->now(), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
@@ -683,8 +537,7 @@ TEST_F(
   // velocity_in_center_frame_angular_z_);
   //  joint_command_values_[REAR_LEFT] = 1.0 / 0.5 * (1.5 - 0.0 - 1 * 0.0)
   EXPECT_EQ(joint_command_values_[controller_->get_rear_left_wheel_index()], 3.0);
-  reference = controller_->input_ref_.get();
-  ASSERT_TRUE(std::isnan(reference.twist.linear.x));
+  ASSERT_TRUE(std::isnan((*(controller_->input_ref_.readFromRT()))->twist.linear.x));
 }
 
 TEST_F(
@@ -694,13 +547,12 @@ TEST_F(
   SetUpController();
   rclcpp::executors::MultiThreadedExecutor executor;
   executor.add_node(controller_->get_node()->get_node_base_interface());
-  ASSERT_TRUE(configure_succeeds(controller_));
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
-  auto reference = controller_->input_ref_.get();
-  EXPECT_TRUE(std::isnan(reference.twist.linear.x));
-  EXPECT_TRUE(std::isnan(reference.twist.linear.y));
-  EXPECT_TRUE(std::isnan(reference.twist.angular.z));
+  EXPECT_TRUE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.linear.x));
+  EXPECT_TRUE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.linear.y));
+  EXPECT_TRUE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.angular.z));
   controller_->ref_timeout_ = rclcpp::Duration::from_seconds(0.0);
 
   // reference_callback() is called implicitly when publish_commands() is called.
@@ -709,14 +561,13 @@ TEST_F(
   publish_commands(controller_->get_node()->now());
 
   controller_->wait_for_commands(executor);
-  reference = controller_->input_ref_.get();
 
-  EXPECT_FALSE(std::isnan(reference.twist.linear.x));
-  EXPECT_FALSE(std::isnan(reference.twist.linear.y));
-  EXPECT_FALSE(std::isnan(reference.twist.angular.z));
-  EXPECT_EQ(reference.twist.linear.x, 1.5);
-  EXPECT_EQ(reference.twist.linear.y, 0.0);
-  EXPECT_EQ(reference.twist.angular.z, 0.0);
+  EXPECT_FALSE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.linear.x));
+  EXPECT_FALSE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.linear.y));
+  EXPECT_FALSE(std::isnan((*(controller_->input_ref_.readFromNonRT()))->twist.angular.z));
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.linear.x, 1.5);
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.linear.y, 0.0);
+  EXPECT_EQ((*(controller_->input_ref_.readFromNonRT()))->twist.angular.z, 0.0);
 }
 
 TEST_F(MecanumDriveControllerTest, SideToSideAndRotationOdometryTest)
@@ -725,7 +576,7 @@ TEST_F(MecanumDriveControllerTest, SideToSideAndRotationOdometryTest)
   SetUpController("test_mecanum_drive_controller_with_rotation");
 
   // Configure
-  ASSERT_TRUE(configure_succeeds(controller_));
+  ASSERT_EQ(controller_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
 
   // Check on the base frame offset is set by the params
   EXPECT_EQ(controller_->odometry_.getBaseFrameOffset()[0], 1.0);
@@ -734,7 +585,7 @@ TEST_F(MecanumDriveControllerTest, SideToSideAndRotationOdometryTest)
 
   // Activate in chained mode
   controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
+  ASSERT_EQ(controller_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
   ASSERT_EQ(controller_->is_in_chained_mode(), true);
 
   // Setup reference interfaces for side to side motion
@@ -789,14 +640,10 @@ TEST_F(MecanumDriveControllerTest, SideToSideAndRotationOdometryTest)
     size_t fr_index = controller_->get_front_right_wheel_index();
     size_t rl_index = controller_->get_rear_left_wheel_index();
     size_t rr_index = controller_->get_rear_right_wheel_index();
-    joint_state_values_[fl_index] =
-      controller_->command_interfaces_[fl_index].get_optional().value();
-    joint_state_values_[fr_index] =
-      controller_->command_interfaces_[fr_index].get_optional().value();
-    joint_state_values_[rl_index] =
-      controller_->command_interfaces_[rl_index].get_optional().value();
-    joint_state_values_[rr_index] =
-      controller_->command_interfaces_[rr_index].get_optional().value();
+    joint_state_values_[fl_index] = controller_->command_interfaces_[fl_index].get_value();
+    joint_state_values_[fr_index] = controller_->command_interfaces_[fr_index].get_value();
+    joint_state_values_[rl_index] = controller_->command_interfaces_[rl_index].get_value();
+    joint_state_values_[rr_index] = controller_->command_interfaces_[rr_index].get_value();
   }
 
   RCLCPP_INFO(
@@ -807,638 +654,6 @@ TEST_F(MecanumDriveControllerTest, SideToSideAndRotationOdometryTest)
   EXPECT_LT(std::abs(controller_->odometry_.getX()), 1.0);
   EXPECT_LT(std::abs(controller_->odometry_.getY()), 1.0);
   EXPECT_LT(std::abs(controller_->odometry_.getRz()), M_PI);
-}
-
-TEST_F(MecanumDriveControllerTest, odometry_set_service)
-{
-  // 0. Initialize and activate
-  SetUpController();
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->get_node()->trigger_transition(
-    rclcpp_lifecycle::Transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE));
-
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-  controller_->get_node()->trigger_transition(
-    rclcpp_lifecycle::Transition(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE));
-  ASSERT_EQ(
-    controller_->get_node()->get_current_state().id(),
-    lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
-
-  const double dt = 0.02;  // 50Hz
-  rclcpp::Time test_time = controller_->get_node()->now();
-  const rclcpp::Duration period = rclcpp::Duration::from_seconds(dt);
-
-  auto move_robot = [&](double vx, double vy, double wz)
-  {
-    controller_->reference_interfaces_[0] = vx;  // linear x
-    controller_->reference_interfaces_[1] = vy;  // linear y
-    controller_->reference_interfaces_[2] = wz;  // angular z
-
-    ASSERT_EQ(controller_->update(test_time, period), controller_interface::return_type::OK);
-    test_time += period;
-
-    // Update wheel positions based on commands to simulate feedback
-    size_t fl = controller_->get_front_left_wheel_index();
-    size_t fr = controller_->get_front_right_wheel_index();
-    size_t rl = controller_->get_rear_left_wheel_index();
-    size_t rr = controller_->get_rear_right_wheel_index();
-
-    joint_state_values_[fl] = controller_->command_interfaces_[fl].get_optional().value();
-    joint_state_values_[fr] = controller_->command_interfaces_[fr].get_optional().value();
-    joint_state_values_[rl] = controller_->command_interfaces_[rl].get_optional().value();
-    joint_state_values_[rr] = controller_->command_interfaces_[rr].get_optional().value();
-  };
-
-  // 1. Move the robot forward
-  for (int i = 0; i < 10; ++i) move_robot(1.0, 0.0, 0.0);
-  ASSERT_GT(controller_->odometry_.getX(), 0.0);
-
-  // 2. Call Set Odometry Service
-  auto set_request = std::make_shared<control_msgs::srv::SetOdometry::Request>();
-  auto set_response = std::make_shared<control_msgs::srv::SetOdometry::Response>();
-  set_request->x = 5.0;
-  set_request->y = -2.0;
-  set_request->yaw = 1.57079632679;
-
-  controller_->set_odometry(nullptr, set_request, set_response);
-  EXPECT_TRUE(set_response->success);
-
-  controller_->update(test_time, period);
-
-  EXPECT_NEAR(controller_->odometry_.getX(), 5.0, 1e-6);
-  EXPECT_NEAR(controller_->odometry_.getY(), -2.0, 1e-6);
-  EXPECT_NEAR(controller_->odometry_.getRz(), 1.57079632679, 1e-5);
-
-  // 3. Move forward again to verify
-  double start_y = controller_->odometry_.getY();
-  for (int i = 0; i < 10; ++i) move_robot(1.0, 0.0, 0.0);  // we are facing +Y now
-  EXPECT_GT(controller_->odometry_.getY(), start_y);
-}
-
-// Test that when no velocity limits are configured (all NaN defaults),
-// commands pass through immediately without rate limiting.
-TEST_F(MecanumDriveControllerTest, test_no_speed_limiter_when_not_configured)
-{
-  // Use the default config which has no velocity limits set
-  SetUpController();
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_TRUE(controller_->is_in_chained_mode());
-
-  // Fill the queue with zero velocity
-  for (int i = 0; i < 3; ++i)
-  {
-    controller_->reference_interfaces_[0] = 0.0;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-      controller_interface::return_type::OK);
-  }
-
-  // Send a large step command - without limits it should be applied immediately
-  controller_->reference_interfaces_[0] = 10.0;
-  controller_->reference_interfaces_[1] = 5.0;
-  controller_->reference_interfaces_[2] = 3.0;
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.001)),
-    controller_interface::return_type::OK);
-
-  // With base_frame_offset = {0,0,0}:
-  // wheel_fl = 1/r * (vx - vy - k*wz) = 1/0.5 * (10.0 - 5.0 - 1.0*3.0) = 4.0
-  // wheel_fr = 1/r * (vx + vy + k*wz) = 1/0.5 * (10.0 + 5.0 + 1.0*3.0) = 36.0
-  // wheel_rr = 1/r * (vx - vy + k*wz) = 1/0.5 * (10.0 - 5.0 + 1.0*3.0) = 16.0
-  // wheel_rl = 1/r * (vx + vy - k*wz) = 1/0.5 * (10.0 + 5.0 - 1.0*3.0) = 24.0
-  const size_t fl = controller_->get_front_left_wheel_index();
-  const size_t fr = controller_->get_front_right_wheel_index();
-  const size_t rr = controller_->get_rear_right_wheel_index();
-  const size_t rl = controller_->get_rear_left_wheel_index();
-
-  EXPECT_NEAR(4.0, joint_command_values_[fl], 1e-3);
-  EXPECT_NEAR(36.0, joint_command_values_[fr], 1e-3);
-  EXPECT_NEAR(16.0, joint_command_values_[rr], 1e-3);
-  EXPECT_NEAR(24.0, joint_command_values_[rl], 1e-3);
-}
-
-// Test that velocity limits are applied to linear x commands.
-// With base_frame_offset = {0,0,0}, wheels_radius = 0.5, and
-// sum_of_robot_center_projection_on_X_Y_axis = 1.0:
-// For pure linear x velocity v, all 4 wheel velocities = v / wheels_radius = 2*v
-TEST_F(MecanumDriveControllerTest, test_speed_limiter_linear_x)
-{
-  SetUpController("test_mecanum_drive_controller_with_limits");
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_TRUE(controller_->is_in_chained_mode());
-
-  // Fill the speed limiter queue with zero velocity
-  for (int i = 0; i < 3; ++i)
-  {
-    controller_->reference_interfaces_[0] = 0.0;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(0.0, joint_command_values_[0], 1e-3);
-  }
-
-  const double dt = 0.001;
-  const double wheels_radius = 0.5;
-
-  // Phase 1: Forward acceleration (0 -> 1.0 m/s), max_acceleration = 2.0 m/s²
-  {
-    const double linear = 1.0;
-    const double max_acceleration = 2.0;
-    const double time_acc = linear / max_acceleration;  // 0.5s
-
-    for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) - 1; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-        controller_interface::return_type::OK);
-      EXPECT_GT(linear / wheels_radius, joint_command_values_[0])
-        << "at t: " << i * dt
-        << "s, but this wheel velocity should only be achieved at t: " << time_acc;
-    }
-
-    // After acceleration time, should reach target
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-
-    // Fill queue at steady state
-    for (int i = 0; i < 3; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-        controller_interface::return_type::OK);
-      EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-    }
-  }
-
-  // Phase 2: Forward deceleration (1.0 -> 0.0 m/s), max_deceleration = -4.0 m/s²
-  {
-    const double linear = 0.0;
-    const double max_deceleration = -4.0;
-    const double time_acc = -1.0 / max_deceleration;  // 0.25s
-
-    for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) - 1; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-        controller_interface::return_type::OK);
-      EXPECT_LT(linear / wheels_radius, joint_command_values_[0])
-        << "at t: " << i * dt
-        << "s, but this wheel velocity should only be achieved at t: " << time_acc;
-    }
-
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-
-    for (int i = 0; i < 3; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-        controller_interface::return_type::OK);
-      EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-    }
-  }
-
-  // Phase 3: Reverse acceleration (0 -> -1.0 m/s), max_acceleration_reverse = -8.0 m/s²
-  {
-    const double linear = -1.0;
-    const double max_acceleration_reverse = -8.0;
-    const double time_acc = -1.0 / max_acceleration_reverse;  // 0.125s
-
-    for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) - 1; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-        controller_interface::return_type::OK);
-      EXPECT_LT(linear / wheels_radius, joint_command_values_[0])
-        << "at t: " << i * dt
-        << "s, but this wheel velocity should only be achieved at t: " << time_acc;
-    }
-
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-
-    for (int i = 0; i < 3; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-        controller_interface::return_type::OK);
-      EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-    }
-  }
-
-  // Phase 4: Reverse deceleration (-1.0 -> 0.0 m/s), max_deceleration_reverse = 10.0 m/s²
-  {
-    const double linear = 0.0;
-    const double max_deceleration_reverse = 10.0;
-    const double time_acc = 1.0 / max_deceleration_reverse;  // 0.1s
-
-    for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) - 1; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-        controller_interface::return_type::OK);
-      EXPECT_GT(linear / wheels_radius, joint_command_values_[0])
-        << "at t: " << i * dt
-        << "s, but this wheel velocity should only be achieved at t: " << time_acc;
-    }
-
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-
-    for (int i = 0; i < 3; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-        controller_interface::return_type::OK);
-      EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-    }
-  }
-}
-
-// Test that velocity limits are applied to linear y commands.
-// For pure linear y velocity v with zero base_frame_offset:
-// wheel_fl = -v/r, wheel_fr = v/r, wheel_rr = -v/r, wheel_rl = v/r
-TEST_F(MecanumDriveControllerTest, test_speed_limiter_linear_y)
-{
-  SetUpController("test_mecanum_drive_controller_with_limits");
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_TRUE(controller_->is_in_chained_mode());
-
-  // Fill the speed limiter queue with zero velocity
-  for (int i = 0; i < 3; ++i)
-  {
-    controller_->reference_interfaces_[0] = 0.0;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-      controller_interface::return_type::OK);
-  }
-
-  const double dt = 0.001;
-  const double wheels_radius = 0.5;
-  const double linear_y = 1.0;
-  const double max_acceleration = 2.0;
-  const double time_acc = linear_y / max_acceleration;  // 0.5s
-
-  // Accelerate in linear y from 0 to 1.0 m/s
-  // wheel_fr = linear_y / wheels_radius (positive)
-  const size_t fr = controller_->get_front_right_wheel_index();
-  for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) - 1; ++i)
-  {
-    controller_->reference_interfaces_[0] = 0.0;
-    controller_->reference_interfaces_[1] = linear_y;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_GT(linear_y / wheels_radius, joint_command_values_[fr])
-      << "at t: " << i * dt
-      << "s, but this wheel velocity should only be achieved at t: " << time_acc;
-  }
-
-  // After acceleration time, should reach target
-  controller_->reference_interfaces_[0] = 0.0;
-  controller_->reference_interfaces_[1] = linear_y;
-  controller_->reference_interfaces_[2] = 0.0;
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-    controller_interface::return_type::OK);
-  EXPECT_NEAR(linear_y / wheels_radius, joint_command_values_[fr], 1e-3);
-}
-
-// Test that velocity limits are applied to angular z commands.
-// For pure angular z velocity w with zero base_frame_offset:
-// wheel_fr = k*w/r (positive), wheel_fl = -k*w/r (negative)
-// where k = sum_of_robot_center_projection_on_X_Y_axis = 1.0
-TEST_F(MecanumDriveControllerTest, test_speed_limiter_angular_z)
-{
-  SetUpController("test_mecanum_drive_controller_with_limits");
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_TRUE(controller_->is_in_chained_mode());
-
-  // Fill the speed limiter queue with zero velocity
-  for (int i = 0; i < 3; ++i)
-  {
-    controller_->reference_interfaces_[0] = 0.0;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-      controller_interface::return_type::OK);
-  }
-
-  const double dt = 0.001;
-  const double wheels_radius = 0.5;
-  const double k = 1.0;  // sum_of_robot_center_projection_on_X_Y_axis
-  const double angular_z = 1.0;
-  const double max_acceleration = 2.0;
-  const double time_acc = angular_z / max_acceleration;  // 0.5s
-
-  // Accelerate in angular z from 0 to 1.0 rad/s
-  // wheel_fr = k * angular_z / wheels_radius (positive)
-  const size_t fr = controller_->get_front_right_wheel_index();
-  for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) - 1; ++i)
-  {
-    controller_->reference_interfaces_[0] = 0.0;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = angular_z;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_GT(k * angular_z / wheels_radius, joint_command_values_[fr])
-      << "at t: " << i * dt
-      << "s, but this wheel velocity should only be achieved at t: " << time_acc;
-  }
-
-  // After acceleration time, should reach target
-  controller_->reference_interfaces_[0] = 0.0;
-  controller_->reference_interfaces_[1] = 0.0;
-  controller_->reference_interfaces_[2] = angular_z;
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-    controller_interface::return_type::OK);
-  EXPECT_NEAR(k * angular_z / wheels_radius, joint_command_values_[fr], 1e-3);
-}
-
-// Test that reset_buffers() clears the jerk-limiter history, the reference interfaces,
-// and the latest received reference back to NaN/zero.
-TEST_F(MecanumDriveControllerTest, test_reset_buffers_clears_limiter_state)
-{
-  SetUpController("test_mecanum_drive_controller_with_limits");
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-
-  // Dirty all buffers that reset_buffers() is responsible for clearing.
-  controller_->reference_interfaces_[0] = 1.0;
-  controller_->reference_interfaces_[1] = 2.0;
-  controller_->reference_interfaces_[2] = 3.0;
-
-  std::queue<std::array<double, 3>> dirty;
-  dirty.push({{4.0, 5.0, 6.0}});
-  dirty.push({{7.0, 8.0, 9.0}});
-  std::swap(controller_->previous_two_commands_, dirty);
-
-  ControllerReferenceMsg dirty_ref;
-  dirty_ref.header.stamp = controller_->get_node()->now();
-  dirty_ref.twist.linear.x = 1.0;
-  dirty_ref.twist.linear.y = 2.0;
-  dirty_ref.twist.angular.z = 3.0;
-  controller_->input_ref_.set(dirty_ref);
-
-  controller_->reset_buffers();
-
-  for (const auto & itf : controller_->reference_interfaces_)
-  {
-    EXPECT_TRUE(std::isnan(itf));
-  }
-  ASSERT_EQ(controller_->previous_two_commands_.size(), 2u);
-  EXPECT_EQ(controller_->previous_two_commands_.front(), (std::array<double, 3>{{0.0, 0.0, 0.0}}));
-  EXPECT_EQ(controller_->previous_two_commands_.back(), (std::array<double, 3>{{0.0, 0.0, 0.0}}));
-
-  auto reset_ref = controller_->input_ref_.get();
-  EXPECT_TRUE(std::isnan(reset_ref.twist.linear.x));
-  EXPECT_TRUE(std::isnan(reset_ref.twist.linear.y));
-  EXPECT_TRUE(std::isnan(reset_ref.twist.angular.z));
-}
-
-// Test that lifecycle transitions reset the limiter history so that re-activating
-// the controller re-limits commands from zero.
-TEST_F(MecanumDriveControllerTest, test_lifecycle_transitions_reset_limiter_buffers)
-{
-  SetUpController("test_mecanum_drive_controller_with_limits");
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-
-  const double dt = 0.001;
-  const double wheels_radius = 0.5;
-  const double linear = 1.0;
-  const double max_acceleration = 2.0;  // m/s^2 (from test_mecanum_drive_controller_params.yaml)
-  const double time_acc = linear / max_acceleration;
-
-  // Ramp up linear x to the steady-state target so the limiter buffer holds
-  // non-zero history.
-  for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) + 5; ++i)
-  {
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-  }
-  EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-  EXPECT_NEAR(linear, controller_->previous_two_commands_.back()[0], 1e-3);
-
-  // Deactivate then re-activate: limiter history must be reset to zero.
-  ASSERT_TRUE(deactivate_succeeds(controller_));
-  EXPECT_EQ(controller_->previous_two_commands_.front(), (std::array<double, 3>{{0.0, 0.0, 0.0}}));
-  EXPECT_EQ(controller_->previous_two_commands_.back(), (std::array<double, 3>{{0.0, 0.0, 0.0}}));
-
-  ASSERT_TRUE(activate_succeeds(controller_));
-  EXPECT_EQ(controller_->previous_two_commands_.front(), (std::array<double, 3>{{0.0, 0.0, 0.0}}));
-  EXPECT_EQ(controller_->previous_two_commands_.back(), (std::array<double, 3>{{0.0, 0.0, 0.0}}));
-
-  // After reactivation, requesting the same target should once again be limited
-  // by max_acceleration starting from zero, not pass through immediately.
-  controller_->reference_interfaces_[0] = linear;
-  controller_->reference_interfaces_[1] = 0.0;
-  controller_->reference_interfaces_[2] = 0.0;
-  ASSERT_EQ(
-    controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-    controller_interface::return_type::OK);
-  EXPECT_LT(joint_command_values_[0], linear / wheels_radius)
-    << "Limiter history was not reset across lifecycle transitions; the wheel command "
-       "should be ramping up from zero again.";
-}
-
-// This test verifies that parameters can be updated at runtime.
-TEST_F(MecanumDriveControllerTest, test_speed_limiter_runtime_update)
-{
-  // If you set a linear velocity reference without acceleration limits,
-  // then the wheel velocity command (rotations/s) will be:
-  // ideal_wheel_velocity_command (rotations/s) = linear_velocity_command (m/s) / wheel_radius (m).
-  // (The velocity command looks like a step function).
-  // However, if there are acceleration limits, then the actual wheel velocity command
-  // should always be less than the ideal velocity, and should only become
-  // equal at time = linear_velocity_command (m/s) / acceleration_limit (m/s^2).
-  const double max_acceleration_1 = 2.0;
-  const double max_acceleration_2 = 5.0;
-  const double max_deceleration = -4.0;
-
-  SetUpController("test_mecanum_drive_controller_with_limits");
-
-  ASSERT_TRUE(configure_succeeds(controller_));
-  controller_->set_chained_mode(true);
-  ASSERT_TRUE(activate_succeeds(controller_));
-  ASSERT_TRUE(controller_->is_in_chained_mode());
-
-  const double dt = 0.001;
-  const double wheels_radius = 0.5;
-
-  auto wait_for_limiter = [&](double linear_ref, double expected_vel)
-  {
-    for (int i = 0; i < 3; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear_ref;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(0.01)),
-        controller_interface::return_type::OK);
-      EXPECT_NEAR(expected_vel, joint_command_values_[0], 1e-3);
-    }
-  };
-
-  // wait for the speed limiter to fill the queue
-  controller_->reference_interfaces_[0] = 0.0;
-  controller_->reference_interfaces_[1] = 0.0;
-  controller_->reference_interfaces_[2] = 0.0;
-  wait_for_limiter(0.0, 0.0);
-
-  // Phase 1: accelerate with max_acceleration = 2.0
-  {
-    const double linear = 1.0;
-    const double time_acc = linear / max_acceleration_1;
-    for (int i = 0; i < static_cast<int>(std::floor(time_acc / dt)) - 1; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-        controller_interface::return_type::OK);
-    }
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-    // wait for the speed limiter to fill the queue
-    wait_for_limiter(linear, linear / wheels_radius);
-  }
-  // Stop the robot
-  {
-    const double linear = 0.0;
-    const double time_dec = 1.0 / std::abs(max_deceleration);
-    for (int i = 0; i < static_cast<int>(std::floor(time_dec / dt)) - 1; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-        controller_interface::return_type::OK);
-    }
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-    // wait for the speed limiter to fill the queue
-    wait_for_limiter(linear, 0.0);
-  }
-  // Phase 2: update parameter at runtime to max_acceleration = 5.0
-  {
-    auto result = controller_->get_node()->set_parameter(
-      rclcpp::Parameter("linear.x.max_acceleration", rclcpp::ParameterValue(max_acceleration_2)));
-    ASSERT_TRUE(result.successful);
-  }
-  // Phase 3: accelerate with max_acceleration = 5.0
-  {
-    const double linear = 1.0;
-    const double time_acc_1 = linear / max_acceleration_1;
-    const double time_acc_2 = linear / max_acceleration_2;
-    // With higher acceleration, should reach target faster
-    ASSERT_LT(time_acc_2, time_acc_1);
-    for (int i = 0; i < static_cast<int>(std::floor(time_acc_2 / dt)) - 1; ++i)
-    {
-      controller_->reference_interfaces_[0] = linear;
-      controller_->reference_interfaces_[1] = 0.0;
-      controller_->reference_interfaces_[2] = 0.0;
-      ASSERT_EQ(
-        controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-        controller_interface::return_type::OK);
-    }
-    controller_->reference_interfaces_[0] = linear;
-    controller_->reference_interfaces_[1] = 0.0;
-    controller_->reference_interfaces_[2] = 0.0;
-    ASSERT_EQ(
-      controller_->update(rclcpp::Time(0, 0, RCL_ROS_TIME), rclcpp::Duration::from_seconds(dt)),
-      controller_interface::return_type::OK);
-    EXPECT_NEAR(linear / wheels_radius, joint_command_values_[0], 1e-3);
-    // wait for the speed limiter to fill the queue
-    wait_for_limiter(linear, linear / wheels_radius);
-  }
 }
 
 int main(int argc, char ** argv)

@@ -20,9 +20,11 @@
 #include <vector>
 
 #include "controller_interface/controller_interface.hpp"
+#include "forward_command_controller/visibility_control.h"
 #include "rclcpp/subscription.hpp"
+#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
-#include "realtime_tools/realtime_thread_safe_box.hpp"
+#include "realtime_tools/realtime_buffer.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
 
 namespace forward_command_controller
@@ -40,25 +42,34 @@ using CmdType = std_msgs::msg::Float64MultiArray;
 class ForwardControllersBase : public controller_interface::ControllerInterface
 {
 public:
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   ForwardControllersBase();
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   ~ForwardControllersBase() = default;
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   controller_interface::CallbackReturn on_init() override;
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   controller_interface::CallbackReturn on_configure(
     const rclcpp_lifecycle::State & previous_state) override;
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   controller_interface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & previous_state) override;
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   controller_interface::CallbackReturn on_deactivate(
     const rclcpp_lifecycle::State & previous_state) override;
 
+  FORWARD_COMMAND_CONTROLLER_PUBLIC
   controller_interface::return_type update(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
@@ -86,11 +97,7 @@ protected:
 
   std::vector<std::string> command_interface_types_;
 
-  // the realtime container to exchange the reference from subscriber
-  realtime_tools::RealtimeThreadSafeBox<CmdType> rt_command_;
-  // save the last reference in case of unable to get value from box
-  CmdType joint_commands_;
-
+  realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>> rt_command_ptr_;
   rclcpp::Subscription<CmdType>::SharedPtr joints_command_subscriber_;
 };
 

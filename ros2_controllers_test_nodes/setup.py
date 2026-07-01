@@ -20,7 +20,7 @@ package_name = "ros2_controllers_test_nodes"
 
 setup(
     name=package_name,
-    version="6.8.0",
+    version="2.53.2",
     packages=[package_name],
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
@@ -36,13 +36,14 @@ setup(
     keywords=["ROS"],
     classifiers=[
         "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
         "Topic :: Software Development",
     ],
     description="Demo nodes for showing and testing functionalities of ros2_control framework.",
     long_description="""\
 Demo nodes for showing and testing functionalities of the ros2_control framework.""",
-    license="Apache-2.0",
+    license="Apache License, Version 2.0",
     extras_require={
         "test": [
             "pytest",
