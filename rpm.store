@@ -1,1 +1,1 @@
-{"base": "d15b0f0827", "parent": "release/humble/force_torque_sensor_broadcaster/2.53.1-1", "previous": "a67a7d51b2", "trim": "", "trimbase": ""}
+{"base": "2edf0bec02", "parent": "release/humble/force_torque_sensor_broadcaster", "previous": "dda96fc08c", "trim": "", "trimbase": ""}
