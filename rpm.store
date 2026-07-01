@@ -1,1 +1,1 @@
-{"base": "5a7ab2f8bf", "parent": "release/humble/rqt_joint_trajectory_controller/2.53.1-1", "previous": "e55bd959f5", "trim": "", "trimbase": ""}
+{"base": "dd84d56fe3", "parent": "release/humble/rqt_joint_trajectory_controller", "previous": "2bbd7200f8", "trim": "", "trimbase": ""}
