@@ -21,6 +21,8 @@
 #include "test_range_sensor_broadcaster.hpp"
 
 #include "hardware_interface/loaned_state_interface.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 
 using testing::IsEmpty;
 using testing::SizeIs;
@@ -37,12 +39,19 @@ controller_interface::return_type RangeSensorBroadcasterTest::init_broadcaster(
   std::string broadcaster_name)
 {
   controller_interface::return_type result = controller_interface::return_type::ERROR;
-  result = range_broadcaster_->init(broadcaster_name);
+  controller_interface::ControllerInterfaceParams params;
+  params.controller_name = broadcaster_name;
+  params.robot_description = "";
+  params.update_rate = 0;
+  params.node_namespace = "";
+  params.node_options = range_broadcaster_->define_custom_node_options();
+
+  result = range_broadcaster_->init(params);
 
   if (controller_interface::return_type::OK == result)
   {
     std::vector<hardware_interface::LoanedStateInterface> state_interfaces;
-    state_interfaces.emplace_back(range_);
+    state_interfaces.emplace_back(range_, nullptr);
 
     range_broadcaster_->assign_interfaces({}, std::move(state_interfaces));
   }
@@ -50,16 +59,13 @@ controller_interface::return_type RangeSensorBroadcasterTest::init_broadcaster(
   return result;
 }
 
-controller_interface::CallbackReturn RangeSensorBroadcasterTest::configure_broadcaster(
-  std::vector<rclcpp::Parameter> & parameters)
+void RangeSensorBroadcasterTest::configure_broadcaster(std::vector<rclcpp::Parameter> & parameters)
 {
   // Configure the broadcaster
   for (auto parameter : parameters)
   {
     range_broadcaster_->get_node()->set_parameter(parameter);
   }
-
-  return range_broadcaster_->on_configure(rclcpp_lifecycle::State());
 }
 
 void RangeSensorBroadcasterTest::subscribe_and_get_message(sensor_msgs::msg::Range & range_msg)
@@ -79,7 +85,7 @@ void RangeSensorBroadcasterTest::subscribe_and_get_message(sensor_msgs::msg::Ran
   while (max_sub_check_loop_count--)
   {
     range_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{1};
+    const auto timeout = std::chrono::milliseconds{5};
     const auto until = test_subscription_node.get_clock()->now() + timeout;
     while (!received_msg && test_subscription_node.get_clock()->now() < until)
     {
@@ -119,7 +125,8 @@ TEST_F(RangeSensorBroadcasterTest, Configure_RangeBroadcaster_Error_1)
   std::vector<rclcpp::Parameter> parameters;
   // explicitly give an empty sensor name to generate an error
   parameters.emplace_back(rclcpp::Parameter("sensor_name", ""));
-  ASSERT_EQ(configure_broadcaster(parameters), controller_interface::CallbackReturn::ERROR);
+  configure_broadcaster(parameters);
+  ASSERT_FALSE(configure_succeeds(range_broadcaster_));
 }
 
 TEST_F(RangeSensorBroadcasterTest, Configure_RangeBroadcaster_Error_2)
@@ -130,7 +137,8 @@ TEST_F(RangeSensorBroadcasterTest, Configure_RangeBroadcaster_Error_2)
   std::vector<rclcpp::Parameter> parameters;
   // explicitly give an empty frame_id to generate an error
   parameters.emplace_back(rclcpp::Parameter("frame_id", ""));
-  ASSERT_EQ(configure_broadcaster(parameters), controller_interface::CallbackReturn::ERROR);
+  configure_broadcaster(parameters);
+  ASSERT_FALSE(configure_succeeds(range_broadcaster_));
 }
 
 TEST_F(RangeSensorBroadcasterTest, Configure_RangeBroadcaster_Success)
@@ -138,9 +146,7 @@ TEST_F(RangeSensorBroadcasterTest, Configure_RangeBroadcaster_Success)
   // Third Test without sensor_name SUCCESS Expected
   init_broadcaster("test_range_sensor_broadcaster");
 
-  ASSERT_EQ(
-    range_broadcaster_->on_configure(rclcpp_lifecycle::State()),
-    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_TRUE(configure_succeeds(range_broadcaster_));
 
   // check interface configuration
   auto cmd_if_conf = range_broadcaster_->command_interface_configuration();
@@ -153,11 +159,9 @@ TEST_F(RangeSensorBroadcasterTest, ActivateDeactivate_RangeBroadcaster_Success)
 {
   init_broadcaster("test_range_sensor_broadcaster");
 
-  range_broadcaster_->on_configure(rclcpp_lifecycle::State());
+  ASSERT_TRUE(configure_succeeds(range_broadcaster_));
 
-  ASSERT_EQ(
-    range_broadcaster_->on_activate(rclcpp_lifecycle::State()),
-    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_TRUE(activate_succeeds(range_broadcaster_));
 
   // check interface configuration
   auto cmd_if_conf = range_broadcaster_->command_interface_configuration();
@@ -167,9 +171,7 @@ TEST_F(RangeSensorBroadcasterTest, ActivateDeactivate_RangeBroadcaster_Success)
   ASSERT_THAT(state_if_conf.names, SizeIs(1lu));
   ASSERT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
 
-  ASSERT_EQ(
-    range_broadcaster_->on_deactivate(rclcpp_lifecycle::State()),
-    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_TRUE(deactivate_succeeds(range_broadcaster_));
 
   // check interface configuration
   cmd_if_conf = range_broadcaster_->command_interface_configuration();
@@ -184,10 +186,9 @@ TEST_F(RangeSensorBroadcasterTest, Update_RangeBroadcaster_Success)
 {
   init_broadcaster("test_range_sensor_broadcaster");
 
-  range_broadcaster_->on_configure(rclcpp_lifecycle::State());
-  ASSERT_EQ(
-    range_broadcaster_->on_activate(rclcpp_lifecycle::State()),
-    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_TRUE(configure_succeeds(range_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(range_broadcaster_));
+
   auto result = range_broadcaster_->update(
     range_broadcaster_->get_node()->get_clock()->now(), rclcpp::Duration::from_seconds(0.01));
 
@@ -198,56 +199,65 @@ TEST_F(RangeSensorBroadcasterTest, Publish_RangeBroadcaster_Success)
 {
   init_broadcaster("test_range_sensor_broadcaster");
 
-  range_broadcaster_->on_configure(rclcpp_lifecycle::State());
-  range_broadcaster_->on_activate(rclcpp_lifecycle::State());
+  ASSERT_TRUE(configure_succeeds(range_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(range_broadcaster_));
 
   sensor_msgs::msg::Range range_msg;
   subscribe_and_get_message(range_msg);
 
   EXPECT_EQ(range_msg.header.frame_id, frame_id_);
-  EXPECT_THAT(range_msg.range, ::testing::FloatEq(sensor_range_));
+  EXPECT_THAT(range_msg.range, ::testing::FloatEq(static_cast<float>(sensor_range_)));
   EXPECT_EQ(range_msg.radiation_type, radiation_type_);
-  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
-  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
-  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(static_cast<float>(field_of_view_)));
+  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(static_cast<float>(min_range_)));
+  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(static_cast<float>(max_range_)));
+#if SENSOR_MSGS_VERSION_MAJOR >= 5
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(variance_));
+#endif
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_Bandaries_RangeBroadcaster_Success)
 {
   init_broadcaster("test_range_sensor_broadcaster");
 
-  range_broadcaster_->on_configure(rclcpp_lifecycle::State());
-  range_broadcaster_->on_activate(rclcpp_lifecycle::State());
+  ASSERT_TRUE(configure_succeeds(range_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(range_broadcaster_));
 
   sensor_msgs::msg::Range range_msg;
 
-  sensor_range_ = 0.10;
+  sensor_range_ = 0.10f;
   subscribe_and_get_message(range_msg);
 
   EXPECT_EQ(range_msg.header.frame_id, frame_id_);
-  EXPECT_THAT(range_msg.range, ::testing::FloatEq(sensor_range_));
+  EXPECT_THAT(range_msg.range, ::testing::FloatEq(static_cast<float>(sensor_range_)));
   EXPECT_EQ(range_msg.radiation_type, radiation_type_);
-  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
-  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
-  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(static_cast<float>(field_of_view_)));
+  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(static_cast<float>(min_range_)));
+  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(static_cast<float>(max_range_)));
+#if SENSOR_MSGS_VERSION_MAJOR >= 5
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(static_cast<float>(variance_)));
+#endif
 
   sensor_range_ = 4.0;
   subscribe_and_get_message(range_msg);
 
   EXPECT_EQ(range_msg.header.frame_id, frame_id_);
-  EXPECT_THAT(range_msg.range, ::testing::FloatEq(sensor_range_));
+  EXPECT_THAT(range_msg.range, ::testing::FloatEq(static_cast<float>(sensor_range_)));
   EXPECT_EQ(range_msg.radiation_type, radiation_type_);
-  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
-  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
-  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(static_cast<float>(field_of_view_)));
+  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(static_cast<float>(min_range_)));
+  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(static_cast<float>(max_range_)));
+#if SENSOR_MSGS_VERSION_MAJOR >= 5
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(static_cast<float>(variance_)));
+#endif
 }
 
 TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Success)
 {
   init_broadcaster("test_range_sensor_broadcaster");
 
-  range_broadcaster_->on_configure(rclcpp_lifecycle::State());
-  range_broadcaster_->on_activate(rclcpp_lifecycle::State());
+  ASSERT_TRUE(configure_succeeds(range_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(range_broadcaster_));
 
   sensor_msgs::msg::Range range_msg;
 
@@ -256,22 +266,28 @@ TEST_F(RangeSensorBroadcasterTest, Publish_OutOfBandaries_RangeBroadcaster_Succe
 
   EXPECT_EQ(range_msg.header.frame_id, frame_id_);
   // Even out of boundaries you will get the out_of_range range value
-  EXPECT_THAT(range_msg.range, ::testing::FloatEq(sensor_range_));
+  EXPECT_THAT(range_msg.range, ::testing::FloatEq(static_cast<float>(sensor_range_)));
   EXPECT_EQ(range_msg.radiation_type, radiation_type_);
-  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
-  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
-  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(static_cast<float>(field_of_view_)));
+  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(static_cast<float>(min_range_)));
+  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(static_cast<float>(max_range_)));
+#if SENSOR_MSGS_VERSION_MAJOR >= 5
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(static_cast<float>(variance_)));
+#endif
 
   sensor_range_ = 6.0;
   subscribe_and_get_message(range_msg);
 
   EXPECT_EQ(range_msg.header.frame_id, frame_id_);
   // Even out of boundaries you will get the out_of_range range value
-  EXPECT_THAT(range_msg.range, ::testing::FloatEq(sensor_range_));
+  EXPECT_THAT(range_msg.range, ::testing::FloatEq(static_cast<float>(sensor_range_)));
   EXPECT_EQ(range_msg.radiation_type, radiation_type_);
-  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(field_of_view_));
-  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(min_range_));
-  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(max_range_));
+  EXPECT_THAT(range_msg.field_of_view, ::testing::FloatEq(static_cast<float>(field_of_view_)));
+  EXPECT_THAT(range_msg.min_range, ::testing::FloatEq(static_cast<float>(min_range_)));
+  EXPECT_THAT(range_msg.max_range, ::testing::FloatEq(static_cast<float>(max_range_)));
+#if SENSOR_MSGS_VERSION_MAJOR >= 5
+  EXPECT_THAT(range_msg.variance, ::testing::FloatEq(static_cast<float>(variance_)));
+#endif
 }
 
 int main(int argc, char ** argv)

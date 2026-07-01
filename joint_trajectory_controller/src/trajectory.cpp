@@ -25,7 +25,6 @@
 #include "hardware_interface/macros.hpp"
 #include "rclcpp/duration.hpp"
 #include "rclcpp/time.hpp"
-#include "std_msgs/msg/header.hpp"
 
 namespace joint_trajectory_controller
 {
@@ -111,7 +110,8 @@ bool Trajectory::sample(
   const rclcpp::Time & sample_time,
   const interpolation_methods::InterpolationMethod interpolation_method,
   trajectory_msgs::msg::JointTrajectoryPoint & output_state,
-  TrajectoryPointConstIter & start_segment_itr, TrajectoryPointConstIter & end_segment_itr)
+  TrajectoryPointConstIter & start_segment_itr, TrajectoryPointConstIter & end_segment_itr,
+  const bool search_monotonically_increasing)
 {
   THROW_ON_NULLPTR(trajectory_msg_)
 
@@ -197,7 +197,10 @@ bool Trajectory::sample(
       start_segment_itr = begin() + static_cast<TrajectoryPointConstIter::difference_type>(i);
       end_segment_itr = begin() + static_cast<TrajectoryPointConstIter::difference_type>(i + 1);
       output_state.time_from_start = next_point.time_from_start;
-      last_sample_idx_ = i;
+      if (search_monotonically_increasing)
+      {
+        last_sample_idx_ = i;
+      }
       return true;
     }
   }
@@ -206,7 +209,34 @@ bool Trajectory::sample(
   start_segment_itr = --end();
   end_segment_itr = end();
   last_sample_idx_ = last_idx;
+
+  // If the last segment was never entered (e.g. sample_time jumped past a very
+  // short last segment because the controller rate is slower than the segment
+  // duration), the last trajectory point's positions may have never been
+  // deduced from velocities. Recover by deducing them from the previous point
+  // if that point has positions; otherwise return false so the caller does not
+  // dereference an empty positions vector downstream. See #2282.
+  if (trajectory_msg_->points[last_idx].positions.empty() && last_idx > 0)
+  {
+    auto & prev_point = trajectory_msg_->points[last_idx - 1];
+    auto & last_point = trajectory_msg_->points[last_idx];
+    if (!prev_point.positions.empty())
+    {
+      const rclcpp::Time t_prev = trajectory_start_time_ + prev_point.time_from_start;
+      const rclcpp::Time t_last = trajectory_start_time_ + last_point.time_from_start;
+      deduce_from_derivatives(
+        prev_point, last_point, state_before_traj_msg_.positions.size(),
+        (t_last - t_prev).seconds());
+    }
+  }
+
   output_state = (*start_segment_itr);
+  if (output_state.positions.empty())
+  {
+    start_segment_itr = end();
+    end_segment_itr = end();
+    return false;
+  }
   // the trajectories in msg may have empty velocities/accel, so resize them
   if (output_state.velocities.empty())
   {
@@ -215,6 +245,10 @@ bool Trajectory::sample(
   if (output_state.accelerations.empty())
   {
     output_state.accelerations.resize(output_state.positions.size(), 0.0);
+  }
+  if (output_state.effort.empty())
+  {
+    output_state.effort.resize(output_state.positions.size(), 0.0);
   }
   return true;
 }
@@ -231,6 +265,7 @@ void Trajectory::interpolate_between_points(
   output.positions.resize(dim, 0.0);
   output.velocities.resize(dim, 0.0);
   output.accelerations.resize(dim, 0.0);
+  output.effort.resize(dim, 0.0);
 
   auto generate_powers = [](int n, double x, double * powers)
   {
@@ -243,6 +278,7 @@ void Trajectory::interpolate_between_points(
 
   bool has_velocity = !state_a.velocities.empty() && !state_b.velocities.empty();
   bool has_accel = !state_a.accelerations.empty() && !state_b.accelerations.empty();
+  bool has_effort = !state_a.effort.empty() && !state_b.effort.empty();
   if (duration_so_far.seconds() < 0.0)
   {
     duration_so_far = rclcpp::Duration::from_seconds(0.0);
@@ -256,6 +292,25 @@ void Trajectory::interpolate_between_points(
 
   double t[6];
   generate_powers(5, duration_so_far.seconds(), t);
+
+  if (has_effort)
+  {
+    // do linear interpolation
+    for (size_t i = 0; i < dim; ++i)
+    {
+      double start_effort = state_a.effort[i];
+      double end_effort = state_b.effort[i];
+
+      double coefficients[2] = {0.0, 0.0};
+      coefficients[0] = start_effort;
+      if (duration_btwn_points.seconds() != 0.0)
+      {
+        coefficients[1] = (end_effort - start_effort) / duration_btwn_points.seconds();
+      }
+
+      output.effort[i] = t[0] * coefficients[0] + t[1] * coefficients[1];
+    }
+  }
 
   if (!has_velocity && !has_accel)
   {
@@ -355,6 +410,14 @@ void Trajectory::deduce_from_derivatives(
   trajectory_msgs::msg::JointTrajectoryPoint & first_state,
   trajectory_msgs::msg::JointTrajectoryPoint & second_state, const size_t dim, const double delta_t)
 {
+  if (first_state.effort.empty())
+  {
+    first_state.effort.assign(dim, 0.0);
+  }
+  if (second_state.effort.empty())
+  {
+    second_state.effort.assign(dim, 0.0);
+  }
   if (second_state.positions.empty())
   {
     second_state.positions.resize(dim);

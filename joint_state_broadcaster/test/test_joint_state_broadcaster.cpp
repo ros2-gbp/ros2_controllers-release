@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stddef.h>
+#include <cstddef>
 
 #include <functional>
 #include <memory>
@@ -23,12 +23,12 @@
 #include "gmock/gmock.h"
 
 #include "hardware_interface/loaned_state_interface.hpp"
-#include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
-#include "joint_state_broadcaster/joint_state_broadcaster.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
+#include "rclcpp/executor.hpp"
+#include "rclcpp/executors.hpp"
 #include "rclcpp/utilities.hpp"
-#include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
+#include "ros2_control_test_assets/descriptions.hpp"
 #include "test_joint_state_broadcaster.hpp"
 
 using hardware_interface::HW_IF_EFFORT;
@@ -37,15 +37,9 @@ using hardware_interface::HW_IF_VELOCITY;
 using hardware_interface::LoanedStateInterface;
 using std::placeholders::_1;
 using testing::Each;
+using testing::ElementsAreArray;
 using testing::IsEmpty;
 using testing::SizeIs;
-using testing::UnorderedElementsAreArray;
-
-namespace
-{
-constexpr auto NODE_SUCCESS = controller_interface::CallbackReturn::SUCCESS;
-constexpr auto NODE_ERROR = controller_interface::CallbackReturn::ERROR;
-}  // namespace
 
 void JointStateBroadcasterTest::SetUpTestCase() { rclcpp::init(0, nullptr); }
 
@@ -63,12 +57,13 @@ void JointStateBroadcasterTest::SetUpStateBroadcaster(
   const std::vector<std::string> & joint_names, const std::vector<std::string> & interfaces,
   const std::vector<rclcpp::Parameter> & parameter_overrides)
 {
-  init_broadcaster_and_set_parameters(joint_names, interfaces, parameter_overrides);
+  init_broadcaster_and_set_parameters("", joint_names, interfaces, parameter_overrides);
   assign_state_interfaces(joint_names, interfaces);
 }
 
 void JointStateBroadcasterTest::init_broadcaster_and_set_parameters(
-  const std::vector<std::string> & joint_names, const std::vector<std::string> & interfaces,
+  const std::string & robot_description, const std::vector<std::string> & joint_names,
+  const std::vector<std::string> & interfaces,
   const std::vector<rclcpp::Parameter> & parameter_overrides)
 {
   auto local_parameter_overrides = parameter_overrides;
@@ -76,9 +71,17 @@ void JointStateBroadcasterTest::init_broadcaster_and_set_parameters(
   local_parameter_overrides.push_back(rclcpp::Parameter("joints", joint_names));
   local_parameter_overrides.push_back(rclcpp::Parameter("interfaces", interfaces));
 
-  const auto result = state_broadcaster_->init(
-    "joint_state_broadcaster", "",
-    rclcpp::NodeOptions().parameter_overrides(local_parameter_overrides));
+  controller_interface::ControllerInterfaceParams params;
+  params.controller_name = "joint_state_broadcaster";
+  params.robot_description = robot_description;
+  params.update_rate = 0;
+  params.node_namespace = "";
+  params.node_options = state_broadcaster_->define_custom_node_options()
+                          .allow_undeclared_parameters(false)
+                          .parameter_overrides(local_parameter_overrides)
+                          .automatically_declare_parameters_from_overrides(false);
+  ;
+  const auto result = state_broadcaster_->init(params);
   ASSERT_EQ(result, controller_interface::return_type::OK);
 }
 
@@ -152,23 +155,6 @@ void JointStateBroadcasterTest::assign_state_interfaces(
   state_broadcaster_->assign_interfaces({}, std::move(state_ifs));
 }
 
-TEST_F(JointStateBroadcasterTest, ConfigureErrorTest)
-{
-  // publishers not initialized yet
-  ASSERT_FALSE(state_broadcaster_->realtime_joint_state_publisher_);
-  ASSERT_FALSE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
-
-  // configure failed
-  ASSERT_THROW(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), std::exception);
-
-  SetUpStateBroadcaster();
-  // check state remains unchanged
-
-  // publishers still not initialized
-  ASSERT_FALSE(state_broadcaster_->realtime_joint_state_publisher_);
-  ASSERT_FALSE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
-}
-
 TEST_F(JointStateBroadcasterTest, ActivateEmptyTest)
 {
   // publishers not initialized yet
@@ -177,9 +163,9 @@ TEST_F(JointStateBroadcasterTest, ActivateEmptyTest)
 
   SetUpStateBroadcaster();
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = joint_names_.size();
 
@@ -196,29 +182,28 @@ TEST_F(JointStateBroadcasterTest, ActivateEmptyTest)
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(joint_names_));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_names_));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(joint_names_));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(joint_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[1].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[2].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
 }
 
 TEST_F(JointStateBroadcasterTest, ActivateEmptyWithoutDynamicJointStatesPublisherTest)
@@ -229,9 +214,9 @@ TEST_F(JointStateBroadcasterTest, ActivateEmptyWithoutDynamicJointStatesPublishe
 
   SetUpStateBroadcaster({}, {}, {rclcpp::Parameter("publish_dynamic_joint_states", false)});
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = joint_names_.size();
 
@@ -249,9 +234,9 @@ TEST_F(JointStateBroadcasterTest, ActivateEmptyWithoutDynamicJointStatesPublishe
   ASSERT_FALSE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(joint_names_));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_names_));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
@@ -265,9 +250,9 @@ TEST_F(JointStateBroadcasterTest, ReactivateTheControllerWithDifferentInterfaces
 
   SetUpStateBroadcaster();
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = joint_names_.size();
 
@@ -284,37 +269,36 @@ TEST_F(JointStateBroadcasterTest, ReactivateTheControllerWithDifferentInterfaces
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(joint_names_));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_names_));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(joint_names_));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(joint_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[1].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[2].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
 
   // Now deactivate and activate with only 2 set of joints and interfaces (to create as in one of
   // the interface is unavailable)
-  ASSERT_EQ(state_broadcaster_->on_deactivate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(deactivate_succeeds(state_broadcaster_));
   const std::vector<std::string> JOINT_NAMES = {"joint1", "joint2"};
   assign_state_interfaces(JOINT_NAMES, interface_names_);
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS_WITH_ONE_DEACTIVATED = JOINT_NAMES.size();
 
@@ -331,30 +315,29 @@ TEST_F(JointStateBroadcasterTest, ReactivateTheControllerWithDifferentInterfaces
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & new_joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & new_joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(new_joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(new_joint_state_msg.name, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(new_joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(new_joint_state_msg.position, SizeIs(NUM_JOINTS_WITH_ONE_DEACTIVATED));
   ASSERT_THAT(new_joint_state_msg.velocity, SizeIs(NUM_JOINTS_WITH_ONE_DEACTIVATED));
   ASSERT_THAT(new_joint_state_msg.effort, SizeIs(NUM_JOINTS_WITH_ONE_DEACTIVATED));
 
   // dynamic joint state initialized
-  const auto & new_dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & new_dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(new_dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(new_dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS_WITH_ONE_DEACTIVATED));
   ASSERT_THAT(
     new_dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS_WITH_ONE_DEACTIVATED));
-  ASSERT_THAT(new_dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(new_dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(
     new_dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     new_dynamic_joint_state_msg.interface_values[1].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     new_dynamic_joint_state_msg.interface_values[2].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
 }
 
 TEST_F(JointStateBroadcasterTest, ActivateTestWithoutJointsParameter)
@@ -364,9 +347,9 @@ TEST_F(JointStateBroadcasterTest, ActivateTestWithoutJointsParameter)
   SetUpStateBroadcaster(JOINT_NAMES, IF_NAMES);
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = joint_names_.size();
 
@@ -383,43 +366,150 @@ TEST_F(JointStateBroadcasterTest, ActivateTestWithoutJointsParameter)
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(joint_names_));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_names_));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(joint_names_));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(joint_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[1].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[2].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
 }
 
-TEST_F(JointStateBroadcasterTest, ActivateTestWithoutInterfacesParameter)
+TEST_F(JointStateBroadcasterTest, ActivateTestWithoutJointsParameterInvalidURDF)
+{
+  const std::vector<std::string> JOINT_NAMES = {};
+  const std::vector<std::string> IF_NAMES = {interface_names_[0]};
+  init_broadcaster_and_set_parameters("<invalid_urdf></invalid_urdf>", JOINT_NAMES, IF_NAMES);
+  assign_state_interfaces(JOINT_NAMES, IF_NAMES);
+
+  // configure ok
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  const size_t NUM_JOINTS = joint_names_.size();
+
+  // check interface configuration
+  auto cmd_if_conf = state_broadcaster_->command_interface_configuration();
+  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
+  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::NONE);
+  auto state_if_conf = state_broadcaster_->state_interface_configuration();
+  ASSERT_THAT(state_if_conf.names, IsEmpty());
+  EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::ALL);
+
+  // publishers initialized
+  ASSERT_TRUE(state_broadcaster_->realtime_joint_state_publisher_);
+  ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
+
+  // joint state initialized
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_names_));
+  ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
+
+  // dynamic joint state initialized
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(joint_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[0].interface_names,
+    ElementsAreArray(interface_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[1].interface_names,
+    ElementsAreArray(interface_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[2].interface_names,
+    ElementsAreArray(interface_names_));
+}
+
+TEST_F(JointStateBroadcasterTest, ActivateTestWithoutJointsParameterWithRobotDescription)
+{
+  const std::vector<std::string> JOINT_NAMES = {};
+  const std::vector<std::string> IF_NAMES = {interface_names_[0]};
+
+  std::string urdf_to_test =
+    std::string(ros2_control_test_assets::urdf_head_continuous_with_limits) +
+    ros2_control_test_assets::hardware_resources + ros2_control_test_assets::urdf_tail;
+  const std::vector<std::string> joint_in_urdf({"joint1", "joint2"});
+  init_broadcaster_and_set_parameters(urdf_to_test, JOINT_NAMES, IF_NAMES);
+  assign_state_interfaces(JOINT_NAMES, IF_NAMES);
+
+  // configure ok
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  const size_t NUM_JOINTS = joint_in_urdf.size();
+
+  // check interface configuration
+  auto cmd_if_conf = state_broadcaster_->command_interface_configuration();
+  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
+  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::NONE);
+  auto state_if_conf = state_broadcaster_->state_interface_configuration();
+  ASSERT_THAT(state_if_conf.names, IsEmpty());
+  EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::ALL);
+
+  // publishers initialized
+  ASSERT_TRUE(state_broadcaster_->realtime_joint_state_publisher_);
+  ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
+
+  // joint state initialized
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_in_urdf));
+  ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
+
+  // dynamic joint state initialized and it will have the data of all the interfaces
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(joint_names_.size()));
+  ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(joint_names_.size()));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(joint_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[0].interface_names,
+    ElementsAreArray(interface_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[1].interface_names,
+    ElementsAreArray(interface_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[2].interface_names,
+    ElementsAreArray(interface_names_));
+}
+
+TEST_F(JointStateBroadcasterTest, ActivateTestWithJointsAndNoInterfaces)
 {
   const std::vector<std::string> JOINT_NAMES = {"joint1"};
   const std::vector<std::string> IF_NAMES = {};
-  SetUpStateBroadcaster(JOINT_NAMES, IF_NAMES);
+  std::string urdf_to_test =
+    std::string(ros2_control_test_assets::urdf_head_continuous_with_limits) +
+    ros2_control_test_assets::hardware_resources + ros2_control_test_assets::urdf_tail;
+  const std::vector<std::string> joint_in_urdf({"joint1", "joint2"});
+  init_broadcaster_and_set_parameters(urdf_to_test, JOINT_NAMES, IF_NAMES);
+  assign_state_interfaces(JOINT_NAMES, IF_NAMES);
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
-  const size_t NUM_JOINTS = joint_names_.size();
+  const size_t NUM_JOINTS = joint_in_urdf.size();
 
   // check interface configuration
   auto cmd_if_conf = state_broadcaster_->command_interface_configuration();
@@ -434,41 +524,42 @@ TEST_F(JointStateBroadcasterTest, ActivateTestWithoutInterfacesParameter)
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
-  ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(joint_names_));
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_in_urdf));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
 
-  // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
-  ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(joint_names_));
+  // dynamic joint state initialized and it will have the data of all the interfaces
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(joint_names_.size()));
+  ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(joint_names_.size()));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(joint_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[1].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[2].interface_names,
-    UnorderedElementsAreArray(interface_names_));
+    ElementsAreArray(interface_names_));
 }
 
-TEST_F(JointStateBroadcasterTest, ActivateDeactivateTestTwoJointsOneInterface)
+TEST_F(JointStateBroadcasterTest, ActivateTestWithJointsAndInterfaces)
 {
-  const std::vector<std::string> JOINT_NAMES = {joint_names_[0], joint_names_[1]};
-  const std::vector<std::string> IF_NAMES = {interface_names_[0]};
-  SetUpStateBroadcaster(JOINT_NAMES, IF_NAMES);
+  const std::vector<std::string> JOINT_NAMES = {"joint1"};
+  const std::vector<std::string> IF_NAMES = interface_names_;
+  std::string urdf_to_test =
+    std::string(ros2_control_test_assets::urdf_head_continuous_with_limits) +
+    ros2_control_test_assets::hardware_resources + ros2_control_test_assets::urdf_tail;
+  init_broadcaster_and_set_parameters(urdf_to_test, JOINT_NAMES, IF_NAMES);
+  assign_state_interfaces(JOINT_NAMES, IF_NAMES);
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = JOINT_NAMES.size();
 
@@ -485,9 +576,101 @@ TEST_F(JointStateBroadcasterTest, ActivateDeactivateTestTwoJointsOneInterface)
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
+
+  // dynamic joint state initialized and it will have the data of all the interfaces
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[0].interface_names,
+    ElementsAreArray(interface_names_));
+}
+
+TEST_F(JointStateBroadcasterTest, ActivateTestWithoutInterfacesParameter)
+{
+  const std::vector<std::string> JOINT_NAMES = {"joint1"};
+  const std::vector<std::string> IF_NAMES = {};
+  SetUpStateBroadcaster(JOINT_NAMES, IF_NAMES);
+
+  // configure ok
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  const size_t NUM_JOINTS = joint_names_.size();
+
+  // check interface configuration
+  auto cmd_if_conf = state_broadcaster_->command_interface_configuration();
+  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
+  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::NONE);
+  auto state_if_conf = state_broadcaster_->state_interface_configuration();
+  ASSERT_THAT(state_if_conf.names, IsEmpty());
+  EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::ALL);
+
+  // publishers initialized
+  ASSERT_TRUE(state_broadcaster_->realtime_joint_state_publisher_);
+  ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
+
+  // joint state initialized
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(joint_names_));
+  ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
+
+  // dynamic joint state initialized
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
+  ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(joint_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[0].interface_names,
+    ElementsAreArray(interface_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[1].interface_names,
+    ElementsAreArray(interface_names_));
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[2].interface_names,
+    ElementsAreArray(interface_names_));
+}
+
+TEST_F(JointStateBroadcasterTest, ActivateDeactivateTestTwoJointsOneInterface)
+{
+  const std::vector<std::string> JOINT_NAMES = {joint_names_[0], joint_names_[1]};
+  const std::vector<std::string> IF_NAMES = {interface_names_[0]};
+  SetUpStateBroadcaster(JOINT_NAMES, IF_NAMES);
+
+  // configure ok
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  const size_t NUM_JOINTS = JOINT_NAMES.size();
+
+  // check interface configuration
+  auto cmd_if_conf = state_broadcaster_->command_interface_configuration();
+  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
+  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::NONE);
+  auto state_if_conf = state_broadcaster_->state_interface_configuration();
+  ASSERT_THAT(state_if_conf.names, SizeIs(JOINT_NAMES.size() * IF_NAMES.size()));
+  EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
+
+  // publishers initialized
+  ASSERT_TRUE(state_broadcaster_->realtime_joint_state_publisher_);
+  ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
+
+  // joint state initialized
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
+  ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   for (auto i = 0ul; i < NUM_JOINTS; ++i)
@@ -501,21 +684,19 @@ TEST_F(JointStateBroadcasterTest, ActivateDeactivateTestTwoJointsOneInterface)
   }
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(
-    dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(IF_NAMES));
+    dynamic_joint_state_msg.interface_values[0].interface_names, ElementsAreArray(IF_NAMES));
   ASSERT_THAT(
-    dynamic_joint_state_msg.interface_values[1].interface_names,
-    UnorderedElementsAreArray(IF_NAMES));
+    dynamic_joint_state_msg.interface_values[1].interface_names, ElementsAreArray(IF_NAMES));
 
   // deactivate
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(deactivate_succeeds(state_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   // check interface configuration
   cmd_if_conf = state_broadcaster_->command_interface_configuration();
@@ -534,9 +715,9 @@ TEST_F(JointStateBroadcasterTest, ActivateTestOneJointTwoInterfaces)
   SetUpStateBroadcaster(JOINT_NAMES, IF_NAMES);
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = JOINT_NAMES.size();
 
@@ -553,9 +734,9 @@ TEST_F(JointStateBroadcasterTest, ActivateTestOneJointTwoInterfaces)
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
@@ -565,15 +746,13 @@ TEST_F(JointStateBroadcasterTest, ActivateTestOneJointTwoInterfaces)
   }
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(
-    dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(IF_NAMES));
+    dynamic_joint_state_msg.interface_values[0].interface_names, ElementsAreArray(IF_NAMES));
 }
 
 TEST_F(JointStateBroadcasterTest, ActivateTestTwoJointTwoInterfacesAllMissing)
@@ -581,17 +760,32 @@ TEST_F(JointStateBroadcasterTest, ActivateTestTwoJointTwoInterfacesAllMissing)
   const std::vector<std::string> JOINT_NAMES = {joint_names_[0], joint_names_[1]};
   const std::vector<std::string> IF_NAMES = {interface_names_[0], interface_names_[1]};
 
-  init_broadcaster_and_set_parameters(JOINT_NAMES, {interface_names_[0], interface_names_[1]});
+  init_broadcaster_and_set_parameters("", JOINT_NAMES, {interface_names_[0], interface_names_[1]});
 
   // assign state with interfaces which are not set in parameters --> We should actually not assign
   // anything because CM will also not do that
   // assign_state_interfaces(JOINT_NAMES, {interface_names_[2]});
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
   // is none of requested interfaces do not exist, the controller will not be activated
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_ERROR);
+  try
+  {
+    activate_succeeds(state_broadcaster_);
+    FAIL() << "Expected std::runtime_error to be thrown";
+  }
+  catch (const std::runtime_error & e)
+  {
+    EXPECT_STREQ(
+      e.what(),
+      "Unexpected controller state in activate_succeeds: 1");  // State goes to ErrorProcessing then
+                                                               // Unconfigured(1)
+  }
+  catch (...)
+  {
+    FAIL() << "Expected std::runtime_error, but a different exception was thrown";
+  }
 }
 
 TEST_F(JointStateBroadcasterTest, ActivateTestTwoJointTwoInterfacesOneMissing)
@@ -599,7 +793,7 @@ TEST_F(JointStateBroadcasterTest, ActivateTestTwoJointTwoInterfacesOneMissing)
   const std::vector<std::string> JOINT_NAMES = {joint_names_[0], joint_names_[1]};
   const std::vector<std::string> IF_NAMES = {interface_names_[0], interface_names_[1]};
 
-  init_broadcaster_and_set_parameters(JOINT_NAMES, {interface_names_[0], interface_names_[1]});
+  init_broadcaster_and_set_parameters("", JOINT_NAMES, {interface_names_[0], interface_names_[1]});
 
   // Manually assign existing interfaces --> one we need is missing
   std::vector<LoanedStateInterface> state_ifs;
@@ -612,10 +806,10 @@ TEST_F(JointStateBroadcasterTest, ActivateTestTwoJointTwoInterfacesOneMissing)
   state_broadcaster_->assign_interfaces({}, std::move(state_ifs));
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
   // here a warning output is expected!
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = JOINT_NAMES.size();
 
@@ -632,9 +826,9 @@ TEST_F(JointStateBroadcasterTest, ActivateTestTwoJointTwoInterfacesOneMissing)
   ASSERT_TRUE(state_broadcaster_->realtime_dynamic_joint_state_publisher_);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
@@ -646,18 +840,16 @@ TEST_F(JointStateBroadcasterTest, ActivateTestTwoJointTwoInterfacesOneMissing)
   }
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray({IF_NAMES[0]}));  // joint 1 has only pos interface
+    ElementsAreArray({IF_NAMES[0]}));  // joint 1 has only pos interface
   ASSERT_THAT(
-    dynamic_joint_state_msg.interface_values[1].interface_names,
-    UnorderedElementsAreArray(IF_NAMES));
+    dynamic_joint_state_msg.interface_values[1].interface_names, ElementsAreArray(IF_NAMES));
 }
 
 TEST_F(JointStateBroadcasterTest, TestCustomInterfaceWithoutMapping)
@@ -667,9 +859,9 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceWithoutMapping)
   SetUpStateBroadcaster(JOINT_NAMES, IF_NAMES);
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = JOINT_NAMES.size();
 
@@ -682,7 +874,7 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceWithoutMapping)
   EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(joint_state_msg.name, SizeIs(0));
   ASSERT_THAT(joint_state_msg.position, SizeIs(0));
@@ -690,15 +882,13 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceWithoutMapping)
   ASSERT_THAT(joint_state_msg.effort, SizeIs(0));
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(
-    dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray(IF_NAMES));
+    dynamic_joint_state_msg.interface_values[0].interface_names, ElementsAreArray(IF_NAMES));
 
   // publishers initialized
   ASSERT_TRUE(state_broadcaster_->joint_state_publisher_);
@@ -715,9 +905,9 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceMapping)
       std::string("map_interface_to_joint_state.") + HW_IF_POSITION, custom_interface_name_)});
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   const size_t NUM_JOINTS = JOINT_NAMES.size();
 
@@ -730,9 +920,9 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceMapping)
   EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   for (auto i = 0ul; i < NUM_JOINTS; ++i)
@@ -746,19 +936,64 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceMapping)
   }
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray({HW_IF_POSITION}));  // mapping to this value
+    ElementsAreArray({HW_IF_POSITION}));  // mapping to this value
 
   // publishers initialized
   ASSERT_TRUE(state_broadcaster_->joint_state_publisher_);
   ASSERT_TRUE(state_broadcaster_->dynamic_joint_state_publisher_);
+}
+
+TEST_F(JointStateBroadcasterTest, TestCustomInterfaceMappingIgnoredWhenVelocityInterfaceIsRequested)
+{
+  constexpr auto custom_velocity_interface = "derived_velocity";
+  const std::vector<std::string> JOINT_NAMES = {joint_names_[0]};
+  const std::vector<std::string> IF_NAMES = {HW_IF_VELOCITY};
+  SetUpStateBroadcaster(
+    JOINT_NAMES, IF_NAMES,
+    {rclcpp::Parameter(
+      std::string("map_interface_to_joint_state.") + HW_IF_VELOCITY, custom_velocity_interface)});
+
+  // configure ok; a warning is expected because the custom velocity mapping is ignored
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+
+  const auto velocity_mapping =
+    state_broadcaster_->map_interface_to_joint_state_.find(HW_IF_VELOCITY);
+  ASSERT_NE(velocity_mapping, state_broadcaster_->map_interface_to_joint_state_.end());
+  EXPECT_EQ(velocity_mapping->second, HW_IF_VELOCITY);
+  EXPECT_EQ(state_broadcaster_->map_interface_to_joint_state_.count(custom_velocity_interface), 0u);
+
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  const size_t NUM_JOINTS = JOINT_NAMES.size();
+
+  // check interface configuration
+  auto cmd_if_conf = state_broadcaster_->command_interface_configuration();
+  ASSERT_THAT(cmd_if_conf.names, IsEmpty());
+  EXPECT_EQ(cmd_if_conf.type, controller_interface::interface_configuration_type::NONE);
+  auto state_if_conf = state_broadcaster_->state_interface_configuration();
+  ASSERT_THAT(state_if_conf.names, SizeIs(JOINT_NAMES.size() * IF_NAMES.size()));
+  EXPECT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::INDIVIDUAL);
+
+  // joint state initialized
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
+  ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
+  ASSERT_TRUE(std::isnan(joint_state_msg.position[0]));
+  ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
+  ASSERT_TRUE(std::isnan(joint_state_msg.velocity[0]));
+  ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
+  ASSERT_TRUE(std::isnan(joint_state_msg.effort[0]));
+
+  // publisher initialized
+  ASSERT_TRUE(state_broadcaster_->joint_state_publisher_);
 }
 
 TEST_F(JointStateBroadcasterTest, TestCustomInterfaceMappingUpdate)
@@ -777,7 +1012,7 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceMappingUpdate)
 
   // joint state initialized
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_EQ(joint_state_msg.position[0], custom_joint_value_);
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
@@ -792,15 +1027,14 @@ TEST_F(JointStateBroadcasterTest, TestCustomInterfaceMappingUpdate)
   }
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(NUM_JOINTS));
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, UnorderedElementsAreArray(JOINT_NAMES));
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, ElementsAreArray(JOINT_NAMES));
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    UnorderedElementsAreArray({HW_IF_POSITION}));
+    ElementsAreArray({HW_IF_POSITION}));
 
   // publishers initialized
   ASSERT_TRUE(state_broadcaster_->joint_state_publisher_);
@@ -811,22 +1045,155 @@ TEST_F(JointStateBroadcasterTest, UpdateTest)
 {
   SetUpStateBroadcaster();
 
-  auto node_state = state_broadcaster_->get_node()->configure();
-  node_state = state_broadcaster_->get_node()->activate();
-  ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
   ASSERT_EQ(
     state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
     controller_interface::return_type::OK);
 }
 
+TEST_F(JointStateBroadcasterTest, UpdatePerformanceTest)
+{
+  controller_interface::ControllerInterfaceParams params;
+  params.controller_name = "joint_state_broadcaster";
+  params.robot_description = "";
+  params.update_rate = 0;
+  params.node_namespace = "";
+  params.node_options = state_broadcaster_->define_custom_node_options();
+  const auto result = state_broadcaster_->init(params);
+  ASSERT_EQ(result, controller_interface::return_type::OK);
+
+  custom_joint_value_ = 12.34;
+
+  // build our own test interfaces: robot has ~500 state interfaces
+  for (auto joint = 1u; joint < 30; ++joint)
+  {
+    const auto joint_name = "joint_" + std::to_string(joint);
+
+    // standard
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "effort", &custom_joint_value_));
+
+    // non standard
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "mode", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "absolute_position", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "acceleration", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "torque", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "force", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "temperature_board", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "temperature_motor", &custom_joint_value_));
+
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position.kd", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position.ki", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "position.kp", &custom_joint_value_));
+
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity.kd", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity.ki", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "velocity.kp", &custom_joint_value_));
+
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current.kd", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current.ki", &custom_joint_value_));
+    test_interfaces_.emplace_back(
+      std::make_shared<hardware_interface::StateInterface>(
+        joint_name, "current.kp", &custom_joint_value_));
+  }
+
+  RCLCPP_INFO(
+    state_broadcaster_->get_node()->get_logger(), "Number of test interfaces: %zu",
+    test_interfaces_.size());
+
+  std::vector<LoanedStateInterface> state_interfaces;
+  for (const auto & tif : test_interfaces_)
+  {
+    state_interfaces.emplace_back(tif, nullptr);
+  }
+
+  state_broadcaster_->assign_interfaces({}, std::move(state_interfaces));
+
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  if (!realtime_tools::configure_sched_fifo(50))
+  {
+    RCLCPP_WARN(
+      state_broadcaster_->get_node()->get_logger(),
+      "Could not enable FIFO RT scheduling policy: with error number <%i>(%s)", errno,
+      strerror(errno));
+  }
+
+  constexpr auto kNumSamples = 10000u;
+  std::vector<int64_t> measures;
+  for (auto i = 0u; i < kNumSamples; ++i)
+  {
+    const auto now = std::chrono::steady_clock::now();
+
+    ASSERT_EQ(
+      state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)),
+      controller_interface::return_type::OK);
+
+    // print time taken
+    const auto elapsed = std::chrono::steady_clock::now() - now;
+    const auto elapsed_us = std::chrono::duration_cast<std::chrono::microseconds>(elapsed);
+
+    measures.push_back(elapsed_us.count());
+  }
+
+  const auto average =
+    std::accumulate(measures.begin(), measures.end(), 0.0) / static_cast<double>(measures.size());
+  const auto variance = std::accumulate(
+                          measures.begin(), measures.end(), 0.0, [average](double accum, double x)
+                          { return accum + (x - average) * (x - average); }) /
+                        static_cast<double>(measures.size());
+
+  RCLCPP_INFO(state_broadcaster_->get_node()->get_logger(), "Average update time: %lf us", average);
+  RCLCPP_INFO(state_broadcaster_->get_node()->get_logger(), "Variance: %lf us", variance);
+}
+
 void JointStateBroadcasterTest::activate_and_get_joint_state_message(
   const std::string & topic, sensor_msgs::msg::JointState & joint_state_msg)
 {
-  auto node_state = state_broadcaster_->get_node()->configure();
-  ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
-
-  node_state = state_broadcaster_->get_node()->activate();
-  ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   sensor_msgs::msg::JointState::SharedPtr received_msg;
   rclcpp::Node test_node("test_node");
@@ -844,7 +1211,7 @@ void JointStateBroadcasterTest::activate_and_get_joint_state_message(
   while (max_sub_check_loop_count--)
   {
     state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{1};
+    const auto timeout = std::chrono::milliseconds{5};
     const auto until = test_node.get_clock()->now() + timeout;
     while (!received_msg && test_node.get_clock()->now() < until)
     {
@@ -877,9 +1244,9 @@ void JointStateBroadcasterTest::test_published_joint_state_message(const std::st
   // we only check that all values in this test are present in the message
   // and that it is the same across the interfaces
   // for test purposes they are mapped to the same doubles
-  ASSERT_THAT(joint_state_msg.position, UnorderedElementsAreArray(joint_values_));
-  ASSERT_THAT(joint_state_msg.velocity, UnorderedElementsAreArray(joint_state_msg.position));
-  ASSERT_THAT(joint_state_msg.effort, UnorderedElementsAreArray(joint_state_msg.position));
+  ASSERT_THAT(joint_state_msg.position, ElementsAreArray(joint_values_));
+  ASSERT_THAT(joint_state_msg.velocity, ElementsAreArray(joint_state_msg.position));
+  ASSERT_THAT(joint_state_msg.effort, ElementsAreArray(joint_state_msg.position));
 }
 
 TEST_F(JointStateBroadcasterTest, JointStatePublishTest)
@@ -899,7 +1266,7 @@ TEST_F(JointStateBroadcasterTest, JointStatePublishTestLocalTopic)
 void JointStateBroadcasterTest::test_published_dynamic_joint_state_message(
   const std::string & topic)
 {
-  auto node_state = state_broadcaster_->get_node()->configure();
+  auto node_state = state_broadcaster_->configure();
   ASSERT_EQ(node_state.id(), lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE);
 
   node_state = state_broadcaster_->get_node()->activate();
@@ -922,7 +1289,7 @@ void JointStateBroadcasterTest::test_published_dynamic_joint_state_message(
   while (max_sub_check_loop_count--)
   {
     state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01));
-    const auto timeout = std::chrono::milliseconds{1};
+    const auto timeout = std::chrono::milliseconds{5};
     const auto until = test_node.get_clock()->now() + timeout;
     while (test_node.get_clock()->now() < until)
     {
@@ -951,7 +1318,7 @@ void JointStateBroadcasterTest::test_published_dynamic_joint_state_message(
   {
     ASSERT_THAT(
       dynamic_joint_state_msg->interface_values[i].interface_names,
-      UnorderedElementsAreArray(INTERFACE_NAMES));
+      ElementsAreArray(INTERFACE_NAMES));
     const auto index_in_original_order = static_cast<size_t>(std::distance(
       joint_names_.cbegin(),
       std::find(
@@ -987,25 +1354,89 @@ TEST_F(JointStateBroadcasterTest, ExtraJointStatePublishTest)
   SetUpStateBroadcaster({}, {}, {rclcpp::Parameter("extra_joints", extra_joint_names)});
 
   // configure ok
-  ASSERT_EQ(state_broadcaster_->on_configure(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
-  ASSERT_EQ(state_broadcaster_->on_activate(rclcpp_lifecycle::State()), NODE_SUCCESS);
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
 
   std::vector<std::string> all_joint_names = joint_names_;
   all_joint_names.insert(all_joint_names.end(), extra_joint_names.begin(), extra_joint_names.end());
   const size_t NUM_JOINTS = all_joint_names.size();
 
   // joint state initialized
-  const auto & joint_state_msg = state_broadcaster_->realtime_joint_state_publisher_->msg_;
+  const auto & joint_state_msg = state_broadcaster_->joint_state_msg_;
   ASSERT_EQ(joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(joint_state_msg.name, UnorderedElementsAreArray(all_joint_names));
+  ASSERT_THAT(joint_state_msg.name, ElementsAreArray(all_joint_names));
   ASSERT_THAT(joint_state_msg.position, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.velocity, SizeIs(NUM_JOINTS));
   ASSERT_THAT(joint_state_msg.effort, SizeIs(NUM_JOINTS));
 
   // dynamic joint state initialized
-  const auto & dynamic_joint_state_msg =
-    state_broadcaster_->realtime_dynamic_joint_state_publisher_->msg_;
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
   ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(NUM_JOINTS));
+}
+
+TEST_F(JointStateBroadcasterTest, NoThrowWithBooleanInterfaceTest)
+{
+  const std::string JOINT_NAME = joint_names_[0];
+  const std::string IF_NAME = "is_moving";
+  SetUpStateBroadcaster({JOINT_NAME}, {IF_NAME});
+
+  init_broadcaster_and_set_parameters("", {JOINT_NAME}, {IF_NAME});
+
+  std::vector<LoanedStateInterface> state_ifs;
+  state_ifs.emplace_back(joint_1_moving_state_);
+  state_broadcaster_->assign_interfaces({}, std::move(state_ifs));
+
+  // configure and activate ok
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  // update should not throw
+  ASSERT_NO_THROW(
+    state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)));
+
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
+  ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(1));
+}
+
+TEST_F(JointStateBroadcasterTest, NoThrowWithBooleanAndDoubleInterfaceTest)
+{
+  const std::string JOINT_NAME = joint_names_[0];
+  const std::string IF_NAME = "is_moving";
+  SetUpStateBroadcaster({JOINT_NAME}, {IF_NAME});
+
+  init_broadcaster_and_set_parameters("", {JOINT_NAME}, {IF_NAME});
+
+  std::vector<LoanedStateInterface> state_ifs;
+  state_ifs.emplace_back(joint_1_moving_state_);
+  state_ifs.emplace_back(joint_1_pos_state_);
+  state_ifs.emplace_back(joint_1_vel_state_);
+  state_ifs.emplace_back(joint_1_eff_state_);
+  state_broadcaster_->assign_interfaces({}, std::move(state_ifs));
+
+  // configure and activate ok
+  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
+  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
+
+  // update should not throw
+  ASSERT_NO_THROW(
+    state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)));
+
+  const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
+  ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(1));
+  ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(1));
+
+  // boolean should not be skipped
+  ASSERT_THAT(
+    dynamic_joint_state_msg.interface_values[0].interface_names,
+    ElementsAreArray({"is_moving", HW_IF_POSITION, HW_IF_VELOCITY, HW_IF_EFFORT}));
+
+  // joint states
+  ASSERT_THAT(state_broadcaster_->joint_state_msg_.name, ElementsAreArray({joint_names_[0]}));
+  ASSERT_THAT(state_broadcaster_->joint_state_msg_.position, SizeIs(1));
+  ASSERT_THAT(state_broadcaster_->joint_state_msg_.velocity, SizeIs(1));
+  ASSERT_THAT(state_broadcaster_->joint_state_msg_.effort, SizeIs(1));
 }

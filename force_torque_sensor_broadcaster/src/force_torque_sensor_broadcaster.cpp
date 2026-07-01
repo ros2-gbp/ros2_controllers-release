@@ -18,13 +18,16 @@
 
 #include "force_torque_sensor_broadcaster/force_torque_sensor_broadcaster.hpp"
 
+#include <limits>
 #include <memory>
 #include <string>
+
+#include "rclcpp/logging.hpp"
 
 namespace force_torque_sensor_broadcaster
 {
 ForceTorqueSensorBroadcaster::ForceTorqueSensorBroadcaster()
-: controller_interface::ControllerInterface()
+: controller_interface::ChainableControllerInterface()
 {
 }
 
@@ -87,10 +90,41 @@ controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
 
   try
   {
+    filter_chain_ =
+      std::make_unique<filters::FilterChain<WrenchMsgType>>("geometry_msgs::msg::WrenchStamped");
+  }
+  catch (const std::exception & e)
+  {
+    fprintf(stderr, "Exception thrown during filter chain creation with message : %s \n", e.what());
+    return CallbackReturn::ERROR;
+  }
+
+  // As the sensor_filter_chain parameter is of type 'none', we cannot directly check if it is
+  // present. Even if the sensor_filter_chain parameter is not specified, the filter chain will be
+  // correctly configured with an empty list of filters.
+  bool filter_chain_configured = filter_chain_->configure(
+    "sensor_filter_chain", get_node()->get_node_logging_interface(),
+    get_node()->get_node_parameters_interface());
+
+  // Even on successful configure, if empty, the chain won't be used
+  has_filter_chain_ = filter_chain_configured && filter_chain_->get_length() > 0;
+
+  RCLCPP_INFO_EXPRESSION(
+    get_node()->get_logger(), has_filter_chain_, "Filter active with %zu filters!",
+    filter_chain_->get_length());
+
+  try
+  {
     // register ft sensor data publisher
-    sensor_state_publisher_ = get_node()->create_publisher<geometry_msgs::msg::WrenchStamped>(
+    sensor_raw_state_publisher_ = get_node()->create_publisher<geometry_msgs::msg::WrenchStamped>(
       "~/wrench", rclcpp::SystemDefaultsQoS());
-    realtime_publisher_ = std::make_unique<StatePublisher>(sensor_state_publisher_);
+    realtime_raw_publisher_ = std::make_unique<StateRTPublisher>(sensor_raw_state_publisher_);
+
+    sensor_filtered_state_publisher_ =
+      get_node()->create_publisher<geometry_msgs::msg::WrenchStamped>(
+        "~/wrench_filtered", rclcpp::SystemDefaultsQoS());
+    realtime_filtered_publisher_ =
+      std::make_unique<StateRTPublisher>(sensor_filtered_state_publisher_);
   }
   catch (const std::exception & e)
   {
@@ -100,11 +134,10 @@ controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  realtime_publisher_->lock();
-  realtime_publisher_->msg_.header.frame_id = params_.frame_id;
-  realtime_publisher_->unlock();
+  wrench_raw_.header.frame_id = params_.frame_id;
+  wrench_filtered_.header.frame_id = params_.frame_id;
 
-  RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
+  RCLCPP_INFO(get_node()->get_logger(), "configure successful");
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -139,23 +172,130 @@ controller_interface::CallbackReturn ForceTorqueSensorBroadcaster::on_deactivate
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::return_type ForceTorqueSensorBroadcaster::update(
+controller_interface::return_type ForceTorqueSensorBroadcaster::update_and_write_commands(
   const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
-  if (realtime_publisher_ && realtime_publisher_->trylock())
+  param_listener_->try_get_params(params_);
+
+  wrench_raw_.header.stamp = time;
+  force_torque_sensor_->get_values_as_message(wrench_raw_.wrench);
+  this->apply_sensor_offset(params_, wrench_raw_);
+  this->apply_sensor_multiplier(params_, wrench_raw_);
+
+  if (realtime_raw_publisher_)
   {
-    realtime_publisher_->msg_.header.stamp = time;
-    force_torque_sensor_->get_values_as_message(realtime_publisher_->msg_.wrench);
-    realtime_publisher_->unlockAndPublish();
+    realtime_raw_publisher_->try_publish(wrench_raw_);
+  }
+
+  if (has_filter_chain_)
+  {
+    // Filter sensor data, if no filter chain config was specified, wrench_filtered_ = wrench_raw_
+    auto filtered = filter_chain_->update(wrench_raw_, wrench_filtered_);
+    if (filtered && realtime_filtered_publisher_)
+    {
+      wrench_filtered_.header.stamp = time;
+      realtime_filtered_publisher_->try_publish(wrench_filtered_);
+    }
   }
 
   return controller_interface::return_type::OK;
 }
 
+controller_interface::return_type ForceTorqueSensorBroadcaster::update_reference_from_subscribers(
+  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+{
+  return controller_interface::return_type::OK;
+}
+
+std::vector<hardware_interface::StateInterface>
+ForceTorqueSensorBroadcaster::on_export_state_interfaces()
+{
+  std::vector<hardware_interface::StateInterface> exported_state_interfaces;
+
+  std::vector<std::string> force_names(
+    {params_.interface_names.force.x, params_.interface_names.force.y,
+     params_.interface_names.force.z});
+  std::vector<std::string> torque_names(
+    {params_.interface_names.torque.x, params_.interface_names.torque.y,
+     params_.interface_names.torque.z});
+  std::string export_prefix = get_node()->get_name();
+  if (!params_.sensor_name.empty())
+  {
+    const auto semantic_comp_itf_names = force_torque_sensor_->get_state_interface_names();
+    std::copy(
+      semantic_comp_itf_names.begin(), semantic_comp_itf_names.begin() + 3, force_names.begin());
+    std::copy(
+      semantic_comp_itf_names.begin() + 3, semantic_comp_itf_names.end(), torque_names.begin());
+
+    // Update the prefix and get the proper force and torque names
+    export_prefix = export_prefix + "/" + params_.sensor_name;
+    // strip "/" and get the second part of the information
+    // e.g. /ft_sensor/force.x -> force.x
+    std::for_each(
+      force_names.begin(), force_names.end(),
+      [](std::string & name) { name = name.substr(name.find_last_of("/") + 1); });
+    std::for_each(
+      torque_names.begin(), torque_names.end(),
+      [](std::string & name) { name = name.substr(name.find_last_of("/") + 1); });
+  }
+  if (!force_names[0].empty())
+  {
+    exported_state_interfaces.emplace_back(
+      export_prefix, force_names[0], &wrench_raw_.wrench.force.x);
+  }
+  if (!force_names[1].empty())
+  {
+    exported_state_interfaces.emplace_back(
+      export_prefix, force_names[1], &wrench_raw_.wrench.force.y);
+  }
+  if (!force_names[2].empty())
+  {
+    exported_state_interfaces.emplace_back(
+      export_prefix, force_names[2], &wrench_raw_.wrench.force.z);
+  }
+  if (!torque_names[0].empty())
+  {
+    exported_state_interfaces.emplace_back(
+      export_prefix, torque_names[0], &wrench_raw_.wrench.torque.x);
+  }
+  if (!torque_names[1].empty())
+  {
+    exported_state_interfaces.emplace_back(
+      export_prefix, torque_names[1], &wrench_raw_.wrench.torque.y);
+  }
+  if (!torque_names[2].empty())
+  {
+    exported_state_interfaces.emplace_back(
+      export_prefix, torque_names[2], &wrench_raw_.wrench.torque.z);
+  }
+  return exported_state_interfaces;
+}
+
+void ForceTorqueSensorBroadcaster::apply_sensor_offset(
+  const Params & params, geometry_msgs::msg::WrenchStamped & msg)
+{
+  msg.wrench.force.x += params.offset.force.x;
+  msg.wrench.force.y += params.offset.force.y;
+  msg.wrench.force.z += params.offset.force.z;
+  msg.wrench.torque.x += params.offset.torque.x;
+  msg.wrench.torque.y += params.offset.torque.y;
+  msg.wrench.torque.z += params.offset.torque.z;
+}
+
+void ForceTorqueSensorBroadcaster::apply_sensor_multiplier(
+  const Params & params, geometry_msgs::msg::WrenchStamped & msg)
+{
+  msg.wrench.force.x *= params.multiplier.force.x;
+  msg.wrench.force.y *= params.multiplier.force.y;
+  msg.wrench.force.z *= params.multiplier.force.z;
+  msg.wrench.torque.x *= params.multiplier.torque.x;
+  msg.wrench.torque.y *= params.multiplier.torque.y;
+  msg.wrench.torque.z *= params.multiplier.torque.z;
+}
 }  // namespace force_torque_sensor_broadcaster
 
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
   force_torque_sensor_broadcaster::ForceTorqueSensorBroadcaster,
-  controller_interface::ControllerInterface)
+  controller_interface::ChainableControllerInterface)
