@@ -32,9 +32,6 @@ Topics
 ~/joint_references (input topic) [trajectory_msgs::msg::JointTrajectoryPoint]
   Target joint commands when controller is not in chained mode.
 
-~/wrench_reference (input topic) [geometry_msgs::msg::WrenchStamped]
-  Target wrench offset (WrenchStamped has to be in the frame of the FT-sensor).
-
 ~/state (output topic) [control_msgs::msg::AdmittanceControllerState]
   Topic publishing internal states.
 
@@ -61,4 +58,4 @@ The interfaces have prefix ``ft_sensor.name``, building the interfaces: ``<senso
 Commands
 ^^^^^^^^^
 The command interfaces are defined with ``joints`` and ``command_interfaces`` parameters as follows: ``<joint>/<command_interface>``.
-Supported state interfaces are ``position``, ``velocity``, and ``acceleration`` as defined in the `hardware_interface/hardware_interface_type_values.hpp <https://github.com/ros-controls/ros2_control/blob/{REPOS_FILE_BRANCH}/hardware_interface/include/hardware_interface/types/hardware_interface_type_values.hpp>`_.
+Supported command interfaces are ``position``, ``velocity``, and ``acceleration`` as defined in the `hardware_interface/hardware_interface_type_values.hpp <https://github.com/ros-controls/ros2_control/blob/{REPOS_FILE_BRANCH}/hardware_interface/include/hardware_interface/types/hardware_interface_type_values.hpp>`_.

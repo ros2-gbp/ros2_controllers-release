@@ -12,20 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
 
-#include <gmock/gmock.h>
 #include <cmath>
 
-#include "steering_controllers_library/steering_kinematics.hpp"
+#include "gmock/gmock.h"
+
+#include "steering_controllers_library/steering_odometry.hpp"
 
 TEST(TestSteeringOdometry, initialize)
 {
-  EXPECT_NO_THROW(steering_kinematics::SteeringKinematics());
+  EXPECT_NO_THROW(steering_odometry::SteeringOdometry());
 
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 3.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   EXPECT_DOUBLE_EQ(odom.get_heading(), 0.);
   EXPECT_DOUBLE_EQ(odom.get_x(), 0.);
   EXPECT_DOUBLE_EQ(odom.get_y(), 0.);
@@ -35,9 +38,9 @@ TEST(TestSteeringOdometry, initialize)
 
 TEST(TestSteeringOdometry, ackermann_odometry)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 1., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   ASSERT_TRUE(odom.update_from_velocity(1., 1., .1, .1, .1));
   EXPECT_NEAR(odom.get_linear(), 1.002, 1e-3);
   EXPECT_NEAR(odom.get_angular(), .1, 1e-3);
@@ -47,9 +50,9 @@ TEST(TestSteeringOdometry, ackermann_odometry)
 
 TEST(TestSteeringOdometry, ackermann_odometry_openloop_linear)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   odom.update_open_loop(2., 0., 0.5);
   EXPECT_DOUBLE_EQ(odom.get_linear(), 2.);
   EXPECT_DOUBLE_EQ(odom.get_x(), 1.);
@@ -58,9 +61,9 @@ TEST(TestSteeringOdometry, ackermann_odometry_openloop_linear)
 
 TEST(TestSteeringOdometry, ackermann_odometry_openloop_angular_left)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   odom.update_open_loop(1., 1., 1.);
   EXPECT_DOUBLE_EQ(odom.get_linear(), 1.);
   EXPECT_DOUBLE_EQ(odom.get_angular(), 1.);
@@ -71,9 +74,9 @@ TEST(TestSteeringOdometry, ackermann_odometry_openloop_angular_left)
 
 TEST(TestSteeringOdometry, ackermann_odometry_openloop_angular_right)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   odom.update_open_loop(1., -1., 1.);
   EXPECT_DOUBLE_EQ(odom.get_linear(), 1.);
   EXPECT_DOUBLE_EQ(odom.get_angular(), -1.);
@@ -83,9 +86,9 @@ TEST(TestSteeringOdometry, ackermann_odometry_openloop_angular_right)
 
 TEST(TestSteeringOdometry, ackermann_IK_linear)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   odom.update_open_loop(1., 0., 1.);
   auto cmd = odom.get_commands(1., 0., true);
   auto cmd0 = std::get<0>(cmd);  // vel
@@ -98,9 +101,9 @@ TEST(TestSteeringOdometry, ackermann_IK_linear)
 
 TEST(TestSteeringOdometry, ackermann_IK_left)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   odom.update_from_position(0., 0.2, 1.);  // assume already turn
   auto cmd = odom.get_commands(1., 0.1, false);
   auto cmd0 = std::get<0>(cmd);  // vel
@@ -113,9 +116,9 @@ TEST(TestSteeringOdometry, ackermann_IK_left)
 
 TEST(TestSteeringOdometry, ackermann_IK_right)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
   odom.update_from_position(0., -0.2, 1.);  // assume already turn
   auto cmd = odom.get_commands(1., -0.1, false);
   auto cmd0 = std::get<0>(cmd);  // vel
@@ -128,9 +131,9 @@ TEST(TestSteeringOdometry, ackermann_IK_right)
 
 TEST(TestSteeringOdometry, ackermann_IK_right_steering_limited)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::ACKERMANN_CONFIG);
+  odom.set_odometry_type(steering_odometry::ACKERMANN_CONFIG);
 
   {
     odom.update_from_position(0., -0.785, 1.);  // already steered
@@ -176,9 +179,9 @@ TEST(TestSteeringOdometry, ackermann_IK_right_steering_limited)
 
 TEST(TestSteeringOdometry, bicycle_IK_linear)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::BICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::BICYCLE_CONFIG);
   odom.update_open_loop(1., 0., 1.);
   auto cmd = odom.get_commands(1., 0., true);
   auto cmd0 = std::get<0>(cmd);    // vel
@@ -189,9 +192,9 @@ TEST(TestSteeringOdometry, bicycle_IK_linear)
 
 TEST(TestSteeringOdometry, bicycle_IK_left)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::BICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::BICYCLE_CONFIG);
   odom.update_from_position(0., 0.2, 1.);  // assume already turn
   auto cmd = odom.get_commands(1., 0.1, false);
   auto cmd0 = std::get<0>(cmd);    // vel
@@ -202,9 +205,9 @@ TEST(TestSteeringOdometry, bicycle_IK_left)
 
 TEST(TestSteeringOdometry, bicycle_IK_right)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::BICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::BICYCLE_CONFIG);
   odom.update_from_position(0., -0.2, 1.);  // assume already turn
   auto cmd = odom.get_commands(1., -0.1, false);
   auto cmd0 = std::get<0>(cmd);    // vel
@@ -215,9 +218,9 @@ TEST(TestSteeringOdometry, bicycle_IK_right)
 
 TEST(TestSteeringOdometry, bicycle_IK_right_steering_limited)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::BICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::BICYCLE_CONFIG);
 
   {
     odom.update_from_position(0., -0.785, 1.);  // already steered
@@ -271,9 +274,9 @@ TEST(TestSteeringOdometry, bicycle_IK_right_steering_limited)
 
 TEST(TestSteeringOdometry, bicycle_odometry)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 1., 1.);
-  odom.set_odometry_type(steering_kinematics::BICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::BICYCLE_CONFIG);
   ASSERT_TRUE(odom.update_from_velocity(1., .1, .1));
   EXPECT_NEAR(odom.get_linear(), 1.0, 1e-3);
   EXPECT_NEAR(odom.get_angular(), .1, 1e-3);
@@ -285,9 +288,9 @@ TEST(TestSteeringOdometry, bicycle_odometry)
 
 TEST(TestSteeringOdometry, tricycle_IK_linear)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::TRICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::TRICYCLE_CONFIG);
   odom.update_open_loop(1., 0., 1.);
   auto cmd = odom.get_commands(1., 0., true);
   auto cmd0 = std::get<0>(cmd);  // vel
@@ -299,9 +302,9 @@ TEST(TestSteeringOdometry, tricycle_IK_linear)
 
 TEST(TestSteeringOdometry, tricycle_IK_left)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::TRICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::TRICYCLE_CONFIG);
   odom.update_from_position(0., 0.2, 1.);  // assume already turn
   auto cmd = odom.get_commands(1., 0.1, false);
   auto cmd0 = std::get<0>(cmd);  // vel
@@ -313,9 +316,9 @@ TEST(TestSteeringOdometry, tricycle_IK_left)
 
 TEST(TestSteeringOdometry, tricycle_IK_right)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::TRICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::TRICYCLE_CONFIG);
   odom.update_from_position(0., -0.2, 1.);  // assume already turn
   auto cmd = odom.get_commands(1., -0.1, false);
   auto cmd0 = std::get<0>(cmd);  // vel
@@ -327,9 +330,9 @@ TEST(TestSteeringOdometry, tricycle_IK_right)
 
 TEST(TestSteeringOdometry, tricycle_IK_right_steering_limited)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 2., 1.);
-  odom.set_odometry_type(steering_kinematics::TRICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::TRICYCLE_CONFIG);
 
   {
     odom.update_from_position(0., -0.785, 1.);  // already steered
@@ -370,9 +373,9 @@ TEST(TestSteeringOdometry, tricycle_IK_right_steering_limited)
 
 TEST(TestSteeringOdometry, tricycle_odometry)
 {
-  steering_kinematics::SteeringKinematics odom(1);
+  steering_odometry::SteeringOdometry odom(1);
   odom.set_wheel_params(1., 1., 1.);
-  odom.set_odometry_type(steering_kinematics::TRICYCLE_CONFIG);
+  odom.set_odometry_type(steering_odometry::TRICYCLE_CONFIG);
   ASSERT_TRUE(odom.update_from_velocity(1., 1., .1, .1));
   EXPECT_NEAR(odom.get_linear(), 1.002, 1e-3);
   EXPECT_NEAR(odom.get_angular(), .1, 1e-3);
