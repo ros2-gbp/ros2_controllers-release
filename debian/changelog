@@ -1,0 +1,52 @@
+ros-jazzy-state-interfaces-broadcaster (4.42.0-1bookworm) bookworm; urgency=high
+
+  * Use new Command/State Interfaces API for tests (backport #2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>) (#2532 <https://github.com/ros-controls/ros2_controllers/issues/2532>)
+  * Contributors: mergify[bot]
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Sun, 09 Aug 2026 23:00:00 -0000
+
+ros-jazzy-state-interfaces-broadcaster (4.41.0-1bookworm) bookworm; urgency=high
+
+  * Test fix - call appropriate lifecycle transitions in controller tests: pid, motion_primitives, state_interfaces_broadcaster, ackermann_steering (backport #2399 <https://github.com/ros-controls/ros2_controllers/issues/2399>) (#2402 <https://github.com/ros-controls/ros2_controllers/issues/2402>)
+  * Contributors: mergify[bot]
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Tue, 30 Jun 2026 23:00:00 -0000
+
+ros-jazzy-state-interfaces-broadcaster (4.40.1-1bookworm) bookworm; urgency=high
+
+
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Mon, 11 May 2026 23:00:00 -0000
+
+ros-jazzy-state-interfaces-broadcaster (4.40.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Tue, 21 Apr 2026 23:00:00 -0000
+
+ros-jazzy-state-interfaces-broadcaster (4.39.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Fri, 03 Apr 2026 23:00:00 -0000
+
+ros-jazzy-state-interfaces-broadcaster (4.38.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Thu, 12 Mar 2026 00:00:00 -0000
+
+ros-jazzy-state-interfaces-broadcaster (4.37.0-1bookworm) bookworm; urgency=high
+
+
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Tue, 03 Feb 2026 00:00:00 -0000
+
+ros-jazzy-state-interfaces-broadcaster (4.36.0-1bookworm) bookworm; urgency=high
+
+  * Add state_interfaces_broadcaster (backport #2006 <https://github.com/ros-controls/ros2_controllers/issues/2006>) (#2076 <https://github.com/ros-controls/ros2_controllers/issues/2076>)
+  * Contributors: mergify[bot]
+
+ -- "Bence Magyar" <bence.magyar.robotics@gmail.com>  Wed, 31 Dec 2025 00:00:00 -0000
+
+
