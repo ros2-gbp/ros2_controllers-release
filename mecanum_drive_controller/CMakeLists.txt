@@ -1,12 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
-project(mecanum_drive_controller LANGUAGES CXX)
+project(mecanum_drive_controller)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
-  add_compile_options(-Wall -Wextra -Wpedantic -Wconversion)
-endif()
+find_package(ros2_control_cmake REQUIRED)
+set_compiler_options()
+export_windows_symbols()
 
 # find dependencies
 set(THIS_PACKAGE_INCLUDE_DEPENDS
+  control_msgs
+  control_toolbox
   controller_interface
   hardware_interface
   generate_parameter_library
@@ -27,8 +29,11 @@ foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
 
+# get include dirs from control_toolbox for the custom validators
+get_target_property(TB_INCLUDE_DIRS control_toolbox::rate_limiter_parameters INTERFACE_INCLUDE_DIRECTORIES)
 generate_parameter_library(mecanum_drive_controller_parameters
   src/mecanum_drive_controller.yaml
+  ${TB_INCLUDE_DIRS}/control_toolbox/custom_validators.hpp
 )
 
 add_library(
@@ -42,12 +47,20 @@ target_include_directories(mecanum_drive_controller PUBLIC
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 target_link_libraries(mecanum_drive_controller PUBLIC
-  mecanum_drive_controller_parameters)
-ament_target_dependencies(mecanum_drive_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
-
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
-target_compile_definitions(mecanum_drive_controller PRIVATE "ACKERMANN_STEERING_CONTROLLER_BUILDING_DLL")
+                      mecanum_drive_controller_parameters
+                      control_toolbox::rate_limiter_parameters
+                      control_toolbox::control_toolbox
+                      controller_interface::controller_interface
+                      hardware_interface::hardware_interface
+                      pluginlib::pluginlib
+                      rclcpp::rclcpp
+                      rclcpp_lifecycle::rclcpp_lifecycle
+                      realtime_tools::realtime_tools
+                      tf2::tf2
+                      ${tf2_geometry_msgs_TARGETS}
+                      ${tf2_msgs_TARGETS}
+                      ${nav_msgs_TARGETS}
+                      ${std_srvs_TARGETS})
 
 pluginlib_export_plugin_description_file(
   controller_interface mecanum_drive_controller.xml)
@@ -61,10 +74,10 @@ if(BUILD_TESTING)
 
   add_definitions(-DTEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
   ament_add_gmock(test_load_mecanum_drive_controller test/test_load_mecanum_drive_controller.cpp)
-  ament_target_dependencies(test_load_mecanum_drive_controller
-    controller_manager
-    hardware_interface
-    ros2_control_test_assets
+  target_link_libraries(test_load_mecanum_drive_controller
+    controller_manager::controller_manager
+    hardware_interface::hardware_interface
+    ros2_control_test_assets::ros2_control_test_assets
   )
 
   add_rostest_with_parameters_gmock(
@@ -72,22 +85,12 @@ if(BUILD_TESTING)
     ${CMAKE_CURRENT_SOURCE_DIR}/test/mecanum_drive_controller_params.yaml)
   target_include_directories(test_mecanum_drive_controller PRIVATE include)
   target_link_libraries(test_mecanum_drive_controller mecanum_drive_controller)
-  ament_target_dependencies(
-    test_mecanum_drive_controller
-    controller_interface
-    hardware_interface
-  )
 
   add_rostest_with_parameters_gmock(
     test_mecanum_drive_controller_preceding test/test_mecanum_drive_controller_preceding.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test/mecanum_drive_controller_preceding_params.yaml)
   target_include_directories(test_mecanum_drive_controller_preceding PRIVATE include)
   target_link_libraries(test_mecanum_drive_controller_preceding mecanum_drive_controller)
-  ament_target_dependencies(
-    test_mecanum_drive_controller_preceding
-    controller_interface
-    hardware_interface
-  )
 endif()
 
 install(

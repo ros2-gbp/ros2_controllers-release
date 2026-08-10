@@ -22,12 +22,10 @@
 
 #include "control_msgs/msg/dynamic_interface_group_values.hpp"
 #include "controller_interface/controller_interface.hpp"
-#include "gpio_controllers/visibility_control.h"
-#include "hardware_interface/hardware_info.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
-#include "realtime_tools/realtime_buffer.hpp"
 #include "realtime_tools/realtime_publisher.hpp"
+#include "realtime_tools/realtime_thread_safe_box.hpp"
 
 #include "gpio_controllers/gpio_command_controller_parameters.hpp"
 
@@ -47,28 +45,20 @@ using StateInterfaces =
 class GpioCommandController : public controller_interface::ControllerInterface
 {
 public:
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   GpioCommandController();
 
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   CallbackReturn on_init() override;
 
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
 
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
 
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
-  GPIO_COMMAND_CONTROLLER_PUBLIC
   controller_interface::return_type update(
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
@@ -89,6 +79,8 @@ private:
   void apply_command(
     const CmdType & gpio_commands, std::size_t gpio_index,
     std::size_t command_interface_index) const;
+  bool should_broadcast_all_interfaces_of_configured_gpios() const;
+  void set_all_state_interfaces_of_configured_gpios();
   InterfacesNames get_gpios_state_interfaces_names(const std::string & gpio_name) const;
   bool update_dynamic_map_parameters();
   std::vector<hardware_interface::ComponentInfo> get_gpios_from_urdf() const;
@@ -99,11 +91,16 @@ protected:
   MapOfReferencesToCommandInterfaces command_interfaces_map_;
   MapOfReferencesToStateInterfaces state_interfaces_map_;
 
-  realtime_tools::RealtimeBuffer<std::shared_ptr<CmdType>> rt_command_ptr_{};
   rclcpp::Subscription<CmdType>::SharedPtr gpios_command_subscriber_{};
+
+  // the realtime container to exchange the reference from subscriber
+  realtime_tools::RealtimeThreadSafeBox<CmdType> rt_command_;
+  // save the last reference in case of unable to get value from box
+  CmdType gpio_commands_;
 
   std::shared_ptr<rclcpp::Publisher<StateType>> gpio_state_publisher_{};
   std::shared_ptr<realtime_tools::RealtimePublisher<StateType>> realtime_gpio_state_publisher_{};
+  StateType gpio_state_msg_;
 
   std::shared_ptr<gpio_command_controller_parameters::ParamListener> param_listener_{};
   gpio_command_controller_parameters::Params params_;

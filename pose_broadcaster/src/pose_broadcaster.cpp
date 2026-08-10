@@ -78,10 +78,21 @@ controller_interface::CallbackReturn PoseBroadcaster::on_configure(
   params_ = param_listener_->get_params();
 
   pose_sensor_ = std::make_unique<semantic_components::PoseSensor>(params_.pose_name);
-  tf_publish_period_ =
-    params_.tf.publish_rate == 0.0
-      ? std::nullopt
-      : std::optional{rclcpp::Duration::from_seconds(1.0 / params_.tf.publish_rate)};
+
+  // TODO(amronos): Remove this check and its contents
+  if (params_.tf.publish_rate == 0.0)
+  {
+    tf_publish_period_ = std::nullopt;
+  }
+  else
+  {
+    tf_publish_period_ =
+      std::optional{rclcpp::Duration::from_seconds(1.0 / params_.tf.publish_rate)};
+    RCLCPP_WARN(
+      get_node()->get_logger(),
+      "[deprecated] tf.publish_rate parameter is deprecated, please set the value to 0.0. "
+      "The publish rate of TF messages should not be limited.");
+  }
 
   try
   {
@@ -109,17 +120,13 @@ controller_interface::CallbackReturn PoseBroadcaster::on_configure(
   }
 
   // Initialize pose message
-  realtime_publisher_->lock();
-  realtime_publisher_->msg_.header.frame_id = params_.frame_id;
-  realtime_publisher_->unlock();
+  pose_msg_.header.frame_id = params_.frame_id;
 
   // Initialize tf message if tf publishing is enabled
   if (realtime_tf_publisher_)
   {
-    realtime_tf_publisher_->lock();
-
-    realtime_tf_publisher_->msg_.transforms.resize(1);
-    auto & tf_transform = realtime_tf_publisher_->msg_.transforms.front();
+    tf_msg_.transforms.resize(1);
+    auto & tf_transform = tf_msg_.transforms.front();
     tf_transform.header.frame_id = params_.frame_id;
     if (params_.tf.child_frame_id.empty())
     {
@@ -129,8 +136,6 @@ controller_interface::CallbackReturn PoseBroadcaster::on_configure(
     {
       tf_transform.child_frame_id = params_.tf.child_frame_id;
     }
-
-    realtime_tf_publisher_->unlock();
   }
 
   return controller_interface::CallbackReturn::SUCCESS;
@@ -156,11 +161,11 @@ controller_interface::return_type PoseBroadcaster::update(
   geometry_msgs::msg::Pose pose;
   pose_sensor_->get_values_as_message(pose);
 
-  if (realtime_publisher_ && realtime_publisher_->trylock())
+  if (realtime_publisher_)
   {
-    realtime_publisher_->msg_.header.stamp = time;
-    realtime_publisher_->msg_.pose = pose;
-    realtime_publisher_->unlockAndPublish();
+    pose_msg_.header.stamp = time;
+    pose_msg_.pose = pose;
+    realtime_publisher_->try_publish(pose_msg_);
   }
   if (!is_pose_valid(pose))
   {
@@ -170,7 +175,8 @@ controller_interface::return_type PoseBroadcaster::update(
       pose.position.z, pose.orientation.x, pose.orientation.y, pose.orientation.z,
       pose.orientation.w);
   }
-  else if (realtime_tf_publisher_ && realtime_tf_publisher_->trylock())
+  // TODO(amronos): Remove publish rate functionality
+  else if (realtime_tf_publisher_)
   {
     bool do_publish = false;
     // rlcpp::Time comparisons throw if clock types are not the same
@@ -185,7 +191,7 @@ controller_interface::return_type PoseBroadcaster::update(
 
     if (do_publish)
     {
-      auto & tf_transform = realtime_tf_publisher_->msg_.transforms[0];
+      auto & tf_transform = tf_msg_.transforms[0];
       tf_transform.header.stamp = time;
 
       tf_transform.transform.translation.x = pose.position.x;
@@ -197,13 +203,9 @@ controller_interface::return_type PoseBroadcaster::update(
       tf_transform.transform.rotation.z = pose.orientation.z;
       tf_transform.transform.rotation.w = pose.orientation.w;
 
-      realtime_tf_publisher_->unlockAndPublish();
+      realtime_tf_publisher_->try_publish(tf_msg_);
 
       tf_last_publish_time_ = time;
-    }
-    else
-    {
-      realtime_tf_publisher_->unlock();
     }
   }
 

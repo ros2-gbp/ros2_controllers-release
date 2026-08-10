@@ -1,10 +1,10 @@
-// Copyright (c) 2025 ros2_control Development Team
+// Copyright (C) 2025 ros2_control Development Team
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//         http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,8 +36,8 @@ namespace test
 
 // Type aliases for Eigen types to avoid comma issues in MOCK_METHOD
 using Vector6d = Eigen::Matrix<double, 6, 1>;
-using Vector7d = Eigen::Matrix<double, 7, 1>;
 using Jacobian6xN = Eigen::Matrix<double, 6, Eigen::Dynamic>;
+using JacobianNx6 = Eigen::Matrix<double, Eigen::Dynamic, 6>;
 
 // Mock kinematics interface for testing admittance rule without real robot kinematics
 // Uses identity transformations to isolate mass matrix transformation logic
@@ -46,7 +46,8 @@ class MockKinematicsInterface : public kinematics_interface::KinematicsInterface
 public:
   MOCK_METHOD(
     bool, initialize,
-    (std::shared_ptr<rclcpp::node_interfaces::NodeParametersInterface>, const std::string &),
+    (const std::string &, std::shared_ptr<rclcpp::node_interfaces::NodeParametersInterface>,
+     const std::string &),
     (override));
   MOCK_METHOD(
     bool, calculate_link_transform,
@@ -61,6 +62,9 @@ public:
     (override));
   MOCK_METHOD(
     bool, calculate_jacobian, (const Eigen::VectorXd &, const std::string &, Jacobian6xN &),
+    (override));
+  MOCK_METHOD(
+    bool, calculate_jacobian_inverse, (const Eigen::VectorXd &, const std::string &, JacobianNx6 &),
     (override));
 };
 
@@ -140,25 +144,13 @@ private:
       {"fixed_world_frame.frame.id", std::string("base_link")},
       {"gravity_compensation.frame.id", std::string("tool0")},
       {"gravity_compensation.CoG.pos", std::vector<double>{0.0, 0.0, 0.0}},
-      {"gravity_compensation.CoG.force", 0.0},
-      {"robot_description", std::string("<robot name=\"test_robot\"></robot>")}};
+      {"gravity_compensation.CoG.force", 0.0}};
 
     rclcpp::NodeOptions options;
     options.parameter_overrides(params);
     options.allow_undeclared_parameters(true);
     options.automatically_declare_parameters_from_overrides(true);
     node_ = std::make_shared<rclcpp::Node>("test_node", options);
-
-    const std::string robot_description =
-      "<robot name=\"test_robot\"><link name=\"base_link\"/></robot>";
-    if (!node_->has_parameter("robot_description"))
-    {
-      node_->declare_parameter("robot_description", robot_description);
-    }
-    else
-    {
-      node_->set_parameter(rclcpp::Parameter("robot_description", robot_description));
-    }
 
     // Ensure all parameters are properly declared
     for (const auto & param : params)
