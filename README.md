@@ -1,3 +1,58 @@
+## ros2_controllers (jazzy) - 4.42.0-1
+
+The packages in the `ros2_controllers` repository were released into the `jazzy` distro by running `/home/bmagyar/.local/bin/bloom-release -r jazzy ros2_controllers` on `Mon, 10 Aug 2026 22:22:52 -0000`
+
+These packages were released:
+- `ackermann_steering_controller`
+- `admittance_controller`
+- `battery_state_broadcaster`
+- `bicycle_steering_controller`
+- `chained_filter_controller`
+- `diff_drive_controller`
+- `effort_controllers`
+- `force_torque_sensor_broadcaster`
+- `forward_command_controller`
+- `gpio_controllers`
+- `gps_sensor_broadcaster`
+- `gripper_controllers`
+- `imu_sensor_broadcaster`
+- `joint_state_broadcaster`
+- `joint_trajectory_controller`
+- `magnetometer_broadcaster`
+- `mecanum_drive_controller`
+- `motion_primitives_controllers`
+- `omni_wheel_drive_controller`
+- `parallel_gripper_controller`
+- `pid_controller`
+- `pose_broadcaster`
+- `position_controllers`
+- `range_sensor_broadcaster`
+- `ros2_controllers`
+- `ros2_controllers_test_nodes`
+- `rqt_joint_trajectory_controller`
+- `state_interfaces_broadcaster`
+- `steering_controllers_library`
+- `tricycle_controller`
+- `tricycle_steering_controller`
+- `velocity_controllers`
+
+Version of package(s) in repository `ros2_controllers`:
+
+- upstream repository: https://github.com/ros-controls/ros2_controllers.git
+- release repository: https://github.com/ros2-gbp/ros2_controllers-release.git
+- rosdistro version: `4.41.0-1`
+- old version: `4.41.0-1`
+- new version: `4.42.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.14.3`
+- catkin_pkg version: `1.1.0`
+- rosdep version: `0.25.1`
+- rosdistro version: `1.0.1`
+- vcstools version: `0.1.42`
+
+
 ## ros2_controllers (humble) - 2.54.0-1
 
 The packages in the `ros2_controllers` repository were released into the `humble` distro by running `/home/bmagyar/.local/bin/bloom-release -r humble ros2_controllers` on `Mon, 10 Aug 2026 21:57:55 -0000`
