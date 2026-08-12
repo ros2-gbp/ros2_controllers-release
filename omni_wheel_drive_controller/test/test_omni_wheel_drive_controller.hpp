@@ -54,12 +54,10 @@ std::vector<std::string> wheel_names_ = {
 class TestableOmniWheelDriveController
 : public omni_wheel_drive_controller::OmniWheelDriveController
 {
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_false_no_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_true_no_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_blank_prefix_true_no_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_false_set_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_test_prefix_true_set_namespace);
-  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_blank_prefix_true_set_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_prefix_no_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_blank_prefix_no_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_prefix_set_namespace);
+  FRIEND_TEST(OmniWheelDriveControllerTest, configure_succeeds_tf_tilde_prefix_set_namespace);
   FRIEND_TEST(OmniWheelDriveControllerTest, cleanup);
   FRIEND_TEST(OmniWheelDriveControllerTest, chainable_controller_unchained_mode);
   FRIEND_TEST(OmniWheelDriveControllerTest, chainable_controller_chained_mode);
@@ -69,6 +67,7 @@ class TestableOmniWheelDriveController
   FRIEND_TEST(OmniWheelDriveControllerTest, 3_wheel_rot_test);
   FRIEND_TEST(OmniWheelDriveControllerTest, 4_wheel_rot_test);
   FRIEND_TEST(OmniWheelDriveControllerTest, 5_wheel_test);
+  FRIEND_TEST(OmniWheelDriveControllerTest, odometry_set_service);
 
   /**
    * @brief wait_for_twist block until a new twist is received.
@@ -171,56 +170,56 @@ protected:
 
   void assignResourcesPosFeedback(const std::vector<std::string> wheel_names = wheel_names_)
   {
-    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
-    state_ifs.reserve(wheels_pos_states_.size());
+    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
+    loaned_state_ifs.reserve(wheels_pos_states_.size());
     state_itfs_.reserve(wheels_pos_states_.size());
     for (size_t i = 0; i < wheels_pos_states_.size(); ++i)
     {
       state_itfs_.emplace_back(
         std::make_shared<hardware_interface::StateInterface>(wheel_names[i], HW_IF_POSITION));
       std::ignore = state_itfs_.back()->set_value(wheels_pos_states_[i]);
-      state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
     }
 
-    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
-    command_ifs.reserve(wheels_vel_cmds_.size());
+    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
+    loaned_command_ifs.reserve(wheels_vel_cmds_.size());
     command_itfs_.reserve(wheels_vel_cmds_.size());
     for (size_t i = 0; i < wheels_vel_cmds_.size(); ++i)
     {
       command_itfs_.emplace_back(
         std::make_shared<hardware_interface::CommandInterface>(wheel_names[i], HW_IF_VELOCITY));
       std::ignore = command_itfs_.back()->set_value(wheels_vel_cmds_[i]);
-      command_ifs.emplace_back(command_itfs_.back(), nullptr);
+      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
     }
 
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
+    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
   }
 
   void assignResourcesVelFeedback()
   {
-    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
-    state_ifs.reserve(wheels_vel_states_.size());
+    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
+    loaned_state_ifs.reserve(wheels_vel_states_.size());
     state_itfs_.reserve(wheels_vel_states_.size());
     for (size_t i = 0; i < wheels_vel_states_.size(); ++i)
     {
       state_itfs_.emplace_back(
         std::make_shared<hardware_interface::StateInterface>(wheel_names_[i], HW_IF_VELOCITY));
       std::ignore = state_itfs_.back()->set_value(wheels_vel_states_[i]);
-      state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
     }
 
-    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
-    command_ifs.reserve(wheels_vel_cmds_.size());
+    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
+    loaned_command_ifs.reserve(wheels_vel_cmds_.size());
     command_itfs_.reserve(wheels_vel_cmds_.size());
     for (size_t i = 0; i < wheels_vel_cmds_.size(); ++i)
     {
       command_itfs_.emplace_back(
         std::make_shared<hardware_interface::CommandInterface>(wheel_names_[i], HW_IF_VELOCITY));
       std::ignore = command_itfs_.back()->set_value(wheels_vel_cmds_[i]);
-      command_ifs.emplace_back(command_itfs_.back(), nullptr);
+      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
     }
 
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
+    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
   }
 
   controller_interface::return_type InitController(

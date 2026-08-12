@@ -36,7 +36,6 @@ add_library(forward_command_controller SHARED
   src/forward_command_controller.cpp
   src/multi_interface_forward_command_controller.cpp
 )
-target_compile_features(forward_command_controller PUBLIC cxx_std_17)
 target_include_directories(forward_command_controller PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/forward_command_controller>
@@ -57,6 +56,8 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gmock REQUIRED)
   find_package(controller_manager REQUIRED)
   find_package(ros2_control_test_assets REQUIRED)
+
+  add_definitions(-DTEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
 
   ament_add_gmock(test_load_forward_command_controller
     test/test_load_forward_command_controller.cpp

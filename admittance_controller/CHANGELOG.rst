@@ -2,101 +2,113 @@
 Changelog for package admittance_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.42.0 (2026-08-10)
--------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2532 <https://github.com/ros-controls/ros2_controllers/issues/2532>`_)
-* Use new chainable controller exports API (backport `#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_) (`#2453 <https://github.com/ros-controls/ros2_controllers/issues/2453>`_)
-* Fix admittance position state updates (backport `#2514 <https://github.com/ros-controls/ros2_controllers/issues/2514>`_) (`#2519 <https://github.com/ros-controls/ros2_controllers/issues/2519>`_)
-* admittance_controller userdoc: fix typo (backport `#2479 <https://github.com/ros-controls/ros2_controllers/issues/2479>`_) (`#2482 <https://github.com/ros-controls/ros2_controllers/issues/2482>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Fix admittance position state updates (`#2514 <https://github.com/ros-controls/ros2_controllers/issues/2514>`_)
+* admittance_controller userdoc: fix typo (`#2479 <https://github.com/ros-controls/ros2_controllers/issues/2479>`_)
+* Use new chainable controller exports API (`#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_)
+* Contributors: Dennis Lanov, Sai Kishor Kothakota, Vladimir Fokow
 
-4.41.0 (2026-07-01)
--------------------
-* Final test cleanup - call appropriate lifecycle transitions (backport `#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_) (`#2432 <https://github.com/ros-controls/ros2_controllers/issues/2432>`_)
-* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (backport `#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_) (`#2354 <https://github.com/ros-controls/ros2_controllers/issues/2354>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Final test cleanup - call appropriate lifecycle transitions (`#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_)
+* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (`#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_)
+* Contributors: Junius Santoso
 
-4.40.1 (2026-05-12)
--------------------
-* fix: correct ASSERT_EQ to ASSERT_NE in admittance controller load test (backport `#2264 <https://github.com/ros-controls/ros2_controllers/issues/2264>`_) (`#2338 <https://github.com/ros-controls/ros2_controllers/issues/2338>`_)
-* Contributors: mergify[bot]
+6.7.0 (2026-05-12)
+------------------
+* Suppress cppcheck errors from macros from version.h (`#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_)
+* fix: correct ASSERT_EQ to ASSERT_NE in admittance controller load test (`#2264 <https://github.com/ros-controls/ros2_controllers/issues/2264>`_)
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich, Souri Rishik
 
-4.40.0 (2026-04-22)
--------------------
-* Update admittance_controller to use shared 6D robot description (backport `#2173 <https://github.com/ros-controls/ros2_controllers/issues/2173>`_) (`#2310 <https://github.com/ros-controls/ros2_controllers/issues/2310>`_)
-* Contributors: mergify[bot]
+6.6.0 (2026-04-22)
+------------------
+* Update admittance_controller to use shared 6D robot description (`#2173 <https://github.com/ros-controls/ros2_controllers/issues/2173>`_)
+* Contributors: Naitik
 
-4.39.0 (2026-04-04)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-4.38.0 (2026-03-12)
--------------------
-* Fix dynamic allocation in admittance_rule (backport `#2150 <https://github.com/ros-controls/ros2_controllers/issues/2150>`_) (`#2154 <https://github.com/ros-controls/ros2_controllers/issues/2154>`_)
-* Contributors: mergify[bot]
+6.4.0 (2026-03-12)
+------------------
+* Consistently add <cmath> include with define for windows (`#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_)
+* [Admittance] applies control frame transform to mass matrix (`#1139 <https://github.com/ros-controls/ros2_controllers/issues/1139>`_)
+* Fix dynamic allocation in admittance_rule (`#2150 <https://github.com/ros-controls/ros2_controllers/issues/2150>`_)
+* Contributors: Christoph Fröhlich, Marco Magri, Surya!
 
-4.37.0 (2026-02-03)
--------------------
-* Check robot description validity in AdmittanceController (backport `#2009 <https://github.com/ros-controls/ros2_controllers/issues/2009>`_) (`#2113 <https://github.com/ros-controls/ros2_controllers/issues/2113>`_)
-* Contributors: mergify[bot]
+6.3.0 (2026-02-03)
+------------------
+* Check robot description validity in AdmittanceController (`#2009 <https://github.com/ros-controls/ros2_controllers/issues/2009>`_)
+* Contributors: Caio Freitas
 
-4.36.0 (2025-12-31)
--------------------
-* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
-* Contributors: mergify[bot]
+6.2.0 (2025-12-31)
+------------------
 
-4.35.0 (2025-12-01)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-4.34.0 (2025-11-10)
--------------------
+6.0.0 (2025-11-10)
+------------------
+* Use NodeInterfaces for TransformBroadcaster construction (`#1981 <https://github.com/ros-controls/ros2_controllers/issues/1981>`_)
+* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
+* Contributors: Anand Vardhan, Christoph Fröhlich
 
-4.33.1 (2025-10-17)
--------------------
+5.8.0 (2025-10-02)
+------------------
+* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
+* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
+* Contributors: Christoph Fröhlich
 
-4.33.0 (2025-10-03)
--------------------
-* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
-* Update realtime containers (backport `#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_) (`#1935 <https://github.com/ros-controls/ros2_controllers/issues/1935>`_)
-* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
-* Contributors: mergify[bot]
+5.7.0 (2025-09-12)
+------------------
+* Fix temporary copies of other semantic components (`#1905 <https://github.com/ros-controls/ros2_controllers/issues/1905>`_)
+* Contributors: Christoph Fröhlich
 
-4.32.0 (2025-09-12)
--------------------
-* Fix temporary copies of other semantic components (backport `#1905 <https://github.com/ros-controls/ros2_controllers/issues/1905>`_) (`#1908 <https://github.com/ros-controls/ros2_controllers/issues/1908>`_)
-* Contributors: mergify[bot]
+5.6.1 (2025-08-30)
+------------------
 
-4.31.0 (2025-08-27)
--------------------
-* chore: tf2_ros to hpp headers (backport `#1866 <https://github.com/ros-controls/ros2_controllers/issues/1866>`_) (`#1869 <https://github.com/ros-controls/ros2_controllers/issues/1869>`_)
-* Contributors: mergify[bot]
+5.6.0 (2025-08-29)
+------------------
+* tf2_ros to hpp headers (`#1866 <https://github.com/ros-controls/ros2_controllers/issues/1866>`_)
+* Remove usage of `get_ordered_interfaces` but update parameter validation instead (`#1816 <https://github.com/ros-controls/ros2_controllers/issues/1816>`_)
+* Contributors: Christoph Fröhlich, Tim Clephas
 
-4.30.1 (2025-08-03)
--------------------
+5.5.0 (2025-07-31)
+------------------
+* Fix `child_frame_id` in controller_state_msg (`#1601 <https://github.com/ros-controls/ros2_controllers/issues/1601>`_)
+* Contributors: Rehan Shah
 
-4.30.0 (2025-07-31)
--------------------
-* Fix `child_frame_id` in controller_state_msg (backport `#1601 <https://github.com/ros-controls/ros2_controllers/issues/1601>`_) (`#1835 <https://github.com/ros-controls/ros2_controllers/issues/1835>`_)
-* Contributors: mergify[bot]
+5.4.0 (2025-07-23)
+------------------
+* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
+* Contributors: Sanjeev Kumar
 
-4.29.0 (2025-07-23)
--------------------
+5.3.0 (2025-07-14)
+------------------
+* Use ParamListener::try_get_params to Avoid Blocking in Real-Time Contexts (`#1198 <https://github.com/ros-controls/ros2_controllers/issues/1198>`_)
+* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
+* Contributors: Christoph Fröhlich, Kenta Kato
 
-4.28.0 (2025-07-14)
--------------------
+5.2.0 (2025-06-23)
+------------------
 
-4.27.1 (2025-07-02)
--------------------
+5.1.0 (2025-06-11)
+------------------
 
-4.27.0 (2025-06-23)
--------------------
+5.0.2 (2025-05-26)
+------------------
 
-4.26.0 (2025-06-06)
--------------------
-* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
-* Contributors: mergify[bot]
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
 
-4.25.0 (2025-05-17)
--------------------
+5.0.0 (2025-05-17)
+------------------
+* [AdmittanceController] Remove superfluous `admittance_tranforms\_` structure (`#1668 <https://github.com/ros-controls/ros2_controllers/issues/1668>`_)
+* Contributors: Geethik Mylapur
 
 4.24.0 (2025-04-27)
 -------------------

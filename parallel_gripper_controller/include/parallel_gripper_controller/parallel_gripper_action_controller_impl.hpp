@@ -159,7 +159,7 @@ void GripperActionController::accepted_callback(
   pre_alloc_result_->reached_goal = false;
   pre_alloc_result_->stalled = false;
 
-  last_movement_time_ = get_node()->now();
+  last_movement_time_.set(get_node()->now());
   rt_goal->execute();
   rt_active_goal_.set([rt_goal](RealtimeGoalHandlePtr & stored_value) { stored_value = rt_goal; });
 
@@ -216,7 +216,7 @@ void GripperActionController::check_for_success(
   double current_velocity)
 {
   RealtimeGoalHandlePtr active_goal;
-  rt_active_goal_.get([&](const RealtimeGoalHandlePtr & goal) { active_goal = goal; });
+  rt_active_goal_.try_get([&](const RealtimeGoalHandlePtr & goal) { active_goal = goal; });
   if (!active_goal)
   {
     return;
@@ -230,34 +230,41 @@ void GripperActionController::check_for_success(
     pre_alloc_result_->stalled = false;
     RCLCPP_DEBUG(get_node()->get_logger(), "Successfully moved to goal.");
     active_goal->setSucceeded(pre_alloc_result_);
-    rt_active_goal_.set([](RealtimeGoalHandlePtr & stored_value)
-                        { stored_value = RealtimeGoalHandlePtr(); });
+    rt_active_goal_.try_set([](RealtimeGoalHandlePtr & stored_value)
+                            { stored_value = RealtimeGoalHandlePtr(); });
   }
   else
   {
     if (fabs(current_velocity) > params_.stall_velocity_threshold)
     {
-      last_movement_time_ = time;
+      last_movement_time_.try_set(time);
     }
-    else if ((time - last_movement_time_).seconds() > params_.stall_timeout)
+    else
     {
-      pre_alloc_result_->state.effort[0] = computed_command_;
-      pre_alloc_result_->state.position[0] = current_position;
-      pre_alloc_result_->reached_goal = false;
-      pre_alloc_result_->stalled = true;
+      auto last_time_opt = last_movement_time_.try_get();
+      if (
+        last_time_opt.has_value() &&
+        (time - last_time_opt.value()).seconds() > params_.stall_timeout)
+      {
+        pre_alloc_result_->state.effort[0] = computed_command_;
+        pre_alloc_result_->state.position[0] = current_position;
+        pre_alloc_result_->reached_goal = false;
+        pre_alloc_result_->stalled = true;
 
-      if (params_.allow_stalling)
-      {
-        RCLCPP_DEBUG(get_node()->get_logger(), "Stall detected moving to goal. Returning success.");
-        active_goal->setSucceeded(pre_alloc_result_);
+        if (params_.allow_stalling)
+        {
+          RCLCPP_DEBUG(
+            get_node()->get_logger(), "Stall detected moving to goal. Returning success.");
+          active_goal->setSucceeded(pre_alloc_result_);
+        }
+        else
+        {
+          RCLCPP_DEBUG(get_node()->get_logger(), "Stall detected moving to goal. Aborting action!");
+          active_goal->setAborted(pre_alloc_result_);
+        }
+        rt_active_goal_.try_set([](RealtimeGoalHandlePtr & stored_value)
+                                { stored_value = RealtimeGoalHandlePtr(); });
       }
-      else
-      {
-        RCLCPP_DEBUG(get_node()->get_logger(), "Stall detected moving to goal. Aborting action!");
-        active_goal->setAborted(pre_alloc_result_);
-      }
-      rt_active_goal_.set([](RealtimeGoalHandlePtr & stored_value)
-                          { stored_value = RealtimeGoalHandlePtr(); });
     }
   }
 }
@@ -346,14 +353,32 @@ controller_interface::CallbackReturn GripperActionController::on_activate(
 
   for (auto & interface : command_interfaces_)
   {
-    if (interface.get_interface_name() == "set_gripper_max_effort")
+    if (
+      !params_.max_effort_interface.empty() && interface.get_name() == params_.max_effort_interface)
     {
       joint_effort_command_interface_ = interface;
     }
-    else if (interface.get_interface_name() == "set_gripper_max_velocity")
+    else if (
+      !params_.max_velocity_interface.empty() &&
+      interface.get_name() == params_.max_velocity_interface)
     {
       joint_speed_command_interface_ = interface;
     }
+  }
+
+  if (!params_.max_effort_interface.empty() && !joint_effort_command_interface_.has_value())
+  {
+    RCLCPP_ERROR(
+      get_node()->get_logger(), "Expected max effort command interface `%s` not found",
+      params_.max_effort_interface.c_str());
+    return controller_interface::CallbackReturn::FAILURE;
+  }
+  if (!params_.max_velocity_interface.empty() && !joint_speed_command_interface_.has_value())
+  {
+    RCLCPP_ERROR(
+      get_node()->get_logger(), "Expected max velocity command interface `%s` not found",
+      params_.max_velocity_interface.c_str());
+    return controller_interface::CallbackReturn::FAILURE;
   }
 
   // Command - non RT version
@@ -378,6 +403,8 @@ controller_interface::CallbackReturn GripperActionController::on_activate(
   pre_alloc_result_->reached_goal = false;
   pre_alloc_result_->stalled = false;
 
+  last_movement_time_.try_set(rclcpp::Time(0, 0, RCL_CLOCK_UNINITIALIZED));
+
   // Action interface
   action_server_ = rclcpp_action::create_server<control_msgs::action::ParallelGripperCommand>(
     get_node(), "~/gripper_cmd",
@@ -395,6 +422,8 @@ controller_interface::CallbackReturn GripperActionController::on_deactivate(
   joint_position_command_interface_ = std::nullopt;
   joint_position_state_interface_ = std::nullopt;
   joint_velocity_state_interface_ = std::nullopt;
+  joint_effort_command_interface_ = std::nullopt;
+  joint_speed_command_interface_ = std::nullopt;
   return controller_interface::CallbackReturn::SUCCESS;
 }
 

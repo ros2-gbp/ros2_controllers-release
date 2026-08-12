@@ -131,9 +131,9 @@ public:
     command_interfaces.emplace_back(gpio_2_ana_cmd, nullptr);
 
     std::vector<LoanedStateInterface> state_interfaces;
-    state_interfaces.emplace_back(gpio_1_1_dig_state);
-    state_interfaces.emplace_back(gpio_1_2_dig_state);
-    state_interfaces.emplace_back(gpio_2_ana_state);
+    state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+    state_interfaces.emplace_back(gpio_1_2_dig_state, nullptr);
+    state_interfaces.emplace_back(gpio_2_ana_state, nullptr);
 
     controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
   }
@@ -377,9 +377,9 @@ TEST_F(
   command_interfaces.emplace_back(gpio_1_2_dig_cmd, nullptr);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(gpio_1_1_dig_state);
-  state_interfaces.emplace_back(gpio_1_2_dig_state);
-  state_interfaces.emplace_back(gpio_2_ana_state);
+  state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_1_2_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_2_ana_state, nullptr);
 
   controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
 
@@ -408,8 +408,8 @@ TEST_F(
   command_interfaces.emplace_back(gpio_2_ana_cmd, nullptr);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(gpio_1_1_dig_state);
-  state_interfaces.emplace_back(gpio_1_2_dig_state);
+  state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_1_2_dig_state, nullptr);
 
   controller_->assign_interfaces(std::move(command_interfaces), std::move(state_interfaces));
 
@@ -650,8 +650,8 @@ TEST_F(
   command_interfaces.emplace_back(gpio_1_1_dig_cmd, nullptr);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(gpio_1_1_dig_state);
-  state_interfaces.emplace_back(gpio_2_ana_state);
+  state_interfaces.emplace_back(gpio_1_1_dig_state, nullptr);
+  state_interfaces.emplace_back(gpio_2_ana_state, nullptr);
 
   const auto result_of_initialization =
     controller_->init(create_ctrl_params(node_options, minimal_robot_urdf_with_gpio));

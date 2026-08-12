@@ -17,7 +17,6 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp
   rclcpp_lifecycle
   realtime_tools
-  std_srvs
   tf2
   tf2_geometry_msgs
   tf2_msgs
@@ -42,7 +41,6 @@ add_library(
   src/mecanum_drive_controller.cpp
   src/odometry.cpp
 )
-target_compile_features(mecanum_drive_controller PUBLIC cxx_std_17)
 target_include_directories(mecanum_drive_controller PUBLIC
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
@@ -60,7 +58,7 @@ target_link_libraries(mecanum_drive_controller PUBLIC
                       ${tf2_geometry_msgs_TARGETS}
                       ${tf2_msgs_TARGETS}
                       ${nav_msgs_TARGETS}
-                      ${std_srvs_TARGETS})
+                      ${control_msgs_TARGETS})
 
 pluginlib_export_plugin_description_file(
   controller_interface mecanum_drive_controller.xml)
