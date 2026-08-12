@@ -60,7 +60,6 @@ class FriendJointStateBroadcaster : public joint_state_broadcaster::JointStateBr
   FRIEND_TEST(JointStateBroadcasterTest, ExtraJointStatePublishTest);
   FRIEND_TEST(JointStateBroadcasterTest, NoThrowWithBooleanInterfaceTest);
   FRIEND_TEST(JointStateBroadcasterTest, NoThrowWithBooleanAndDoubleInterfaceTest);
-  FRIEND_TEST(JointStateBroadcasterTest, CorrectMappingWhenInterfaceReadFailsTest);
 };
 
 class JointStateBroadcasterTest : public ::testing::Test
@@ -113,8 +112,9 @@ protected:
 
   hardware_interface::StateInterface::SharedPtr joint_X_custom_state;
 
-  hardware_interface::StateInterface joint_1_moving_state_{
-    joint_names_[0], "is_moving", "bool", "false"};
+  hardware_interface::StateInterface::SharedPtr joint_1_moving_state_ =
+    std::make_shared<hardware_interface::StateInterface>(
+      joint_names_[0], "is_moving", "bool", "false");
 
   std::vector<hardware_interface::StateInterface::SharedPtr> test_interfaces_;
 

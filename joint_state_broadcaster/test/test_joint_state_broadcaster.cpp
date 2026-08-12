@@ -14,10 +14,8 @@
 
 #include <cstddef>
 
-#include <atomic>
 #include <functional>
 #include <memory>
-#include <shared_mutex>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -249,7 +247,6 @@ TEST_F(JointStateBroadcasterTest, ActivateEmptyWithoutDynamicJointStatesPublishe
   ASSERT_FALSE(state_broadcaster_->dynamic_joint_state_publisher_);
 
   SetUpStateBroadcaster({}, {}, {rclcpp::Parameter("publish_dynamic_joint_states", false)});
-
   // configure ok
   ASSERT_TRUE(configure_succeeds(state_broadcaster_));
 
@@ -1198,7 +1195,7 @@ TEST_F(JointStateBroadcasterTest, UpdatePerformanceTest)
   std::vector<LoanedStateInterface> state_interfaces;
   for (const auto & tif : test_interfaces_)
   {
-    state_interfaces.emplace_back(tif);
+    state_interfaces.emplace_back(tif, nullptr);
   }
 
   state_broadcaster_->assign_interfaces({}, std::move(state_interfaces));
@@ -1451,7 +1448,7 @@ TEST_F(JointStateBroadcasterTest, NoThrowWithBooleanInterfaceTest)
 
   const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, IsEmpty());
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(1));
 }
 
 TEST_F(JointStateBroadcasterTest, NoThrowWithBooleanAndDoubleInterfaceTest)
@@ -1479,93 +1476,17 @@ TEST_F(JointStateBroadcasterTest, NoThrowWithBooleanAndDoubleInterfaceTest)
 
   const auto & dynamic_joint_state_msg = state_broadcaster_->dynamic_joint_state_msg_;
   ASSERT_EQ(dynamic_joint_state_msg.header.frame_id, frame_id_);
-  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(1))
-    << "Boolean interface should be skipped";
+  ASSERT_THAT(dynamic_joint_state_msg.joint_names, SizeIs(1));
   ASSERT_THAT(dynamic_joint_state_msg.interface_values, SizeIs(1));
 
+  // boolean should not be skipped
   ASSERT_THAT(
     dynamic_joint_state_msg.interface_values[0].interface_names,
-    ElementsAreArray({HW_IF_POSITION, HW_IF_VELOCITY, HW_IF_EFFORT}));
+    ElementsAreArray({"is_moving", HW_IF_POSITION, HW_IF_VELOCITY, HW_IF_EFFORT}));
 
   // joint states
   ASSERT_THAT(state_broadcaster_->joint_state_msg_.name, ElementsAreArray({joint_names_[0]}));
   ASSERT_THAT(state_broadcaster_->joint_state_msg_.position, SizeIs(1));
   ASSERT_THAT(state_broadcaster_->joint_state_msg_.velocity, SizeIs(1));
   ASSERT_THAT(state_broadcaster_->joint_state_msg_.effort, SizeIs(1));
-}
-
-// Regression test: when a double interface temporarily fails to be read
-// (get_optional returns nullopt as it is unable to lock), map_index must still advance so that
-// subsequent interfaces are written to the correct mapped_values_ indexes.
-//
-// Without the fix, if state_interfaces_[i] returns nullopt, the next interface's value is
-// written into index i instead of index i+1, corrupting all subsequent joint state values.
-TEST_F(JointStateBroadcasterTest, CorrectMappingWhenInterfaceReadFailsTest)
-{
-  init_broadcaster_and_set_parameters(
-    "", {joint_names_[0], joint_names_[1], joint_names_[2]}, {HW_IF_POSITION});
-
-  std::vector<LoanedStateInterface> state_ifs;
-  state_ifs.emplace_back(joint_1_pos_state_);
-  state_ifs.emplace_back(joint_2_pos_state_);
-  state_ifs.emplace_back(joint_3_pos_state_);
-  state_broadcaster_->assign_interfaces({}, std::move(state_ifs));
-
-  ASSERT_TRUE(configure_succeeds(state_broadcaster_));
-  ASSERT_TRUE(activate_succeeds(state_broadcaster_));
-
-  ASSERT_THAT(
-    state_broadcaster_->joint_state_msg_.name,
-    ElementsAreArray({joint_names_[0], joint_names_[1], joint_names_[2]}));
-
-  /// Simulate a temporarily-unavailable first interface
-  // Hold an exclusive lock on state_interfaces_[0]'s mutex from a helper thread.
-  // While the lock is held, get_optional(0) on state_interfaces_[0] cannot acquire the
-  // shared lock and returns nullopt.
-  std::atomic<bool> lock_held{false};
-  std::atomic<bool> release_lock{false};
-
-  std::thread locker(
-    [&]()
-    {
-      // Acquire exclusive lock on the first interface's handle mutex
-      std::unique_lock<std::shared_mutex> lk(joint_1_pos_state_->get_mutex());
-      lock_held.store(true, std::memory_order_release);
-      // Hold it until the main thread finishes its update() call
-      while (!release_lock.load(std::memory_order_acquire))
-      {
-        std::this_thread::yield();
-      }
-    });
-
-  // Wait until the locker thread actually owns the mutex
-  while (!lock_held.load(std::memory_order_acquire))
-  {
-    std::this_thread::yield();
-  }
-
-  // Call update(): joint1/position read will return nullopt (lock held by locker thread).
-  ASSERT_NO_THROW(
-    state_broadcaster_->update(rclcpp::Time(0), rclcpp::Duration::from_seconds(0.01)));
-
-  release_lock.store(true, std::memory_order_release);
-  locker.join();
-
-  const auto & names = state_broadcaster_->joint_state_msg_.name;
-  const auto & pos = state_broadcaster_->joint_state_msg_.position;
-  ASSERT_EQ(pos.size(), 3u);
-
-  // joint1 was not readable, its index must NOT contain joint2's value (2.2).
-  // (It will hold the initial NaN or any prior value, not 2.2.)
-  EXPECT_EQ(names[0], joint_names_[0]);
-  EXPECT_NE(pos[0], joint_values_[1])
-    << "joint1's position slot was overwritten with joint2's value — map_index bug is present";
-
-  EXPECT_EQ(names[1], joint_names_[1]);
-  EXPECT_DOUBLE_EQ(pos[1], joint_values_[1])
-    << "joint2's position slot has wrong value — map_index was shifted by the nullopt";
-
-  EXPECT_EQ(names[2], joint_names_[2]);
-  EXPECT_DOUBLE_EQ(pos[2], joint_values_[2])
-    << "joint3's position slot has wrong value — map_index was shifted by the nullopt";
 }

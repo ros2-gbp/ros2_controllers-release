@@ -2,76 +2,82 @@
 Changelog for package magnetometer_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.42.0 (2026-08-10)
+5.17.0 (2026-08-12)
 -------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2532 <https://github.com/ros-controls/ros2_controllers/issues/2532>`_)
+* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
 * Contributors: mergify[bot]
 
-4.41.0 (2026-07-01)
+5.16.0 (2026-07-01)
 -------------------
-* Final test cleanup - call appropriate lifecycle transitions (backport `#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_) (`#2432 <https://github.com/ros-controls/ros2_controllers/issues/2432>`_)
-* broadcaster for magnetic field values from a magnetometer (backport `#2214 <https://github.com/ros-controls/ros2_controllers/issues/2214>`_) (`#2371 <https://github.com/ros-controls/ros2_controllers/issues/2371>`_)
+* Final test cleanup - call appropriate lifecycle transitions (backport `#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_) (`#2433 <https://github.com/ros-controls/ros2_controllers/issues/2433>`_)
+* broadcaster for magnetic field values from a magnetometer (backport `#2214 <https://github.com/ros-controls/ros2_controllers/issues/2214>`_) (`#2372 <https://github.com/ros-controls/ros2_controllers/issues/2372>`_)
+  Co-authored-by: Christian Rauch <Rauch.Christian@gmx.de>
+  Co-authored-by: Christoph Fröhlich <christophfroehlich@users.noreply.github.com>
+  Co-authored-by: mergify[bot] <37929162+mergify[bot]@users.noreply.github.com>
 * Contributors: mergify[bot]
 
-4.40.1 (2026-05-12)
+5.15.1 (2026-05-12)
 -------------------
 
-4.40.0 (2026-04-22)
+5.15.0 (2026-04-22)
 -------------------
 
-4.39.0 (2026-04-04)
+5.14.0 (2026-04-03)
 -------------------
 
-4.38.0 (2026-03-12)
+5.13.1 (2026-03-12)
 -------------------
 
-4.37.0 (2026-02-03)
+5.13.0 (2026-02-03)
 -------------------
 
-4.36.0 (2025-12-31)
+5.12.0 (2025-12-31)
 -------------------
 
-4.35.0 (2025-12-01)
+5.11.0 (2025-12-09)
 -------------------
 
-4.34.0 (2025-11-10)
+5.10.0 (2025-12-01)
 -------------------
 
-4.33.1 (2025-10-17)
--------------------
+5.9.0 (2025-11-10)
+------------------
 
-4.33.0 (2025-10-03)
--------------------
+5.8.0 (2025-10-02)
+------------------
 
-4.32.0 (2025-09-12)
--------------------
+5.7.0 (2025-09-12)
+------------------
 
-4.31.0 (2025-08-27)
--------------------
+5.6.1 (2025-08-30)
+------------------
 
-4.30.1 (2025-08-03)
--------------------
+5.6.0 (2025-08-29)
+------------------
 
-4.30.0 (2025-07-31)
--------------------
+5.5.0 (2025-07-31)
+------------------
 
-4.29.0 (2025-07-23)
--------------------
+5.4.0 (2025-07-23)
+------------------
 
-4.28.0 (2025-07-14)
--------------------
+5.3.0 (2025-07-14)
+------------------
 
-4.27.1 (2025-07-02)
--------------------
+5.2.0 (2025-06-23)
+------------------
 
-4.27.0 (2025-06-23)
--------------------
+5.1.0 (2025-06-11)
+------------------
 
-4.26.0 (2025-06-06)
--------------------
+5.0.2 (2025-05-26)
+------------------
 
-4.25.0 (2025-05-17)
--------------------
+5.0.1 (2025-05-24)
+------------------
+
+5.0.0 (2025-05-17)
+------------------
 
 4.24.0 (2025-04-27)
 -------------------

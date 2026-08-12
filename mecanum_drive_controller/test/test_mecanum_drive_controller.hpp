@@ -189,9 +189,9 @@ protected:
     params.node_options = node_options;
     ASSERT_EQ(controller_->init(params), controller_interface::return_type::OK);
 
-    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
+    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
     command_itfs_.reserve(joint_command_values_.size());
-    command_ifs.reserve(joint_command_values_.size());
+    loaned_command_ifs.reserve(joint_command_values_.size());
 
     for (size_t i = 0; i < joint_command_values_.size(); ++i)
     {
@@ -199,12 +199,12 @@ protected:
         command_joint_names_[i], interface_name_);
       std::ignore = cmd_itf->set_value(joint_command_values_[i]);
       command_itfs_.emplace_back(cmd_itf);
-      command_ifs.emplace_back(command_itfs_.back(), nullptr);
+      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
     }
 
-    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
+    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
     state_itfs_.reserve(joint_state_values_.size());
-    state_ifs.reserve(joint_state_values_.size());
+    loaned_state_ifs.reserve(joint_state_values_.size());
 
     for (size_t i = 0; i < joint_state_values_.size(); ++i)
     {
@@ -212,10 +212,10 @@ protected:
         command_joint_names_[i], interface_name_);
       std::ignore = state_itf->set_value(joint_state_values_[i]);
       state_itfs_.emplace_back(state_itf);
-      state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
     }
 
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
+    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
   }
 
   void subscribe_to_controller_status_execute_update_and_get_messages(ControllerStateMsg & msg)

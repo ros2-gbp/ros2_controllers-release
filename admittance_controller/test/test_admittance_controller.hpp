@@ -36,6 +36,11 @@
 #include "hardware_interface/loaned_command_interface.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
 #include "rclcpp/parameter_value.hpp"
+#include "rclcpp/version.h"
+// cppcheck-suppress syntaxError
+#if RCLCPP_VERSION_GTE(18, 0, 0)
+#include "rclcpp/node_interfaces/node_interfaces.hpp"
+#endif
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "ros2_control_test_assets/test_asset_6d_robot_description.hpp"
 #include "semantic_components/force_torque_sensor.hpp"
@@ -180,9 +185,9 @@ protected:
 
   void assign_interfaces()
   {
-    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
+    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
     command_itfs_.reserve(joint_command_values_.size());
-    command_ifs.reserve(joint_command_values_.size());
+    loaned_command_ifs.reserve(joint_command_values_.size());
 
     for (auto i = 0u; i < joint_command_values_.size(); ++i)
     {
@@ -190,16 +195,16 @@ protected:
         joint_names_[i], command_interface_types_[0]);
       std::ignore = command_itf->set_value(joint_command_values_[i]);
       command_itfs_.emplace_back(command_itf);
-      command_ifs.emplace_back(command_itfs_.back(), nullptr);
+      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
     }
 
     auto sc_fts = semantic_components::ForceTorqueSensor(ft_sensor_name_);
     fts_state_names_ = sc_fts.get_state_interface_names();
-    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
+    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
 
     const size_t num_state_ifs = joint_state_values_.size() + fts_state_names_.size();
     state_itfs_.reserve(num_state_ifs);
-    state_ifs.reserve(num_state_ifs);
+    loaned_state_ifs.reserve(num_state_ifs);
 
     for (auto i = 0u; i < joint_state_values_.size(); ++i)
     {
@@ -207,7 +212,7 @@ protected:
         joint_names_[i], state_interface_types_[0]);
       std::ignore = state_itf->set_value(joint_state_values_[i]);
       state_itfs_.emplace_back(state_itf);
-      state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
     }
 
     std::vector<std::string> fts_itf_names = {"force.x",  "force.y",  "force.z",
@@ -219,15 +224,24 @@ protected:
         std::make_shared<hardware_interface::StateInterface>(ft_sensor_name_, fts_itf_names[i]);
       std::ignore = fts_state_itf->set_value(fts_state_values_[i]);
       state_itfs_.emplace_back(fts_state_itf);
-      state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
     }
 
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
+    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
   }
 
   void broadcast_tfs()
   {
+// cppcheck-suppress syntaxError
+#if RCLCPP_VERSION_GTE(18, 0, 0)
+    static tf2_ros::TransformBroadcaster br(
+      rclcpp::node_interfaces::NodeInterfaces(
+        test_broadcaster_node_->get_node_parameters_interface(),
+        test_broadcaster_node_->get_node_topics_interface()));
+#else
     static tf2_ros::TransformBroadcaster br(test_broadcaster_node_);
+#endif
+
     geometry_msgs::msg::TransformStamped transform_stamped;
 
     transform_stamped.header.stamp = test_broadcaster_node_->now();

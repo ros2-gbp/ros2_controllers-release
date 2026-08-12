@@ -239,25 +239,29 @@ JointTrajectoryController::state_interface_configuration() const
 controller_interface::return_type JointTrajectoryController::update(
   const rclcpp::Time & time, const rclcpp::Duration & period)
 {
+  auto logger = this->get_node()->get_logger();
   if (scaling_state_interface_.has_value())
   {
-    scaling_factor_ = scaling_state_interface_->get().get_value();
+    auto scaling_state_interface_op = scaling_state_interface_->get().get_optional();
+    if (!scaling_state_interface_op.has_value())
+    {
+      RCLCPP_DEBUG(logger, "Unable to retrieve scaling state interface value");
+      return controller_interface::return_type::OK;
+    }
+    scaling_factor_ = scaling_state_interface_op.value();
   }
 
   if (scaling_command_interface_.has_value())
   {
     if (!scaling_command_interface_->get().set_value(scaling_factor_cmd_.load()))
     {
-      RCLCPP_ERROR(
-        get_node()->get_logger(), "Could not set speed scaling factor through command interfaces.");
+      RCLCPP_ERROR(logger, "Could not set speed scaling factor through command interfaces.");
     }
   }
 
-  auto logger = this->get_node()->get_logger();
   // update dynamic parameters
-  if (param_listener_->is_old(params_))
+  if (param_listener_->try_update_params(params_))
   {
-    params_ = param_listener_->get_params();
     default_tolerances_ = get_segment_tolerances(logger, params_);
     // update the PID gains
     // variable use_closed_loop_pid_adapter_ is updated in on_configure only
@@ -267,7 +271,7 @@ controller_interface::return_type JointTrajectoryController::update(
     }
   }
 
-  // don't update goal after we sampled the trajectory to avoid any racecondition
+  // don't update goal after we sampled the trajectory to avoid any race condition
   const auto active_goal = *rt_active_goal_.readFromRT();
 
   // Check if a new trajectory message has been received from Non-RT threads
@@ -297,7 +301,7 @@ controller_interface::return_type JointTrajectoryController::update(
     if (!current_trajectory_->is_sampled_already())
     {
       first_sample = true;
-      if (params_.interpolate_from_desired_state || params_.open_loop_control)
+      if (params_.interpolate_from_desired_state)
       {
         if (std::abs(last_commanded_time_.seconds()) < std::numeric_limits<float>::epsilon())
         {
@@ -322,6 +326,8 @@ controller_interface::return_type JointTrajectoryController::update(
     current_trajectory_->sample(
       traj_time_, interpolation_method_, state_desired_, start_segment_itr, end_segment_itr);
     state_desired_.time_from_start = traj_time_ - current_trajectory_->time_from_start();
+
+    const auto next_point_index = std::distance(current_trajectory_->begin(), end_segment_itr);
 
     // Sample setpoint for next control cycle
     const bool valid_point = current_trajectory_->sample(
@@ -461,6 +467,7 @@ controller_interface::return_type JointTrajectoryController::update(
         feedback->actual = state_current_;
         feedback->desired = state_desired_;
         feedback->error = state_error_;
+        feedback->index = static_cast<int32_t>(next_point_index);
         active_goal->setFeedback(feedback);
 
         // check abort
@@ -751,7 +758,7 @@ void JointTrajectoryController::query_state_service(
 {
   const auto logger = get_node()->get_logger();
   // Preconditions
-  if (get_lifecycle_state().id() != lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE)
+  if (get_lifecycle_id() != lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE)
   {
     RCLCPP_ERROR(logger, "Can't sample trajectory. Controller is not active.");
     response->success = false;
@@ -795,16 +802,6 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   const rclcpp_lifecycle::State &)
 {
   auto logger = get_node()->get_logger();
-
-  // START DEPRECATE
-  if (params_.open_loop_control)
-  {
-    RCLCPP_WARN(
-      logger,
-      "[deprecated] 'open_loop_control' parameter is deprecated. Instead, set the feedback gains "
-      "to zero and use 'interpolate_from_desired_state' parameter");
-  }
-  // END DEPRECATE
 
   // update the dynamic map parameters
   param_listener_->refresh_dynamic_parameters();
@@ -890,8 +887,7 @@ controller_interface::CallbackReturn JointTrajectoryController::on_configure(
   // if there is only velocity or if there is effort command interface
   // then use also PID adapter
   use_closed_loop_pid_adapter_ =
-    (has_velocity_command_interface_ && params_.command_interfaces.size() == 1 &&
-     !params_.open_loop_control) ||
+    (has_velocity_command_interface_ && params_.command_interfaces.size() == 1) ||
     (has_effort_command_interface_ && params_.command_interfaces.size() == 1);
 
   tmp_command_.resize(dof_, 0.0);
@@ -1376,7 +1372,7 @@ void JointTrajectoryController::publish_state(
     {
       state_msg_.output = command_current_;
     }
-    state_msg_.speed_scaling_factor = scaling_factor_.load();
+    state_msg_.speed_scaling_factor = scaling_factor_;
 
     state_publisher_->try_publish(state_msg_);
   }
@@ -1404,7 +1400,7 @@ rclcpp_action::GoalResponse JointTrajectoryController::goal_received_callback(
   RCLCPP_INFO(get_node()->get_logger(), "Received new action goal");
 
   // Precondition: Running controller
-  if (get_lifecycle_state().id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
+  if (get_lifecycle_id() == lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE)
   {
     RCLCPP_ERROR(
       get_node()->get_logger(), "Can't accept new action goals. Controller is not running.");
@@ -2039,9 +2035,8 @@ void JointTrajectoryController::update_pids()
     const auto & gains = params_.gains.joints_map.at(params_.joints.at(map_cmd_to_joints_[i]));
     control_toolbox::AntiWindupStrategy antiwindup_strat;
     antiwindup_strat.set_type(gains.antiwindup_strategy);
-    // deprecated parameter i_clamp: i_clamp_max and i_clamp_min have precedence over i_clamp
-    antiwindup_strat.i_max = std::isfinite(gains.i_clamp_max) ? gains.i_clamp_max : gains.i_clamp;
-    antiwindup_strat.i_min = std::isfinite(gains.i_clamp_min) ? gains.i_clamp_min : -gains.i_clamp;
+    antiwindup_strat.i_max = gains.i_clamp_max;
+    antiwindup_strat.i_min = gains.i_clamp_min;
     antiwindup_strat.error_deadband = gains.error_deadband;
     antiwindup_strat.tracking_time_constant = gains.tracking_time_constant;
     if (pids_[i])

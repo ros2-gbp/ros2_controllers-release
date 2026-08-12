@@ -156,8 +156,8 @@ protected:
   void assignResources()
   {
     std::vector<LoanedStateInterface> state_ifs;
-    state_ifs.emplace_back(steering_joint_pos_state_);
-    state_ifs.emplace_back(traction_joint_vel_state_);
+    state_ifs.emplace_back(steering_joint_pos_state_, nullptr);
+    state_ifs.emplace_back(traction_joint_vel_state_, nullptr);
 
     std::vector<LoanedCommandInterface> command_ifs;
     command_ifs.emplace_back(steering_joint_pos_cmd_, nullptr);

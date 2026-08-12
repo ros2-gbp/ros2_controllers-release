@@ -155,51 +155,51 @@ protected:
       traction_interface_name_ = "velocity";
     }
 
-    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
+    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
     command_itfs_.reserve(joint_command_values_.size());
-    command_ifs.reserve(joint_command_values_.size());
+    loaned_command_ifs.reserve(joint_command_values_.size());
 
     command_itfs_.emplace_back(
       std::make_shared<hardware_interface::CommandInterface>(
         traction_joints_names_[0], traction_interface_name_));
     std::ignore = command_itfs_.back()->set_value(joint_command_values_[CMD_TRACTION_RIGHT_WHEEL]);
-    command_ifs.emplace_back(command_itfs_.back(), nullptr);
+    loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
 
     command_itfs_.emplace_back(
       std::make_shared<hardware_interface::CommandInterface>(
         traction_joints_names_[1], steering_interface_name_));
     std::ignore = command_itfs_.back()->set_value(joint_command_values_[CMD_TRACTION_LEFT_WHEEL]);
-    command_ifs.emplace_back(command_itfs_.back(), nullptr);
+    loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
 
     command_itfs_.emplace_back(
       std::make_shared<hardware_interface::CommandInterface>(
         steering_joints_names_[0], steering_interface_name_));
     std::ignore = command_itfs_.back()->set_value(joint_command_values_[CMD_STEER_WHEEL]);
-    command_ifs.emplace_back(command_itfs_.back(), nullptr);
+    loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
 
-    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
+    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
     state_itfs_.reserve(joint_state_values_.size());
-    state_ifs.reserve(joint_state_values_.size());
+    loaned_state_ifs.reserve(joint_state_values_.size());
 
     state_itfs_.emplace_back(
       std::make_shared<hardware_interface::StateInterface>(
         traction_joints_names_[0], traction_interface_name_));
     std::ignore = state_itfs_.back()->set_value(joint_state_values_[STATE_TRACTION_RIGHT_WHEEL]);
-    state_ifs.emplace_back(state_itfs_.back(), nullptr);
+    loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
 
     state_itfs_.emplace_back(
       std::make_shared<hardware_interface::StateInterface>(
         traction_joints_names_[1], traction_interface_name_));
     std::ignore = state_itfs_.back()->set_value(joint_state_values_[STATE_TRACTION_LEFT_WHEEL]);
-    state_ifs.emplace_back(state_itfs_.back(), nullptr);
+    loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
 
     state_itfs_.emplace_back(
       std::make_shared<hardware_interface::StateInterface>(
         steering_joints_names_[0], steering_interface_name_));
     std::ignore = state_itfs_.back()->set_value(joint_state_values_[STATE_STEER_AXIS]);
-    state_ifs.emplace_back(state_itfs_.back(), nullptr);
+    loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
 
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
+    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
   }
 
   void subscribe_and_get_messages(ControllerStateMsg & msg)
@@ -289,8 +289,7 @@ protected:
     "pid_controller/steering_axis_joint"};
 
   double wheelbase_ = 3.24644;
-  double wheel_track_ = 1.212121;
-
+  double traction_track_width_ = 1.212121;
   double traction_wheels_radius_ = 0.45;
 
   std::array<double, 3> joint_state_values_{{0.5, 0.5, 0.0}};
