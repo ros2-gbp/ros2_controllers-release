@@ -40,7 +40,6 @@ class FriendJointStateBroadcaster : public joint_state_broadcaster::JointStateBr
 {
   FRIEND_TEST(JointStateBroadcasterTest, ConfigureErrorTest);
   FRIEND_TEST(JointStateBroadcasterTest, ActivateEmptyTest);
-  FRIEND_TEST(JointStateBroadcasterTest, ActivateEmptyWithoutDynamicJointStatesPublisherTest);
   FRIEND_TEST(JointStateBroadcasterTest, ReactivateTheControllerWithDifferentInterfacesTest);
   FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithoutJointsParameter);
   FRIEND_TEST(JointStateBroadcasterTest, ActivateTestWithoutJointsParameterInvalidURDF);
@@ -62,6 +61,40 @@ class FriendJointStateBroadcaster : public joint_state_broadcaster::JointStateBr
   FRIEND_TEST(JointStateBroadcasterTest, NoThrowWithBooleanAndDoubleInterfaceTest);
   FRIEND_TEST(JointStateBroadcasterTest, CorrectMappingWhenInterfaceReadFailsTest);
 };
+
+// Minimal 3-joint URDF covering the joint_names_ used in tests
+constexpr const char * kThreeJointURDF = R"(
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="MinimalRobot">
+  <link name="world"/>
+  <joint name="base_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+  <link name="base_link"/>
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <limit effort="1.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="link1"/>
+  <joint name="joint2" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <limit effort="1.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="link2"/>
+  <joint name="joint3" type="revolute">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <limit effort="1.0" lower="-3.14" upper="3.14" velocity="1.0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="link3"/>
+</robot>
+)";
 
 class JointStateBroadcasterTest : public ::testing::Test
 {
@@ -88,8 +121,6 @@ public:
 
   void test_published_joint_state_message(const std::string & topic);
 
-  void test_published_dynamic_joint_state_message(const std::string & topic);
-
   void activate_and_get_joint_state_message(
     const std::string & topic, sensor_msgs::msg::JointState & msg);
 
@@ -113,8 +144,9 @@ protected:
 
   hardware_interface::StateInterface::SharedPtr joint_X_custom_state;
 
-  hardware_interface::StateInterface joint_1_moving_state_{
-    joint_names_[0], "is_moving", "bool", "false"};
+  hardware_interface::StateInterface::SharedPtr joint_1_moving_state_ =
+    std::make_shared<hardware_interface::StateInterface>(
+      joint_names_[0], "is_moving", "bool", "false");
 
   std::vector<hardware_interface::StateInterface::SharedPtr> test_interfaces_;
 

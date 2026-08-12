@@ -36,6 +36,7 @@ namespace test
 
 // Type aliases for Eigen types to avoid comma issues in MOCK_METHOD
 using Vector6d = Eigen::Matrix<double, 6, 1>;
+using Vector7d = Eigen::Matrix<double, 7, 1>;
 using Jacobian6xN = Eigen::Matrix<double, 6, Eigen::Dynamic>;
 using JacobianNx6 = Eigen::Matrix<double, Eigen::Dynamic, 6>;
 
@@ -66,6 +67,8 @@ public:
   MOCK_METHOD(
     bool, calculate_jacobian_inverse, (const Eigen::VectorXd &, const std::string &, JacobianNx6 &),
     (override));
+  MOCK_METHOD(
+    bool, calculate_frame_difference, (Vector7d &, Vector7d &, double, Vector6d &), (override));
 };
 
 // Testable AdmittanceRule exposes protected members for direct testing
@@ -392,13 +395,8 @@ TEST_F(MassMatrixTransformationTest, mass_affects_motion_in_rotated_frame)
   // Verify physics: higher mass -> less motion
   double motion_low = state_low.joint_pos.norm();
   double motion_high = state_high.joint_pos.norm();
-  (void)motion_low;
-  (void)motion_high;
 
-  // EXPECT_GT(motion_low, motion_high)
-  //   << "Higher mass should result in smaller motion (F=ma)";
-  // behavior change with
-  // https://github.com/ros-controls/ros2_controllers/pull/1139
+  EXPECT_GT(motion_low, motion_high) << "Higher mass should result in smaller motion (F=ma)";
 }
 
 // Verify mass matrix transformation from control frame to base frame
@@ -441,11 +439,9 @@ TEST_F(MassMatrixTransformationTest, mass_transformation_affects_base_frame_resp
 
   // Key assertion: Mass in control z affects motion when force is in base x
   // This proves the mass matrix is correctly transformed from control to base frame
-  // EXPECT_GT(motion_low, motion_high)
-  //   << "Mass in control z should affect response to force in base x, "
-  //   << "demonstrating correct mass matrix transformation";
-  // behavior change with
-  // https://github.com/ros-controls/ros2_controllers/pull/1139
+  EXPECT_GT(motion_low, motion_high)
+    << "Mass in control z should affect response to force in base x, "
+    << "demonstrating correct mass matrix transformation";
 
   // Sanity checks: both cases should produce non-zero motion
   EXPECT_GT(motion_low, 0.0) << "Low mass should produce measurable motion";

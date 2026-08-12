@@ -111,7 +111,75 @@ To visualize the difference of the different interpolation methods and their inp
 
 Trajectory Replacement
 ---------------------------------
+*Parts of this documentation were originally published in the ROS 1 wiki under the* `CC BY 3.0 license <https://creativecommons.org/licenses/by/3.0/>`_. [#f1]_
+
 Joint trajectory messages allow to specify the time at which a new trajectory should start executing by means of the header timestamp, where zero time (the default) means "start now".
 
-The current implementation just forgets the old trajectory.
-Follow this `issue <https://github.com/ros-controls/ros2_controllers/issues/84#issuecomment-2940787997>`__ for more information.
+.. note::
+  Partial support for this functionality has been ported to ROS 2 via the ``allow_trajectory_replacement`` parameter (see `#84 <https://github.com/ros-controls/ros2_controllers/issues/84>`__).
+  When enabled, a trajectory arriving with a future ``header.stamp`` is deferred. The controller
+  continues executing the active trajectory until the requested start time is reached, at which
+  point the new trajectory is handled, and the execution begins.
+
+  The current ROS 2 implementation differs from the legacy behavior described below in the following ways:
+
+  + The controller does not splice or stitch the current and new trajectories together. At the handoff time, the new trajectory fully replaces the old one.
+  + Omitted joints in a partial goal are filled with their current position at the handoff time (hold-in-place), rather than continuing to follow the old trajectory.
+  + Only a single deferred trajectory is stored. A newer deferred trajectory overwrites any previously deferred one.
+  + When a new action goal is accepted, the currently active goal is immediately aborted instead of continuing to emit feedback until the handoff time.
+  + While a deferred action goal is waiting for its start time, it does not publish action feedback and is not evaluated for path tolerances.
+  + The handoff trigger uses the controller's clock time. If the controller is running with a ``speed_scaling`` other than 1.0, the handoff may occur out of sync with the active trajectory's execution state.
+
+The arrival of a new trajectory command does not necessarily mean that the controller will completely discard the currently running trajectory and substitute it with the new one.
+Rather, the controller will take the useful parts of both and combine them appropriately, yielding a smarter trajectory replacement strategy.
+
+The steps followed by the controller for trajectory replacement are as follows:
+
+  + Get useful parts of the new trajectory: Preserve all waypoints whose time to be reached is in the future, and discard those with times in the past.
+    If there are no useful parts (ie. all waypoints are in the past) the new trajectory is rejected and the current one continues execution without changes.
+
+  + Get useful parts of the current trajectory: Preserve the current trajectory up to the start time of the new trajectory, discard the later parts.
+
+  + Combine the useful parts of the current and new trajectories.
+
+The following examples describe this behavior in detail.
+
+The first example shows a joint which is in hold position mode (flat grey line labeled *pos hold* in the figure below).
+A new trajectory (shown in red) arrives at the current time (now), which contains three waypoints and a start time in the future (*traj start*).
+The time at which waypoints should be reached (``time_from_start`` member of ``trajectory_msgs/JointTrajectoryPoint``) is relative to the trajectory start time.
+
+The controller splices the current hold trajectory at time *traj start* and appends the three waypoints.
+Notice that between now and *traj start* the previous position hold is still maintained, as the new trajectory is not supposed to start yet.
+After the last waypoint is reached, its position is held until new commands arrive.
+
+.. image:: new_trajectory.png
+  :alt: Receiving a new trajectory.
+
+|
+
+The controller guarantees that the transition between the current and new trajectories will be smooth. Longer times to reach the first waypoint mean slower transitions.
+
+The next examples discuss the effect of sending the same trajectory to the controller with different start times.
+The scenario is that of a controller executing the trajectory from the previous example (shown in red),
+and receiving a new command (shown in green) with a trajectory start time set to either zero (start now),
+a future time, or a time in the past.
+
+.. image:: trajectory_replacement_future.png
+  :alt: Trajectory start time in the future.
+
+|
+
+.. image:: trajectory_replacement_now.png
+  :alt: Zero trajectory start time (start now).
+
+|
+
+Of special interest is the last example, where the new trajectory start time and first waypoint are in the past (before now).
+In this case, the first waypoint is discarded and only the second one is realized.
+
+.. image:: trajectory_replacement_past.png
+  :alt: Trajectory start time in the past.
+
+|
+
+.. [#f1] Adolfo Rodriguez: `Understanding trajectory replacement <http://wiki.ros.org/joint_trajectory_controller/UnderstandingTrajectoryReplacement>`_

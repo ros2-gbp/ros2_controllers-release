@@ -2,88 +2,96 @@
 Changelog for package tricycle_steering_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.42.0 (2026-08-10)
--------------------
-* fix(steering_controllers): handle NaN/Inf values in odometry update (backport `#2083 <https://github.com/ros-controls/ros2_controllers/issues/2083>`_) (`#2535 <https://github.com/ros-controls/ros2_controllers/issues/2535>`_)
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2532 <https://github.com/ros-controls/ros2_controllers/issues/2532>`_)
-* Use new chainable controller exports API (backport `#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_) (`#2453 <https://github.com/ros-controls/ros2_controllers/issues/2453>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* fix(steering_controllers): handle NaN/Inf values in odometry update (`#2083 <https://github.com/ros-controls/ros2_controllers/issues/2083>`_)
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Use new chainable controller exports API (`#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_)
+* Contributors: Ishan Pathak, Sai Kishor Kothakota
 
-4.41.0 (2026-07-01)
--------------------
-* Final test cleanup - call appropriate lifecycle transitions (backport `#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_) (`#2432 <https://github.com/ros-controls/ros2_controllers/issues/2432>`_)
-* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (backport `#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_) (`#2354 <https://github.com/ros-controls/ros2_controllers/issues/2354>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Final test cleanup - call appropriate lifecycle transitions (`#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_)
+* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (`#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_)
+* Contributors: Junius Santoso
 
-4.40.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich
 
-4.40.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-4.39.0 (2026-04-04)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-4.38.0 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-4.37.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-4.36.0 (2025-12-31)
--------------------
-* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
-* Contributors: mergify[bot]
+6.2.0 (2025-12-31)
+------------------
 
-4.35.0 (2025-12-01)
--------------------
-* Rename Odometry Class to SteeringKinematics (backport `#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_) (`#2013 <https://github.com/ros-controls/ros2_controllers/issues/2013>`_)
-* Rename joint_reference_interfaces\_ to reference_interface_names (backport `#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_) (`#2011 <https://github.com/ros-controls/ros2_controllers/issues/2011>`_)
-* Contributors: mergify[bot]
+6.1.0 (2025-12-01)
+------------------
+* Rename Odometry Class to SteeringKinematics (`#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_)
+* Rename joint_reference_interfaces to reference_interface_names (`#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_)
+* Contributors: Sanjeev, Surya!
 
-4.34.0 (2025-11-10)
--------------------
+6.0.0 (2025-11-10)
+------------------
+* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
+* Contributors: Anand Vardhan
 
-4.33.1 (2025-10-17)
--------------------
+5.8.0 (2025-10-02)
+------------------
+* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
+* Contributors: Christoph Fröhlich
 
-4.33.0 (2025-10-03)
--------------------
-* Update realtime containers (backport `#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_) (`#1935 <https://github.com/ros-controls/ros2_controllers/issues/1935>`_)
-* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
-* Contributors: mergify[bot]
+5.7.0 (2025-09-12)
+------------------
 
-4.32.0 (2025-09-12)
--------------------
+5.6.1 (2025-08-30)
+------------------
 
-4.31.0 (2025-08-27)
--------------------
+5.6.0 (2025-08-29)
+------------------
 
-4.30.1 (2025-08-03)
--------------------
+5.5.0 (2025-07-31)
+------------------
 
-4.30.0 (2025-07-31)
--------------------
+5.4.0 (2025-07-23)
+------------------
+* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
+* Contributors: Sanjeev Kumar
 
-4.29.0 (2025-07-23)
--------------------
+5.3.0 (2025-07-14)
+------------------
+* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
+* Contributors: Christoph Fröhlich
 
-4.28.0 (2025-07-14)
--------------------
+5.2.0 (2025-06-23)
+------------------
 
-4.27.1 (2025-07-02)
--------------------
+5.1.0 (2025-06-11)
+------------------
+* Remove deprecated parameters from steering_controllers_library (`#1684 <https://github.com/ros-controls/ros2_controllers/issues/1684>`_)
+* Fix steering_controllers_library docs and msg field (`#1733 <https://github.com/ros-controls/ros2_controllers/issues/1733>`_)
+* Contributors: Christoph Fröhlich
 
-4.27.0 (2025-06-23)
--------------------
+5.0.2 (2025-05-26)
+------------------
 
-4.26.0 (2025-06-06)
--------------------
-* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
-* Contributors: mergify[bot]
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
 
-4.25.0 (2025-05-17)
--------------------
+5.0.0 (2025-05-17)
+------------------
 
 4.24.0 (2025-04-27)
 -------------------

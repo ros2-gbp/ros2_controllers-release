@@ -2,98 +2,108 @@
 Changelog for package mecanum_drive_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-4.42.0 (2026-08-10)
--------------------
-* Throttle speed limiter parameter error logs (backport `#2546 <https://github.com/ros-controls/ros2_controllers/issues/2546>`_) (`#2547 <https://github.com/ros-controls/ros2_controllers/issues/2547>`_)
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2532 <https://github.com/ros-controls/ros2_controllers/issues/2532>`_)
-* fix: Remove unused variable assignments in mecanum tests (backport `#2534 <https://github.com/ros-controls/ros2_controllers/issues/2534>`_) (`#2537 <https://github.com/ros-controls/ros2_controllers/issues/2537>`_)
-* Use new chainable controller exports API (backport `#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_) (`#2453 <https://github.com/ros-controls/ros2_controllers/issues/2453>`_)
-* Fix safety concerns with halt logic across controllers (backport `#2326 <https://github.com/ros-controls/ros2_controllers/issues/2326>`_) (`#2458 <https://github.com/ros-controls/ros2_controllers/issues/2458>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Throttle speed limiter parameter error logs (`#2546 <https://github.com/ros-controls/ros2_controllers/issues/2546>`_)
+* fix: Remove unused variable assignments in mecanum tests (`#2534 <https://github.com/ros-controls/ros2_controllers/issues/2534>`_)
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Fix safety concerns with halt logic across controllers (`#2326 <https://github.com/ros-controls/ros2_controllers/issues/2326>`_)
+* Use new chainable controller exports API (`#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_)
+* Contributors: Christoph Fröhlich, Sai Kishor Kothakota, cyberjay, lali-perelman
 
-4.41.0 (2026-07-01)
--------------------
-* Test fix - call appropriate lifecycle transitions in controller tests: forward_command, mecanum_drive, range_sensor, imu_sensor (backport `#2406 <https://github.com/ros-controls/ros2_controllers/issues/2406>`_) (`#2407 <https://github.com/ros-controls/ros2_controllers/issues/2407>`_)
-* Added velocity limiting to the mecanum controller. (backport `#2313 <https://github.com/ros-controls/ros2_controllers/issues/2313>`_) (`#2362 <https://github.com/ros-controls/ros2_controllers/issues/2362>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Test fix - call appropriate lifecycle transitions in controller tests: forward_command, mecanum_drive, range_sensor, imu_sensor (`#2406 <https://github.com/ros-controls/ros2_controllers/issues/2406>`_)
+* Added velocity limiting to the mecanum controller. (`#2313 <https://github.com/ros-controls/ros2_controllers/issues/2313>`_)
+* Contributors: Junius Santoso, Tony Baltovski
 
-4.40.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich
 
-4.40.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-4.39.0 (2026-04-04)
--------------------
+6.5.0 (2026-04-02)
+------------------
+* mecanum_drive_controller: Don't require std_srvs (`#2213 <https://github.com/ros-controls/ros2_controllers/issues/2213>`_)
+* Contributors: Michal Sojka
 
-4.38.0 (2026-03-12)
--------------------
-* Consistently add <cmath> include with define for windows (backport `#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_) (`#2195 <https://github.com/ros-controls/ros2_controllers/issues/2195>`_)
-* Contributors: mergify[bot]
+6.4.0 (2026-03-12)
+------------------
+* Consistently add <cmath> include with define for windows (`#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_)
+* Add set_odometry service to mecanum drive controller (`#2110 <https://github.com/ros-controls/ros2_controllers/issues/2110>`_)
+* Contributors: Christoph Fröhlich, Ege Kural
 
-4.37.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-4.36.0 (2025-12-31)
--------------------
-* Controller interface api update to ros2_controller packages (backport `#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_) (`#2068 <https://github.com/ros-controls/ros2_controllers/issues/2068>`_)
-* Contributors: mergify[bot]
+6.2.0 (2025-12-31)
+------------------
+* Tf prefix helper for mecanum drive controller (`#2063 <https://github.com/ros-controls/ros2_controllers/issues/2063>`_)
+* Contributors: Ege Kural
 
-4.35.0 (2025-12-01)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-4.34.0 (2025-11-10)
--------------------
+6.0.0 (2025-11-10)
+------------------
+* Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
+* Contributors: Anand Vardhan
 
-4.33.1 (2025-10-17)
--------------------
+5.8.0 (2025-10-02)
+------------------
+* Update API for realtime publisher (`#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_)
+* mecanum_drive_controller: Declare missing backward_ros dependency (`#1941 <https://github.com/ros-controls/ros2_controllers/issues/1941>`_)
+* Remove deprecated methods from ros2_control (`#1936 <https://github.com/ros-controls/ros2_controllers/issues/1936>`_)
+* Contributors: Christoph Fröhlich, Michal Sojka
 
-4.33.0 (2025-10-03)
--------------------
-* Update API for realtime publisher (backport `#1830 <https://github.com/ros-controls/ros2_controllers/issues/1830>`_) (`#1944 <https://github.com/ros-controls/ros2_controllers/issues/1944>`_)
-* Update realtime containers (backport `#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_) (`#1935 <https://github.com/ros-controls/ros2_controllers/issues/1935>`_)
-* mecanum_drive_controller: Declare missing backward_ros dependency (backport `#1941 <https://github.com/ros-controls/ros2_controllers/issues/1941>`_) (`#1943 <https://github.com/ros-controls/ros2_controllers/issues/1943>`_)
-* Use new handles API in ros2_controllers to fix deprecation warnings (backport `#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_) (`#1934 <https://github.com/ros-controls/ros2_controllers/issues/1934>`_)
-* Contributors: mergify[bot]
+5.7.0 (2025-09-12)
+------------------
 
-4.32.0 (2025-09-12)
--------------------
+5.6.1 (2025-08-30)
+------------------
 
-4.31.0 (2025-08-27)
--------------------
+5.6.0 (2025-08-29)
+------------------
 
-4.30.1 (2025-08-03)
--------------------
+5.5.0 (2025-07-31)
+------------------
 
-4.30.0 (2025-07-31)
--------------------
+5.4.0 (2025-07-23)
+------------------
+* Use new handles API in ros2_controllers to fix deprecation warnings (`#1566 <https://github.com/ros-controls/ros2_controllers/issues/1566>`_)
+* Contributors: Sanjeev Kumar
 
-4.29.0 (2025-07-23)
--------------------
+5.3.0 (2025-07-14)
+------------------
+* Mecanum Drive: Populate the pose covariance matrix (`#1772 <https://github.com/ros-controls/ros2_controllers/issues/1772>`_)
+* Update realtime containers (`#1721 <https://github.com/ros-controls/ros2_controllers/issues/1721>`_)
+* Contributors: Christoph Fröhlich, Hilary Luo
 
-4.28.0 (2025-07-14)
--------------------
-* Mecanum Drive: Populate the pose covariance matrix (backport `#1772 <https://github.com/ros-controls/ros2_controllers/issues/1772>`_) (`#1807 <https://github.com/ros-controls/ros2_controllers/issues/1807>`_)
-* Add tf_frame_prefix parameters to mecanum_drive_controller (backport `#1680 <https://github.com/ros-controls/ros2_controllers/issues/1680>`_) (`#1810 <https://github.com/ros-controls/ros2_controllers/issues/1810>`_)
-* Contributors: Hilary Luo, Dawid Kmak
+5.2.0 (2025-06-23)
+------------------
 
-4.27.1 (2025-07-02)
--------------------
+5.1.0 (2025-06-11)
+------------------
+* Add tf_frame_prefix parameters to mecanum_drive_controller (`#1680 <https://github.com/ros-controls/ros2_controllers/issues/1680>`_)
+* Add missing github_url to rst files (`#1717 <https://github.com/ros-controls/ros2_controllers/issues/1717>`_)
+* Contributors: Christoph Fröhlich, Dawid Kmak
 
-4.27.0 (2025-06-23)
--------------------
+5.0.2 (2025-05-26)
+------------------
 
-4.26.0 (2025-06-06)
--------------------
-* Add missing github_url to rst files (backport `#1717 <https://github.com/ros-controls/ros2_controllers/issues/1717>`_) (`#1719 <https://github.com/ros-controls/ros2_controllers/issues/1719>`_)
-* Use target_link_libraries instead of ament_target_dependencies (backport `#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_) (`#1699 <https://github.com/ros-controls/ros2_controllers/issues/1699>`_)
-* Contributors: mergify[bot]
+5.0.1 (2025-05-24)
+------------------
+* Use target_link_libraries instead of ament_target_dependencies (`#1697 <https://github.com/ros-controls/ros2_controllers/issues/1697>`_)
+* Contributors: Sai Kishor Kothakota
 
-4.25.0 (2025-05-17)
--------------------
-* Simplify `on_set_chained_mode` avoiding cpplint warnings (backport `#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_) (`#1688 <https://github.com/ros-controls/ros2_controllers/issues/1688>`_)
+5.0.0 (2025-05-17)
+------------------
+* Simplify `on_set_chained_mode` implementations avoiding cpplint warnings (`#1564 <https://github.com/ros-controls/ros2_controllers/issues/1564>`_)
 * Deprecating tf2 C Headers (`#1325 <https://github.com/ros-controls/ros2_controllers/issues/1325>`_)
-* Contributors: Lucas Wendland, mergify[bot], Bhagyesh Agresar
+* Contributors: Bhagyesh Agresar, Lucas Wendland
 
 4.24.0 (2025-04-27)
 -------------------
