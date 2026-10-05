@@ -40,11 +40,6 @@ void GripperActionController<HardwareInterface>::preempt_active_goal()
 template <const char * HardwareInterface>
 controller_interface::CallbackReturn GripperActionController<HardwareInterface>::on_init()
 {
-  RCLCPP_WARN(
-    get_node()->get_logger(),
-    "[Deprecated]: the `position_controllers/GripperActionController` and "
-    "`effort_controllers::GripperActionController` controllers are replaced by "
-    "'parallel_gripper_controllers/GripperActionController' controller");
   try
   {
     param_listener_ = std::make_shared<ParamListener>(get_node());
@@ -65,8 +60,8 @@ controller_interface::return_type GripperActionController<HardwareInterface>::up
 {
   command_struct_rt_ = *(command_.readFromRT());
 
-  const double current_position = joint_position_state_interface_->get().get_optional().value();
-  const double current_velocity = joint_velocity_state_interface_->get().get_optional().value();
+  const double current_position = joint_position_state_interface_->get().get_value();
+  const double current_velocity = joint_velocity_state_interface_->get().get_value();
 
   const double error_position = command_struct_rt_.position_ - current_position;
   const double error_velocity = -current_velocity;
@@ -147,7 +142,7 @@ rclcpp_action::CancelResponse GripperActionController<HardwareInterface>::cancel
 template <const char * HardwareInterface>
 void GripperActionController<HardwareInterface>::set_hold_position()
 {
-  command_struct_.position_ = joint_position_state_interface_->get().get_optional().value();
+  command_struct_.position_ = joint_position_state_interface_->get().get_value();
   command_struct_.max_effort_ = params_.max_effort;
   command_.writeFromNonRT(command_struct_);
 }
@@ -206,6 +201,11 @@ controller_interface::CallbackReturn GripperActionController<HardwareInterface>:
   const rclcpp_lifecycle::State &)
 {
   const auto logger = get_node()->get_logger();
+  if (!param_listener_)
+  {
+    RCLCPP_ERROR(get_node()->get_logger(), "Error encountered during init");
+    return controller_interface::CallbackReturn::ERROR;
+  }
   params_ = param_listener_->get_params();
 
   // Action status checking update rate
@@ -285,7 +285,7 @@ controller_interface::CallbackReturn GripperActionController<HardwareInterface>:
   hw_iface_adapter_.init(joint_command_interface_, get_node());
 
   // Command - non RT version
-  command_struct_.position_ = joint_position_state_interface_->get().get_optional().value();
+  command_struct_.position_ = joint_position_state_interface_->get().get_value();
   command_struct_.max_effort_ = params_.max_effort;
   command_.initRT(command_struct_);
 
