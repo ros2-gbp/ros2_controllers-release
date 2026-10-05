@@ -176,7 +176,7 @@ public:
 
   joint_trajectory_controller::SegmentTolerances get_active_tolerances()
   {
-    return *(active_tolerances_.readFromRT());
+    return rt_goal_tolerances_.get();
   }
 
   std::vector<PidPtr> get_pids() const { return pids_; }
@@ -196,6 +196,13 @@ public:
   bool has_nontrivial_traj()
   {
     return has_active_trajectory() && current_trajectory_->has_nontrivial_msg();
+  }
+
+  size_t get_blend_prefix_size() const { return blend_prefix_size_; }
+
+  std::shared_ptr<trajectory_msgs::msg::JointTrajectory> get_installed_trajectory_msg() const
+  {
+    return has_active_trajectory() ? current_trajectory_->get_trajectory_msg() : nullptr;
   }
 
   double get_cmd_timeout() { return cmd_timeout_; }
@@ -646,7 +653,7 @@ public:
     rclcpp::Time start_time = rclcpp::Time(0, 0, RCL_STEADY_TIME),
     const rclcpp::Duration update_rate = rclcpp::Duration::from_seconds(0.01))
   {
-    if (start_time == rclcpp::Time(0, 0, RCL_STEADY_TIME))
+    if (start_time.nanoseconds() == 0)
     {
       start_time = rclcpp::Clock(RCL_STEADY_TIME).now();
     }

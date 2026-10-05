@@ -68,10 +68,15 @@ class TestableSteeringControllersLibrary
 : public steering_controllers_library::SteeringControllersLibrary
 {
   FRIEND_TEST(SteeringControllersLibraryTest, check_exported_interfaces);
+  FRIEND_TEST(SteeringControllersLibraryTest, configure_succeeds_tf_prefix_no_namespace);
+  FRIEND_TEST(SteeringControllersLibraryTest, configure_succeeds_tf_blank_prefix_no_namespace);
+  FRIEND_TEST(SteeringControllersLibraryTest, configure_succeeds_tf_prefix_set_namespace);
+  FRIEND_TEST(SteeringControllersLibraryTest, configure_succeeds_tf_tilde_prefix_set_namespace);
   FRIEND_TEST(SteeringControllersLibraryTest, test_position_feedback_ref_timeout);
   FRIEND_TEST(SteeringControllersLibraryTest, test_velocity_feedback_ref_timeout);
   FRIEND_TEST(SteeringControllersLibraryTest, test_open_loop_update_ignore_nan_vals);
   FRIEND_TEST(SteeringControllersLibraryTest, test_open_loop_update_timeout);
+  FRIEND_TEST(SteeringControllersLibraryTest, odometry_set_service);
 
 public:
   controller_interface::CallbackReturn on_configure(
@@ -128,6 +133,7 @@ public:
     return controller_interface::CallbackReturn::SUCCESS;
   }
 
+  // Manual integration of odometry based on wheel states
   bool update_odometry(const rclcpp::Duration & period) override
   {
     return odometry_.update_from_velocity(

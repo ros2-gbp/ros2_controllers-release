@@ -2,49 +2,46 @@
 Changelog for package ros2_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
 
-5.17.0 (2026-08-12)
--------------------
-* Add battery_state_broadcaster (backport `#2086 <https://github.com/ros-controls/ros2_controllers/issues/2086>`_) (`#2522 <https://github.com/ros-controls/ros2_controllers/issues/2522>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Add battery_state_broadcaster (`#2086 <https://github.com/ros-controls/ros2_controllers/issues/2086>`_)
+* docs: update dead control.ros.org master routes to rolling (`#2409 <https://github.com/ros-controls/ros2_controllers/issues/2409>`_)
+* Contributors: Christoph Fröhlich, Ishan Pathak
 
-5.16.0 (2026-07-01)
--------------------
-* broadcaster for magnetic field values from a magnetometer (backport `#2214 <https://github.com/ros-controls/ros2_controllers/issues/2214>`_) (`#2372 <https://github.com/ros-controls/ros2_controllers/issues/2372>`_)
-  Co-authored-by: Christian Rauch <Rauch.Christian@gmx.de>
-  Co-authored-by: Christoph Fröhlich <christophfroehlich@users.noreply.github.com>
-  Co-authored-by: mergify[bot] <37929162+mergify[bot]@users.noreply.github.com>
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Add broadcaster for magnetic field values from a magnetometer (`#2214 <https://github.com/ros-controls/ros2_controllers/issues/2214>`_)
+* Contributors: Christian Rauch
 
-5.15.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
+* Remove deprecated controller specializations (`#2016 <https://github.com/ros-controls/ros2_controllers/issues/2016>`_)
+* Contributors: Christoph Fröhlich
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
-* Add state_interfaces_broadcaster (backport `#2006 <https://github.com/ros-controls/ros2_controllers/issues/2006>`_) (`#2077 <https://github.com/ros-controls/ros2_controllers/issues/2077>`_)
-* Contributors: mergify[bot]
+6.2.0 (2025-12-31)
+------------------
+* Add state_interfaces_broadcaster (`#2006 <https://github.com/ros-controls/ros2_controllers/issues/2006>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 
 5.8.0 (2025-10-02)

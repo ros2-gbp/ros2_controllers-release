@@ -2,37 +2,39 @@
 Changelog for package state_interfaces_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* test: cleanup controller fixture member variables (backport `#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_) (`#2566 <https://github.com/ros-controls/ros2_controllers/issues/2566>`_)
-* Contributors: mergify[bot]
+* test: cleanup controller fixture member variables (`#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_)
+* Contributors: Akshat Guduru
 
-5.17.0 (2026-08-12)
--------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.16.0 (2026-07-01)
--------------------
-* Test fix - call appropriate lifecycle transitions in controller tests: pid, motion_primitives, state_interfaces_broadcaster, ackermann_steering (backport `#2399 <https://github.com/ros-controls/ros2_controllers/issues/2399>`_) (`#2403 <https://github.com/ros-controls/ros2_controllers/issues/2403>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Test fix - call appropriate lifecycle transitions in controller tests: pid, motion_primitives, state_interfaces_broadcaster, ackermann_steering (`#2399 <https://github.com/ros-controls/ros2_controllers/issues/2399>`_)
+* Contributors: Junius Santoso
 
-5.15.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
-* Add state_interfaces_broadcaster (backport `#2006 <https://github.com/ros-controls/ros2_controllers/issues/2006>`_) (`#2077 <https://github.com/ros-controls/ros2_controllers/issues/2077>`_)
-* Contributors: mergify[bot]
+6.2.0 (2025-12-31)
+------------------
+* Add state_interfaces_broadcaster (`#2006 <https://github.com/ros-controls/ros2_controllers/issues/2006>`_)
+* Contributors: Sai Kishor Kothakota

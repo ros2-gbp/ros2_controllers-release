@@ -2,54 +2,56 @@
 Changelog for package joint_state_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* test: cleanup controller fixture member variables (backport `#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_) (`#2566 <https://github.com/ros-controls/ros2_controllers/issues/2566>`_)
-* Contributors: mergify[bot]
+* test: cleanup controller fixture member variables (`#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_)
+* Contributors: Akshat Guduru
 
-5.17.0 (2026-08-12)
--------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.16.0 (2026-07-01)
--------------------
-* Test fix - call appropriate lifecycle transitions in controller tests: joint_state_broadcaster, joint_trajectory, omni_wheel_drive, bicycle_steering (backport `#2410 <https://github.com/ros-controls/ros2_controllers/issues/2410>`_) (`#2415 <https://github.com/ros-controls/ros2_controllers/issues/2415>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Test fix - call appropriate lifecycle transitions in controller tests: joint_state_broadcaster, joint_trajectory, omni_wheel_drive, bicycle_steering (`#2410 <https://github.com/ros-controls/ros2_controllers/issues/2410>`_)
+* [JSB] Remove dynamic_joint_states and use INDIVIDUAL_BEST_EFFORT for interfaces (`#2187 <https://github.com/ros-controls/ros2_controllers/issues/2187>`_)
+* Contributors: Junius Santoso, Sai Kishor Kothakota
 
-5.15.1 (2026-05-12)
--------------------
-* Suppress cppcheck errors from macros from version.h (backport `#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_) (`#2348 <https://github.com/ros-controls/ros2_controllers/issues/2348>`_)
-* fix(joint_state_broadcaster): suppress confusing warning for standard interfaces (backport `#2276 <https://github.com/ros-controls/ros2_controllers/issues/2276>`_) (`#2334 <https://github.com/ros-controls/ros2_controllers/issues/2334>`_)
-* Contributors: mergify[bot]
+6.7.0 (2026-05-12)
+------------------
+* Suppress cppcheck errors from macros from version.h (`#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_)
+* added warning messages when unable to remap the interface properly in Joint State Broadcaster.  (`#2082 <https://github.com/ros-controls/ros2_controllers/issues/2082>`_)
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* fix(joint_state_broadcaster): suppress confusing warning for standard interfaces (`#2276 <https://github.com/ros-controls/ros2_controllers/issues/2276>`_)
+* Contributors: Christoph Fröhlich, Maksim Sviridov, Mithun Chakladar
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
+* [JSB] Fix joint_state message corruption issue (`#2217 <https://github.com/ros-controls/ros2_controllers/issues/2217>`_)
+* Deprecate publish_dynamic_joint_states parameter in joint_state_broadcaster (`#2107 <https://github.com/ros-controls/ros2_controllers/issues/2107>`_)
+* Contributors: Bence Magyar, Sai Kishor Kothakota
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
-* Revert behavior change of JSB regarding skipping boolean interfaces (`#2132 <https://github.com/ros-controls/ros2_controllers/issues/2132>`_) (`#2135 <https://github.com/ros-controls/ros2_controllers/issues/2135>`_)
-* Add test to check JSB is not throwing when there is a boolean interface (backport `#2115 <https://github.com/ros-controls/ros2_controllers/issues/2115>`_) (`#2132 <https://github.com/ros-controls/ros2_controllers/issues/2132>`_)
-* Contributors: Christoph Fröhlich, mergify[bot]
+6.3.0 (2026-02-03)
+------------------
+* Add test to check JSB is not throwing when there is a boolean interface (`#2115 <https://github.com/ros-controls/ros2_controllers/issues/2115>`_)
+* Contributors: Noel Jiménez García
 
-5.12.0 (2025-12-31)
--------------------
-* Add parameter for deactivating dynamic_joint_states (backport `#2064 <https://github.com/ros-controls/ros2_controllers/issues/2064>`_) (`#2067 <https://github.com/ros-controls/ros2_controllers/issues/2067>`_)
-* Contributors: mergify[bot]
+6.2.0 (2025-12-31)
+------------------
+* Add parameter for deactivating dynamic_joint_states (`#2064 <https://github.com/ros-controls/ros2_controllers/issues/2064>`_)
+* Contributors: Christoph Fröhlich
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Fix integer literal for size_t (`#1986 <https://github.com/ros-controls/ros2_controllers/issues/1986>`_)

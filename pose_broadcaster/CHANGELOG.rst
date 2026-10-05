@@ -2,47 +2,46 @@
 Changelog for package pose_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* Stop pose TF output after disabling it on reconfigure (backport `#2686 <https://github.com/ros-controls/ros2_controllers/issues/2686>`_) (`#2688 <https://github.com/ros-controls/ros2_controllers/issues/2688>`_)
-* test: cleanup controller fixture member variables (backport `#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_) (`#2566 <https://github.com/ros-controls/ros2_controllers/issues/2566>`_)
-* Contributors: mergify[bot]
+* Stop pose TF output after disabling it on reconfigure (`#2686 <https://github.com/ros-controls/ros2_controllers/issues/2686>`_)
+* test: cleanup controller fixture member variables (`#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_)
+* Contributors: Akshat Guduru, Yuhx141
 
-5.17.0 (2026-08-12)
--------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.16.0 (2026-07-01)
--------------------
-* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (backport `#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_) (`#2355 <https://github.com/ros-controls/ros2_controllers/issues/2355>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (`#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_)
+* Contributors: Junius Santoso
 
-5.15.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan

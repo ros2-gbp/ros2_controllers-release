@@ -2,70 +2,81 @@
 Changelog for package joint_trajectory_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* fix(jtc): Use trySetFeedback for goal handle feedback (backport `#2610 <https://github.com/ros-controls/ros2_controllers/issues/2610>`_) (`#2626 <https://github.com/ros-controls/ros2_controllers/issues/2626>`_)
-* [JTC] Add goal_timeout parameter to abort action when total trajectory time exceeds limit (`#2360 <https://github.com/ros-controls/ros2_controllers/issues/2360>`_)
-* Contributors: kamal2730, mergify[bot]
+* feat: migrate diff_drive_controller and joint_trajectory_controller to new RealtimePublisher constructor (`#2576 <https://github.com/ros-controls/ros2_controllers/issues/2576>`_)
+* fix(jtc): Use trySetFeedback for goal handle feedback (`#2610 <https://github.com/ros-controls/ros2_controllers/issues/2610>`_)
+* [JTC] cross chunk continuity for positions upsampling (`#2573 <https://github.com/ros-controls/ros2_controllers/issues/2573>`_)
+* [JTC] Redefine constraints.goal_time semantics and default to 10s (`#2592 <https://github.com/ros-controls/ros2_controllers/issues/2592>`_)
+* fix: migrate active goal and tolerances to thread safe box in JTC (`#2484 <https://github.com/ros-controls/ros2_controllers/issues/2484>`_)
+* [JTC] Add positions_upsampling feature for positions-only trajectories (`#2491 <https://github.com/ros-controls/ros2_controllers/issues/2491>`_)
+* [JTC] Add thread-safe snapshot of last commanded state (`#2564 <https://github.com/ros-controls/ros2_controllers/issues/2564>`_)
+* Trajectory replacement with full blending at message arrival time (`#2419 <https://github.com/ros-controls/ros2_controllers/issues/2419>`_)
+* Contributors: Christoph Fröhlich, Souri Rishik, Vedh, kamal2730
 
-5.17.0 (2026-08-12)
--------------------
-* Use preallocated feedback from JTC to avoid heap allocation (backport `#2160 <https://github.com/ros-controls/ros2_controllers/issues/2160>`_) (`#2542 <https://github.com/ros-controls/ros2_controllers/issues/2542>`_)
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* fix: prevent JTC segfault when continuous joint has no URDF limits (backport `#2523 <https://github.com/ros-controls/ros2_controllers/issues/2523>`_) (`#2530 <https://github.com/ros-controls/ros2_controllers/issues/2530>`_)
-* fix(joint-trajectory-controller): use active tolerances in update step (backport `#2101 <https://github.com/ros-controls/ros2_controllers/issues/2101>`_) (`#2512 <https://github.com/ros-controls/ros2_controllers/issues/2512>`_)
-* Refactor JTC command assignment for Kilted (`#2504 <https://github.com/ros-controls/ros2_controllers/issues/2504>`_)
-* Contributors: Dennis Lanov, mergify[bot]
-
-5.16.0 (2026-07-01)
--------------------
-* Deliver abort action result before destroying goal handle on preemption (backport `#2422 <https://github.com/ros-controls/ros2_controllers/issues/2422>`_) (`#2424 <https://github.com/ros-controls/ros2_controllers/issues/2424>`_)
-* Test fix - call appropriate lifecycle transitions in controller tests: joint_state_broadcaster, joint_trajectory, omni_wheel_drive, bicycle_steering (backport `#2410 <https://github.com/ros-controls/ros2_controllers/issues/2410>`_) (`#2415 <https://github.com/ros-controls/ros2_controllers/issues/2415>`_)
-* [JTC] Fix segfault when last trajectory segment is skipped (backport `#2359 <https://github.com/ros-controls/ros2_controllers/issues/2359>`_) (`#2365 <https://github.com/ros-controls/ros2_controllers/issues/2365>`_)
-* More general initialization of state from command (backport `#2294 <https://github.com/ros-controls/ros2_controllers/issues/2294>`_) (`#2357 <https://github.com/ros-controls/ros2_controllers/issues/2357>`_)
-* Contributors: mergify[bot]
-
-5.15.1 (2026-05-12)
--------------------
-* Suppress cppcheck errors from macros from version.h (backport `#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_) (`#2348 <https://github.com/ros-controls/ros2_controllers/issues/2348>`_)
-* fix JTC userdoc YAML indentation and stray quote (backport `#2327 <https://github.com/ros-controls/ros2_controllers/issues/2327>`_) (`#2330 <https://github.com/ros-controls/ros2_controllers/issues/2330>`_)
-* Contributors: mergify[bot]
-
-5.15.0 (2026-04-22)
--------------------
-* Fix segfault in jtc if joint name not in urdf (backport `#2321 <https://github.com/ros-controls/ros2_controllers/issues/2321>`_) (`#2324 <https://github.com/ros-controls/ros2_controllers/issues/2324>`_)
-* Contributors: mergify[bot]
-
-5.14.0 (2026-04-03)
--------------------
-* GPL custom validator: Use tl_expected from libexpected-dev instead (backport `#2212 <https://github.com/ros-controls/ros2_controllers/issues/2212>`_) (`#2240 <https://github.com/ros-controls/ros2_controllers/issues/2240>`_)
-* Add decelerate to stop functionality when trajectory is canceled or preempted (backport `#2163 <https://github.com/ros-controls/ros2_controllers/issues/2163>`_) (`#2223 <https://github.com/ros-controls/ros2_controllers/issues/2223>`_)
-* Contributors: mergify[bot]
-
-5.13.1 (2026-03-12)
--------------------
-* Consistently add <cmath> include with define for windows (backport `#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_) (`#2196 <https://github.com/ros-controls/ros2_controllers/issues/2196>`_)
-* Fix JTC test speed scaling publisher (backport `#2153 <https://github.com/ros-controls/ros2_controllers/issues/2153>`_) (`#2162 <https://github.com/ros-controls/ros2_controllers/issues/2162>`_)
-* Contributors: mergify[bot]
-
-5.13.0 (2026-02-03)
--------------------
-
-5.12.0 (2025-12-31)
--------------------
-
-5.11.0 (2025-12-09)
--------------------
-* Use get_lifecycle_id instead of get_lifecycle_state (backport `#2053 <https://github.com/ros-controls/ros2_controllers/issues/2053>`_) (`#2056 <https://github.com/ros-controls/ros2_controllers/issues/2056>`_)
-* Fill point_before_trajectory with same information as trajectory (backport `#2043 <https://github.com/ros-controls/ros2_controllers/issues/2043>`_) (`#2051 <https://github.com/ros-controls/ros2_controllers/issues/2051>`_)
-* Contributors: mergify[bot]
-
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.9.0 (2026-08-12)
 ------------------
-* Add missing dependency rclcpp_action (backport `#1992 <https://github.com/ros-controls/ros2_controllers/issues/1992>`_) (`#1995 <https://github.com/ros-controls/ros2_controllers/issues/1995>`_)
+* Use preallocated feedback from JTC to avoid heap allocation (`#2160 <https://github.com/ros-controls/ros2_controllers/issues/2160>`_)
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* [JTC] Fix segfault when continuous joint has no URDF limits (`#2480 <https://github.com/ros-controls/ros2_controllers/issues/2480>`_) (`#2523 <https://github.com/ros-controls/ros2_controllers/issues/2523>`_)
+* fix(joint-trajectory-controller): use active tolerances in update step (`#2101 <https://github.com/ros-controls/ros2_controllers/issues/2101>`_)
+* Refactor JTC command interface assignment (`#2489 <https://github.com/ros-controls/ros2_controllers/issues/2489>`_)
+* Contributors: Dennis Lanov, Dominic Reber, Jeremy McKeehen, Sai Kishor Kothakota
+
+6.8.0 (2026-07-01)
+------------------
+* Trajectory blending with new trajectory deferral (`#2401 <https://github.com/ros-controls/ros2_controllers/issues/2401>`_)
+* [JTC] Deliver abort action result before destroying goal handle on preemption (`#2422 <https://github.com/ros-controls/ros2_controllers/issues/2422>`_)
+* Test fix - call appropriate lifecycle transitions in controller tests: joint_state_broadcaster, joint_trajectory, omni_wheel_drive, bicycle_steering (`#2410 <https://github.com/ros-controls/ros2_controllers/issues/2410>`_)
+* [JTC] Fix segfault when last trajectory segment is skipped (`#2359 <https://github.com/ros-controls/ros2_controllers/issues/2359>`_)
+* More general initialization of state from command (`#2294 <https://github.com/ros-controls/ros2_controllers/issues/2294>`_)
+* Contributors: Dhruvil Parikh, Junius Santoso, Peter Mitrano (AR), Vedh
+
+6.7.0 (2026-05-12)
+------------------
+* Suppress cppcheck errors from macros from version.h (`#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_)
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* fix JTC userdoc YAML indentation and stray quote (`#2327 <https://github.com/ros-controls/ros2_controllers/issues/2327>`_)
+* Contributors: Christoph Fröhlich, ahmedbilal9
+
+6.6.0 (2026-04-22)
+------------------
+* Fix segfault in jtc if joint name not in urdf (`#2321 <https://github.com/ros-controls/ros2_controllers/issues/2321>`_)
+* Contributors: Iñigo Moreno
+
+6.5.0 (2026-04-02)
+------------------
+* GPL custom validator: Use tl_expected from libexpected-dev (`#2212 <https://github.com/ros-controls/ros2_controllers/issues/2212>`_)
+* Add decelerate to stop functionality when trajectory is canceled or preempted (`#2163 <https://github.com/ros-controls/ros2_controllers/issues/2163>`_)
+* Contributors: Christoph Fröhlich, Marq Rasmussen
+
+6.4.0 (2026-03-12)
+------------------
+* Consistently add <cmath> include with define for windows (`#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_)
+* Fix JTC test speed scaling publisher (`#2153 <https://github.com/ros-controls/ros2_controllers/issues/2153>`_)
+* Contributors: Christoph Fröhlich, Marq Rasmussen
+
+6.3.0 (2026-02-03)
+------------------
+* dynamically link JTC parameter validation instead of header only (`#2127 <https://github.com/ros-controls/ros2_controllers/issues/2127>`_)
+* Cleanup deprecated InterpolationMethodMap (`#2041 <https://github.com/ros-controls/ros2_controllers/issues/2041>`_)
+* Contributors: Surya, Suryansh Singh
+
+6.2.0 (2025-12-31)
+------------------
+* Fix BSD license (`#2054 <https://github.com/ros-controls/ros2_controllers/issues/2054>`_)
+* Use get_lifecycle_id instead of get_lifecycle_state (`#2053 <https://github.com/ros-controls/ros2_controllers/issues/2053>`_)
+* Fill point_before_trajectory with same information as trajectory (`#2043 <https://github.com/ros-controls/ros2_controllers/issues/2043>`_)
+* Contributors: Christoph Fröhlich, Felix Exner (fexner), Sai Kishor Kothakota
+
+6.1.0 (2025-12-01)
+------------------
+* Refactor interpolation_method class (`#2019 <https://github.com/ros-controls/ros2_controllers/issues/2019>`_)
+* Contributors: Surya!
+
+6.0.0 (2025-11-10)
+------------------
+* Add missing dependency rclcpp_action (`#1992 <https://github.com/ros-controls/ros2_controllers/issues/1992>`_)
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Add time_from_start to action feedback and state message (cherry-pick `#1755 <https://github.com/ros-controls/ros2_controllers/issues/1755>`_) (`#1820 <https://github.com/ros-controls/ros2_controllers/issues/1820>`_)
 * Fix integer literal for size_t (`#1986 <https://github.com/ros-controls/ros2_controllers/issues/1986>`_)
@@ -73,7 +84,7 @@ Changelog for package joint_trajectory_controller
 * Fix JTC crashing when shutdown while executing (`#1960 <https://github.com/ros-controls/ros2_controllers/issues/1960>`_)
 * Remove unused `get_state_msg` method (`#1949 <https://github.com/ros-controls/ros2_controllers/issues/1949>`_)
 * Don't use `msg\_` field of realtime publisher (`#1947 <https://github.com/ros-controls/ros2_controllers/issues/1947>`_)
-* Contributors: Anand Vardhan, Bence Magyar, Christoph Fröhlich, Marq Rasmussen, mergify[bot]
+* Contributors: Anand Vardhan, Bence Magyar, Christoph Fröhlich, Marq Rasmussen, Noel Jiménez García
 
 5.8.0 (2025-10-02)
 ------------------

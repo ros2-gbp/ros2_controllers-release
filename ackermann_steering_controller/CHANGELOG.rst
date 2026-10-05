@@ -2,51 +2,50 @@
 Changelog for package ackermann_steering_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* test: cleanup controller fixture member variables (backport `#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_) (`#2566 <https://github.com/ros-controls/ros2_controllers/issues/2566>`_)
-* Contributors: mergify[bot]
+* test: cleanup controller fixture member variables (`#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_)
+* Contributors: Akshat Guduru
 
-5.17.0 (2026-08-12)
--------------------
-* fix(steering_controllers): handle NaN/Inf values in odometry update (backport `#2083 <https://github.com/ros-controls/ros2_controllers/issues/2083>`_) (`#2536 <https://github.com/ros-controls/ros2_controllers/issues/2536>`_)
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* Use new chainable controller exports API (backport `#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_) (`#2454 <https://github.com/ros-controls/ros2_controllers/issues/2454>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* fix(steering_controllers): handle NaN/Inf values in odometry update (`#2083 <https://github.com/ros-controls/ros2_controllers/issues/2083>`_)
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Use new chainable controller exports API (`#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_)
+* Contributors: Ishan Pathak, Sai Kishor Kothakota
 
-5.16.0 (2026-07-01)
--------------------
-* Test fix - call appropriate lifecycle transitions in controller tests: pid, motion_primitives, state_interfaces_broadcaster, ackermann_steering (backport `#2399 <https://github.com/ros-controls/ros2_controllers/issues/2399>`_) (`#2403 <https://github.com/ros-controls/ros2_controllers/issues/2403>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Test fix - call appropriate lifecycle transitions in controller tests: pid, motion_primitives, state_interfaces_broadcaster, ackermann_steering (`#2399 <https://github.com/ros-controls/ros2_controllers/issues/2399>`_)
+* Contributors: Junius Santoso
 
-5.15.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
+* Rename Odometry Class to SteeringKinematics (`#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_)
+* Rename joint_reference_interfaces to reference_interface_names (`#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_)
+* Contributors: Sanjeev, Surya!
 
-5.10.0 (2025-12-01)
--------------------
-* Rename Odometry Class to SteeringKinematics (backport `#1996 <https://github.com/ros-controls/ros2_controllers/issues/1996>`_) (`#2014 <https://github.com/ros-controls/ros2_controllers/issues/2014>`_)
-* Rename joint_reference_interfaces\_ to reference_interface_names (backport `#2008 <https://github.com/ros-controls/ros2_controllers/issues/2008>`_) (`#2012 <https://github.com/ros-controls/ros2_controllers/issues/2012>`_)
-* Contributors: mergify[bot]
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Contributors: Anand Vardhan

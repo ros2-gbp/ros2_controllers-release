@@ -2,50 +2,45 @@
 Changelog for package magnetometer_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* test: cleanup controller fixture member variables (backport `#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_) (`#2566 <https://github.com/ros-controls/ros2_controllers/issues/2566>`_)
-* Contributors: mergify[bot]
+* test: cleanup controller fixture member variables (`#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_)
+* Contributors: Akshat Guduru
 
-5.17.0 (2026-08-12)
--------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.16.0 (2026-07-01)
--------------------
-* Final test cleanup - call appropriate lifecycle transitions (backport `#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_) (`#2433 <https://github.com/ros-controls/ros2_controllers/issues/2433>`_)
-* broadcaster for magnetic field values from a magnetometer (backport `#2214 <https://github.com/ros-controls/ros2_controllers/issues/2214>`_) (`#2372 <https://github.com/ros-controls/ros2_controllers/issues/2372>`_)
-  Co-authored-by: Christian Rauch <Rauch.Christian@gmx.de>
-  Co-authored-by: Christoph Fröhlich <christophfroehlich@users.noreply.github.com>
-  Co-authored-by: mergify[bot] <37929162+mergify[bot]@users.noreply.github.com>
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* Final test cleanup - call appropriate lifecycle transitions (`#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_)
+* fix(magnetometer_broadcaster): Refactor to avoid pluginlib in tests (`#2387 <https://github.com/ros-controls/ros2_controllers/issues/2387>`_)
+* Add broadcaster for magnetic field values from a magnetometer (`#2214 <https://github.com/ros-controls/ros2_controllers/issues/2214>`_)
+* Contributors: Christian Rauch, Christoph Fröhlich, Junius Santoso
 
-5.15.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
 
-5.11.0 (2025-12-09)
--------------------
+6.1.0 (2025-12-01)
+------------------
 
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 
 5.8.0 (2025-10-02)

@@ -2,51 +2,48 @@
 Changelog for package motion_primitives_controllers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* test: cleanup controller fixture member variables (backport `#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_) (`#2566 <https://github.com/ros-controls/ros2_controllers/issues/2566>`_)
-* Contributors: mergify[bot]
+* test: cleanup controller fixture member variables (`#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_)
+* Contributors: Akshat Guduru
 
-5.17.0 (2026-08-12)
--------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* fix: correct test_load_controller tests for motion_primitives and pid_controller (backport `#2445 <https://github.com/ros-controls/ros2_controllers/issues/2445>`_) (`#2452 <https://github.com/ros-controls/ros2_controllers/issues/2452>`_)
-* Contributors: mergify[bot]
+6.9.0 (2026-08-12)
+------------------
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.16.0 (2026-07-01)
--------------------
-* fix: update dead documentation links (backport `#2398 <https://github.com/ros-controls/ros2_controllers/issues/2398>`_) (`#2412 <https://github.com/ros-controls/ros2_controllers/issues/2412>`_)
-* Test fix - call appropriate lifecycle transitions in controller tests: pid, motion_primitives, state_interfaces_broadcaster, ackermann_steering (backport `#2399 <https://github.com/ros-controls/ros2_controllers/issues/2399>`_) (`#2403 <https://github.com/ros-controls/ros2_controllers/issues/2403>`_)
-* Fix motion_primitive_controller TOC in docs (backport `#2221 <https://github.com/ros-controls/ros2_controllers/issues/2221>`_) (`#2367 <https://github.com/ros-controls/ros2_controllers/issues/2367>`_)
-* Contributors: mergify[bot]
+6.8.0 (2026-07-01)
+------------------
+* fix: correct test_load_controller tests for motion_primitives and pid_controller (`#2445 <https://github.com/ros-controls/ros2_controllers/issues/2445>`_)
+* fix: update dead documentation links (`#2398 <https://github.com/ros-controls/ros2_controllers/issues/2398>`_)
+* Test fix - call appropriate lifecycle transitions in controller tests: pid, motion_primitives, state_interfaces_broadcaster, ackermann_steering (`#2399 <https://github.com/ros-controls/ros2_controllers/issues/2399>`_)
+* Fix motion_primitive_controller TOC in docs (`#2221 <https://github.com/ros-controls/ros2_controllers/issues/2221>`_)
+* Contributors: Ishan Pathak, Junius Santoso, Souri Rishik
 
-5.15.1 (2026-05-12)
--------------------
+6.7.0 (2026-05-12)
+------------------
 
-5.15.0 (2026-04-22)
--------------------
+6.6.0 (2026-04-22)
+------------------
 
-5.14.0 (2026-04-03)
--------------------
+6.5.0 (2026-04-02)
+------------------
 
-5.13.1 (2026-03-12)
--------------------
+6.4.0 (2026-03-12)
+------------------
 
-5.13.0 (2026-02-03)
--------------------
+6.3.0 (2026-02-03)
+------------------
 
-5.12.0 (2025-12-31)
--------------------
+6.2.0 (2025-12-31)
+------------------
+* Use get_lifecycle_id instead of get_lifecycle_state (`#2053 <https://github.com/ros-controls/ros2_controllers/issues/2053>`_)
+* Contributors: Sai Kishor Kothakota
 
-5.11.0 (2025-12-09)
--------------------
-* Use get_lifecycle_id instead of get_lifecycle_state (backport `#2053 <https://github.com/ros-controls/ros2_controllers/issues/2053>`_) (`#2056 <https://github.com/ros-controls/ros2_controllers/issues/2056>`_)
-* Contributors: mergify[bot]
+6.1.0 (2025-12-01)
+------------------
 
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.0.0 (2025-11-10)
 ------------------
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
 * Fix integer literal for size_t (`#1986 <https://github.com/ros-controls/ros2_controllers/issues/1986>`_)

@@ -2,63 +2,63 @@
 Changelog for package admittance_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-5.18.0 (2026-10-05)
+6.10.0 (2026-10-05)
 -------------------
-* test: cleanup controller fixture member variables (backport `#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_) (`#2566 <https://github.com/ros-controls/ros2_controllers/issues/2566>`_)
-* Contributors: mergify[bot]
+* test: cleanup controller fixture member variables (`#2562 <https://github.com/ros-controls/ros2_controllers/issues/2562>`_)
+* Contributors: Akshat Guduru
 
-5.17.0 (2026-08-12)
--------------------
-* Use new Command/State Interfaces API for tests (backport `#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_) (`#2533 <https://github.com/ros-controls/ros2_controllers/issues/2533>`_)
-* Use new chainable controller exports API (backport `#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_) (`#2454 <https://github.com/ros-controls/ros2_controllers/issues/2454>`_)
-* Fix admittance position state updates (backport `#2514 <https://github.com/ros-controls/ros2_controllers/issues/2514>`_) (`#2520 <https://github.com/ros-controls/ros2_controllers/issues/2520>`_)
-* admittance_controller userdoc: fix typo (backport `#2479 <https://github.com/ros-controls/ros2_controllers/issues/2479>`_) (`#2483 <https://github.com/ros-controls/ros2_controllers/issues/2483>`_)
-* Contributors: mergify[bot]
-
-5.16.0 (2026-07-01)
--------------------
-* Final test cleanup - call appropriate lifecycle transitions (backport `#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_) (`#2433 <https://github.com/ros-controls/ros2_controllers/issues/2433>`_)
-* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (backport `#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_) (`#2355 <https://github.com/ros-controls/ros2_controllers/issues/2355>`_)
-* Contributors: mergify[bot]
-
-5.15.1 (2026-05-12)
--------------------
-* Suppress cppcheck errors from macros from version.h (backport `#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_) (`#2348 <https://github.com/ros-controls/ros2_controllers/issues/2348>`_)
-* fix: correct ASSERT_EQ to ASSERT_NE in admittance controller load test (backport `#2264 <https://github.com/ros-controls/ros2_controllers/issues/2264>`_) (`#2339 <https://github.com/ros-controls/ros2_controllers/issues/2339>`_)
-* Contributors: mergify[bot]
-
-5.15.0 (2026-04-22)
--------------------
-* Update admittance_controller to use shared 6D robot description (backport `#2173 <https://github.com/ros-controls/ros2_controllers/issues/2173>`_) (`#2311 <https://github.com/ros-controls/ros2_controllers/issues/2311>`_)
-* Contributors: mergify[bot]
-
-5.14.0 (2026-04-03)
--------------------
-
-5.13.1 (2026-03-12)
--------------------
-* Fix dynamic allocation in admittance_rule (backport `#2150 <https://github.com/ros-controls/ros2_controllers/issues/2150>`_) (`#2155 <https://github.com/ros-controls/ros2_controllers/issues/2155>`_)
-* Contributors: mergify[bot]
-
-5.13.0 (2026-02-03)
--------------------
-* Check robot description validity in AdmittanceController (backport `#2009 <https://github.com/ros-controls/ros2_controllers/issues/2009>`_) (`#2114 <https://github.com/ros-controls/ros2_controllers/issues/2114>`_)
-* Contributors: mergify[bot]
-
-5.12.0 (2025-12-31)
--------------------
-
-5.11.0 (2025-12-09)
--------------------
-
-5.10.0 (2025-12-01)
--------------------
-
-5.9.0 (2025-11-10)
+6.9.0 (2026-08-12)
 ------------------
-* Use NodeInterfaces for TransformBroadcaster construction (backport `#1981 <https://github.com/ros-controls/ros2_controllers/issues/1981>`_) (`#1998 <https://github.com/ros-controls/ros2_controllers/issues/1998>`_)
+* Use new Command/State Interfaces API for tests (`#2476 <https://github.com/ros-controls/ros2_controllers/issues/2476>`_)
+* Fix admittance position state updates (`#2514 <https://github.com/ros-controls/ros2_controllers/issues/2514>`_)
+* admittance_controller userdoc: fix typo (`#2479 <https://github.com/ros-controls/ros2_controllers/issues/2479>`_)
+* Use new chainable controller exports API (`#2350 <https://github.com/ros-controls/ros2_controllers/issues/2350>`_)
+* Contributors: Dennis Lanov, Sai Kishor Kothakota, Vladimir Fokow
+
+6.8.0 (2026-07-01)
+------------------
+* Final test cleanup - call appropriate lifecycle transitions (`#2429 <https://github.com/ros-controls/ros2_controllers/issues/2429>`_)
+* Test fix - call appropriate lifecycle transitions in controller tests: admittance_controller, pose_broadcaster, tricycle_steering_controller (`#2345 <https://github.com/ros-controls/ros2_controllers/issues/2345>`_)
+* Contributors: Junius Santoso
+
+6.7.0 (2026-05-12)
+------------------
+* Suppress cppcheck errors from macros from version.h (`#2346 <https://github.com/ros-controls/ros2_controllers/issues/2346>`_)
+* fix: correct ASSERT_EQ to ASSERT_NE in admittance controller load test (`#2264 <https://github.com/ros-controls/ros2_controllers/issues/2264>`_)
+* Bump C++ version to C++20 (`#2331 <https://github.com/ros-controls/ros2_controllers/issues/2331>`_)
+* Contributors: Christoph Fröhlich, Souri Rishik
+
+6.6.0 (2026-04-22)
+------------------
+* Update admittance_controller to use shared 6D robot description (`#2173 <https://github.com/ros-controls/ros2_controllers/issues/2173>`_)
+* Contributors: Naitik
+
+6.5.0 (2026-04-02)
+------------------
+
+6.4.0 (2026-03-12)
+------------------
+* Consistently add <cmath> include with define for windows (`#2193 <https://github.com/ros-controls/ros2_controllers/issues/2193>`_)
+* [Admittance] applies control frame transform to mass matrix (`#1139 <https://github.com/ros-controls/ros2_controllers/issues/1139>`_)
+* Fix dynamic allocation in admittance_rule (`#2150 <https://github.com/ros-controls/ros2_controllers/issues/2150>`_)
+* Contributors: Christoph Fröhlich, Marco Magri, Surya!
+
+6.3.0 (2026-02-03)
+------------------
+* Check robot description validity in AdmittanceController (`#2009 <https://github.com/ros-controls/ros2_controllers/issues/2009>`_)
+* Contributors: Caio Freitas
+
+6.2.0 (2025-12-31)
+------------------
+
+6.1.0 (2025-12-01)
+------------------
+
+6.0.0 (2025-11-10)
+------------------
+* Use NodeInterfaces for TransformBroadcaster construction (`#1981 <https://github.com/ros-controls/ros2_controllers/issues/1981>`_)
 * Controller interface api update to ros2_controller packages (`#1973 <https://github.com/ros-controls/ros2_controllers/issues/1973>`_)
-* Contributors: Anand Vardhan, mergify[bot]
+* Contributors: Anand Vardhan, Christoph Fröhlich
 
 5.8.0 (2025-10-02)
 ------------------
