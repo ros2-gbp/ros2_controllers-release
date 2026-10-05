@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 
-#include "parameter_traits/parameter_traits.hpp"
 #include "rclcpp/parameter.hpp"
 #include "rsl/algorithm.hpp"
 #include "tl/expected.hpp"
@@ -34,6 +33,7 @@ tl::expected<void, std::string> command_interface_type_combinations(
   // 1. effort
   // 2. velocity
   // 3. position [velocity, [acceleration]]
+  // 4. position, effort
 
   if (
     rsl::contains<std::vector<std::string>>(interface_types, "velocity") &&
@@ -57,9 +57,12 @@ tl::expected<void, std::string> command_interface_type_combinations(
 
   if (
     rsl::contains<std::vector<std::string>>(interface_types, "effort") &&
-    interface_types.size() > 1)
+    !(interface_types.size() == 1 ||
+      (interface_types.size() == 2 &&
+       rsl::contains<std::vector<std::string>>(interface_types, "position"))))
   {
-    return tl::make_unexpected("'effort' command interface has to be used alone");
+    return tl::make_unexpected(
+      "'effort' command interface has to be used alone or with a 'position' interface");
   }
 
   return {};
