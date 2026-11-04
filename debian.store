@@ -1,1 +1,1 @@
-{"base": "fcc08bb1a4", "parent": "debian/rolling/joint_trajectory_controller", "previous": "0d194b9fdd", "trim": "", "trimbase": ""}
+{"base": "0bb5643369", "parent": "debian/rolling/joint_trajectory_controller", "previous": "c97e8ceed0", "trim": "", "trimbase": ""}
