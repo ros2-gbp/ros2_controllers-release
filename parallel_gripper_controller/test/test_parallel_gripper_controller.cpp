@@ -78,8 +78,8 @@ void GripperControllerTest::SetUpController(
   std::vector<LoanedCommandInterface> command_ifs;
   command_ifs.emplace_back(this->joint_1_cmd_, nullptr);
   std::vector<LoanedStateInterface> state_ifs;
-  state_ifs.emplace_back(this->joint_1_pos_state_, nullptr);
-  state_ifs.emplace_back(this->joint_1_vel_state_, nullptr);
+  state_ifs.emplace_back(this->joint_1_pos_state_);
+  state_ifs.emplace_back(this->joint_1_vel_state_);
   controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
 }
 
@@ -145,8 +145,8 @@ TEST_F(GripperControllerTest, ActivateDeactivateActivateSuccess)
   std::vector<LoanedCommandInterface> command_ifs;
   command_ifs.emplace_back(this->joint_1_cmd_, nullptr);
   std::vector<LoanedStateInterface> state_ifs;
-  state_ifs.emplace_back(this->joint_1_pos_state_, nullptr);
-  state_ifs.emplace_back(this->joint_1_vel_state_, nullptr);
+  state_ifs.emplace_back(this->joint_1_pos_state_);
+  state_ifs.emplace_back(this->joint_1_vel_state_);
   this->controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
 
   ASSERT_TRUE(configure_succeeds(controller_));

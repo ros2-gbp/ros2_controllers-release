@@ -87,26 +87,6 @@ def _fixed(name):
     )
 
 
-class _TestLogger:
-    def __init__(self):
-        self.info_messages = []
-        self.warning_messages = []
-
-    def info(self, msg):
-        self.info_messages.append(msg)
-
-    def warning(self, msg):
-        self.warning_messages.append(msg)
-
-
-class _TestNode:
-    def __init__(self, logger):
-        self._logger = logger
-
-    def get_logger(self):
-        return self._logger
-
-
 # ---------------------------------------------------------------------------
 # Group 1: Revolute joint — the most common joint type in a robot arm.
 # The function must return exactly the values written in the URDF.
@@ -141,8 +121,8 @@ def test_revolute_joint_has_position_limits_true():
 
 # ---------------------------------------------------------------------------
 # Group 2: Continuous joint — like a wheel, no position bounds.
-# When lower/upper are absent, urdf_parser_py defaults them to 0.
-# Our code detects min >= max and defaults to -pi / +pi so the slider
+# When lower/upper are absent, minidom returns "", float("") raises
+# ValueError, and our code must default to -pi / +pi so the slider
 # has a usable range.
 # ---------------------------------------------------------------------------
 
@@ -162,10 +142,10 @@ def test_continuous_joint_max_defaults_to_plus_pi():
     assert result["wheel"]["max_position"] == pytest.approx(math.pi)
 
 
-def test_continuous_joint_has_position_limits_true():
-    # Continuous joints are unbounded — it still gets position limits to activate the slider
+def test_continuous_joint_has_position_limits_false():
+    # Continuous joints are unbounded — the GUI should not enforce limits
     result = parse_joint_limits(_robot(_continuous("wheel", 5.0)), ["wheel"])
-    assert result["wheel"]["has_position_limits"] is True
+    assert result["wheel"]["has_position_limits"] is False
 
 
 def test_continuous_joint_velocity_is_preserved():
@@ -223,6 +203,7 @@ def test_multiple_joints_individual_limits_correct():
 # Group 5: Safety controller soft limits.
 # When use_smallest_joint_limits=True, soft limits should narrow the range.
 # When False, only the hard limits from <limit> should be used.
+# This is entirely our application logic — minidom knows nothing about it.
 # ---------------------------------------------------------------------------
 
 
@@ -292,18 +273,18 @@ def test_driver_joint_present_when_follower_is_mimic():
 
 
 # ---------------------------------------------------------------------------
-# Group 7: Error cases — validation by urdf_parser_py and our application
-# logic. Some errors are caught by the library during parsing, others
-# by our code after parsing succeeds.
+# Group 7: Error cases — our application logic, not minidom's.
+# minidom parses all of these successfully and returns data.
+# Our code is the one that decides they are errors.
 # ---------------------------------------------------------------------------
 
 
 def test_missing_limit_tag_for_required_joint_raises():
     """Joint in joints_names with no <limit> element at all must raise.
 
-    urdf_parser_py sets joint.limit to None when no <limit> element is
-    present. Our code checks for this and raises an exception for joints
-    that the active controller manages.
+    minidom parses this fine — joint.getElementsByTagName("limit") just
+    returns an empty list, and [0] raises IndexError. Our except block
+    is what turns that into a meaningful exception message.
     """
     urdf = _robot(
         '<link name="j_link"/>'
@@ -313,18 +294,6 @@ def test_missing_limit_tag_for_required_joint_raises():
     )
     with pytest.raises(Exception, match="Missing limits tag"):
         parse_joint_limits(urdf, ["j"])
-
-
-def test_missing_limit_tag_allow_incomplete_false_still_raises():
-    """Explicit strict mode keeps raising on missing <limit> tags."""
-    urdf = _robot(
-        '<link name="j_link"/>'
-        '<joint name="j" type="revolute">'
-        '<parent link="base"/><child link="j_link"/>'
-        "</joint>"
-    )
-    with pytest.raises(Exception, match="Missing limits tag"):
-        parse_joint_limits(urdf, ["j"], allow_incomplete_joints=False)
 
 
 def test_missing_limit_tag_for_unrequired_joint_skipped_silently():
@@ -346,8 +315,9 @@ def test_missing_limit_tag_for_unrequired_joint_skipped_silently():
 def test_revolute_joint_missing_lower_upper_raises():
     """Revolute joint with no lower/upper attributes raises.
 
-    urdf_parser_py defaults missing lower/upper to 0. Our code detects
-    the invalid range (min >= max) and raises for non-continuous joints.
+    minidom returns "" for absent attributes. float("") raises ValueError.
+    Our except block turns that into a meaningful message for non-continuous
+    joints. This is our own logic — worth testing.
     """
     urdf = _robot(
         '<link name="j_link"/>'
@@ -360,86 +330,11 @@ def test_revolute_joint_missing_lower_upper_raises():
         parse_joint_limits(urdf, ["j"])
 
 
-def test_missing_lower_upper_allow_incomplete_false_still_raises():
-    """Explicit strict mode keeps raising on missing lower/upper limits."""
-    urdf = _robot(
-        '<link name="j_link"/>'
-        '<joint name="j" type="revolute">'
-        '<parent link="base"/><child link="j_link"/>'
-        '<limit velocity="1.0" effort="5"/>'
-        "</joint>"
-    )
-    with pytest.raises(Exception, match="Missing lower/upper position limits"):
-        parse_joint_limits(urdf, ["j"], allow_incomplete_joints=False)
-
-
-def test_missing_limit_tag_allow_incomplete_true_returns_disabled_joint():
-    """Tolerant mode keeps required joints but marks them non-position-limited."""
-    urdf = _robot(
-        '<link name="j_link"/>'
-        '<joint name="j" type="revolute">'
-        '<parent link="base"/><child link="j_link"/>'
-        "</joint>"
-    )
-    result = parse_joint_limits(urdf, ["j"], allow_incomplete_joints=True)
-    assert result["j"]["has_position_limits"] is False
-    assert result["j"]["min_position"] == pytest.approx(-2.0 * math.pi)
-    assert result["j"]["max_position"] == pytest.approx(2.0 * math.pi)
-    assert result["j"]["max_velocity"] == pytest.approx(1.0)
-
-
-def test_missing_limit_tag_allow_incomplete_true_logs_warning():
-    """Tolerant mode emits a warning through the provided logger."""
-    urdf = _robot(
-        '<link name="j_link"/>'
-        '<joint name="j" type="revolute">'
-        '<parent link="base"/><child link="j_link"/>'
-        "</joint>"
-    )
-    logger = _TestLogger()
-    parse_joint_limits(urdf, ["j"], allow_incomplete_joints=True, logger=logger)
-    assert len(logger.warning_messages) == 1
-    assert "has no <limit> tag" in logger.warning_messages[0]
-
-
-def test_missing_lower_upper_allow_incomplete_true_returns_disabled_joint():
-    """Tolerant mode handles missing lower/upper by creating a disabled slider joint."""
-    urdf = _robot(
-        '<link name="j_link"/>'
-        '<joint name="j" type="revolute">'
-        '<parent link="base"/><child link="j_link"/>'
-        '<limit velocity="1.0" effort="5"/>'
-        "</joint>"
-    )
-    result = parse_joint_limits(urdf, ["j"], allow_incomplete_joints=True)
-    assert result["j"]["has_position_limits"] is False
-    assert result["j"]["min_position"] == pytest.approx(-2.0 * math.pi)
-    assert result["j"]["max_position"] == pytest.approx(2.0 * math.pi)
-    assert result["j"]["max_velocity"] == pytest.approx(1.0)
-
-
-def test_missing_lower_upper_allow_incomplete_true_logs_warning():
-    """Tolerant mode logs when position bounds are incomplete."""
-    urdf = _robot(
-        '<link name="j_link"/>'
-        '<joint name="j" type="revolute">'
-        '<parent link="base"/><child link="j_link"/>'
-        '<limit velocity="1.0" effort="5"/>'
-        "</joint>"
-    )
-    logger = _TestLogger()
-    parse_joint_limits(urdf, ["j"], allow_incomplete_joints=True, logger=logger)
-    assert len(logger.warning_messages) == 1
-    assert "missing/empty lower/upper position limits" in logger.warning_messages[0]
-
-
 def test_missing_velocity_raises():
-    """Joint with no velocity attribute raises a parse error.
+    """Joint with no velocity attribute raises.
 
-    urdf_parser_py performs strict XML validation during parsing and
-    rejects a <limit> element missing the required velocity attribute.
-    The error comes from the library itself, before our code inspects
-    the joint.
+    minidom returns "" for absent velocity. float("") raises ValueError.
+    Our except block turns that into a meaningful message. Our own logic.
     """
     urdf = _robot(
         '<link name="j_link"/>'
@@ -448,7 +343,7 @@ def test_missing_velocity_raises():
         '<limit lower="-1.0" upper="1.0" effort="5"/>'
         "</joint>"
     )
-    with pytest.raises(Exception, match="Required attribute not set in XML: velocity"):
+    with pytest.raises(Exception, match="Missing velocity limits"):
         parse_joint_limits(urdf, ["j"])
 
 
@@ -465,6 +360,26 @@ def test_missing_velocity_raises():
 # A minimal fake node/message is used, so no real rclpy node, context, or
 # executor is involved.
 # ---------------------------------------------------------------------------
+
+
+class _TestLogger:
+    def __init__(self):
+        self.info_messages = []
+        self.warning_messages = []
+
+    def info(self, msg):
+        self.info_messages.append(msg)
+
+    def warning(self, msg):
+        self.warning_messages.append(msg)
+
+
+class _TestNode:
+    def __init__(self, logger):
+        self._logger = logger
+
+    def get_logger(self):
+        return self._logger
 
 
 class _FakeMsg:

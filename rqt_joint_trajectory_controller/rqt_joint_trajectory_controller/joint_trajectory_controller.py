@@ -357,10 +357,9 @@ class JointTrajectoryController(Plugin):
             self._widget.enable_button.setChecked(False)
             return
 
-        # Enable/disable joint displays (joints without URDF limits stay grayed-out)
-        for name, joint_widget in zip(self._joint_names, self._joint_widgets()):
-            has_limits = self._robot_joint_limits[name].get("has_position_limits", True)
-            joint_widget.setEnabled(val and has_limits)
+        # Enable/disable joint displays
+        for joint_widget in self._joint_widgets():
+            joint_widget.setEnabled(val)
 
         # Enable/disable speed scaling
         self._speed_scaling_widget.setEnabled(val)
@@ -485,10 +484,6 @@ class JointTrajectoryController(Plugin):
         self._joint_pos[name]["command"] = val
 
     def _update_cmd_cb(self):
-        # Timer events can still arrive during shutdown after publishers are destroyed.
-        if self._cmd_pub is None or not self._joint_names or not rclpy.ok():
-            return
-
         dur = []
         traj = JointTrajectory()
         traj.joint_names = self._joint_names
@@ -507,14 +502,7 @@ class JointTrajectoryController(Plugin):
         point.time_from_start = duration.to_msg()
         traj.points.append(point)
 
-        try:
-            self._cmd_pub.publish(traj)
-        except Exception as e:
-            # Ignore teardown races on Ctrl+C where context/publisher may vanish mid-callback.
-            if "context is not valid" in str(e) or "destruction was requested" in str(e):
-                self._update_cmd_timer.stop()
-                return
-            raise
+        self._cmd_pub.publish(traj)
 
     def _update_joint_widgets(self):
         joint_widgets = self._joint_widgets()

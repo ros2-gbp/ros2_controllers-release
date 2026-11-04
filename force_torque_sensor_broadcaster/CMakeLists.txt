@@ -37,6 +37,7 @@ generate_parameter_library(wrench_transformer_parameters
 add_library(force_torque_sensor_broadcaster SHARED
   src/force_torque_sensor_broadcaster.cpp
 )
+target_compile_features(force_torque_sensor_broadcaster PUBLIC cxx_std_17)
 target_include_directories(force_torque_sensor_broadcaster PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/force_torque_sensor_broadcaster>
@@ -59,6 +60,7 @@ pluginlib_export_plugin_description_file(
 add_library(wrench_transformer SHARED
   src/wrench_transformer.cpp
 )
+target_compile_features(wrench_transformer PUBLIC cxx_std_17)
 target_include_directories(wrench_transformer PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/force_torque_sensor_broadcaster>
@@ -76,6 +78,7 @@ target_link_libraries(wrench_transformer PUBLIC
 add_executable(wrench_transformer_node
   src/wrench_transformer_main.cpp
 )
+target_compile_features(wrench_transformer_node PUBLIC cxx_std_17)
 target_include_directories(wrench_transformer_node PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/force_torque_sensor_broadcaster>
@@ -109,6 +112,7 @@ if(BUILD_TESTING)
   )
 
   ament_add_gmock(test_wrench_transformer test/test_wrench_transformer.cpp)
+  target_compile_features(test_wrench_transformer PUBLIC cxx_std_17)
   target_include_directories(test_wrench_transformer PRIVATE include)
   target_compile_definitions(test_wrench_transformer PRIVATE
     TEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
@@ -120,6 +124,7 @@ if(BUILD_TESTING)
   add_library(dummy_filter SHARED
     test/dummy_filter.cpp
   )
+  target_compile_features(dummy_filter PUBLIC cxx_std_17)
   target_include_directories(dummy_filter PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:include/force_torque_sensor_broadcaster>

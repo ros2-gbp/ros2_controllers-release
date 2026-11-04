@@ -7,6 +7,7 @@ export_windows_symbols()
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   builtin_interfaces
+  control_msgs
   controller_interface
   generate_parameter_library
   pluginlib
@@ -29,6 +30,7 @@ generate_parameter_library(joint_state_broadcaster_parameters
 add_library(joint_state_broadcaster SHARED
   src/joint_state_broadcaster.cpp
 )
+target_compile_features(joint_state_broadcaster PUBLIC cxx_std_17)
 target_include_directories(joint_state_broadcaster PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/joint_state_broadcaster>
@@ -42,6 +44,7 @@ target_link_libraries(joint_state_broadcaster PUBLIC
                       realtime_tools::realtime_tools
                       urdf::urdf
                       ${sensor_msgs_TARGETS}
+                      ${control_msgs_TARGETS}
                       ${builtin_interfaces_TARGETS})
 pluginlib_export_plugin_description_file(controller_interface joint_state_plugin.xml)
 

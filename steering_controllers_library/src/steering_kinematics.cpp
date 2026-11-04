@@ -343,11 +343,11 @@ std::tuple<std::vector<double>, std::vector<double>> SteeringKinematics::get_com
   }
 }
 
-void SteeringKinematics::set_odometry(const double & x, const double & y, const double & heading)
+void SteeringKinematics::reset_odometry()
 {
-  x_ = x;
-  y_ = y;
-  heading_ = heading;
+  x_ = 0.0;
+  y_ = 0.0;
+  heading_ = 0.0;
   reset_accumulators();
 }
 

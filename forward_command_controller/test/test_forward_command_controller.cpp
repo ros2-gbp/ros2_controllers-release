@@ -57,17 +57,14 @@ void ForwardCommandControllerTest::SetUp()
 
 void ForwardCommandControllerTest::TearDown() { controller_.reset(nullptr); }
 
-void ForwardCommandControllerTest::SetUpController(
-  const std::vector<rclcpp::Parameter> & parameters)
+void ForwardCommandControllerTest::SetUpController()
 {
-  auto node_options = controller_->define_custom_node_options();
-  node_options.parameter_overrides(parameters);
   controller_interface::ControllerInterfaceParams params;
   params.controller_name = "forward_command_controller";
   params.robot_description = "";
   params.update_rate = 0;
   params.node_namespace = "";
-  params.node_options = node_options;
+  params.node_options = controller_->define_custom_node_options();
   const auto result = controller_->init(params);
   ASSERT_EQ(result, controller_interface::return_type::OK);
 
@@ -79,11 +76,59 @@ void ForwardCommandControllerTest::SetUpController(
   executor.add_node(controller_->get_node()->get_node_base_interface());
 }
 
+TEST_F(ForwardCommandControllerTest, JointsParameterNotSet)
+{
+  SetUpController();
+  controller_->get_node()->set_parameter({"interface_name", ""});
+
+  // configure failed, 'joints' parameter not set
+  ASSERT_EQ(
+    controller_->on_configure(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::ERROR);
+}
+
+TEST_F(ForwardCommandControllerTest, InterfaceParameterNotSet)
+{
+  SetUpController();
+  controller_->get_node()->set_parameter({"joints", std::vector<std::string>()});
+
+  // configure failed, 'interface_name' parameter not set
+  ASSERT_EQ(
+    controller_->on_configure(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::ERROR);
+}
+
+TEST_F(ForwardCommandControllerTest, JointsParameterIsEmpty)
+{
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", std::vector<std::string>()});
+  controller_->get_node()->set_parameter({"interface_name", ""});
+
+  // configure failed, 'joints' is empty
+  ASSERT_EQ(
+    controller_->on_configure(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::ERROR);
+}
+
+TEST_F(ForwardCommandControllerTest, InterfaceParameterEmpty)
+{
+  SetUpController();
+  controller_->get_node()->set_parameter({"joints", std::vector<std::string>{"joint1", "joint2"}});
+  controller_->get_node()->set_parameter({"interface_name", ""});
+
+  // configure failed, 'interface_name' is empty
+  ASSERT_EQ(
+    controller_->on_configure(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::ERROR);
+}
+
 TEST_F(ForwardCommandControllerTest, ConfigureParamsSuccess)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", std::vector<std::string>{"joint1", "joint2"}),
-     rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", std::vector<std::string>{"joint1", "joint2"}});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
 
   ASSERT_TRUE(configure_succeeds(controller_));
 
@@ -96,10 +141,44 @@ TEST_F(ForwardCommandControllerTest, ConfigureParamsSuccess)
   ASSERT_EQ(state_if_conf.type, controller_interface::interface_configuration_type::NONE);
 }
 
+TEST_F(ForwardCommandControllerTest, ActivateWithWrongJointsNamesFails)
+{
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", std::vector<std::string>{"joint1", "joint4"}});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
+
+  // activate failed, 'joint4' is not a valid joint name for the hardware
+  ASSERT_EQ(
+    controller_->on_configure(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_EQ(
+    controller_->on_activate(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::ERROR);
+}
+
+TEST_F(ForwardCommandControllerTest, ActivateWithWrongInterfaceNameFails)
+{
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "acceleration"});
+
+  // activate failed, 'acceleration' is not a registered interface for `joint1`
+  ASSERT_EQ(
+    controller_->on_configure(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::SUCCESS);
+  ASSERT_EQ(
+    controller_->on_activate(rclcpp_lifecycle::State()),
+    controller_interface::CallbackReturn::ERROR);
+}
+
 TEST_F(ForwardCommandControllerTest, ActivateSuccess)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", joint_names_), rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
 
   ASSERT_TRUE(configure_succeeds(controller_));
 
@@ -124,10 +203,11 @@ TEST_F(ForwardCommandControllerTest, ActivateSuccess)
 
 TEST_F(ForwardCommandControllerTest, CommandSuccessTest)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", joint_names_), rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
 
   // configure controller
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
   ASSERT_TRUE(configure_succeeds(controller_));
 
   // update successful though no command has been send yet
@@ -158,10 +238,11 @@ TEST_F(ForwardCommandControllerTest, CommandSuccessTest)
 
 TEST_F(ForwardCommandControllerTest, WrongCommandCheckTest)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", joint_names_), rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
 
   // configure controller
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
   ASSERT_TRUE(configure_succeeds(controller_));
 
   // send command with wrong number of joints
@@ -182,10 +263,11 @@ TEST_F(ForwardCommandControllerTest, WrongCommandCheckTest)
 
 TEST_F(ForwardCommandControllerTest, NoCommandCheckTest)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", joint_names_), rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
 
   // configure controller
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
   ASSERT_TRUE(configure_succeeds(controller_));
 
   // update successful, no command received yet
@@ -201,8 +283,10 @@ TEST_F(ForwardCommandControllerTest, NoCommandCheckTest)
 
 TEST_F(ForwardCommandControllerTest, CommandCallbackTest)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", joint_names_), rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
 
   // default values
   ASSERT_EQ(joint_1_pos_cmd_->get_optional().value(), 1.1);
@@ -243,8 +327,10 @@ TEST_F(ForwardCommandControllerTest, CommandCallbackTest)
 
 TEST_F(ForwardCommandControllerTest, DropInfiniteCommandCallbackTest)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", joint_names_), rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
 
   // default values
   ASSERT_EQ(joint_1_pos_cmd_->get_optional().value(), 1.1);
@@ -285,8 +371,10 @@ TEST_F(ForwardCommandControllerTest, DropInfiniteCommandCallbackTest)
 
 TEST_F(ForwardCommandControllerTest, ActivateDeactivateCommandsResetSuccess)
 {
-  SetUpController(
-    {rclcpp::Parameter("joints", joint_names_), rclcpp::Parameter("interface_name", "position")});
+  SetUpController();
+
+  controller_->get_node()->set_parameter({"joints", joint_names_});
+  controller_->get_node()->set_parameter({"interface_name", "position"});
 
   // default values
   ASSERT_EQ(joint_1_pos_cmd_->get_optional().value(), 1.1);

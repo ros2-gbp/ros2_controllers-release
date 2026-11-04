@@ -47,14 +47,6 @@ The spline interpolator uses the following interpolation strategies depending on
   * Returns position, velocity, and acceleration.
   * Guarantees continuity at the acceleration level.
 
-.. note::
-  The linear case above is discouraged because positions-only waypoints yield discontinuous
-  velocities. Enabling ``positions_upsampling`` avoids this for positions-only inputs: the controller
-  pre-solves the knot velocities of a global cubic spline (``fill_cubic_spline_velocities``) and
-  writes them into the trajectory, so the cubic strategy is used instead and the sampled motion is
-  continuous in acceleration from the last commanded state onwards. See :ref:`Ingesting
-  positions-only action chunks <joint_trajectory_controller_userdoc>`.
-
 Trajectories with velocity fields only, velocity and acceleration only, or acceleration fields only can be processed and are accepted, if ``allow_integration_in_goal_trajectories`` is true. Position (and velocity) is then integrated from velocity (or acceleration, respectively) by Heun's method.
 
 Effort trajectories are allowed for controllers that claim the ``effort`` command interface and they are treated as feed-forward effort that is added to the position feedback. Effort is handled separately from position, velocity and acceleration. We use linear interpolation for effort when the ``spline`` interpolation method is selected.
@@ -67,16 +59,6 @@ To visualize the difference of the different interpolation methods and their inp
 
 .. image:: spline_position.png
   :alt: Sampled trajectory with splines if position is given only
-
-* Sampled trajectory with the same positions-only points, with ``positions_upsampling`` disabled and enabled:
-
-.. note::
-  The linear strategy reports no acceleration, so only the enabled series is drawn in the bottom
-  plot. The last commanded state joins the solve as a waypoint at ``t=0``, so the motion leaves the
-  initial point without a step in acceleration.
-
-.. image:: spline_position_upsampling.png
-  :alt: Sampled trajectory with positions-only points, with and without positions_upsampling
 
 * Sampled trajectory with cubic splines if velocity is given only (no deduction for interpolation method ``none``):
 
@@ -129,86 +111,7 @@ To visualize the difference of the different interpolation methods and their inp
 
 Trajectory Replacement
 ---------------------------------
-*Parts of this documentation were originally published in the ROS 1 wiki under the* `CC BY 3.0 license <https://creativecommons.org/licenses/by/3.0/>`_. [#f1]_
-
 Joint trajectory messages allow to specify the time at which a new trajectory should start executing by means of the header timestamp, where zero time (the default) means "start now".
 
-.. note::
-  This behavior is implemented in ROS 2 via the ``allow_trajectory_replacement`` parameter
-  (default ``true``).
-  When enabled, a newly arriving trajectory is spliced into the active one exactly as described below,
-  rather than discarding it. ``speed_scaling`` continues to govern how fast the trajectory is
-  executed, while the header timestamp still selects *when* the handoff occurs: it is honoured as a
-  wall-clock instant whatever the scaling factor. The handoff anchor is sampled from the active
-  trajectory at that instant, so the transition is velocity-continuous and free of position jumps.
-
-.. warning::
-  One difference from ROS 1 remains: because ROS 2 uses a single monolithic trajectory, joints
-  omitted from a partial goal are re-sampled onto the new trajectory's time grid. With sparse new
-  waypoints, this re-interpolation may deviate slightly from the omitted joint's original path.
-
-The arrival of a new trajectory command does not necessarily mean that the controller will completely discard the currently running trajectory and substitute it with the new one.
-Rather, the controller will take the useful parts of both and combine them appropriately, yielding a smarter trajectory replacement strategy.
-
-The steps followed by the controller for trajectory replacement are as follows:
-
-  + Get useful parts of the new trajectory: Preserve all waypoints whose time to be reached is in the future, and discard those with times in the past.
-    If there are no useful parts (ie. all waypoints are in the past) the new trajectory is rejected and the current one continues execution without changes.
-
-  + Get useful parts of the current trajectory: Preserve the current trajectory up to the start time of the new trajectory, discard the later parts.
-
-  + Combine the useful parts of the current and new trajectories.
-
-The following examples describe this behavior in detail.
-
-The first example shows a joint which is in hold position mode (flat grey line labeled *pos hold* in the figure below).
-A new trajectory (shown in red) arrives at the current time (now), which contains three waypoints and a start time in the future (*traj start*).
-The time at which waypoints should be reached (``time_from_start`` member of ``trajectory_msgs/JointTrajectoryPoint``) is relative to the trajectory start time.
-
-The controller splices the current hold trajectory at time *traj start* and appends the three waypoints.
-Notice that between now and *traj start* the previous position hold is still maintained, as the new trajectory is not supposed to start yet.
-After the last waypoint is reached, its position is held until new commands arrive.
-
-.. image:: new_trajectory.png
-  :alt: Receiving a new trajectory.
-
-|
-
-The controller guarantees that the transition between the current and new trajectories will be smooth. Longer times to reach the first waypoint mean slower transitions.
-
-The next examples discuss the effect of sending the same trajectory to the controller with different start times.
-The scenario is that of a controller executing the trajectory from the previous example (shown in red),
-and receiving a new command (shown in green) with a trajectory start time set to either zero (start now),
-a future time, or a time in the past.
-
-.. image:: trajectory_replacement_future.png
-  :alt: Trajectory start time in the future.
-
-|
-
-.. image:: trajectory_replacement_now.png
-  :alt: Zero trajectory start time (start now).
-
-|
-
-Of special interest is the last example, where the new trajectory start time and first waypoint are in the past (before now).
-In this case, the first waypoint is discarded and only the second one is realized.
-
-.. image:: trajectory_replacement_past.png
-  :alt: Trajectory start time in the past.
-
-|
-
-Internally, the controller assembles the merged trajectory from four regions, shown in the diagram below.
-*Prefix* waypoints are the old trajectory between the current playback position (*cursor*) and the handoff.
-The *bridge* point is sampled from the old trajectory at the handoff instant, providing velocity continuity into the new trajectory.
-*New points* are the waypoints from the incoming message.
-
-If the new trajectory is a partial goal (not all joints are commanded), the controller must reconcile the shared timeline.
-The *suffix* carries old waypoints that fall after the new trajectory ends and only exists for partial-joint goals:
-commanded joints are held at their final new value with zero velocity, while omitted joints keep their original waypoints so they can finish uninterrupted.
-
-.. image:: trajectory_blending.png
-  :alt: Structure of the merged trajectory message showing prefix, bridge, new points, and suffix regions.
-
-.. [#f1] Adolfo Rodriguez: `Understanding trajectory replacement <http://wiki.ros.org/joint_trajectory_controller/UnderstandingTrajectoryReplacement>`_
+The current implementation just forgets the old trajectory.
+Follow this `issue <https://github.com/ros-controls/ros2_controllers/issues/84#issuecomment-2940787997>`__ for more information.
