@@ -3,18 +3,15 @@ Changelog for package battery_state_broadcaster
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-4.43.1 (2026-11-04)
+5.18.1 (2026-11-04)
 -------------------
 
-4.43.0 (2026-10-05)
+5.18.0 (2026-10-05)
 -------------------
 
-4.42.1 (2026-08-12)
+5.17.0 (2026-08-12)
 -------------------
-
-4.42.0 (2026-08-10)
--------------------
-* Add battery_state_broadcaster (backport `#2086 <https://github.com/ros-controls/ros2_controllers/issues/2086>`_) (`#2521 <https://github.com/ros-controls/ros2_controllers/issues/2521>`_)
+* Add battery_state_broadcaster (backport `#2086 <https://github.com/ros-controls/ros2_controllers/issues/2086>`_) (`#2522 <https://github.com/ros-controls/ros2_controllers/issues/2522>`_)
 * Contributors: mergify[bot]
 
 The entries below refer to the standalone `ipa320/ros_battery_monitoring <https://github.com/ipa320/ros_battery_monitoring>`_ package,

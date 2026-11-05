@@ -78,6 +78,7 @@ TEST_F(SteeringControllersLibraryTest, check_exported_interfaces)
     EXPECT_EQ(reference_interfaces[i]->get_interface_name(), hardware_interface::HW_IF_VELOCITY);
   }
 }
+
 // Tests controller update_reference_from_subscribers and
 // for position_feedback behavior
 // when too old msg is sent i.e age_of_last_command > ref_timeout case
@@ -188,7 +189,6 @@ TEST_F(SteeringControllersLibraryTest, test_position_feedback_ref_timeout)
   EXPECT_NEAR(controller_->command_interfaces_[2].get_optional().value(), 0.575875, 1e-6);
   EXPECT_NEAR(controller_->command_interfaces_[3].get_optional().value(), 0.575875, 1e-6);
 }
-
 // Tests controller update_reference_from_subscribers and
 // for position_feedback=false behavior
 // when too old msg is sent i.e age_of_last_command > ref_timeout case

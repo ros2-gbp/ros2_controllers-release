@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "controller_interface/test_utils.hpp"
 #include "imu_sensor_broadcaster/imu_sensor_broadcaster.hpp"
@@ -43,6 +44,7 @@ class FriendIMUSensorBroadcaster : public imu_sensor_broadcaster::IMUSensorBroad
   FRIEND_TEST(IMUSensorBroadcasterTest, ActivateSuccess);
   FRIEND_TEST(IMUSensorBroadcasterTest, UpdateTest);
   FRIEND_TEST(IMUSensorBroadcasterTest, SensorStatePublishTest);
+  FRIEND_TEST(IMUSensorBroadcasterTest, SensorStatePublishTest_with_rotation_offset);
 };
 
 class IMUSensorBroadcasterTest : public ::testing::Test
@@ -54,7 +56,7 @@ public:
   void SetUp();
   void TearDown();
 
-  void SetUpIMUBroadcaster();
+  void SetUpIMUBroadcaster(const std::vector<rclcpp::Parameter> & parameters = {});
 
 protected:
   const std::string sensor_name_ = "imu_sensor";

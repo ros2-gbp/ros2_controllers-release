@@ -114,12 +114,12 @@ public:
 protected:
   void SetUpController()
   {
-    std::vector<hardware_interface::LoanedCommandInterface> command_ifs;
-    std::vector<hardware_interface::LoanedStateInterface> state_ifs;
+    std::vector<hardware_interface::LoanedCommandInterface> loaned_command_ifs;
+    std::vector<hardware_interface::LoanedStateInterface> loaned_state_ifs;
 
     command_itfs_.clear();
     command_itfs_.reserve(command_values_.size());
-    command_ifs.reserve(command_values_.size());
+    loaned_command_ifs.reserve(command_values_.size());
 
     for (size_t i = 0; i < command_values_.size(); ++i)
     {
@@ -127,12 +127,12 @@ protected:
         interface_namespace_, command_interface_names_[i]);
       std::ignore = command_itf->set_value(command_values_[i]);
       command_itfs_.emplace_back(command_itf);
-      command_ifs.emplace_back(command_itfs_.back(), nullptr);
+      loaned_command_ifs.emplace_back(command_itfs_.back(), nullptr);
     }
 
     state_itfs_.clear();
     state_itfs_.reserve(state_values_.size());
-    state_ifs.reserve(state_values_.size());
+    loaned_state_ifs.reserve(state_values_.size());
 
     for (size_t i = 0; i < state_values_.size(); ++i)
     {
@@ -140,10 +140,10 @@ protected:
         interface_namespace_, state_interface_names_[i]);
       std::ignore = state_itf->set_value(state_values_[i]);
       state_itfs_.emplace_back(state_itf);
-      state_ifs.emplace_back(state_itfs_.back(), nullptr);
+      loaned_state_ifs.emplace_back(state_itfs_.back(), nullptr);
     }
 
-    controller_->assign_interfaces(std::move(command_ifs), std::move(state_ifs));
+    controller_->assign_interfaces(std::move(loaned_command_ifs), std::move(loaned_state_ifs));
   }
 
   void send_single_motion_sequence_goal(

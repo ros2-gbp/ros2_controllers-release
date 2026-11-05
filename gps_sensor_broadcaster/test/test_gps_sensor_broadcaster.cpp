@@ -105,16 +105,16 @@ public:
   void setup_gps_broadcaster()
   {
     std::vector<LoanedStateInterface> state_ifs;
-    state_ifs.emplace_back(gps_status_);
-    state_ifs.emplace_back(gps_service_);
-    state_ifs.emplace_back(gps_latitude_);
-    state_ifs.emplace_back(gps_longitude_);
-    state_ifs.emplace_back(gps_altitude_);
+    state_ifs.emplace_back(gps_status_, nullptr);
+    state_ifs.emplace_back(gps_service_, nullptr);
+    state_ifs.emplace_back(gps_latitude_, nullptr);
+    state_ifs.emplace_back(gps_longitude_, nullptr);
+    state_ifs.emplace_back(gps_altitude_, nullptr);
     if constexpr (sensor_option == semantic_components::GPSSensorOption::WithCovariance)
     {
-      state_ifs.emplace_back(latitude_covariance_);
-      state_ifs.emplace_back(longitude_covariance_);
-      state_ifs.emplace_back(altitude_covariance_);
+      state_ifs.emplace_back(latitude_covariance_, nullptr);
+      state_ifs.emplace_back(longitude_covariance_, nullptr);
+      state_ifs.emplace_back(altitude_covariance_, nullptr);
     }
 
     gps_broadcaster_->assign_interfaces({}, std::move(state_ifs));

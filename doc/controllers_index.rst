@@ -52,7 +52,6 @@ The controllers are using `common hardware interface definitions`_, and may use 
    Admittance Controller <../admittance_controller/doc/userdoc.rst>
    Effort Controllers <../effort_controllers/doc/userdoc.rst>
    Forward Command Controller <../forward_command_controller/doc/userdoc.rst>
-   Gripper Controller <../gripper_controllers/doc/userdoc.rst>
    Gpio Command Controller <../gpio_controllers/doc/userdoc.rst>
    Joint Trajectory Controller <../joint_trajectory_controller/doc/userdoc.rst>
    Motion Primitive Controller <../motion_primitives_controllers/doc/userdoc.rst>

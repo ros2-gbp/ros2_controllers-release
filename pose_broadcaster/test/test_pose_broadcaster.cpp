@@ -60,13 +60,13 @@ void PoseBroadcasterTest::SetUpPoseBroadcaster()
   ASSERT_EQ(pose_broadcaster_->init(params), controller_interface::return_type::OK);
 
   std::vector<LoanedStateInterface> state_interfaces;
-  state_interfaces.emplace_back(pose_position_x_);
-  state_interfaces.emplace_back(pose_position_y_);
-  state_interfaces.emplace_back(pose_position_z_);
-  state_interfaces.emplace_back(pose_orientation_x_);
-  state_interfaces.emplace_back(pose_orientation_y_);
-  state_interfaces.emplace_back(pose_orientation_z_);
-  state_interfaces.emplace_back(pose_orientation_w_);
+  state_interfaces.emplace_back(pose_position_x_, nullptr);
+  state_interfaces.emplace_back(pose_position_y_, nullptr);
+  state_interfaces.emplace_back(pose_position_z_, nullptr);
+  state_interfaces.emplace_back(pose_orientation_x_, nullptr);
+  state_interfaces.emplace_back(pose_orientation_y_, nullptr);
+  state_interfaces.emplace_back(pose_orientation_z_, nullptr);
+  state_interfaces.emplace_back(pose_orientation_w_, nullptr);
 
   pose_broadcaster_->assign_interfaces({}, std::move(state_interfaces));
 }

@@ -189,8 +189,8 @@ protected:
   void assignResourcesPosFeedback()
   {
     std::vector<LoanedStateInterface> state_ifs;
-    state_ifs.emplace_back(left_wheel_pos_state_);
-    state_ifs.emplace_back(right_wheel_pos_state_);
+    state_ifs.emplace_back(left_wheel_pos_state_, nullptr);
+    state_ifs.emplace_back(right_wheel_pos_state_, nullptr);
 
     std::vector<LoanedCommandInterface> command_ifs;
     command_ifs.emplace_back(left_wheel_vel_cmd_, nullptr);
@@ -203,8 +203,8 @@ protected:
   void assignResourcesVelFeedback()
   {
     std::vector<LoanedStateInterface> state_ifs;
-    state_ifs.emplace_back(left_wheel_vel_state_);
-    state_ifs.emplace_back(right_wheel_vel_state_);
+    state_ifs.emplace_back(left_wheel_vel_state_, nullptr);
+    state_ifs.emplace_back(right_wheel_vel_state_, nullptr);
 
     std::vector<LoanedCommandInterface> command_ifs;
     command_ifs.emplace_back(left_wheel_vel_cmd_, nullptr);
@@ -1171,6 +1171,7 @@ TEST_F(TestDiffDriveController, deactivate_then_activate)
     EXPECT_TRUE(std::isnan(interface->get_optional().value()))
       << "Reference interfaces should initially be NaN on activation";
   }
+
   EXPECT_EQ(0.0, left_wheel_vel_cmd_->get_optional().value())
     << "Wheels should still have the same command as when they were last set (on deactivation)";
   EXPECT_EQ(0.0, right_wheel_vel_cmd_->get_optional().value())

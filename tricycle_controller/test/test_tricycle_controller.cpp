@@ -52,6 +52,7 @@ const char steering_joint_name[] = "steering_joint";
 class TestableTricycleController : public tricycle_controller::TricycleController
 {
 public:
+  using TricycleController::odometry_;
   using TricycleController::TricycleController;
   std::shared_ptr<geometry_msgs::msg::TwistStamped> getLastReceivedTwist()
   {
@@ -60,8 +61,6 @@ public:
       [&ret](const std::shared_ptr<geometry_msgs::msg::TwistStamped> & msg) { ret = msg; });
     return ret;
   }
-
-  const tricycle_controller::Odometry & getOdometry() const { return odometry_; }
 
   /**
    * @brief wait_for_twist block until a new twist is received.
@@ -311,8 +310,8 @@ TEST_F(TestTricycleController, reactivate_with_reassigned_interfaces)
     ASSERT_EQ(
       controller_->update(command->header.stamp, rclcpp::Duration::from_seconds(0.01)),
       controller_interface::return_type::OK);
-    EXPECT_NEAR(controller_->getOdometry().getLinear(), velocity * std::cos(position), 1e-6);
-    EXPECT_NEAR(controller_->getOdometry().getAngular(), velocity * std::sin(position), 1e-6);
+    EXPECT_NEAR(controller_->odometry_.getLinear(), velocity * std::cos(position), 1e-6);
+    EXPECT_NEAR(controller_->odometry_.getAngular(), velocity * std::sin(position), 1e-6);
     EXPECT_EQ(1.0, traction_joint_vel_cmd_->get_optional().value());
     EXPECT_EQ(0.0, steering_joint_pos_cmd_->get_optional().value());
 

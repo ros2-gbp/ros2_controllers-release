@@ -57,7 +57,6 @@ public:
 TEST_F(PidControllerDualInterfaceTest, test_chained_feedforward_with_gain_dual_interface)
 {
   SetUpController("test_pid_controller_with_feedforward_gain_dual_interface");
-  controller_->get_node()->set_parameter(rclcpp::Parameter("enable_feedforward", true));
   ASSERT_TRUE(configure_succeeds(controller_));
 
   // check on interfaces & pid gain parameters
@@ -78,10 +77,6 @@ TEST_F(PidControllerDualInterfaceTest, test_chained_feedforward_with_gain_dual_i
   // activate controller
   ASSERT_TRUE(activate_succeeds(controller_));
   ASSERT_TRUE(controller_->is_in_chained_mode());
-
-  // turn on feedforward
-  controller_->feedforward_mode_enabled_.writeFromNonRT(true);
-  ASSERT_EQ(*(controller_->feedforward_mode_enabled_.readFromRT()), true);
 
   // set up the reference interface,
   controller_->ordered_exported_reference_interfaces_[0]->set_value(
